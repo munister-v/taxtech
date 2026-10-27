@@ -120,7 +120,7 @@ def create_app() -> Flask:
             resp.headers['X-Request-Id'] = req_id
         _append_expose_header(resp, 'X-Request-Id', 'X-Refresh-Token')
         _cors(resp)
-        if request.path.startswith(prefix + '/api/'):
+        if request.path.startswith(prefix + '/api/') and '/marketplace/images/' not in request.path:
             resp.headers['Cache-Control'] = 'no-store'
         return resp
 

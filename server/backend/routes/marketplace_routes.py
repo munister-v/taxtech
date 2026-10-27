@@ -3,10 +3,11 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from flask import Blueprint, Response, g, jsonify, make_response, request
+from flask import Blueprint, Response, g, jsonify, make_response, request, send_from_directory
 from urllib.parse import quote
 
 from ..database import get_connection, get_returning_id_suffix, insert_last_id
@@ -15,6 +16,17 @@ from .helpers import api_error, auth_required, require_idempotency_key
 
 marketplace_bp = Blueprint('marketplace', __name__, url_prefix='/api/marketplace')
 idempotency_service = IdempotencyService()
+
+# Фото товарів із Open Icecat (відкрита ліцензія) + атрибуція в manifest.json
+PRODUCT_IMAGES_DIR = Path(__file__).resolve().parent.parent / 'assets' / 'products'
+
+
+def _load_image_manifest() -> dict[str, Any]:
+    try:
+        with open(PRODUCT_IMAGES_DIR / 'manifest.json', encoding='utf-8') as f:
+            return (json.load(f) or {}).get('items') or {}
+    except (OSError, ValueError):
+        return {}
 
 
 APPROVED_CODE = '00'
@@ -250,6 +262,7 @@ def _ensure_schema() -> None:
         _safe_add_column(conn, 'marketplace_orders', 'payment_auth_id INTEGER')
         _safe_add_column(conn, 'marketplace_invoices', 'payment_auth_id INTEGER')
         _safe_add_column(conn, 'marketplace_products', 'image_url TEXT')
+        _safe_add_column(conn, 'marketplace_products', 'image_credit TEXT')
 
         # Fix missing SERIAL/auto-increment on PostgreSQL (tables created without it).
         if USE_PG:
@@ -271,170 +284,7 @@ def _ensure_schema() -> None:
                             pass
 
         products = [
-            ('arm-hoodie', 'TaxTech Hoodie', 'Преміум худі зі щільної бавовни', 2499.00, '🧥', 'NEW', 40),
-            ('arm-mug', 'TaxTech Mug', 'Термочашка з подвійною стінкою 450 мл', 699.00, '☕', 'HOT', 120),
-            ('arm-powerbank', 'TaxTech PowerBank', 'Powerbank 20 000 mAh, швидка зарядка', 1899.00, '🔋', 'TOP', 25),
-            ('arm-card-holder', 'TaxTech Card Holder', 'Шкіряний кардхолдер для банківських карт', 899.00, '💳', None, 65),
-            ('arm-wireless-earbuds', 'TaxTech Earbuds', 'Бездротові навушники з шумозаглушенням', 3299.00, '🎧', 'PRO', 18),
-            ('arm-smart-lamp', 'TaxTech Smart Lamp', 'Розумна настільна лампа з керуванням зі смартфона', 1599.00, '💡', None, 32),
-            ('arm-iphone-lite', 'TaxTech Phone Lite 128GB', 'Смартфон 6.5" OLED, NFC, швидка зарядка', 11999.00, '📱', 'SALE', 54),
-            ('arm-phone-pro', 'TaxTech Phone Pro 256GB', 'Флагманський смартфон, 5G, камера 50MP', 21999.00, '📱', 'TOP', 36),
-            ('arm-tablet-11', 'TaxTech Tablet 11"', 'Планшет 11" з підтримкою стилуса', 15499.00, '📲', None, 22),
-            ('arm-laptop-air', 'TaxTech Book Air 14', 'Ультрабук 14", 16GB RAM, 512GB SSD', 32999.00, '💻', 'NEW', 17),
-            ('arm-laptop-pro', 'TaxTech Book Pro 15', 'Ноутбук для роботи та монтажу', 45999.00, '💻', 'PRO', 9),
-            ('arm-monitor-24', 'TaxTech Monitor 24" IPS', 'Монітор 24", 100Hz, тонкі рамки', 6999.00, '🖥️', None, 40),
-            ('arm-monitor-27', 'TaxTech Monitor 27" QHD', 'Монітор 27", QHD, HDR ready', 11999.00, '🖥️', 'HOT', 28),
-            ('arm-keyboard-mech', 'TaxTech Mechanical Keyboard', 'Механічна клавіатура RGB', 2899.00, '⌨️', None, 75),
-            ('arm-mouse-pro', 'TaxTech Wireless Mouse', 'Ергономічна бездротова миша', 1399.00, '🖱️', None, 90),
-            ('arm-webcam-2k', 'TaxTech Webcam 2K', 'Вебкамера 2K з автофокусом', 2499.00, '📷', None, 33),
-            ('arm-router-ax', 'TaxTech Router AX3000', 'Wi‑Fi 6 роутер для дому та офісу', 3599.00, '📡', 'TOP', 41),
-            ('arm-speaker-mini', 'TaxTech Speaker Mini', 'Портативна Bluetooth колонка', 1299.00, '🔊', None, 70),
-            ('arm-speaker-max', 'TaxTech Speaker Max', 'Стереоколонка з басом та автономністю 20 год', 3999.00, '🔊', 'SALE', 29),
-            ('arm-vacuum-robot', 'TaxTech Robot Vacuum', 'Робот-пилосос з вологим прибиранням', 12499.00, '🤖', 'HOT', 16),
-            ('arm-vacuum-stick', 'TaxTech Stick Vacuum', 'Вертикальний пилосос 2-в-1', 6999.00, '🧹', None, 31),
-            ('arm-air-fryer', 'TaxTech Air Fryer XL', 'Аерофритюрниця 5.5л з 8 режимами', 4699.00, '🍟', None, 24),
-            ('arm-kettle-smart', 'TaxTech Smart Kettle', 'Електрочайник з керуванням зі смартфона', 1899.00, '🫖', None, 43),
-            ('arm-coffee-pro', 'TaxTech Coffee Pro', 'Кавоварка еспресо з капучинатором', 8499.00, '☕', 'PRO', 12),
-            ('arm-blender-max', 'TaxTech Blender Max', 'Блендер 1200W з 3 насадками', 2199.00, '🥤', None, 57),
-            ('arm-smart-bulb', 'TaxTech Smart Bulb Set', 'Набір із 3 розумних ламп RGB', 1199.00, '💡', None, 101),
-            ('arm-bedside-light', 'TaxTech Bedside Night Lamp', 'Нічник з сенсорним керуванням', 999.00, '🌙', 'SALE', 67),
-            ('arm-baby-night-light', 'TaxTech Baby Night Light', 'Нічник для дитячої кімнати', 749.00, '🌜', None, 79),
-            ('arm-security-cam', 'TaxTech Security Cam', 'IP-камера 2K для дому', 2799.00, '📹', None, 26),
-            ('arm-door-sensor', 'TaxTech Door Sensor Kit', 'Набір датчиків дверей/вікон', 1499.00, '🚪', None, 64),
-            ('arm-watch-fit', 'TaxTech Watch Fit', 'Смарт-годинник з пульсометром', 4999.00, '⌚', 'NEW', 34),
-            ('arm-band-lite', 'TaxTech Fitness Band', 'Фітнес-браслет з AMOLED екраном', 1999.00, '⌚', None, 60),
-            ('arm-charger-gan', 'TaxTech GaN Charger 65W', 'Компактна зарядка 65W USB-C', 1299.00, '🔌', None, 110),
-            ('arm-cable-pack', 'TaxTech USB-C Cable Pack', 'Набір кабелів USB-C (3 шт.)', 599.00, '🔗', None, 140),
-            ('arm-backpack-city', 'TaxTech City Backpack', 'Міський рюкзак для ноутбука 15.6"', 1799.00, '🎒', None, 48),
-            ('arm-travel-case', 'TaxTech Travel Organizer', 'Органайзер для кабелів та ґаджетів', 899.00, '🧳', None, 72),
-            ('arm-home-hub', 'TaxTech Smart Home Hub', 'Центр керування smart-пристроями', 3199.00, '🏠', 'TOP', 21),
-            ('arm-tv-box', 'TaxTech TV Box 4K', 'Медіаприставка 4K з голосовим керуванням', 2699.00, '📺', None, 39),
-            ('arm-headphones-over', 'TaxTech Over-Ear ANC', 'Повнорозмірні навушники з ANC', 5299.00, '🎧', 'HOT', 19),
-            ('arm-gaming-chair', 'TaxTech Gaming Chair', 'Ергономічне крісло з підтримкою спини', 7999.00, '🪑', None, 14),
-            ('arm-desk-lift', 'TaxTech Lift Desk', 'Підйомний стіл для робочого місця', 14999.00, '🪵', 'PRO', 8),
-            ('arm-mini-pc', 'TaxTech Mini PC i7', 'Компактний ПК для дому та офісу, 16GB/1TB SSD', 28499.00, '🖥️', 'NEW', 12),
-            ('arm-gaming-laptop-16', 'TaxTech Gaming Laptop 16', 'Ігровий ноутбук 16", RTX класу, 32GB RAM', 69999.00, '🎮', 'TOP', 6),
-            ('arm-office-laptop-14', 'TaxTech Office Laptop 14', 'Легкий ноутбук 14" для роботи та навчання', 26999.00, '💻', 'DEAL', 22),
-            ('arm-aio-desktop-24', 'TaxTech All-in-One 24', 'Моноблок 24" Full HD для домашнього офісу', 31999.00, '🖥️', None, 11),
-            ('arm-phone-lite-5g', 'TaxTech Phone Lite 5G 256GB', 'Смартфон 120Hz, 5G, NFC, батарея 5000mAh', 13999.00, '📱', 'DEAL', 44),
-            ('arm-phone-max-512', 'TaxTech Phone Max 512GB', 'Топова камера, AMOLED 6.8", 120W fast charge', 29999.00, '📱', 'TOP', 18),
-            ('arm-fold-smart', 'TaxTech Fold Smart', 'Складаний смартфон нового покоління', 51999.00, '📲', 'NEW', 7),
-            ('arm-smartwatch-pro', 'TaxTech Smartwatch Pro', 'Годинник з eSIM, GPS і датчиками здоровʼя', 8999.00, '⌚', 'HOT', 30),
-            ('arm-tv-50-4k', 'TaxTech Smart TV 50" 4K', 'Телевізор 50" з Dolby Vision та голосовим керуванням', 18999.00, '📺', 'SALE', 20),
-            ('arm-tv-65-qled', 'TaxTech QLED TV 65"', 'Преміальний QLED 65", 120Hz, HDMI 2.1', 39999.00, '📺', 'PRO', 9),
-            ('arm-washer-ai', 'TaxTech Washer AI 8kg', 'Пральна машина з AI-програмами та тихим режимом', 21499.00, '🧺', None, 13),
-            ('arm-dryer-heatpump', 'TaxTech Dryer HeatPump', 'Сушильна машина з тепловим насосом', 23999.00, '🌬️', 'DEAL', 10),
-            ('arm-dishwasher-60', 'TaxTech Dishwasher 60cm', 'Посудомийна машина, 14 комплектів', 19999.00, '🍽️', None, 15),
-            ('arm-fridge-smart', 'TaxTech Smart Fridge', 'Холодильник No Frost із smart керуванням', 35999.00, '🧊', 'TOP', 8),
-            ('arm-multicooker-x', 'TaxTech Multicooker X', 'Мультиварка з 28 автопрограмами', 3299.00, '🍲', 'SALE', 42),
-            ('arm-air-purifier', 'TaxTech Air Purifier', 'Очищувач повітря з HEPA H13', 6499.00, '🌫️', None, 24),
-            ('arm-dehumidifier', 'TaxTech Dehumidifier', 'Осушувач повітря для квартири', 5899.00, '💧', None, 21),
-            ('arm-electric-grill', 'TaxTech Electric Grill', 'Контактний гриль зі змінними панелями', 4199.00, '🍖', 'HOT', 27),
-            ('arm-knife-set', 'TaxTech Kitchen Knife Set', 'Набір кухонних ножів з підставкою', 1599.00, '🔪', None, 66),
-            ('arm-robot-mop-pro', 'TaxTech Robot Mop Pro', 'Робот для сухого і вологого прибирання', 14999.00, '🧽', 'DEAL', 12),
-            ('arm-bedding-premium', 'TaxTech Bedding Premium', 'Набір постільної білизни з сатину', 2299.00, '🛏️', None, 53),
-            ('arm-home-textile-set', 'TaxTech Home Textile Set', 'Комплект рушників та пледів', 1799.00, '🧶', None, 58),
-            ('arm-smart-plug-kit', 'TaxTech Smart Plug Kit', 'Набір розумних розеток (4 шт.)', 1399.00, '🔌', 'SALE', 75),
-            ('arm-video-doorbell', 'TaxTech Video Doorbell', 'Смарт-дзвінок з камерою та детекцією руху', 4999.00, '🚪', 'NEW', 19),
-            ('arm-security-starter', 'TaxTech Home Security Starter', 'Базовий комплект безпеки для дому', 7299.00, '🛡️', 'TOP', 17),
-            ('arm-cookware-pro', 'TaxTech Cookware Pro', 'Набір посуду з антипригарним покриттям', 3899.00, '🍳', 'DEAL', 37),
-            ('arm-sofa-cleaner', 'TaxTech Sofa Cleaner', 'Портативний миючий пилосос для меблів', 7999.00, '🛋️', None, 16),
-            ('arm-water-filter', 'TaxTech Water Filter Max', 'Система фільтрації води для кухні', 2699.00, '🚰', None, 46),
-            # New large catalog block
-            ('arm-iphone-15', 'iPhone 15 Pro 256GB', 'Преміум смартфон з ProMotion і потужною камерою', 57999.00, '📱', 'TOP', 11),
-            ('arm-iphone-14', 'iPhone 14 128GB', 'Надійний смартфон з чудовою автономністю', 34999.00, '📱', 'SALE', 19),
-            ('arm-galaxy-s24', 'TaxTech Galaxy S24 256GB', 'Флагман Android з AI-функціями', 42999.00, '📱', 'HOT', 21),
-            ('arm-pixel-9', 'TaxTech Pixel 9 128GB', 'Смартфон з еталонною камерою та чистим Android', 38999.00, '📱', 'NEW', 14),
-            ('arm-oneplus-13', 'TaxTech OnePlus 13', 'Швидкий смартфон із зарядкою 100W', 31999.00, '📱', 'DEAL', 16),
-            ('arm-redmi-note', 'TaxTech Redmi Note Pro', 'Доступний смартфон для щоденних задач', 12499.00, '📱', None, 39),
-            ('arm-laptop-ryzen', 'TaxTech RyzenBook 15', 'Ноутбук Ryzen 7, 32GB RAM, 1TB SSD', 48999.00, '💻', 'HOT', 13),
-            ('arm-laptop-ultra', 'TaxTech UltraBook 13', 'Тонкий та легкий ноутбук для подорожей', 35999.00, '💻', None, 18),
-            ('arm-gaming-pc-r7', 'TaxTech Gaming PC R7', 'Стаціонарний ПК для 2K-геймінгу', 73999.00, '🖥️', 'TOP', 7),
-            ('arm-gaming-pc-r9', 'TaxTech Gaming PC R9', 'Потужний ПК для 4K і стрімінгу', 108999.00, '🖥️', 'PRO', 4),
-            ('arm-ssd-2tb', 'TaxTech SSD 2TB NVMe', 'Швидкий NVMe накопичувач Gen4', 4999.00, '💾', None, 62),
-            ('arm-ram-32', 'TaxTech RAM Kit 32GB DDR5', 'Комплект памʼяті для апгрейду ПК', 4299.00, '🧠', None, 58),
-            ('arm-monitor-34-ultra', 'TaxTech Monitor 34" Ultrawide', 'Монітор 34" 144Hz для роботи та ігор', 19999.00, '🖥️', 'NEW', 12),
-            ('arm-monitor-32-4k', 'TaxTech Monitor 32" 4K', 'Професійний дисплей для дизайну', 22999.00, '🖥️', 'PRO', 10),
-            ('arm-projector-4k', 'TaxTech Projector 4K Home', 'Домашній проектор з автофокусом', 27999.00, '📽️', 'HOT', 8),
-            ('arm-soundbar', 'TaxTech Soundbar Cinema', 'Саундбар 5.1 з підтримкою Dolby', 11999.00, '🔊', 'SALE', 17),
-            ('arm-subwoofer', 'TaxTech Subwoofer X', 'Сабвуфер для глибокого басу', 6999.00, '🔊', None, 15),
-            ('arm-fridge-mini', 'TaxTech Mini Fridge 90L', 'Компактний холодильник для квартири', 8999.00, '🧊', None, 20),
-            ('arm-fridge-xl', 'TaxTech Fridge XL 500L', 'Холодильник side-by-side з інвертором', 52999.00, '🧊', 'TOP', 6),
-            ('arm-microwave-plus', 'TaxTech Microwave Plus', 'Мікрохвильова піч з грилем', 4999.00, '🍲', None, 34),
-            ('arm-oven-smart', 'TaxTech Smart Oven', 'Електрична духова шафа з Wi-Fi', 22999.00, '🔥', 'NEW', 9),
-            ('arm-induction-plate', 'TaxTech Induction Plate', 'Індукційна плита 4 конфорки', 18999.00, '🍳', None, 11),
-            ('arm-toaster-pro', 'TaxTech Toaster Pro', 'Тостер на 4 відсіки', 2499.00, '🍞', None, 33),
-            ('arm-juicer-max', 'TaxTech Juicer Max', 'Соковижималка повільного віджиму', 5299.00, '🍊', 'HOT', 18),
-            ('arm-cleaner-robot-s8', 'TaxTech Robot Cleaner S8', 'Робот-пилосос з LiDAR навігацією', 18999.00, '🤖', 'TOP', 14),
-            ('arm-cleaner-window', 'TaxTech Window Cleaner Bot', 'Робот-мийник вікон', 9999.00, '🪟', None, 13),
-            ('arm-iron-steam', 'TaxTech Steam Iron', 'Парова праска з керамічною підошвою', 1899.00, '🧺', None, 46),
-            ('arm-garment-steamer', 'TaxTech Garment Steamer', 'Вертикальний відпарювач одягу', 3299.00, '👔', 'SALE', 26),
-            ('arm-aircon-12k', 'TaxTech AirCon 12K', 'Кондиціонер інверторний до 35 м²', 24999.00, '❄️', 'HOT', 10),
-            ('arm-aircon-18k', 'TaxTech AirCon 18K', 'Кондиціонер інверторний до 50 м²', 32999.00, '❄️', None, 8),
-            ('arm-bed-linen-premium', 'TaxTech Bed Linen Premium XL', 'Комплект білизни преміум якості', 2899.00, '🛏️', None, 40),
-            ('arm-pillows-set', 'TaxTech Pillow Set Memory', 'Набір ортопедичних подушок', 3199.00, '🛌', 'DEAL', 29),
-            ('arm-home-decor-set', 'TaxTech Home Decor Set', 'Декор для вітальні у мінімал стилі', 1699.00, '🏡', None, 47),
-            ('arm-desk-lamp-led', 'TaxTech LED Desk Lamp Pro', 'Світлодіодна лампа з регулюванням температури', 1299.00, '💡', None, 54),
-            ('arm-floor-lamp', 'TaxTech Floor Lamp Arc', 'Торшер із дистанційним керуванням', 3499.00, '💡', 'SALE', 21),
-            ('arm-curtains-smart', 'TaxTech Smart Curtains Kit', 'Автоматичний комплект для штор', 7999.00, '🪟', 'NEW', 15),
-            ('arm-camera-outdoor', 'TaxTech Outdoor Camera 4MP', 'Зовнішня камера з нічним баченням', 4499.00, '📹', None, 27),
-            ('arm-doorlock-smart', 'TaxTech Smart Door Lock', 'Розумний замок із біометрією', 10999.00, '🔐', 'TOP', 12),
-            ('arm-sensor-pack-10', 'TaxTech Sensor Pack 10', 'Пакет датчиків для smart home', 3999.00, '📡', None, 38),
-            ('arm-water-leak-sensor', 'TaxTech Water Leak Sensor', 'Датчик протікання з push-сповіщенням', 999.00, '💧', None, 85),
-            ('arm-baby-monitor', 'TaxTech Baby Monitor Pro', 'Відеоняня з двостороннім звуком', 5999.00, '👶', 'HOT', 17),
-            ('arm-ebook-reader', 'eBook Reader', 'Рідер з підсвіткою та Wi-Fi', 7499.00, '📚', None, 23),
-            ('arm-console-lite', 'TaxTech Game Console Lite', 'Портативна ігрова консоль', 10999.00, '🎮', 'DEAL', 19),
-            ('arm-console-pro', 'TaxTech Game Console Pro', 'Стаціонарна консоль нового покоління', 22999.00, '🎮', 'TOP', 9),
-            # Extra catalog expansion
-            ('arm-router-mesh-2pack', 'TaxTech Mesh Wi-Fi 2-Pack', 'Двоточкова mesh-система для великої квартири', 7999.00, '📡', 'NEW', 18),
-            ('arm-router-mesh-3pack', 'TaxTech Mesh Wi-Fi 3-Pack', 'Триточкова mesh-система з централізованим керуванням', 10999.00, '📡', 'TOP', 12),
-            ('arm-keyboard-wireless', 'TaxTech Wireless Keyboard Slim', 'Тиха бездротова клавіатура для офісу', 1899.00, '⌨️', None, 62),
-            ('arm-mouse-gaming', 'TaxTech Gaming Mouse 26000 DPI', 'Ігрова миша з оптичним сенсором і RGB', 2199.00, '🖱️', 'HOT', 31),
-            ('arm-webcam-4k', 'TaxTech Webcam 4K Pro', '4K вебкамера з шумозаглушенням мікрофона', 4299.00, '📷', 'PRO', 24),
-            ('arm-mic-usb', 'TaxTech USB Studio Mic', 'Конденсаторний мікрофон для стрімів і подкастів', 3599.00, '🎙️', 'DEAL', 20),
-            ('arm-laptop-stand', 'TaxTech Laptop Stand Aluminum', 'Підставка для ноутбука з регулюванням висоти', 999.00, '💻', None, 75),
-            ('arm-docking-station', 'TaxTech Docking Station 11-in-1', 'Док-станція USB-C для підключення периферії', 2799.00, '🔌', 'SALE', 37),
-            ('arm-projector-portable', 'TaxTech Portable Projector', 'Портативний проектор для подорожей та презентацій', 14999.00, '📽️', None, 13),
-            ('arm-phone-gimbal', 'TaxTech Smartphone Gimbal', 'Стабілізатор для відеозйомки зі смартфона', 4999.00, '📱', 'NEW', 16),
-            ('arm-phone-tripod', 'TaxTech Tripod Pro 170cm', 'Штатив із Bluetooth-кнопкою для контенту', 1499.00, '📱', None, 43),
-            ('arm-smart-ring', 'TaxTech Smart Ring', 'Смарт-кільце для трекінгу активності і сну', 6999.00, '⌚', 'HOT', 14),
-            ('arm-tablet-13-pro', 'TaxTech Tablet 13 Pro', 'Планшет 13" з клавіатурним чохлом', 28999.00, '📲', 'PRO', 10),
-            ('arm-eink-tablet', 'eInk Note Tablet', 'E-Ink планшет для нотаток і читання', 12999.00, '📚', None, 18),
-            ('arm-tv-43', 'TaxTech Smart TV 43"', '4K телевізор з HDR10 та голосовим пошуком', 15999.00, '📺', None, 22),
-            ('arm-tv-75', 'TaxTech Smart TV 75"', 'Великий 75" TV для домашнього кінотеатру', 69999.00, '📺', 'TOP', 6),
-            ('arm-vacuum-upright-pro', 'TaxTech Upright Vacuum Pro', 'Потужний вертикальний пилосос для всіх покриттів', 9999.00, '🧹', 'DEAL', 19),
-            ('arm-vacuum-handy', 'TaxTech Handy Vacuum', 'Ручний пилосос для авто та меблів', 2699.00, '🧹', None, 41),
-            ('arm-kettle-glass', 'TaxTech Glass Kettle', 'Скляний електрочайник з підсвіткою', 1499.00, '🫖', 'SALE', 52),
-            ('arm-kitchen-machine', 'TaxTech Kitchen Machine', 'Кухонна машина з металевою чашею 5л', 8999.00, '🍳', 'PRO', 11),
-            ('arm-food-processor', 'TaxTech Food Processor X', 'Кухонний комбайн з 12 насадками', 6299.00, '🍲', 'HOT', 17),
-            ('arm-pressure-cooker', 'TaxTech Pressure Cooker', 'Скороварка-мультиварка для швидкого готування', 4599.00, '🍲', None, 26),
-            ('arm-coffee-grinder', 'TaxTech Coffee Grinder', 'Жорновий млинок для кави з 40 режимами', 3399.00, '☕', None, 29),
-            ('arm-air-humidifier', 'TaxTech Humidifier 5L', 'Зволожувач повітря з нічним режимом', 2799.00, '💧', 'SALE', 34),
-            ('arm-heater-ceramic', 'TaxTech Ceramic Heater', 'Керамічний обігрівач з термостатом', 3199.00, '🔥', None, 22),
-            ('arm-fan-tower', 'TaxTech Tower Fan', 'Безлопатевий баштовий вентилятор', 4299.00, '🌬️', 'NEW', 15),
-            ('arm-mattress-topper', 'TaxTech Mattress Topper', 'Ортопедичний топер для комфортного сну', 2399.00, '🛏️', None, 28),
-            ('arm-office-chair', 'TaxTech Ergonomic Office Chair', 'Офісне крісло з підтримкою попереку', 9999.00, '🪑', 'HOT', 12),
-            ('arm-gaming-desk-rgb', 'TaxTech Gaming Desk RGB', 'Стіл для геймінгу з RGB-підсвіткою', 11999.00, '🪵', 'DEAL', 9),
-            ('arm-home-safe', 'TaxTech Home Safe Box', 'Сейф для документів і цінностей з PIN-кодом', 3999.00, '🔐', None, 17),
-            ('arm-doorbell-2cam', 'TaxTech Doorbell Dual Cam', 'Смарт-дзвінок з двома камерами', 6999.00, '🚪', 'TOP', 11),
-            ('arm-sensor-motion', 'TaxTech Motion Sensor Pro', 'Датчик руху з регулюванням чутливості', 1199.00, '📡', None, 66),
-            ('arm-smart-switch-pack', 'TaxTech Smart Switch Pack', 'Набір смарт-вимикачів (3 шт.)', 1899.00, '🔌', None, 54),
-            ('arm-led-strip-5m', 'TaxTech LED Strip 5m', 'Світлодіодна стрічка RGBIC з Wi-Fi', 1299.00, '💡', 'SALE', 74),
-            ('arm-floor-cleaner', 'TaxTech Floor Cleaner', 'Миючий пилосос для твердих підлог', 15999.00, '🧽', 'PRO', 8),
-            ('arm-blinds-motor', 'TaxTech Smart Blinds Motor', 'Мотор для автоматизації жалюзі', 2499.00, '🪟', None, 30),
-            ('arm-worklight', 'TaxTech Work Light Pro', 'Потужний робочий світильник для майстерні', 1799.00, '💡', None, 27),
-            ('arm-bike-holder', 'TaxTech Bike Phone Holder', 'Тримач смартфона для велосипеда', 799.00, '📱', None, 58),
-            ('arm-car-charger', 'TaxTech Car Charger 75W', 'Автозарядка USB-C + USB-A з PD', 899.00, '🔌', 'HOT', 63),
-            ('arm-travel-adapter', 'TaxTech Travel Adapter', 'Універсальний адаптер для подорожей', 1299.00, '🔌', None, 47),
-            ('arm-nas-home-2bay', 'TaxTech Home NAS 2-Bay', 'Домашнє сховище даних для резервних копій', 18999.00, '💾', 'NEW', 7),
-            ('arm-ssd-portable-1tb', 'TaxTech Portable SSD 1TB', 'Зовнішній SSD з USB 3.2 Gen2', 4499.00, '💾', None, 35),
-            ('arm-surveillance-kit-4', 'TaxTech CCTV Kit 4 Cam', 'Комплект відеоспостереження на 4 камери', 17999.00, '📹', 'TOP', 9),
-            ('arm-light-bulb-e27', 'TaxTech Smart Bulb E27', 'Окрема smart-лампа з підтримкою сцен', 499.00, '💡', None, 110),
-            ('arm-rice-cooker', 'TaxTech Rice Cooker', 'Рисоварка з антипригарною чашею', 2699.00, '🍚', None, 33),
-            ('arm-electric-kettle-pro', 'TaxTech Kettle Pro Temp', 'Чайник з точним контролем температури', 2299.00, '🫖', 'DEAL', 25),
-
-            # ── Реальні бренди ──────────────────────────────────────────────
-
+            # Тільки справжні моделі відомих брендів; вигадані товари не тримаємо.
             # Смартфони
             ('real-iphone-16-pro-256', 'Apple iPhone 16 Pro 256GB', 'Чіп A18 Pro, камера 48MP з 5× оптичним зумом, titanium корпус', 62999.00, '📱', 'TOP', 14),
             ('real-iphone-16-128', 'Apple iPhone 16 128GB', 'Чіп A18, камера з підтримкою Camera Control', 42999.00, '📱', 'HOT', 22),
@@ -516,6 +366,14 @@ def _ensure_schema() -> None:
                 + suffix,
                 (slug, title, description, float(price), emoji, badge, int(stock)),
             )
+        # Вигадані «TaxTech»-товари більше не продаємо: лишаємо тільки справжні моделі.
+        conn.execute("DELETE FROM marketplace_products WHERE slug LIKE 'arm-%'")
+        # Фото лише там, де Open Icecat знає точну модель; решта лишається без фото.
+        for slug, item in _load_image_manifest().items():
+            conn.execute(
+                'UPDATE marketplace_products SET image_url = %s, image_credit = %s WHERE slug = %s',
+                (f"/api/marketplace/images/{item['file']}", item.get('credit'), slug),
+            )
 
 
 def _expire_overdue_invoices(conn: Any) -> None:
@@ -571,7 +429,6 @@ def _dt_str(v: Any) -> str | None:
 def _to_payload_product(row: dict[str, Any]) -> dict[str, Any]:
     slug = row.get('slug', '')
     image_url = row.get('image_url')
-    # Чужих фото товарів не підставляємо: застосунок показує знак товару в сірому.
 
     return {
         'id': int(row['id']),
@@ -582,6 +439,7 @@ def _to_payload_product(row: dict[str, Any]) -> dict[str, Any]:
         'currency': row.get('currency') or 'TAX',
         'image_emoji': row.get('image_emoji') or '🛍️',
         'image_url': image_url,
+        'image_credit': row.get('image_credit') if image_url else None,
         'badge': row.get('badge'),
         'stock': int(row.get('stock') or 0),
     }
@@ -840,7 +698,8 @@ def catalog():
     min_price = request.args.get('min_price')
     max_price = request.args.get('max_price')
 
-    where, params = ['is_active = TRUE'], []
+    # У вітрині лише товари зі справжнім фото; решта лишається в базі для адмінки.
+    where, params = ['is_active = TRUE', "COALESCE(image_url, '') <> ''"], []
 
     if search:
         like = f'%{search.lower()}%'
@@ -881,7 +740,7 @@ def catalog():
 
     count_sql = f'SELECT COUNT(*) AS total FROM marketplace_products {where_sql}'
     data_sql  = f'''
-        SELECT id, slug, title, description, price, currency, image_emoji, image_url, badge, stock
+        SELECT id, slug, title, description, price, currency, image_emoji, image_url, image_credit, badge, stock
         FROM marketplace_products {where_sql}
         ORDER BY {order_sql}
         LIMIT %s OFFSET %s
@@ -901,13 +760,23 @@ def catalog():
     }})
 
 
+@marketplace_bp.get('/images/<path:name>')
+def product_image(name: str):
+    """Публічне фото товару (AsyncImage у застосунку не передає токен)."""
+    if not name.endswith('.jpg'):
+        return api_error('Не знайдено.', 404)
+    resp = send_from_directory(PRODUCT_IMAGES_DIR, name, mimetype='image/jpeg', max_age=86400)
+    resp.headers['Cache-Control'] = 'public, max-age=86400'
+    return resp
+
+
 @marketplace_bp.get('/catalog/<int:product_id>')
 def catalog_product(product_id: int):
     """Single product detail for AJAX modal."""
     _ensure_schema()
     with get_connection() as conn:
         row = conn.execute(
-            'SELECT * FROM marketplace_products WHERE id = %s AND is_active = TRUE LIMIT 1',
+            "SELECT * FROM marketplace_products WHERE id = %s AND is_active = TRUE AND COALESCE(image_url, '') <> '' LIMIT 1",
             (product_id,),
         ).fetchone()
     if not row:
