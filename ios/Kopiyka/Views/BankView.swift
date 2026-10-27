@@ -46,6 +46,7 @@ struct BankView: View {
     @State private var busyCard = false
     @State private var confirmDelete = false
     @State private var deleteError: String?
+    @State private var unread = 0
     #if DEBUG
     @State private var debugOpen = false
     #endif
@@ -85,6 +86,10 @@ struct BankView: View {
         .navigationTitle("Банк")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            NavigationLink { NoticesView() } label: {
+                Image(systemName: unread > 0 ? "bell.badge" : "bell")
+                    .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
+            }
             Menu("Ще", systemImage: "ellipsis") {
                 Button("Вийти") { model.signOut() }
                 Button("Видалити акаунт") { confirmDelete = true }
@@ -102,8 +107,14 @@ struct BankView: View {
         .alert("Не вдалося видалити", isPresented: .init(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) {
             Button("Гаразд") {}
         } message: { Text(deleteError ?? "") }
-        .refreshable { await bank.load(model.api) }
-        .task { await bank.load(model.api) }
+        .refreshable {
+            await bank.load(model.api)
+            unread = (try? await model.api.unreadCount()) ?? 0
+        }
+        .task {
+            await bank.load(model.api)
+            unread = (try? await model.api.unreadCount()) ?? 0
+        }
         #if DEBUG
         // simctl launch з SIMCTL_CHILD_KOPIYKA_OPEN=cards|deposits|credits|goals|contacts|limits|analytics|history
         .navigationDestination(isPresented: $debugOpen) { debugScreen }
@@ -131,6 +142,12 @@ struct BankView: View {
         case "contacts": ContactsView()
         case "limits": LimitsView()
         case "analytics": AnalyticsView()
+        case "donations": DonationsView()
+        case "payouts": PayoutsView()
+        case "debts": DebtsView()
+        case "notices": NoticesView()
+        case "statements": StatementsView()
+        case "security": SecurityView()
         default: HistoryView()
         }
     }
@@ -196,7 +213,17 @@ struct BankView: View {
                 Rule()
                 HubRow("Ліміти й платежі", "") { LimitsView() }
                 Rule()
+                HubRow("Донати", "") { DonationsView() }
+                Rule()
+                HubRow("Виплати", "") { PayoutsView() }
+                Rule()
+                HubRow("Борги", "") { DebtsView() }
+                Rule()
                 HubRow("Аналітика", "") { AnalyticsView() }
+                Rule()
+                HubRow("Виписки", "") { StatementsView() }
+                Rule()
+                HubRow("Профіль і безпека", "") { SecurityView() }
             }
         }
     }

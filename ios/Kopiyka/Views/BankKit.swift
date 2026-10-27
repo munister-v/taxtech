@@ -120,6 +120,14 @@ enum BankText {
 
     static func type(_ t: String) -> String { types[t] ?? t.capitalized }
 
+    /// Службові рахунки продавців навчального банку - людською мовою.
+    static let merchants = ["MRC-UTILITIES-01": "Комунальні послуги", "MRC-ONLINE-01": "Онлайн-покупки",
+                            "MRC-FUEL-01": "Пальне", "MRC-GROCERY-01": "Продукти", "MRC-CAFE-01": "Кафе",
+                            "MRC-GROCERY-02": "Продукти", "MRC-TRANSPORT-01": "Транспорт", "MRC-PHARMA-01": "Аптека",
+                            "MRC-CINEMA-01": "Кіно", "MRC-TELECOM-01": "Зв'язок"]
+
+    static func recipient(_ account: String) -> String { merchants[account] ?? account }
+
     static let frequencies = [("weekly", "Щотижня"), ("monthly", "Щомісяця")]
 
     static func frequency(_ f: String) -> String { frequencies.first { $0.0 == f }?.1 ?? f }

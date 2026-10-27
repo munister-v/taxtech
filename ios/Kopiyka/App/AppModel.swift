@@ -28,6 +28,8 @@ final class AppModel {
     }
 
     var api: API { API(baseURL: serverURL, token: token) }
+    /// Банк відкрито кодом у цьому сеансі; скидається, коли застосунок іде у фон.
+    var bankUnlocked = false
     var signedIn: Bool { token != nil }
 
     /// Згода надсилати текст (уже без особистих даних) мовній моделі на сервері.
@@ -70,6 +72,7 @@ final class AppModel {
 
     func signOut() {
         token = nil
+        bankUnlocked = false
         Keychain.write("sandboxToken", nil)
     }
 

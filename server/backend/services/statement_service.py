@@ -90,20 +90,20 @@ def _f(bold: bool = False) -> str:
     return _FONT_NAME_BOLD if bold else _FONT_NAME
 
 
-# ── Кольорова схема виписок Kopiyka (glass green + champagne) ───────────────
-_NAVY   = colors.HexColor('#173126')
-_NAVY2  = colors.HexColor('#0c1f16')
-_BLUE   = colors.HexColor('#7b7264')
-_LIGHT  = colors.HexColor('#d8d2c2')
-_GREEN  = colors.HexColor('#66b08c')
-_RED    = colors.HexColor('#d57c74')
-_MUTED  = colors.HexColor('#8f9288')
-_BG     = colors.HexColor('#f2efe6')
+# ── Кольорова схема виписок TaxTech: лише сірі тони, як у застосунку ───────────────
+_NAVY   = colors.HexColor('#2b2b2b')
+_NAVY2  = colors.HexColor('#1a1a1a')
+_BLUE   = colors.HexColor('#737373')
+_LIGHT  = colors.HexColor('#d2d2d2')
+_GREEN  = colors.HexColor('#111111')
+_RED    = colors.HexColor('#111111')
+_MUTED  = colors.HexColor('#919191')
+_BG     = colors.HexColor('#efefef')
 _WHITE  = colors.white
-_STEEL  = colors.HexColor('#213229')
-_LGGREEN = colors.HexColor('#e6f5ed')
-_LGRED   = colors.HexColor('#f9e9e7')
-_GOLD    = colors.HexColor('#b9ab8f')
+_STEEL  = colors.HexColor('#2e2e2e')
+_LGGREEN = colors.HexColor('#f1f1f1')
+_LGRED   = colors.HexColor('#ececec')
+_GOLD    = colors.HexColor('#acacac')
 
 _TX_TYPE_LABELS = {
     'transfer': 'Переказ',
@@ -438,10 +438,10 @@ class StatementService:
 
         # ── Navy header band ─────────────────────────────────────────────────
         wt = ParagraphStyle('wt', fontName=_f(True), fontSize=14, textColor=_WHITE, leading=18)
-        wn = ParagraphStyle('wn', fontName=_f(), fontSize=8.2, textColor=colors.HexColor('#c9c3b4'),
+        wn = ParagraphStyle('wn', fontName=_f(), fontSize=8.2, textColor=colors.HexColor('#c3c3c3'),
                             leading=11, alignment=2)
         hdr = Table(
-            [[Paragraph('Kopiyka <font color="#b9ab8f">Sandbox</font>', wt),
+            [[Paragraph('TaxTech <font color="#9a9a9a">Lab</font>', wt),
               Paragraph(f'{receipt_kind}<br/>#{tx_num}<br/>{date_short}', wn)]],
             colWidths=[None, 28 * mm],
         )
@@ -457,10 +457,10 @@ class StatementService:
 
         # ── Amount block ─────────────────────────────────────────────────────
         amt_bg  = _LGGREEN if is_in else _LGRED
-        amt_fg  = colors.HexColor('#2d6f54') if is_in else colors.HexColor('#a24f47')
-        lbl_fg  = colors.HexColor('#376950') if is_in else colors.HexColor('#8c4b43')
+        amt_fg  = colors.HexColor('#5f5f5f') if is_in else colors.HexColor('#606060')
+        lbl_fg  = colors.HexColor('#5d5d5d') if is_in else colors.HexColor('#585858')
         amount_caption = ParagraphStyle('ac', fontName=_f(), fontSize=8.2, textColor=lbl_fg, alignment=1, leading=11)
-        amount_status = ParagraphStyle('as', fontName=_f(True), fontSize=7.6, textColor=colors.HexColor('#567f66'), alignment=1, leading=10)
+        amount_status = ParagraphStyle('as', fontName=_f(True), fontSize=7.6, textColor=colors.HexColor('#747474'), alignment=1, leading=10)
         amt_t = Table(
             [[Paragraph(amount_str,
                         ParagraphStyle('aa', fontName=_f(True), fontSize=24, textColor=amt_fg,
@@ -468,7 +468,7 @@ class StatementService:
              [Paragraph(tx_type,
                         ParagraphStyle('at', fontName=_f(), fontSize=9, textColor=lbl_fg,
                                        alignment=1, leading=12))],
-             [Paragraph('Офіційний платіжний документ ARMBank', amount_caption)],
+             [Paragraph('Навчальний документ TaxTech: гроші віртуальні', amount_caption)],
              [Paragraph('✓ ПІДТВЕРДЖЕНО СИСТЕМОЮ', amount_status)]],
             colWidths=['100%'],
         )
@@ -515,8 +515,8 @@ class StatementService:
         det_t = Table(rows, colWidths=[30 * mm, None])
         n_rows = len(rows)
         det_t.setStyle(TableStyle([
-            ('LINEBELOW', (0, 0), (-1, n_rows - 2), 0.25, colors.HexColor('#d8d2c2')),
-            ('BACKGROUND', (0, n_rows - 1), (-1, n_rows - 1), colors.HexColor('#f0fdf4')),
+            ('LINEBELOW', (0, 0), (-1, n_rows - 2), 0.25, colors.HexColor('#d2d2d2')),
+            ('BACKGROUND', (0, n_rows - 1), (-1, n_rows - 1), colors.HexColor('#fafafa')),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
             ('LEFTPADDING', (0, 0), (-1, -1), 11),
@@ -531,7 +531,7 @@ class StatementService:
         ft = Table(
             [[Paragraph(f'Сформовано: {date_short}',
                         ParagraphStyle('fl', fontName=_f(), fontSize=7, textColor=_MUTED)),
-              Paragraph(f'ARMBank · TX#{tx_num}',
+              Paragraph(f'TaxTech · TX#{tx_num}',
                         ParagraphStyle('fr', fontName=_f(), fontSize=7, textColor=_MUTED, alignment=2))]],
             colWidths=['50%', '50%'],
         )
@@ -617,7 +617,7 @@ class StatementService:
         story.append(HRFlowable(width='100%', thickness=0.6, color=_LIGHT, spaceAfter=2 * mm))
         now_str = datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M UTC')
         story.append(Paragraph(
-            f'ARMBank · {_REPORT_TYPE_LABELS.get(report_type, report_type)} · Сформовано: {now_str}',
+            f'TaxTech · {_REPORT_TYPE_LABELS.get(report_type, report_type)} · Сформовано: {now_str}',
             ParagraphStyle('footer', parent=styles['Normal'], fontName=_f(), fontSize=7.5, textColor=_MUTED, alignment=1),
         ))
 
@@ -638,14 +638,14 @@ class StatementService:
         # Banner styles (white on navy)
         banner_brand  = ParagraphStyle('bb', parent=styles['Normal'], fontSize=18, fontName=_f(True), textColor=_WHITE)
         banner_type   = ParagraphStyle('bt', parent=styles['Normal'], fontSize=9.5, fontName=_f(True),
-                                       textColor=colors.HexColor('#b9ab8f'), alignment=1)
+                                       textColor=colors.HexColor('#acacac'), alignment=1)
         banner_period = ParagraphStyle('bp', parent=styles['Normal'], fontSize=9.5, fontName=_f(),
-                                       textColor=colors.HexColor('#c9c3b4'), alignment=2)
+                                       textColor=colors.HexColor('#c3c3c3'), alignment=2)
 
         # Info styles
         subtitle = ParagraphStyle('sub', parent=styles['Normal'], fontSize=8.3, fontName=_f(), textColor=_MUTED)
         value    = ParagraphStyle('val', parent=styles['Normal'], fontSize=9.5, fontName=_f(True), textColor=_NAVY)
-        balance  = ParagraphStyle('bal', parent=styles['Normal'], fontSize=21, fontName=_f(True), textColor=_NAVY)
+        balance  = ParagraphStyle('bal', parent=styles['Normal'], fontSize=19, leading=23, fontName=_f(True), textColor=_NAVY)
 
         period_label = self._period_label(from_date, to_date)
         report_label = _REPORT_TYPE_LABELS.get(report_type, report_type)
@@ -654,7 +654,7 @@ class StatementService:
 
         # ── Row 0: navy banner spanning full width ────────────────────────────
         banner = Table(
-            [[Paragraph('Kopiyka <font color="#b9ab8f">Sandbox</font>', banner_brand),
+            [[Paragraph('TaxTech <font color="#9a9a9a">Lab</font>', banner_brand),
               Paragraph(report_label.upper(), banner_type),
               Paragraph(period_label, banner_period)]],
             colWidths=['35%', '35%', '30%'],
@@ -860,10 +860,10 @@ class StatementService:
         table = Table([top_row], colWidths=['20%', '20%', '20%', '20%', '20%'])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), _LIGHT),
-            ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#f0fdf4')),
-            ('BACKGROUND', (2, 0), (2, 0), colors.HexColor('#fff1f2')),
-            ('BOX',        (0, 0), (-1, -1), 0.6, colors.HexColor('#cfc8b7')),
-            ('INNERGRID',  (0, 0), (-1, -1), 0.5, colors.HexColor('#ddd7c8')),
+            ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#fafafa')),
+            ('BACKGROUND', (2, 0), (2, 0), colors.HexColor('#f4f4f4')),
+            ('BOX',        (0, 0), (-1, -1), 0.6, colors.HexColor('#c8c8c8')),
+            ('INNERGRID',  (0, 0), (-1, -1), 0.5, colors.HexColor('#d7d7d7')),
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
             ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -892,8 +892,8 @@ class StatementService:
         table = Table(rows, colWidths=['68%', '32%'])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), _WHITE),
-            ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#d6d0bf')),
-            ('INNERGRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#e2dccd')),
+            ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#d0d0d0')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#dcdcdc')),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
             ('LEFTPADDING', (0, 0), (-1, -1), 6),
@@ -904,7 +904,7 @@ class StatementService:
     def _by_type_table(self, rows: list[dict]):
         styles = getSampleStyleSheet()
         hdr = ParagraphStyle('h', parent=styles['Normal'], fontName=_f(True), fontSize=8, textColor=_WHITE, alignment=1)
-        cell = ParagraphStyle('c', parent=styles['Normal'], fontName=_f(), fontSize=8, textColor=colors.HexColor('#1f2937'))
+        cell = ParagraphStyle('c', parent=styles['Normal'], fontName=_f(), fontSize=8, textColor=colors.HexColor('#282828'))
         num = ParagraphStyle('n', parent=cell, alignment=2)
 
         data = [[
@@ -927,7 +927,7 @@ class StatementService:
         table = Table(data, colWidths=['28%', '12%', '20%', '20%', '20%'], repeatRows=1)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#d6d0bf')),
+            ('GRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#d0d0d0')),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [_WHITE, _BG]),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
@@ -940,7 +940,7 @@ class StatementService:
     def _daily_table(self, rows: list[dict]):
         styles = getSampleStyleSheet()
         hdr = ParagraphStyle('h', parent=styles['Normal'], fontName=_f(True), fontSize=8, textColor=_WHITE, alignment=1)
-        cell = ParagraphStyle('c', parent=styles['Normal'], fontName=_f(), fontSize=7.8, textColor=colors.HexColor('#1f2937'))
+        cell = ParagraphStyle('c', parent=styles['Normal'], fontName=_f(), fontSize=7.8, textColor=colors.HexColor('#282828'))
         num = ParagraphStyle('n', parent=cell, alignment=2)
 
         data = [[
@@ -965,7 +965,7 @@ class StatementService:
         table = Table(data, colWidths=['20%', '14%', '22%', '22%', '22%'], repeatRows=1)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#d6d0bf')),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#d0d0d0')),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [_WHITE, _BG]),
             ('TOPPADDING', (0, 0), (-1, -1), 3.5),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),
@@ -1037,7 +1037,7 @@ class StatementService:
         table = Table(data, colWidths=['28%', '10%', '22%', '20%', '20%'], repeatRows=1)
         ts = [
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#d6d0bf')),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#d0d0d0')),
             ('ROWBACKGROUNDS', (0, 1), (-1, -2), [_WHITE, _BG]),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
@@ -1046,7 +1046,7 @@ class StatementService:
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]
         if len(rows) > 1:
-            ts.append(('BACKGROUND', (0, n - 1), (-1, n - 1), colors.HexColor('#e8eef8')))
+            ts.append(('BACKGROUND', (0, n - 1), (-1, n - 1), colors.HexColor('#ededed')))
             ts.append(('LINEABOVE', (0, n - 1), (-1, n - 1), 0.7, _NAVY))
         table.setStyle(TableStyle(ts))
         return table
@@ -1054,7 +1054,7 @@ class StatementService:
     def _tx_table(self, txs: list, opening_balance: float):
         styles = getSampleStyleSheet()
         hdr = ParagraphStyle('hdr', parent=styles['Normal'], fontName=_f(True), fontSize=7.8, textColor=_WHITE, alignment=1)
-        cell = ParagraphStyle('cell', parent=styles['Normal'], fontName=_f(), fontSize=7.6, textColor=colors.HexColor('#1e293b'))
+        cell = ParagraphStyle('cell', parent=styles['Normal'], fontName=_f(), fontSize=7.6, textColor=colors.HexColor('#282828'))
         money = ParagraphStyle('money', parent=cell, fontName=_f(True), alignment=2)
         muted = ParagraphStyle('muted', parent=styles['Normal'], fontName=_f(), fontSize=7.0, textColor=_MUTED)
 
@@ -1110,11 +1110,11 @@ class StatementService:
 
             data.append([
                 Paragraph(str(idx), ParagraphStyle('idx', parent=cell, fontSize=7.0, alignment=1, textColor=_MUTED)),
-                Paragraph(date_str, ParagraphStyle('date', parent=cell, fontSize=7.0, textColor=colors.HexColor('#334155'))),
+                Paragraph(date_str, ParagraphStyle('date', parent=cell, fontSize=7.0, textColor=colors.HexColor('#3f3f3f'))),
                 desc_cells,
                 Paragraph(str(tx_type), ParagraphStyle('tp', parent=cell, fontSize=7.3, textColor=_MUTED)),
                 Paragraph(
-                    f'<font color="#{"16a34a" if direction == "in" else "dc2626"}"><b>{amount_text}</b></font>',
+                    f'<b>{amount_text}</b>',
                     ParagraphStyle('amt', parent=money),
                 ),
                 Paragraph(self._money(balance_after), money),
@@ -1141,7 +1141,7 @@ class StatementService:
         table = Table(data, colWidths=[7 * mm, 20 * mm, None, 22 * mm, 26 * mm, 30 * mm], repeatRows=1)
         ts = [
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -2), 0.25, colors.HexColor('#dde7f5')),
+            ('GRID', (0, 0), (-1, -2), 0.25, colors.HexColor('#e6e6e6')),
             ('ROWBACKGROUNDS', (0, 1), (-1, -2), [_WHITE, _BG]),
             ('TOPPADDING', (0, 0), (-1, -1), 3.5),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),

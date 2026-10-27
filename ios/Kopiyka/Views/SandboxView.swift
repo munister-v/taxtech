@@ -7,16 +7,30 @@ import SwiftUI
 /// Перед переказом EdgeRouter оцінює ризик на телефоні (Layer 1) або на сервері (усі шари).
 struct SandboxView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var phase
+    @State private var pinRequired = false
 
     var body: some View {
         NavigationStack {
             if model.signedIn {
-                BankView()
+                if pinRequired && !model.bankUnlocked {
+                    PinLockView().toolbar(.hidden, for: .navigationBar)
+                } else {
+                    BankView()
+                }
             } else {
                 SignInView()
                     .labForm()
                     .navigationTitle("Навчальний банк")
             }
+        }
+        .task(id: model.signedIn) {
+            pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
+        }
+        .onChange(of: phase) { _, p in
+            guard p == .background else { return }
+            model.bankUnlocked = false
+            Task { pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? pinRequired) : false }
         }
     }
 }

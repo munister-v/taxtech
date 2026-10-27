@@ -74,6 +74,7 @@ struct TransactionDetailView: View {
     let tx: API.Transaction
     @State private var note = ""
     @State private var screen = Screen()
+    @State private var receipt: URL?
 
     var body: some View {
         NavigationStack {
@@ -92,6 +93,15 @@ struct TransactionDetailView: View {
                     Line("Вид", BankText.type(tx.txType))
                     Line("Коли", tx.date.formatted(date: .long, time: .shortened))
                     if let r = tx.relatedAccount { Line(tx.isIncome ? "Від" : "Кому", r) }
+                }
+                Section {
+                    if let receipt {
+                        ShareLink(item: receipt) { Label("Квитанція PDF", systemImage: "square.and.arrow.up") }
+                    } else {
+                        Button("Квитанція PDF") {
+                            Task { await screen.run { receipt = try await model.api.document("transactions/\(tx.id)/receipt", name: "Квитанція \(tx.id).pdf") } }
+                        }
+                    }
                 }
                 Section("Нотатка") {
                     TextField("Додайте нотатку", text: $note, axis: .vertical)
@@ -118,6 +128,8 @@ struct AnalyticsView: View {
     @State private var summary: API.Analytics?
     @State private var balance: [API.BalancePoint] = []
     @State private var insights: [API.Insight] = []
+    @State private var velocity: API.Velocity?
+    @State private var recipients: [API.Recipient] = []
     @State private var days = 30
 
     private static let months = ["01": "січ", "02": "лют", "03": "бер", "04": "кві", "05": "тра", "06": "чер",
@@ -128,10 +140,12 @@ struct AnalyticsView: View {
             VStack(spacing: 24) {
                 if let s = summary {
                     hero(s)
+                    if let velocity { pace(velocity) }
                     monthly(s)
                 }
                 balanceChart
                 if let s = summary { byType(s) }
+                if !recipients.isEmpty { recipientList }
                 if !insights.isEmpty { insightList }
                 NavigationLink { AchievementsView() } label: {
                     HStack {
@@ -158,9 +172,13 @@ struct AnalyticsView: View {
         async let s = model.api.analytics()
         async let b = model.api.balanceHistory(days: days)
         async let i = model.api.insights()
+        async let v = model.api.velocity()
+        async let r = model.api.topRecipients()
         summary = try? await s
         balance = (try? await b) ?? []
         insights = (try? await i) ?? []
+        velocity = try? await v
+        recipients = (try? await r) ?? []
     }
 
     private func hero(_ s: API.Analytics) -> some View {
@@ -264,6 +282,37 @@ struct AnalyticsView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 13)
+                }
+            }
+        }
+    }
+
+    /// Темп витрат: скільки в середньому на день і на скільки днів вистачить рахунку.
+    private func pace(_ v: API.Velocity) -> some View {
+        HStack(spacing: 0) {
+            tile("на день", Format.money(v.avgDailySpend))
+            Rectangle().fill(Theme.line).frame(width: Theme.hairline).padding(.vertical, 14)
+            tile("вистачить", v.daysUntilZero.map { "\($0) дн." } ?? "-")
+        }
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+    }
+
+    private func tile(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(value).font(.title3.weight(.semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(title).font(.footnote).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+    }
+
+    private var recipientList: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            BlockTitle("Кому найбільше")
+            Surface {
+                ForEach(Array(recipients.prefix(5).enumerated()), id: \.element.id) { i, r in
+                    if i > 0 { Rule() }
+                    AmountRow(title: BankText.recipient(r.relatedAccount), subtitle: "\(r.txCount) операцій", amount: Format.money(r.totalSent))
                 }
             }
         }
