@@ -13,7 +13,12 @@ struct RootView: View {
             Tab("Банк", systemImage: "building.columns") { SandboxView() }
             Tab("Лабораторія", systemImage: "flask") { LabView() }
         }
-        .onAppear { showConsent = !model.consentAsked }
+        .onAppear {
+            showConsent = !model.consentAsked
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["KOPIYKA_SHOW_CONSENT"] == "1" { showConsent = true }
+            #endif
+        }
         .fullScreenCover(isPresented: $showConsent) { ConsentView() }
     }
 }

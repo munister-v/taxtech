@@ -12,6 +12,7 @@ struct LabView: View {
     var body: some View {
         NavigationStack {
             Form {
+                tiles
                 strategy
                 privacy
                 parameters
@@ -20,6 +21,8 @@ struct LabView: View {
                 summary
                 journal
             }
+            .scrollContentBackground(.hidden)
+            .auroraScreen(height: 340)
             .navigationTitle("Лабораторія")
             .refreshable { await model.refresh() }
             .task { await model.refresh() }
@@ -36,6 +39,27 @@ struct LabView: View {
                                 titleVisibility: .visible) {
                 Button("Стерти", role: .destructive) { Task { await model.resetLearning() } }
             }
+        }
+    }
+
+    /// Головні цифри журналу - плитками з переливом.
+    private var tiles: some View {
+        let d = model.decisions
+        let n = Double(max(d.count, 1))
+        let device = d.filter { $0.placement == .device }.count
+        let judged = d.compactMap { model.feedback[$0.id] }
+        return Section {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                StatTile(value: "\(d.count)", title: "рішень", colors: [Theme.emerald, Theme.teal])
+                StatTile(value: d.isEmpty ? "-" : "\(Int(Double(device) / n * 100))%", title: "на телефоні",
+                         colors: [Theme.sky, Theme.violet])
+                StatTile(value: d.isEmpty ? "-" : Format.ms(d.map(\.latencyMs).reduce(0, +) / n),
+                         title: "середня затримка", colors: [Theme.amber, Theme.rose])
+                StatTile(value: judged.isEmpty ? "-" : "\(Int(Double(judged.filter { $0 }.count) / Double(judged.count) * 100))%",
+                         title: "правильних відповідей", colors: [Theme.violet, Theme.rose])
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -183,4 +207,27 @@ struct LabView: View {
                                              .wired: "дротова", .other: "інша"]
     static let thermal: [Thermal: String] = [.nominal: "норма", .fair: "теплий", .serious: "гарячий",
                                              .critical: "перегрітий"]
+}
+
+struct StatTile: View {
+    let value: String
+    let title: String
+    let colors: [Color]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(value)
+                .font(.system(.title, design: .rounded, weight: .bold))
+                .monospacedDigit()
+                .foregroundStyle(LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            Text(title)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color(.secondarySystemGroupedBackground).opacity(0.92), in: .rect(cornerRadius: 20))
+    }
 }

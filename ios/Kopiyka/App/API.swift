@@ -88,8 +88,16 @@ struct API: Sendable {
         let expiryDisplay: String?
         let holderName: String?
         let status: String
+        let design: String?
 
         var isBlocked: Bool { status == "blocked" }
+    }
+
+    func setCardDesign(_ id: Int, _ design: String) async throws {
+        var r = request("cards/\(id)/design", method: "PATCH")
+        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        r.httpBody = try JSONSerialization.data(withJSONObject: ["design": design])
+        let _: Wrapped<Card> = try await send(r)
     }
 
     func account() async throws -> Account {

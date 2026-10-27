@@ -11,7 +11,10 @@ struct SandboxView: View {
             if model.signedIn {
                 BankView()
             } else {
-                SignInView().navigationTitle("Навчальний банк")
+                SignInView()
+                    .scrollContentBackground(.hidden)
+                    .auroraScreen(height: 380)
+                    .navigationTitle("Навчальний банк")
             }
         }
     }

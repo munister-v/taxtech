@@ -65,6 +65,8 @@ struct ReceiptView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .auroraScreen(height: 340)
             .navigationTitle("Чек")
             .fullScreenCover(isPresented: $scanning) {
                 DocumentScanner { img in Task { await process(img) } }

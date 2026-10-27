@@ -15,43 +15,133 @@ struct AssistantView: View {
         var error: String?
     }
 
+    static let suggestions = [
+        "Як скласти бюджет на місяць?",
+        "Чому переказ може заблокувати антифрод?",
+        "Як заморозити картку в навчальному банку?",
+    ]
+
     var body: some View {
         NavigationStack {
-            List {
-                if turns.isEmpty {
-                    Section {
-                        Text("Спитайте про витрати, бюджет чи навчальний банк. Відповідь дасть модель на телефоні або на сервері - залежно від мережі, заряду й упевненості.")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                ForEach(turns) { t in
-                    Section {
-                        Text(t.question).font(.headline)
-                        if let a = t.answer { Text(a) }
-                        if let e = t.error { Text(e).foregroundStyle(.red) }
-                        if let r = t.record {
-                            RoutedNote(record: r)
-                            FeedbackButtons(id: r.id)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 18) {
+                        if turns.isEmpty { intro }
+                        ForEach(turns) { t in
+                            VStack(spacing: 10) {
+                                questionBubble(t.question)
+                                if t.answer != nil || t.error != nil { answerBubble(t) }
+                            }
+                            .id(t.id)
+                        }
+                        if working {
+                            HStack {
+                                ProgressView()
+                                Text("Думаю…").foregroundStyle(.secondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 4)
                         }
                     }
+                    .padding(Theme.gutter)
+                    .padding(.bottom, 80)
                 }
-                if working { ProgressView() }
+                .onChange(of: turns.count) { withAnimation { proxy.scrollTo(turns.last?.id, anchor: .bottom) } }
             }
+            .auroraScreen(height: 320)
             .navigationTitle("Помічник")
+            .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
-                HStack {
+                HStack(alignment: .bottom) {
                     TextField("Ваше питання", text: $question, axis: .vertical)
                         .lineLimit(1...4)
                         .onSubmit(ask)
-                    Button("Надіслати", systemImage: "arrow.up", action: ask)
-                        .labelStyle(.iconOnly)
-                        .disabled(question.trimmingCharacters(in: .whitespaces).isEmpty || working)
+                    Button(action: ask) {
+                        Image(systemName: "arrow.up")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(width: 34, height: 34)
+                            .background(Theme.brand, in: .circle)
+                    }
+                    .disabled(question.trimmingCharacters(in: .whitespaces).isEmpty || working)
+                    .opacity(question.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
                 }
-                .padding(12)
-                .glassEffect(in: .rect(cornerRadius: 22))
+                .padding(.leading, 16)
+                .padding(.trailing, 8)
+                .padding(.vertical, 8)
+                .glassEffect(in: .rect(cornerRadius: 24))
                 .padding(.horizontal)
                 .padding(.bottom, 6)
             }
+        }
+    }
+
+    private var intro: some View {
+        VStack(spacing: 22) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 52, weight: .semibold))
+                .foregroundStyle(LinearGradient(colors: [Theme.emerald, Theme.sky, Theme.violet],
+                                                startPoint: .topLeading, endPoint: .bottomTrailing))
+                .symbolEffect(.pulse)
+                .padding(.top, 40)
+            VStack(spacing: 8) {
+                Text("Спитайте про гроші")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                Text("Відповідь дасть модель на телефоні або на сервері - залежно від мережі, заряду й упевненості.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            Surface {
+                ForEach(Array(Self.suggestions.enumerated()), id: \.offset) { i, s in
+                    if i > 0 { Divider().padding(.leading, 16) }
+                    Button {
+                        question = s
+                        ask()
+                    } label: {
+                        HStack {
+                            Text(s).foregroundStyle(.primary)
+                            Spacer()
+                            Image(systemName: "arrow.up.right").foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func questionBubble(_ text: String) -> some View {
+        HStack {
+            Spacer(minLength: 48)
+            Text(text)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 11)
+                .background(LinearGradient(colors: [Theme.teal, Theme.violet], startPoint: .topLeading,
+                                           endPoint: .bottomTrailing),
+                            in: .rect(cornerRadius: 20, style: .continuous))
+        }
+    }
+
+    private func answerBubble(_ t: Turn) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 10) {
+                if let a = t.answer { Text(a) }
+                if let e = t.error { Text(e).foregroundStyle(.red) }
+                if let r = t.record {
+                    Divider()
+                    RoutedNote(record: r)
+                    FeedbackButtons(id: r.id)
+                }
+            }
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground).opacity(0.92),
+                        in: .rect(cornerRadius: 20, style: .continuous))
+            Spacer(minLength: 32)
         }
     }
 

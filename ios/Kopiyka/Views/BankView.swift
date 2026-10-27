@@ -39,7 +39,7 @@ struct BankView: View {
     @State private var busyCard = false
 
     enum Sheet: String, Identifiable {
-        case topUp, transfer
+        case topUp, transfer, design
         var id: String { rawValue }
     }
 
@@ -49,7 +49,8 @@ struct BankView: View {
                 balance
                 if let card = bank.primaryCard {
                     VirtualCardView(number: card.maskedNumber, expiry: card.expiryDisplay,
-                                    holder: card.holderName, frozen: card.isBlocked)
+                                    holder: card.holderName, design: CardDesign(server: card.design),
+                                    frozen: card.isBlocked)
                         .padding(.horizontal, 24)
                         .animation(.smooth, value: card.isBlocked)
                 }
@@ -67,7 +68,7 @@ struct BankView: View {
             .padding(.horizontal, Theme.gutter)
             .padding(.top, 8)
         }
-        .background(Color(.systemGroupedBackground))
+        .auroraScreen()
         .navigationTitle("Банк")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -81,6 +82,10 @@ struct BankView: View {
             switch s {
             case .topUp: TopUpView { await bank.load(model.api) }
             case .transfer: TransferView(balance: bank.account?.balance ?? 0) { await bank.load(model.api) }
+            case .design:
+                if let card = bank.primaryCard {
+                    CardDesignPicker(card: card) { await bank.load(model.api) }
+                }
             }
         }
     }
@@ -112,6 +117,9 @@ struct BankView: View {
         HStack(alignment: .top) {
             ActionButton(title: "Переказати", symbol: "arrow.up.right") { sheet = .transfer }
             ActionButton(title: "Поповнити", symbol: "plus") { sheet = .topUp }
+            if bank.primaryCard != nil {
+                ActionButton(title: "Дизайн", symbol: "paintpalette") { sheet = .design }
+            }
             if let card = bank.primaryCard {
                 ActionButton(title: card.isBlocked ? "Розморозити" : "Заморозити", symbol: "snowflake") {
                     guard !busyCard else { return }
@@ -180,6 +188,69 @@ struct TransactionRow: View {
         case "transfer":
             tx.isIncome ? "Переказ від \(tx.relatedAccount ?? "")" : "Переказ на \(tx.relatedAccount ?? "")"
         default: tx.isIncome ? "Надходження" : "Списання"
+        }
+    }
+}
+
+/// Вибір дизайну картки: живі мініатюри, вибрана - з рамкою акценту.
+struct CardDesignPicker: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let card: API.Card
+    let changed: () async -> Void
+    @State private var selected: CardDesign = .forest
+    @State private var saving = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    VirtualCardView(number: card.maskedNumber, expiry: card.expiryDisplay,
+                                    holder: card.holderName, design: selected)
+                        .padding(.horizontal, 24)
+                        .animation(.smooth, value: selected)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 14)], spacing: 18) {
+                        ForEach(CardDesign.allCases) { d in
+                            Button {
+                                selected = d
+                            } label: {
+                                VStack(spacing: 8) {
+                                    VirtualCardView(number: "", expiry: nil, holder: nil, design: d, compact: true)
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                .strokeBorder(Color.accentColor, lineWidth: selected == d ? 3 : 0)
+                                                .padding(-4)
+                                        }
+                                    Text(d.title)
+                                        .font(.footnote.weight(selected == d ? .semibold : .regular))
+                                        .foregroundStyle(selected == d ? .primary : .secondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, Theme.gutter)
+                }
+                .padding(.vertical, 20)
+            }
+            .navigationTitle("Дизайн картки")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Готово") {
+                        saving = true
+                        Task {
+                            try? await model.api.setCardDesign(card.id, selected.rawValue)
+                            await changed()
+                            dismiss()
+                        }
+                    }
+                    .disabled(saving)
+                }
+            }
+            .onAppear { selected = CardDesign(server: card.design) }
+            .sensoryFeedback(.selection, trigger: selected)
         }
     }
 }

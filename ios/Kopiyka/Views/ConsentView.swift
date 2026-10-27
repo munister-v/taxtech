@@ -10,8 +10,20 @@ struct ConsentView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
+                    // віяло карток - перше, що бачить людина
+                    ZStack {
+                        ForEach(Array([CardDesign.rose, .navy, .forest].enumerated()), id: \.offset) { i, d in
+                            VirtualCardView(number: "•••• 0000", expiry: nil, holder: nil, design: d, animated: i == 2)
+                                .frame(width: 230)
+                                .rotationEffect(.degrees(Double(i - 1) * 9))
+                                .offset(x: CGFloat(i - 1) * 34, y: CGFloat(abs(i - 1)) * 10)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 190)
+                    .padding(.top, 12)
                     Text("Копійка")
-                        .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                        .font(.system(size: 40, weight: .heavy, design: .rounded))
                     point("Облік витрат",
                           "Витрати, чеки й нотатки зберігаються лише на цьому телефоні.")
                     point("Навчальний банк",
@@ -26,6 +38,7 @@ struct ConsentView: View {
                 }
                 .padding(24)
             }
+            .auroraScreen(height: 700)
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 12) {
                     Button {
@@ -41,7 +54,14 @@ struct ConsentView: View {
                     Button("Лише на телефоні") { decide(false) }
                 }
                 .padding(.horizontal, 24)
+                .padding(.top, 28)
                 .padding(.bottom, 8)
+                // текст плавно ховається під кнопки, а не налазить на них
+                .background {
+                    LinearGradient(colors: [Color(.systemGroupedBackground).opacity(0), Color(.systemGroupedBackground)],
+                                   startPoint: .top, endPoint: .init(x: 0.5, y: 0.35))
+                        .ignoresSafeArea()
+                }
             }
         }
         .interactiveDismissDisabled()
