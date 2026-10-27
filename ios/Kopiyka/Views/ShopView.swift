@@ -146,8 +146,8 @@ struct ShopView: View {
                             Image(systemName: c.symbol)
                                 .font(.system(size: 20, weight: .medium))
                                 .frame(width: 58, height: 58)
-                                .background(category == c ? Theme.accent : Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
-                                .foregroundStyle(category == c ? Theme.onAccent : Theme.ink)
+                                .background(category == c ? Theme.ink : Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
+                                .foregroundStyle(category == c ? Theme.onInk : Theme.ink)
                             Text(c.title).font(.caption.weight(category == c ? .semibold : .regular))
                                 .foregroundStyle(category == c ? Theme.ink : .secondary)
                         }
@@ -325,24 +325,65 @@ enum ShopText {
 
 /// Знак товару - емодзі в сірому на тлі.
 struct ProductArt: View {
+    @Environment(AppModel.self) private var model
     let product: API.Product
     var size: CGFloat = 46
     var height: CGFloat = 110
 
+    /// Справжнє фото, якщо воно є; інакше показуємо знак-емодзі.
+    private var photoURL: URL? {
+        guard let raw = product.imageUrl, !raw.isEmpty else { return nil }
+        if raw.hasPrefix("http") { return URL(string: raw) }
+        return URL(string: raw, relativeTo: model.serverURL)?.absoluteURL
+    }
+
+    @ViewBuilder private var picture: some View {
+        if let url = photoURL {
+            // фото на світлій плитці: студійні знімки зазвичай на білому тлі
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image.resizable().scaledToFit().padding(10)
+                case .failure:
+                    emoji
+                default:
+                    Rectangle().fill(.clear).overlay(ProgressView().controlSize(.small))
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+            .background(Color.white, in: .rect(cornerRadius: 14, style: .continuous))
+        } else {
+            emoji
+        }
+    }
+
+    private var emoji: some View {
+        Text(product.imageEmoji ?? "🛍️")
+            .font(.system(size: size))
+            .grayscale(1)
+            .frame(maxWidth: .infinity, minHeight: height)
+            .background(Theme.bg, in: .rect(cornerRadius: 14, style: .continuous))
+    }
+
+    /// Серверні мітки латиницею показуємо звичайним українським словом.
+    static func badgeTitle(_ raw: String) -> String {
+        switch raw.uppercased() {
+        case "HOT": "Хіт"
+        case "NEW": "Новинка"
+        case "TOP": "Топ"
+        default: raw
+        }
+    }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
-            Text(product.imageEmoji ?? "🛍️")
-                .font(.system(size: size))
-                .grayscale(1)
-                .frame(maxWidth: .infinity, minHeight: height)
-                .background(Theme.bg, in: .rect(cornerRadius: 14, style: .continuous))
+            picture
             if let b = product.badge, !b.isEmpty {
-                Text(b)
-                    .font(.caption2.weight(.bold))
-                    .tracking(0.8)
-                    .padding(.horizontal, 7)
+                Text(Self.badgeTitle(b))
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 9)
                     .padding(.vertical, 4)
-                    .background(Theme.ink, in: .rect(cornerRadius: 6, style: .continuous))
+                    .background(Theme.ink, in: .capsule)
                     .foregroundStyle(Theme.onInk)
                     .padding(8)
             }
@@ -387,7 +428,7 @@ struct ProductTile: View {
                     Label("У кошик", systemImage: "plus")
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 34)
-                        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Theme.ink, lineWidth: 1))
+                        .background(Theme.ink.opacity(0.1), in: .rect(cornerRadius: 11, style: .continuous))
                         .foregroundStyle(Theme.ink)
                 }
                 .buttonStyle(.plain)
@@ -423,8 +464,8 @@ struct HitCard: View {
                 Group { if inCart > 0 { Text("\(inCart)").monospacedDigit() } else { Image(systemName: "plus") } }
                     .font(.subheadline.weight(.bold))
                     .frame(width: 36, height: 36)
-                    .background(Theme.accent, in: .circle)
-                    .foregroundStyle(Theme.onAccent)
+                    .background(inCart > 0 ? Theme.accent : Theme.ink, in: .circle)
+                    .foregroundStyle(inCart > 0 ? Theme.onAccent : Theme.onInk)
             }
             .buttonStyle(PressScale())
         }
@@ -445,7 +486,12 @@ struct ProductView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    ProductArt(product: product, size: 110, height: 260)
+                    VStack(alignment: .leading, spacing: 6) {
+                        ProductArt(product: product, size: 110, height: 260)
+                        if let credit = product.imageCredit {
+                            Text(credit).font(.caption2).foregroundStyle(.tertiary)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 8) {
                         Text(product.title).font(.system(size: 22, weight: .bold)).tracking(-0.3)
                         if let d = product.description { Text(d).foregroundStyle(.secondary) }

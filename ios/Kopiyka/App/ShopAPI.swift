@@ -10,6 +10,9 @@ extension API {
         let description: String?
         let price: Double
         let imageEmoji: String?
+        /// Фото товару: повний URL або шлях на нашому сервері.
+        let imageUrl: String?
+        let imageCredit: String?
         let badge: String?
         let stock: Int?
     }

@@ -21,6 +21,7 @@ struct ProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
+                    ScreenTitle("Профіль")
                     header
                     RowGroup(title: "Гроші") {
                         nav("Депозити", "banknote") { DepositsView() }
@@ -68,8 +69,7 @@ struct ProfileView: View {
                 .padding(.bottom, 32)
             }
             .screenBackground()
-            .navigationTitle("Профіль")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .task {
                 async let m = model.api.me()
                 async let a = model.api.achievements()

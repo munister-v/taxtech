@@ -63,7 +63,7 @@ struct TaxesView: View {
     private var hero: some View {
         HeroPanel {
             HeroCaption("Доходи \(String(year))")
-            BigAmount(value: incomeTotal, size: 34)
+            BigAmount(value: incomeTotal, size: 44)
                 .padding(.top, 6)
             HStack(alignment: .top, spacing: 16) {
                 Stat(value: Format.money(incomeTotal * (r.pdfo + r.military)), label: "податки, якщо це зарплата", inverted: true)
@@ -71,19 +71,21 @@ struct TaxesView: View {
             }
             .padding(.top, 16)
             if let next {
-                Rectangle().fill(Theme.line).frame(height: 1).padding(.vertical, 16)
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Найближчий строк").font(.caption).foregroundStyle(.secondary)
-                        Text(next.title).font(.subheadline.weight(.semibold))
+                HStack(alignment: .center, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Найближчий строк").font(.caption.weight(.medium)).foregroundStyle(.secondary)
+                        Text(next.title).font(.subheadline.weight(.semibold)).lineLimit(2)
                     }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(next.date.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA"))))
+                    Spacer(minLength: 8)
+                    VStack(alignment: .trailing, spacing: 3) {
+                        Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA"))))
                             .font(.subheadline.weight(.semibold))
                         Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(.secondary)
                     }
                 }
+                .padding(14)
+                .background(Theme.ink.opacity(0.06), in: .rect(cornerRadius: 16, style: .continuous))
+                .padding(.top, 18)
             }
         }
     }

@@ -132,13 +132,17 @@ struct CardsTab: View {
                     Rule()
                     Line2("Тип", "Віртуальна\(c.expiryDisplay.map { ", до \($0)" } ?? "")")
                     Rule()
-                    HStack {
-                        Text("Дизайн").foregroundStyle(.secondary)
-                        Text(CardDesign(server: c.design).title)
-                        Spacer()
-                        Button("Змінити") { designing = c }.font(.subheadline.weight(.medium)).foregroundStyle(Theme.ink)
+                    Button { designing = c } label: {
+                        HStack {
+                            Text("Дизайн").foregroundStyle(.secondary)
+                            Spacer()
+                            Text(CardDesign(server: c.design).title)
+                            Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
+                        }
+                        .padding(16)
+                        .contentShape(.rect)
                     }
-                    .padding(16)
+                    .buttonStyle(.plain)
                     if let r = revealed {
                         Rule()
                         Line2("CVV", r.cvv)
@@ -147,14 +151,22 @@ struct CardsTab: View {
             }
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("Баланс картки").caption()
-                    BigAmount(value: c.displayBalance ?? 0, size: 28)
+                    HStack {
+                        Text("Баланс картки").caption()
+                        Spacer()
+                        if c.isPrimary {
+                            Text("Головна")
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Theme.ink.opacity(0.1), in: .capsule)
+                        }
+                    }
+                    BigAmount(value: c.displayBalance ?? 0, size: 38)
                     HStack(spacing: 10) {
                         Button("Поповнити") { topping = c }.buttonStyle(InkButton())
                         if !c.isPrimary {
                             Button("Зробити головною") { act { try await model.api.setPrimary(c.id) } }.buttonStyle(LineButton())
-                        } else {
-                            Text("Головна картка").font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                         }
                     }
                 }
