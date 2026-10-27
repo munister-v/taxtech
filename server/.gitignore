@@ -1,0 +1,20 @@
+# Віртуальне оточення
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Бази даних пісочниці
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Локальні секрети
+.env
+
+# macOS
+.DS_Store

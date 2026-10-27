@@ -1,0 +1,6 @@
+.DS_Store
+ios/build/
+ios/Kopiyka.xcodeproj/
+.build/
+.swiftpm/
+xcuserdata/
