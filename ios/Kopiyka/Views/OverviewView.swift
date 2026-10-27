@@ -203,12 +203,34 @@ struct OverviewView: View {
     }
 
     private var actions: some View {
-        HStack(alignment: .top, spacing: 8) {
-            CircleAction(title: "Поповнити", symbol: "plus", primary: true) { sheet = .topUp }
-            CircleAction(title: "На картку", symbol: "creditcard") { sheet = .byCard }
-            CircleAction(title: "За рахунком", symbol: "arrow.left.arrow.right") { prefill = ""; sheet = .byAccount }
-            CircleAction(title: "Податки", symbol: "percent") { open(.taxes) }
+        VStack(spacing: 10) {
+            Button { sheet = .topUp } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "plus").font(.system(size: 16, weight: .bold))
+                    Text("Поповнити баланс").font(.body.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity, minHeight: 54)
+                .background(Theme.ink, in: .capsule)
+                .foregroundStyle(Theme.onInk)
+            }
+            .buttonStyle(PressScale())
+            HStack(spacing: 8) {
+                pill("На картку") { sheet = .byCard }
+                pill("За рахунком") { prefill = ""; sheet = .byAccount }
+                pill("Податки") { open(.taxes) }
+            }
         }
+    }
+
+    private func pill(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title).font(.subheadline.weight(.semibold))
+                .lineLimit(1).minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                .foregroundStyle(Theme.ink)
+        }
+        .buttonStyle(PressScale())
     }
 
     // MARK: Картки
