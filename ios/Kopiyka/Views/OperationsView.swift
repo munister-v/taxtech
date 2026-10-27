@@ -147,7 +147,7 @@ struct OperationsView: View {
                 } else {
                     Chart(byBucket, id: \.day) { b in
                         BarMark(x: .value("Коли", b.day, unit: period.unit), y: .value("Сума", b.sum))
-                            .foregroundStyle(Theme.ink)
+                            .foregroundStyle(Theme.accent)
                     }
                     .chartYAxis(.hidden)
                     .chartXAxis {

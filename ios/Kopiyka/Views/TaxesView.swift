@@ -112,7 +112,7 @@ private struct OverviewPart: View {
                     Surface {
                         Chart(byMonth, id: \.month) { m in
                             BarMark(x: .value("Місяць", m.month, unit: .month), y: .value("Сума", m.sum))
-                                .foregroundStyle(Theme.ink)
+                                .foregroundStyle(Theme.accent)
                         }
                         .chartXAxis {
                             AxisMarks(values: .stride(by: .month)) {

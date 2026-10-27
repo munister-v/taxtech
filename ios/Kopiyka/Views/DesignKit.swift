@@ -39,7 +39,12 @@ struct HeroPanel<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(22)
             .foregroundStyle(Theme.onAccent)
-            .background(Theme.accent, in: .rect(cornerRadius: 26, style: .continuous))
+            .background(alignment: .bottomTrailing) {
+                MarkView(height: 150, color: Theme.onAccent.opacity(0.07))
+                    .offset(x: 34, y: 34)
+            }
+            .background(Theme.accent)
+            .clipShape(.rect(cornerRadius: 26, style: .continuous))
     }
 }
 
@@ -51,10 +56,8 @@ struct HeroCaption: View {
 
     var body: some View {
         Text(text)
-            .font(.caption.weight(.semibold))
-            .tracking(1)
-            .textCase(.uppercase)
-            .foregroundStyle(Theme.onAccent.opacity(0.6))
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Theme.onAccent.opacity(0.75))
     }
 }
 
@@ -72,8 +75,8 @@ struct Stat: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Text(label)
-                .font(.caption)
-                .foregroundStyle(inverted ? Theme.onAccent.opacity(0.6) : .secondary)
+                .font(.footnote.weight(.medium))
+                .foregroundStyle(inverted ? Theme.onAccent.opacity(0.7) : .secondary)
                 .lineLimit(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

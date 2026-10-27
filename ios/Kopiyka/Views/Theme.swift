@@ -76,6 +76,7 @@ struct LabForm<Content: View>: View {
 /// Знак лабораторії - векторний, малюється кольором тексту.
 struct MarkView: View {
     var height: CGFloat = 44
+    var color: Color = Theme.ink
 
     var body: some View {
         Image("Mark")
@@ -83,7 +84,7 @@ struct MarkView: View {
             .resizable()
             .scaledToFit()
             .frame(height: height)
-            .foregroundStyle(Theme.ink)
+            .foregroundStyle(color)
             .accessibilityHidden(true)
     }
 }
@@ -93,9 +94,7 @@ struct MarkView: View {
 extension View {
     /// Мала підпис-мітка над блоком: капітель, розряджений набір.
     func caption() -> some View {
-        font(.caption.weight(.medium))
-            .tracking(0.9)
-            .textCase(.uppercase)
+        font(.subheadline.weight(.semibold))
             .foregroundStyle(.secondary)
     }
 }

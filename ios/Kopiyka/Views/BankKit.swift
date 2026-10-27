@@ -116,7 +116,8 @@ struct AmountSheet: View {
 
 enum BankText {
     static let types = ["topup": "Поповнення", "transfer": "Перекази", "payment": "Покупки", "payout": "Виплати",
-                        "donation": "Донати", "credit": "Кредити", "deposit": "Депозити", "savings": "Накопичення"]
+                        "donation": "Донати", "credit": "Кредити", "deposit": "Депозити", "savings": "Накопичення",
+                        "marketplace": "Магазин", "credit_repay": "Погашення кредиту", "card_topup": "Поповнення картки"]
 
     static func type(_ t: String) -> String { types[t] ?? t.capitalized }
 

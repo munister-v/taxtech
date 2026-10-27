@@ -70,7 +70,7 @@ const T = {
   /** 13px small */
   sm:      { fontSize: 13, fontWeight: 400, lineHeight: 1.45 } as React.CSSProperties,
   /** 11px caption — uppercase labels */
-  caption: { fontSize: 11, fontWeight: 600, letterSpacing: 1.1, textTransform: 'uppercase' as const, lineHeight: 1.2 } as React.CSSProperties,
+  caption: { fontSize: 13, fontWeight: 600, lineHeight: 1.25 } as React.CSSProperties,
   /** tabular numbers */
   num:     { fontFeatureSettings: '"tnum" 1, "kern" 1' } as React.CSSProperties,
 };
