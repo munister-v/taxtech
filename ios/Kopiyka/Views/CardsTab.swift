@@ -78,23 +78,17 @@ struct CardsTab: View {
     // MARK: Шапка і стрічка
 
     private var header: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Віртуальні картки").font(.footnote).foregroundStyle(.secondary)
-                Text("Мої картки").font(.system(size: 32, weight: .bold)).tracking(-0.6)
-            }
-            Spacer()
+        ScreenTitle(title: "Мої картки", subtitle: "Віртуальні картки") {
             Button { issuing = true } label: {
                 Label("Випустити", systemImage: "plus")
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 14)
-                    .padding(.vertical, 9)
-                    .background(Theme.ink, in: .rect(cornerRadius: 12, style: .continuous))
+                    .padding(.vertical, 10)
+                    .background(Theme.ink, in: .rect(cornerRadius: 13, style: .continuous))
                     .foregroundStyle(Theme.onInk)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PressScale())
         }
-        .padding(.top, 12)
     }
 
     private var carousel: some View {

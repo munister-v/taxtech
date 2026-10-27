@@ -1,7 +1,7 @@
 import Charts
 import SwiftUI
 
-/// Огляд: привітання, загальний баланс, картки, швидкі дії, динаміка балансу, часті отримувачі, останні операції.
+/// Огляд: привітання, інвертована панель балансу, круглі дії, картки, податки, динаміка, отримувачі, операції.
 struct OverviewView: View {
     @Environment(AppModel.self) private var model
     @State private var bank = BankModel()
@@ -11,9 +11,9 @@ struct OverviewView: View {
     @State private var recipients: [API.Recipient] = []
     @State private var unread = 0
     @State private var hidden = false
-    @State private var cardIndex = 0
     @State private var sheet: Sheet?
     @State private var prefill = ""
+    @State private var showProfile = false
     let open: (RootView.AppTab) -> Void
 
     enum Sheet: String, Identifiable {
@@ -24,11 +24,12 @@ struct OverviewView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 30) {
+                VStack(alignment: .leading, spacing: 28) {
                     header
                     balance
+                    actions
                     cards
-                    quick
+                    taxes
                     if points.count > 1 { dynamics }
                     if !recipients.isEmpty { frequent }
                     recent
@@ -48,6 +49,7 @@ struct OverviewView: View {
                 case .assistant: AssistantView()
                 }
             }
+            .sheet(isPresented: $showProfile) { ProfileView().presentationDragIndicator(.visible) }
         }
     }
 
@@ -55,7 +57,7 @@ struct OverviewView: View {
         await bank.load(model.api)
         async let m = model.api.me()
         async let s = model.api.analytics()
-        async let p = model.api.balanceHistory(days: 14)
+        async let p = model.api.balanceHistory(days: 30)
         async let r = model.api.topRecipients()
         async let u = model.api.unreadCount()
         me = try? await m
@@ -69,12 +71,21 @@ struct OverviewView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Initials(name: me?.fullName ?? "", size: 44)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(Self.greeting).font(.footnote).foregroundStyle(.secondary)
-                Text(me.map { $0.fullName.split(separator: " ").first.map(String.init) ?? $0.fullName } ?? " ")
-                    .font(.title3.weight(.semibold))
+            Button { showProfile = true } label: {
+                HStack(spacing: 12) {
+                    Initials(name: me?.fullName ?? "", size: 46)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(Self.greeting).font(.footnote).foregroundStyle(.secondary)
+                        HStack(spacing: 4) {
+                            Text(me.map { $0.fullName.split(separator: " ").first.map(String.init) ?? $0.fullName } ?? " ")
+                                .font(.title3.weight(.bold))
+                            Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(.tertiary)
+                        }
+                    }
+                }
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Профіль")
             Spacer()
             RoundIcon(symbol: "text.bubble") { sheet = .assistant }
                 .accessibilityLabel("Помічник")
@@ -99,33 +110,47 @@ struct OverviewView: View {
     // MARK: Баланс
 
     private var balance: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Text("Загальний баланс").caption()
-                Button { hidden.toggle() } label: {
-                    Image(systemName: hidden ? "eye.slash" : "eye").font(.footnote).foregroundStyle(.secondary)
+        HeroPanel {
+            HStack {
+                HeroCaption("Загальний баланс")
+                Spacer()
+                Button { withAnimation(.snappy) { hidden.toggle() } } label: {
+                    Image(systemName: hidden ? "eye.slash" : "eye")
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.onInk.opacity(0.7))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(hidden ? "Показати баланс" : "Сховати баланс")
             }
-            BigAmount(value: bank.account?.balance ?? 0, hidden: hidden)
+            BigAmount(value: bank.account?.balance ?? 0, hidden: hidden, size: 48)
+                .foregroundStyle(Theme.onInk)
+                .padding(.top, 8)
                 .redacted(reason: bank.loaded ? [] : .placeholder)
-            HStack(spacing: 10) {
-                if let n = bank.account?.accountNumber {
-                    Button { UIPasteboard.general.string = n } label: {
-                        Label(n, systemImage: "doc.on.doc").labelStyle(TrailingIcon())
-                    }
-                    .buttonStyle(.plain)
-                    .font(.footnote.monospaced())
-                    .foregroundStyle(.secondary)
+            if let n = bank.account?.accountNumber {
+                Button { UIPasteboard.general.string = n } label: {
+                    Label(n, systemImage: "doc.on.doc").labelStyle(TrailingIcon())
                 }
-                Spacer()
-                if let s = summary {
-                    let net = s.currentMonth.totalIn - s.currentMonth.totalOut
-                    Text("\(net >= 0 ? "+" : "−")\(Format.money(abs(net))) цього місяця")
-                        .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                .buttonStyle(.plain)
+                .font(.footnote.monospaced())
+                .foregroundStyle(Theme.onInk.opacity(0.6))
+                .padding(.top, 4)
+            }
+            if let s = summary {
+                Rectangle().fill(Theme.onInk.opacity(0.2)).frame(height: 1).padding(.vertical, 16)
+                HStack(alignment: .top, spacing: 16) {
+                    Stat(value: "+" + Format.money(s.currentMonth.totalIn), label: "надійшло цього місяця", inverted: true)
+                    Stat(value: "−" + Format.money(s.currentMonth.totalOut), label: "витрачено", inverted: true)
                 }
             }
+        }
+    }
+
+    private var actions: some View {
+        HStack(alignment: .top, spacing: 8) {
+            CircleAction(title: "Поповнити", symbol: "plus") { sheet = .topUp }
+            CircleAction(title: "На картку", symbol: "creditcard") { sheet = .byCard }
+            CircleAction(title: "За рахунком", symbol: "arrow.left.arrow.right") { prefill = ""; sheet = .byAccount }
+            CircleAction(title: "Податки", symbol: "percent") { open(.taxes) }
         }
     }
 
@@ -134,72 +159,102 @@ struct OverviewView: View {
     private var cards: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Мої картки").font(.title3.weight(.semibold))
+                Text("Мої картки").font(.title2.weight(.bold))
                 Text("\(bank.cards.count)").foregroundStyle(.secondary)
                 Spacer()
-                Button("Усі") { open(.cards) }.font(.subheadline.weight(.medium)).foregroundStyle(Theme.ink)
+                Button("Усі") { open(.cards) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
             }
             if bank.cards.isEmpty {
                 VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil, design: .rose)
                     .redacted(reason: bank.loaded ? [] : .placeholder)
             } else {
-                TabView(selection: $cardIndex) {
-                    ForEach(Array(bank.cards.enumerated()), id: \.element.id) { i, c in
-                        VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: c.holderName,
-                                        design: CardDesign(server: c.design), frozen: c.isBlocked)
-                            .padding(.horizontal, 2)
-                            .tag(i)
-                            .onTapGesture { open(.cards) }
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(height: (UIScreen.main.bounds.width - 2 * Theme.gutter) / 1.586 + 4)
-                if bank.cards.count > 1 {
-                    HStack(spacing: 6) {
-                        ForEach(bank.cards.indices, id: \.self) { i in
-                            Rectangle().fill(i == cardIndex ? Theme.ink : Theme.line).frame(width: 18, height: 2)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 12) {
+                        ForEach(bank.cards) { c in
+                            VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: c.holderName,
+                                            design: CardDesign(server: c.design), frozen: c.isBlocked)
+                                .containerRelativeFrame(.horizontal) { w, _ in bank.cards.count > 1 ? w * 0.86 : w }
+                                .scrollTransition(axis: .horizontal) { v, phase in
+                                    v.scaleEffect(phase.isIdentity ? 1 : 0.92).opacity(phase.isIdentity ? 1 : 0.6)
+                                }
+                                .onTapGesture { open(.cards) }
                         }
                     }
-                    .frame(maxWidth: .infinity)
+                    .scrollTargetLayout()
                 }
+                .scrollTargetBehavior(.viewAligned)
+                .scrollClipDisabled()
             }
         }
     }
 
-    // MARK: Швидкі дії
+    // MARK: Податки
 
-    private var quick: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Швидкі дії").font(.title3.weight(.semibold))
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                QuickTile(title: "Поповнити", symbol: "arrow.up") { sheet = .topUp }
-                QuickTile(title: "На картку", symbol: "arrow.right") { sheet = .byCard }
-                QuickTile(title: "За рахунком", symbol: "number") { prefill = ""; sheet = .byAccount }
-                QuickTile(title: "Магазин", symbol: "bag") { open(.shop) }
+    private var taxes: some View {
+        let next = TaxDeadline.upcoming(group: nil).first
+        return Button { open(.taxes) } label: {
+            Surface {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        Image(systemName: "percent")
+                            .font(.system(size: 18, weight: .bold))
+                            .frame(width: 44, height: 44)
+                            .background(Theme.ink, in: .rect(cornerRadius: 13, style: .continuous))
+                            .foregroundStyle(Theme.onInk)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Податки").font(.headline)
+                            Text("Зарплата, ФОП, знижка й строки").font(.footnote).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
+                    }
+                    if let next {
+                        Rule().padding(.leading, -16)
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(next.title).font(.subheadline.weight(.semibold))
+                            Spacer()
+                            Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA"))))
+                                .font(.subheadline).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .padding(16)
             }
         }
+        .buttonStyle(PressScale())
     }
 
     // MARK: Динаміка
 
     private var dynamics: some View {
         let first = points.first?.balance ?? 0, last = points.last?.balance ?? 0
+        let low = points.map(\.balance).min() ?? 0
         return VStack(alignment: .leading, spacing: 12) {
-            BlockTitle("Динаміка балансу", trailing: "\(last >= first ? "+" : "−")\(Format.money(abs(last - first)))")
+            HStack(alignment: .firstTextBaseline) {
+                Text("Динаміка балансу").font(.title2.weight(.bold))
+                Spacer()
+                Text("\(last >= first ? "+" : "−")\(Format.money(abs(last - first)))")
+                    .font(.subheadline.weight(.semibold)).monospacedDigit()
+            }
             Surface {
                 Chart(points) { p in
-                    LineMark(x: .value("День", BankText.day(p.day) ?? .now, unit: .day), y: .value("Баланс", p.balance))
+                    let day = BankText.day(p.day) ?? .now
+                    AreaMark(x: .value("День", day, unit: .day), yStart: .value("Мін", low), yEnd: .value("Баланс", p.balance))
+                        .foregroundStyle(Theme.ink.opacity(0.08))
+                        .interpolationMethod(.monotone)
+                    LineMark(x: .value("День", day, unit: .day), y: .value("Баланс", p.balance))
                         .foregroundStyle(Theme.ink)
+                        .lineStyle(StrokeStyle(lineWidth: 2.5))
                         .interpolationMethod(.monotone)
                 }
                 .chartYScale(domain: .automatic(includesZero: false))
                 .chartYAxis(.hidden)
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 3)) {
+                    AxisMarks(values: .automatic(desiredCount: 4)) {
                         AxisValueLabel(format: .dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA")))
                     }
                 }
-                .frame(height: 120)
+                .frame(height: 150)
                 .padding(16)
             }
         }
@@ -209,23 +264,24 @@ struct OverviewView: View {
 
     private var frequent: some View {
         VStack(alignment: .leading, spacing: 12) {
-            BlockTitle("Часті отримувачі")
+            Text("Часті отримувачі").font(.title2.weight(.bold))
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 14) {
                     ForEach(recipients.prefix(8)) { r in
                         let name = BankText.recipient(r.relatedAccount)
                         Button { prefill = r.relatedAccount; sheet = .byAccount } label: {
                             VStack(spacing: 8) {
-                                Initials(name: name == r.relatedAccount ? String(r.relatedAccount.suffix(2)) : name, size: 48)
-                                Text(name).font(.caption).lineLimit(1)
+                                Initials(name: name == r.relatedAccount ? String(r.relatedAccount.suffix(2)) : name, size: 56)
+                                Text(name).font(.caption.weight(.medium)).lineLimit(1)
                                 Text("\(r.txCount) перек.").font(.caption2).foregroundStyle(.secondary)
                             }
-                            .frame(width: 84)
+                            .frame(width: 80)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PressScale())
                     }
                 }
             }
+            .scrollClipDisabled()
         }
     }
 
@@ -234,9 +290,9 @@ struct OverviewView: View {
     private var recent: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Останні операції").font(.title3.weight(.semibold))
+                Text("Останні операції").font(.title2.weight(.bold))
                 Spacer()
-                Button("Усі") { open(.operations) }.font(.subheadline.weight(.medium)).foregroundStyle(Theme.ink)
+                Button("Усі") { open(.operations) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
             }
             if bank.loaded && bank.history.isEmpty {
                 Text("Операцій ще немає").foregroundStyle(.secondary)

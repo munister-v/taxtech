@@ -8,7 +8,7 @@ struct RootView: View {
     @State private var selection = AppTab.overview
     @State private var pinRequired = false
 
-    enum AppTab: Hashable { case overview, operations, cards, shop, profile }
+    enum AppTab: Hashable { case overview, operations, cards, taxes, shop }
 
     var body: some View {
         Group {
@@ -21,8 +21,8 @@ struct RootView: View {
                     Tab("Огляд", systemImage: "square.grid.2x2", value: AppTab.overview) { OverviewView { selection = $0 } }
                     Tab("Операції", systemImage: "waveform.path.ecg", value: AppTab.operations) { OperationsView() }
                     Tab("Картки", systemImage: "creditcard", value: AppTab.cards) { CardsTab() }
+                    Tab("Податки", systemImage: "percent", value: AppTab.taxes) { TaxesView() }
                     Tab("Магазин", systemImage: "bag", value: AppTab.shop) { ShopView() }
-                    Tab("Профіль", systemImage: "person", value: AppTab.profile) { ProfileView() }
                 }
             }
         }
@@ -37,12 +37,12 @@ struct RootView: View {
         }
         .onAppear {
             #if DEBUG
-            // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|shop|profile
+            // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|taxes|shop
             switch ProcessInfo.processInfo.environment["KOPIYKA_TAB"] {
             case "operations": selection = .operations
             case "cards": selection = .cards
+            case "taxes": selection = .taxes
             case "shop": selection = .shop
-            case "profile": selection = .profile
             default: break
             }
             #endif

@@ -18,6 +18,7 @@ extension API {
         let items: [Product]
         let page: Int
         let pages: Int
+        let total: Int
     }
 
     struct Order: Decodable, Sendable, Identifiable {
@@ -49,10 +50,12 @@ extension API {
     private struct Orders: Decodable { let orders: [Order] }
     private struct Invoices: Decodable { let invoices: [Invoice] }
 
-    func catalog(search: String, page: Int) async throws -> Catalog {
+    func catalog(search: String, page: Int, category: String? = nil, sort: String? = nil, perPage: Int = 20) async throws -> Catalog {
         var q = URLComponents()
-        q.queryItems = [URLQueryItem(name: "page", value: "\(page)"), URLQueryItem(name: "per_page", value: "20")]
+        q.queryItems = [URLQueryItem(name: "page", value: "\(page)"), URLQueryItem(name: "per_page", value: "\(perPage)")]
         if !search.isEmpty { q.queryItems?.append(URLQueryItem(name: "search", value: search)) }
+        if let category { q.queryItems?.append(URLQueryItem(name: "category", value: category)) }
+        if let sort { q.queryItems?.append(URLQueryItem(name: "sort", value: sort)) }
         return try await fetch("marketplace/catalog?\(q.percentEncodedQuery ?? "")")
     }
 

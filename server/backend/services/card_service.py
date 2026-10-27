@@ -320,4 +320,4 @@ class CardService:
 
     @staticmethod
     def _format_holder(name: str) -> str:
-        return name.upper()[:26] if name else 'KOPIYKA SANDBOX'
+        return name.upper()[:26] if name else 'TAXTECH'

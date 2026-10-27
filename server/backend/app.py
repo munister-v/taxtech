@@ -37,7 +37,7 @@ from .routes.three_ds_routes import three_ds_bp
 from .routes.passkey_routes import passkey_bp
 
 API_VERSION = '1.0.0'
-SERVICE_NAME = 'Kopiyka Sandbox Bank'
+SERVICE_NAME = 'TaxTech Sandbox Bank'
 
 # Дозволені Origin для браузерних клієнтів (iOS-застосунку CORS не потрібен).
 # Додаткові origin'и можна передати через CORS_ORIGINS="https://a,https://b".

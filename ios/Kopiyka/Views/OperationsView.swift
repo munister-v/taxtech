@@ -51,12 +51,8 @@ struct OperationsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     header
                     search
-                    Picker("Напрям", selection: $filter.direction) {
-                        Text("Усі").tag(String?.none)
-                        Text("Надходження").tag(String?.some("in"))
-                        Text("Витрати").tag(String?.some("out"))
-                    }
-                    .pickerStyle(.segmented)
+                    SegmentBar(items: [(String?.none, "Усі"), (String?.some("in"), "Надходження"), (String?.some("out"), "Витрати")],
+                               selection: $filter.direction)
                     HStack(spacing: 18) {
                         ForEach(Sort.allCases, id: \.self) { s in
                             Button(s.rawValue) { sort = s }
@@ -96,17 +92,16 @@ struct OperationsView: View {
     }
 
     private var header: some View {
-        HStack {
-            Text("Операції").font(.system(size: 32, weight: .bold)).tracking(-0.6)
-            Spacer()
-            NavigationLink { StatementsView() } label: { RoundGlyph(symbol: "doc.text") }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Виписки")
-            NavigationLink { AnalyticsView() } label: { RoundGlyph(symbol: "chart.bar") }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Аналітика")
+        ScreenTitle(title: "Операції", subtitle: "Історія, витрати, аналітика") {
+            HStack(spacing: 8) {
+                NavigationLink { StatementsView() } label: { RoundGlyph(symbol: "doc.text") }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Виписки")
+                NavigationLink { AnalyticsView() } label: { RoundGlyph(symbol: "chart.bar") }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Аналітика")
+            }
         }
-        .padding(.top, 12)
     }
 
     private var search: some View {
