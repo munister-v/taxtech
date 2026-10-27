@@ -57,6 +57,19 @@ struct API: Sendable {
         return w.data
     }
 
+    /// Вхід або реєстрація через Apple: токен Apple + «сирий» nonce (в токені лежить його SHA-256).
+    func appleLogin(identityToken: String, nonce: String, fullName: String?) async throws -> Session {
+        var body: [String: Any] = ["identity_token": identityToken, "nonce": nonce]
+        if let fullName, !fullName.isEmpty { body["full_name"] = fullName }
+        let w: Wrapped<Session> = try await post("auth/apple", json: body)
+        return w.data
+    }
+
+    /// Назавжди видаляє акаунт і всі його дані на сервері.
+    func deleteAccount() async throws {
+        let _: Ignored = try await send(request("auth/account", method: "DELETE"))
+    }
+
     struct Account: Decodable, Sendable {
         let accountNumber: String
         let balance: Double

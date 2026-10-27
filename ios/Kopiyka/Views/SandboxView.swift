@@ -1,3 +1,5 @@
+import AuthenticationServices
+import CryptoKit
 import EdgeRouter
 import SwiftUI
 
@@ -243,6 +245,8 @@ struct SignInView: View {
     @State private var password = ""
     @State private var status: String?
     @State private var working = false
+    @State private var nonce = ""
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         LabForm {
@@ -257,7 +261,23 @@ struct SignInView: View {
                     .autocorrectionDisabled()
                 Button("Перевірити зв'язок") { Task { await ping() } }
             }
-            Section("Вхід") {
+            Section {
+                SignInWithAppleButton(.continue) { request in
+                    applyServer()
+                    nonce = Self.randomNonce()
+                    request.requestedScopes = [.fullName, .email]
+                    request.nonce = Self.sha256(nonce)
+                } onCompletion: { result in
+                    Task { await finishApple(result) }
+                }
+                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
+                .frame(height: 52)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            } footer: {
+                Text("Вхід через Apple створює навчальний акаунт із віртуальним рахунком. Пошту можна сховати: Apple дасть застосунку лише анонімну адресу.")
+            }
+            Section("Вхід за поштою") {
                 TextField("Пошта", text: $email)
                     .keyboardType(.emailAddress)
                     .textInputAutocapitalization(.never)
@@ -280,6 +300,39 @@ struct SignInView: View {
             #endif
         }
         .onSubmit { applyServer() }
+    }
+
+    private func finishApple(_ result: Result<ASAuthorization, Error>) async {
+        switch result {
+        case .failure(let error):
+            // користувач закрив вікно - не помилка
+            if (error as? ASAuthorizationError)?.code != .canceled { status = error.localizedDescription }
+        case .success(let auth):
+            guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                  let data = credential.identityToken, let token = String(data: data, encoding: .utf8) else {
+                status = "Apple не віддала токен входу."
+                return
+            }
+            // ім'я Apple віддає лише при першому вході
+            let name = credential.fullName.flatMap {
+                PersonNameComponentsFormatter.localizedString(from: $0, style: .default)
+            }
+            working = true
+            defer { working = false }
+            do {
+                try await model.signInWithApple(identityToken: token, nonce: nonce, fullName: name)
+            } catch {
+                status = error.localizedDescription
+            }
+        }
+    }
+
+    private static func randomNonce() -> String {
+        (0..<32).map { _ in String(format: "%02x", UInt8.random(in: .min ... .max)) }.joined()
+    }
+
+    private static func sha256(_ s: String) -> String {
+        SHA256.hash(data: Data(s.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
     private func applyServer() {

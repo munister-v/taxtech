@@ -34,6 +34,9 @@ BASE_PATH = (os.getenv('BASE_PATH') or '').rstrip('/')
 HOST = os.getenv('HOST', '127.0.0.1').strip() or '127.0.0.1'
 PORT = int(os.getenv('PORT') or '5050')
 
+# Вхід через Apple: bundle id застосунку - одержувач (aud) identity token
+APPLE_CLIENT_ID = os.getenv('APPLE_CLIENT_ID', 'com.eprisjournal.kopiyka').strip()
+
 # ── Віртуальна валюта ────────────────────────────────────────────────────────
 # Код валюти навмисно НЕ з ISO 4217: VUAH = «віртуальна гривня» пісочниці.
 CURRENCY_CODE = 'VUAH'

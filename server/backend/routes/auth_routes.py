@@ -144,6 +144,36 @@ def login():
         return api_error(str(exc), 401)   # 401 = невірні облікові дані
 
 
+# ── Вхід і реєстрація через Apple ───────────────────────────────────────────
+
+@auth_bp.post('/apple')
+@rate_limit(AUTH_LOGIN_RATE_LIMIT, AUTH_RATE_WINDOW_SECONDS, key_func=_login_rate_key)
+def apple_login():
+    """POST /api/auth/apple — вхід або реєстрація через Sign in with Apple.
+
+    Body: { identity_token, nonce, full_name? } - nonce тут «сирий», у токені Apple лежить його SHA-256.
+    """
+    try:
+        data = request.get_json(force=True) or {}
+        payload = auth_service.login_with_apple(data, client_info=_client_context())
+        return _browser_auth_response(payload, remember=True, use_cookie=False)
+    except Exception as exc:
+        return api_error(str(exc), 401)
+
+
+# ── Видалення облікового запису ──────────────────────────────────────────────
+
+@auth_bp.delete('/account')
+@auth_required
+def delete_account():
+    """DELETE /api/auth/account — назавжди видалити акаунт і всі його дані."""
+    try:
+        auth_service.delete_account(g.current_user['id'])
+        return clear_auth_cookies(jsonify({'ok': True, 'message': 'Обліковий запис видалено.'}))
+    except Exception as exc:
+        return api_error(str(exc))
+
+
 # ── Вихід (logout) ───────────────────────────────────────────────────────────
 
 @auth_bp.post('/logout')

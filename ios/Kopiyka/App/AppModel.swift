@@ -56,6 +56,17 @@ final class AppModel {
         Keychain.write("sandboxToken", session.token)
     }
 
+    func signInWithApple(identityToken: String, nonce: String, fullName: String?) async throws {
+        let session = try await api.appleLogin(identityToken: identityToken, nonce: nonce, fullName: fullName)
+        token = session.token
+        Keychain.write("sandboxToken", session.token)
+    }
+
+    func deleteAccount() async throws {
+        try await api.deleteAccount()
+        signOut()
+    }
+
     func signOut() {
         token = nil
         Keychain.write("sandboxToken", nil)

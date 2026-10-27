@@ -41,6 +41,10 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_NSCameraUsageDescription: Щоб сфотографувати чек. Фото розпізнається на телефоні й нікуди не надсилається.
         INFOPLIST_KEY_NSLocalNetworkUsageDescription: Щоб підключитися до навчального сервера в локальній мережі.
+    entitlements:
+      path: Kopiyka/Kopiyka.entitlements
+      properties:
+        com.apple.developer.applesignin: [Default]
     info:
       path: Kopiyka/Info.plist
       properties:

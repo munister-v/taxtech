@@ -75,6 +75,11 @@ class UserRepository(BaseRepository):
                 (identity, identity),
             ).fetchone()
 
+    def delete_user(self, user_id: int) -> None:
+        """Видаляє користувача; рахунок, картки, операції й сесії йдуть за ним через ON DELETE CASCADE."""
+        with self.connection() as conn:
+            conn.execute('DELETE FROM users WHERE id = %s', (user_id,))
+
     def get_by_id(self, user_id: int):
         with self.connection() as conn:
             return conn.execute('SELECT * FROM users WHERE id = %s', (user_id,)).fetchone()

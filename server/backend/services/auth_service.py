@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import hashlib
+import secrets
 from datetime import datetime, timezone
 
-from ..config import ACCOUNT_PREFIX, CURRENCY_LABEL
+from ..config import ACCOUNT_PREFIX, APPLE_CLIENT_ID, CURRENCY_LABEL
+from . import apple_auth
 from ..repositories.account_repository import AccountRepository
 from ..repositories.feature_repository import FeatureRepository
 from ..repositories.user_repository import UserRepository
@@ -82,6 +84,11 @@ class AuthService:
         if not user or not verify_password(data['password'], user['password_hash']):
             raise ValueError('Невірні облікові дані.')
 
+        return self._start_session(user, client_info, auth_method='password',
+                                   remember=bool(data.get('remember', True)), audit='Успішний вхід у систему.')
+
+    def _start_session(self, user, client_info: dict | None, *, auth_method: str, remember: bool, audit: str) -> dict:
+        """Відкриває сесію для вже перевіреного користувача і формує відповідь входу."""
         # Видаляємо прострочені сесії цього користувача (cleanup)
         self.users.delete_expired_sessions(user['id'])
         account, auto_created = self.ensure_user_bank_account(user['id'])
@@ -94,10 +101,10 @@ class AuthService:
             token_expiration_iso(),
             user_agent=client_info.get('user_agent', ''),
             ip_address=client_info.get('ip_address', ''),
-            auth_method='password',
-            remembered=bool(data.get('remember', True)),
+            auth_method=auth_method,
+            remembered=remember,
         )
-        self.features.add_audit_log(user['id'], 'login', 'Успішний вхід у систему.')
+        self.features.add_audit_log(user['id'], 'login', audit)
 
         bank_notice = None
         if auto_created:
@@ -115,6 +122,46 @@ class AuthService:
             },
             'bank_notice': bank_notice,
         }
+
+    # ── Вхід і реєстрація через Apple ─────────────────────────────────────────
+    def login_with_apple(self, data: dict, client_info: dict | None = None, *, key_resolver=None) -> dict:
+        """Перший вхід через Apple створює користувача й рахунок у пісочниці, наступні - входять.
+
+        Користувача впізнаємо за `sub` з токена Apple. Окремої колонки немає: `sub` лежить у
+        phone як «apple:<sub>», пароль - випадковий і нікому не відомий.
+        """
+        claims = apple_auth.verify_identity_token(
+            str(data.get('identity_token') or ''),
+            str(data.get('nonce') or ''),
+            audience=APPLE_CLIENT_ID,
+            key_resolver=key_resolver,
+        )
+        key = f"apple:{claims['sub']}"
+        user = self.users.get_by_phone_or_email(key)
+        created = False
+        if not user:
+            email = str(claims.get('email') or '').strip().lower()
+            if not email or self.users.get_by_phone_or_email(email):
+                # Apple не віддала пошту або вона вже в іншому акаунті - не зв'язуємо акаунти мовчки
+                email = f"apple-{hashlib.sha256(key.encode()).hexdigest()[:16]}@users.kopiyka.invalid"
+            name = str(data.get('full_name') or '').strip()[:120] or 'Користувач Apple'
+            user_id = self.users.create_user(
+                full_name=name, phone=key, email=email,
+                password_hash=hash_password(secrets.token_urlsafe(32)),
+            )
+            self.ensure_user_bank_account(user_id)
+            self.features.add_audit_log(user_id, 'register', 'Створено обліковий запис через Apple та рахунок у пісочниці.')
+            user = self.users.get_by_id(user_id)
+            created = True
+        payload = self._start_session(user, client_info, auth_method='apple', remember=True,
+                                      audit='Вхід через Apple.')
+        payload['created'] = created
+        return payload
+
+    # ── Видалення облікового запису ──────────────────────────────────────────
+    def delete_account(self, user_id: int) -> None:
+        """Видаляє користувача з усіма даними (рахунок, операції, картки, сесії) - вимога App Store."""
+        self.users.delete_user(user_id)
 
     # ── Перевірка токену ──────────────────────────────────────────────────────
     def get_user_by_token(self, token: str):

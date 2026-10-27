@@ -44,6 +44,8 @@ struct BankView: View {
     @State private var bank = BankModel()
     @State private var sheet: Sheet?
     @State private var busyCard = false
+    @State private var confirmDelete = false
+    @State private var deleteError: String?
     #if DEBUG
     @State private var debugOpen = false
     #endif
@@ -84,9 +86,22 @@ struct BankView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             Menu("Ще", systemImage: "ellipsis") {
-                Button("Вийти", role: .destructive) { model.signOut() }
+                Button("Вийти") { model.signOut() }
+                Button("Видалити акаунт") { confirmDelete = true }
             }
         }
+        .confirmationDialog("Видалити акаунт назавжди?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button("Видалити акаунт і всі дані", role: .destructive) {
+                Task {
+                    do { try await model.deleteAccount() } catch { deleteError = error.localizedDescription }
+                }
+            }
+        } message: {
+            Text("Рахунок, картки, депозити, кредити й історія віртуальних операцій зникнуть. Витрати в обліку на телефоні залишаться.")
+        }
+        .alert("Не вдалося видалити", isPresented: .init(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) {
+            Button("Гаразд") {}
+        } message: { Text(deleteError ?? "") }
         .refreshable { await bank.load(model.api) }
         .task { await bank.load(model.api) }
         #if DEBUG
