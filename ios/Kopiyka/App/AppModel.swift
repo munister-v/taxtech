@@ -21,6 +21,18 @@ final class AppModel {
     var api: API { API(baseURL: serverURL, token: token) }
     var signedIn: Bool { token != nil }
 
+    /// Згода надсилати текст (уже без особистих даних) мовній моделі на сервері.
+    /// Правило App Store 5.1.2: передачу даних сторонньому ІІ треба пояснити й отримати дозвіл.
+    var cloudAIAllowed: Bool = UserDefaults.standard.bool(forKey: "cloudAIAllowed") {
+        didSet { UserDefaults.standard.set(cloudAIAllowed, forKey: "cloudAIAllowed") }
+    }
+    var consentAsked: Bool = UserDefaults.standard.bool(forKey: "consentAsked") {
+        didSet { UserDefaults.standard.set(consentAsked, forKey: "consentAsked") }
+    }
+
+    /// Сервер для мовної моделі - лише зі згодою і після входу (ендпоінт захищений сесією банку).
+    var cloudAI: API? { cloudAIAllowed && signedIn ? api : nil }
+
     init() {
         let dir = URL.applicationSupportDirectory.appending(path: "EdgeRouter")
         let provider = contextProvider

@@ -2,23 +2,28 @@ import EdgeRouter
 import PhotosUI
 import SwiftData
 import SwiftUI
+import VisionKit
 
 struct ReceiptView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
     @State private var item: PhotosPickerItem?
     @State private var image: UIImage?
-    @State private var ocrMs: Double?
+    @State private var ocrTime: Duration?
     @State private var fields: ReceiptTask.Fields?
     @State private var parsed: ReceiptTask.Fields?
     @State private var record: DecisionRecord?
     @State private var error: String?
     @State private var working = false
+    @State private var scanning = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
+                    if VNDocumentCameraViewController.isSupported {
+                        Button("Сфотографувати чек") { scanning = true }
+                    }
                     PhotosPicker("Вибрати фото чека", selection: $item, matching: .images)
                     Button("Демо-чек") { Task { await process(DemoReceipt.image()) } }
                 } footer: {
@@ -46,8 +51,8 @@ struct ReceiptView: View {
                     }
                     Section {
                         RoutedNote(record: record)
-                        if let ocrMs {
-                            Text("Розпізнавання фото на телефоні: \(Format.ms(ocrMs))")
+                        if let ocrTime {
+                            Text("Розпізнавання фото на телефоні: \(Format.ms(ocrTime))")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
@@ -61,6 +66,10 @@ struct ReceiptView: View {
                 }
             }
             .navigationTitle("Чек")
+            .fullScreenCover(isPresented: $scanning) {
+                DocumentScanner { img in Task { await process(img) } }
+                    .ignoresSafeArea()
+            }
             .onChange(of: item) {
                 Task {
                     guard let data = try? await item?.loadTransferable(type: Data.self),
@@ -86,10 +95,9 @@ struct ReceiptView: View {
             let clock = ContinuousClock()
             let t0 = clock.now
             let lines = try await ReceiptTask.recognize(cg)
-            let d = clock.now - t0
-            ocrMs = Double(d.components.seconds) * 1000 + Double(d.components.attoseconds) / 1e15
+            ocrTime = clock.now - t0
             let routed = try await model.run(ReceiptTask.profile, input: lines,
-                                             executors: ReceiptTask.executors(api: model.api))
+                                             executors: ReceiptTask.executors(cloud: model.cloudAI))
             fields = routed.output
             parsed = routed.output
             record = routed.record
@@ -130,5 +138,37 @@ enum DemoReceipt {
         let r = ImageRenderer(content: view)
         r.scale = 3
         return r.uiImage ?? UIImage()
+    }
+}
+
+/// Сканер документів VisionKit: сам знаходить краї чека, вирівнює перспективу й прибирає тіні.
+struct DocumentScanner: UIViewControllerRepresentable {
+    let scanned: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> VNDocumentCameraViewController {
+        let vc = VNDocumentCameraViewController()
+        vc.delegate = context.coordinator
+        return vc
+    }
+
+    func updateUIViewController(_ vc: VNDocumentCameraViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    @MainActor final class Coordinator: NSObject, @MainActor VNDocumentCameraViewControllerDelegate {
+        let parent: DocumentScanner
+        init(_ parent: DocumentScanner) { self.parent = parent }
+
+        func documentCameraViewController(_ c: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
+            if scan.pageCount > 0 { parent.scanned(scan.imageOfPage(at: 0)) }
+            parent.dismiss()
+        }
+
+        func documentCameraViewControllerDidCancel(_ c: VNDocumentCameraViewController) { parent.dismiss() }
+
+        func documentCameraViewController(_ c: VNDocumentCameraViewController, didFailWithError error: Error) {
+            parent.dismiss()
+        }
     }
 }

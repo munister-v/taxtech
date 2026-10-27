@@ -2,6 +2,9 @@ import EdgeRouter
 import SwiftUI
 
 struct RootView: View {
+    @Environment(AppModel.self) private var model
+    @State private var showConsent = false
+
     var body: some View {
         TabView {
             Tab("Гроші", systemImage: "list.bullet.rectangle") { MoneyView() }
@@ -10,6 +13,8 @@ struct RootView: View {
             Tab("Банк", systemImage: "building.columns") { SandboxView() }
             Tab("Лабораторія", systemImage: "flask") { LabView() }
         }
+        .onAppear { showConsent = !model.consentAsked }
+        .fullScreenCover(isPresented: $showConsent) { ConsentView() }
     }
 }
 
@@ -20,6 +25,10 @@ enum Format {
 
     static func ms(_ v: Double) -> String {
         v < 10 ? String(format: "%.1f мс", v) : v < 1000 ? "\(Int(v)) мс" : String(format: "%.1f с", v / 1000)
+    }
+
+    static func ms(_ d: Duration) -> String {
+        ms(Double(d.components.seconds) * 1000 + Double(d.components.attoseconds) / 1e15)
     }
 
     static func joules(_ v: Double) -> String {

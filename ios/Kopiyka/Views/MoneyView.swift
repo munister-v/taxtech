@@ -1,7 +1,8 @@
+import Charts
 import SwiftData
 import SwiftUI
 
-/// Особистий облік: витрати місяця, вручну або з чека.
+/// Особистий облік: витрати місяця, графік по днях, категорії, останні витрати.
 struct MoneyView: View {
     @Query(sort: \Expense.date, order: .reverse) private var expenses: [Expense]
     @Environment(\.modelContext) private var context
@@ -12,65 +13,177 @@ struct MoneyView: View {
         return expenses.filter { cal.isDate($0.date, equalTo: .now, toGranularity: .month) }
     }
 
+    private var total: Double { thisMonth.reduce(0) { $0 + $1.amount } }
+
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(Date.now.formatted(.dateTime.month(.wide).locale(Locale(identifier: "uk_UA"))).capitalized)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text(Format.money(thisMonth.reduce(0) { $0 + $1.amount }))
-                            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
-                            .monospacedDigit()
-                    }
-                    .padding(.vertical, 6)
-                }
-                if !byCategory.isEmpty {
-                    Section("За категоріями") {
-                        ForEach(byCategory, id: \.0) { name, sum in
-                            LabeledContent(name, value: Format.money(sum)).monospacedDigit()
-                        }
+            ScrollView {
+                VStack(spacing: 28) {
+                    hero
+                    if expenses.isEmpty {
+                        ContentUnavailableView("Витрат ще немає", systemImage: "list.bullet.rectangle",
+                                               description: Text("Додайте вручну або сфотографуйте чек"))
+                            .padding(.top, 40)
+                    } else {
+                        chart
+                        categories
+                        recent
                     }
                 }
-                if !expenses.isEmpty {
-                    Section("Останні") { recent }
-                }
+                .padding(.horizontal, Theme.gutter)
+                .padding(.bottom, 24)
             }
-            .overlay {
-                if expenses.isEmpty {
-                    ContentUnavailableView("Витрат ще немає", systemImage: "list.bullet.rectangle",
-                                           description: Text("Додайте вручну або сфотографуйте чек"))
-                }
-            }
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("Гроші")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 Button("Додати", systemImage: "plus") { adding = true }
             }
             .sheet(isPresented: $adding) { AddExpenseView() }
+            #if DEBUG
+            .task { seedDemoIfAsked() }
+            #endif
+        }
+    }
+
+    #if DEBUG
+    /// Демо-витрати для перевірки вигляду: simctl launch з SIMCTL_CHILD_KOPIYKA_DEMO_EXPENSES=1.
+    private func seedDemoIfAsked() {
+        guard expenses.isEmpty, ProcessInfo.processInfo.environment["KOPIYKA_DEMO_EXPENSES"] == "1" else { return }
+        let samples: [(String, String, Double)] = [
+            ("Сільпо", "Продукти", 412.5), ("АТБ", "Продукти", 186.3), ("Aroma Kava", "Кафе", 95),
+            ("ОККО", "Пальне", 1450), ("Аптека Доброго Дня", "Аптека", 238.9), ("Novus", "Продукти", 654.2),
+            ("Метро", "Транспорт", 16), ("ДТЕК", "Комуналка", 1180.4), ("Піца Челентано", "Кафе", 340),
+        ]
+        let today = Calendar.current.component(.day, from: .now)
+        for i in 0..<min(26, today * 2) {
+            let s = samples[i % samples.count]
+            let day = Calendar.current.date(byAdding: .day, value: -(i % today), to: .now)!
+            context.insert(Expense(amount: s.2 * Double(1 + i % 3) / 2, merchant: s.0, category: s.1,
+                                   date: day, source: "Демо"))
+        }
+    }
+    #endif
+
+    private var hero: some View {
+        VStack(spacing: 6) {
+            Text("Витрати за \(Date.now.formatted(.dateTime.month(.wide).locale(Locale(identifier: "uk_UA"))))")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text(Format.money(total))
+                .font(Theme.balance())
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            if let avg = dailyAverage {
+                Text("у середньому \(Format.money(avg)) на день")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 20)
+    }
+
+    private var dailyAverage: Double? {
+        let day = Calendar.current.component(.day, from: .now)
+        return total > 0 ? total / Double(day) : nil
+    }
+
+    private var byDay: [(day: Date, sum: Double)] {
+        Dictionary(grouping: thisMonth) { Calendar.current.startOfDay(for: $0.date) }
+            .map { ($0.key, $0.value.reduce(0) { $0 + $1.amount }) }
+            .sorted { $0.day < $1.day }
+    }
+
+    private var chart: some View {
+        Surface {
+            Chart(byDay, id: \.day) { d in
+                BarMark(x: .value("День", d.day, unit: .day), y: .value("Сума", d.sum), width: .ratio(0.6))
+                    .foregroundStyle(Color.accentColor)
+                    .clipShape(.rect(cornerRadius: 3))
+            }
+            .chartXScale(domain: monthRange)
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .day, count: 7)) {
+                    AxisValueLabel(format: .dateTime.day())
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
+                    AxisGridLine().foregroundStyle(.quaternary)
+                    AxisValueLabel()
+                }
+            }
+            .frame(height: 160)
+            .padding(16)
+        }
+    }
+
+    private var monthRange: ClosedRange<Date> {
+        let cal = Calendar.current
+        let interval = cal.dateInterval(of: .month, for: .now)!
+        return interval.start...interval.end
+    }
+
+    private var byCategory: [(name: String, sum: Double)] {
+        Dictionary(grouping: thisMonth, by: \.category)
+            .map { ($0.key, $0.value.reduce(0) { $0 + $1.amount }) }
+            .sorted { $0.sum > $1.sum }
+    }
+
+    private var categories: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            BlockTitle("Категорії")
+            Surface {
+                ForEach(Array(byCategory.enumerated()), id: \.element.name) { i, c in
+                    if i > 0 { Divider().padding(.leading, 16) }
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(c.name)
+                            Spacer()
+                            Text("\(Int((c.sum / max(total, 1) * 100).rounded()))%")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .monospacedDigit()
+                            Text(Format.money(c.sum))
+                                .font(.body.weight(.semibold))
+                                .monospacedDigit()
+                        }
+                        // частка категорії - тонка смуга акценту, без кольорових міток
+                        GeometryReader { g in
+                            Capsule().fill(.quaternary)
+                                .overlay(alignment: .leading) {
+                                    Capsule().fill(Color.accentColor)
+                                        .frame(width: g.size.width * c.sum / max(total, 1))
+                                }
+                        }
+                        .frame(height: 4)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 13)
+                }
+            }
         }
     }
 
     private var recent: some View {
-        ForEach(expenses) { e in
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(e.merchant)
-                    Text("\(e.category), \(e.date.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            BlockTitle("Останні")
+            Surface {
+                ForEach(Array(expenses.prefix(20).enumerated()), id: \.element.id) { i, e in
+                    if i > 0 { Divider().padding(.leading, 16) }
+                    AmountRow(title: e.merchant,
+                              subtitle: "\(e.category), \(BankView.dayTitle(Calendar.current.startOfDay(for: e.date)).lowercased())",
+                              amount: "−" + Format.money(e.amount))
+                        .contentShape(.rect)
+                        .contextMenu {
+                            Button("Видалити", systemImage: "trash", role: .destructive) { context.delete(e) }
+                        }
                 }
-                Spacer()
-                Text(Format.money(e.amount)).monospacedDigit()
             }
         }
-        .onDelete { idx in idx.forEach { context.delete(expenses[$0]) } }
-    }
-
-    private var byCategory: [(String, Double)] {
-        Dictionary(grouping: thisMonth, by: \.category)
-            .map { ($0.key, $0.value.reduce(0) { $0 + $1.amount }) }
-            .sorted { $0.1 > $1.1 }
     }
 }
 

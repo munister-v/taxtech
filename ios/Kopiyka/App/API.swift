@@ -57,6 +57,80 @@ struct API: Sendable {
         return w.data
     }
 
+    struct Account: Decodable, Sendable {
+        let accountNumber: String
+        let balance: Double
+    }
+
+    struct Transaction: Decodable, Sendable, Identifiable {
+        let id: Int
+        let amount: Double
+        let direction: String
+        let txType: String
+        let description: String?
+        let relatedAccount: String?
+        let createdAt: String
+
+        var isIncome: Bool { direction == "in" }
+        /// Сервер пише час у UTC без зони: «2026-10-26 06:48:41».
+        var date: Date {
+            let f = DateFormatter()
+            f.locale = Locale(identifier: "en_US_POSIX")
+            f.timeZone = TimeZone(identifier: "UTC")
+            f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            return f.date(from: String(createdAt.prefix(19))) ?? .distantPast
+        }
+    }
+
+    struct Card: Decodable, Sendable, Identifiable {
+        let id: Int
+        let maskedNumber: String
+        let expiryDisplay: String?
+        let holderName: String?
+        let status: String
+
+        var isBlocked: Bool { status == "blocked" }
+    }
+
+    func account() async throws -> Account {
+        let w: Wrapped<Account> = try await send(request("accounts/main", method: "GET"))
+        return w.data
+    }
+
+    func history() async throws -> [Transaction] {
+        let w: Wrapped<[Transaction]> = try await send(request("transactions/history", method: "GET"))
+        return w.data
+    }
+
+    func cards() async throws -> [Card] {
+        let w: Wrapped<[Card]> = try await send(request("cards", method: "GET"))
+        return w.data
+    }
+
+    /// Заморозити або розморозити - той самий виклик перемикає стан.
+    func toggleCardBlock(_ id: Int) async throws {
+        var r = request("cards/\(id)/block", method: "PATCH")
+        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        r.httpBody = Data("{}".utf8)
+        let _: Wrapped<Card> = try await send(r)
+    }
+
+    /// Гроші віртуальні; ключ ідемпотентності - щоб повтор після обриву мережі не зарахував двічі.
+    func topUp(_ amount: Double) async throws -> Account {
+        let w: Wrapped<Account> = try await post("transactions/topup", json: ["amount": amount],
+                                                 idempotencyKey: UUID().uuidString)
+        return w.data
+    }
+
+    /// Сервер банку сам перевіряє переказ повним антифродом і може відмовити.
+    func transfer(_ amount: Double, to recipient: String, description: String) async throws -> Account {
+        let w: Wrapped<Account> = try await post(
+            "transactions/transfer",
+            json: ["amount": amount, "recipient_account_number": recipient, "description": description],
+            idempotencyKey: UUID().uuidString)
+        return w.data
+    }
+
     // MARK: Транспорт
 
     private func request(_ path: String, method: String) -> URLRequest {
@@ -67,9 +141,10 @@ struct API: Sendable {
         return r
     }
 
-    private func post<T: Decodable>(_ path: String, json: [String: Any]) async throws -> T {
+    private func post<T: Decodable>(_ path: String, json: [String: Any], idempotencyKey: String? = nil) async throws -> T {
         var r = request(path, method: "POST")
         r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let idempotencyKey { r.setValue(idempotencyKey, forHTTPHeaderField: "Idempotency-Key") }
         r.httpBody = try JSONSerialization.data(withJSONObject: json)
         return try await send(r)
     }

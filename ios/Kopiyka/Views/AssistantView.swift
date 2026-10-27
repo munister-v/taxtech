@@ -66,7 +66,7 @@ struct AssistantView: View {
             defer { working = false }
             do {
                 let routed = try await model.run(AssistantTask.profile, input: q,
-                                                 executors: AssistantTask.executors(api: model.api))
+                                                 executors: AssistantTask.executors(cloud: model.cloudAI))
                 turns[i].answer = routed.output
                 turns[i].record = routed.record
             } catch {

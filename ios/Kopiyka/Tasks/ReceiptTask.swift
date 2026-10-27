@@ -36,12 +36,12 @@ enum ReceiptTask {
         }
     }
 
-    static func executors(api: API) -> Executors<[Line], Fields> {
+    static func executors(cloud api: API?) -> Executors<[Line], Fields> {
         var ex = Executors<[Line], Fields>(device: { lines in
             let (fields, uncertainty) = parse(lines)
             return Attempt(fields, uncertainty: uncertainty)
         })
-        if api.token != nil {
+        if let api {
             ex.redactedCloud = { lines in
                 let (text, count) = Redactor.redact(lines.map(\.text).joined(separator: "\n"))
                 let reply = try await api.llm(task: "receipt", prompt: text)

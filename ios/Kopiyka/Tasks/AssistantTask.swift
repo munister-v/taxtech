@@ -44,7 +44,7 @@ enum AssistantTask {
                      cloudCost: 1)
     )
 
-    static func executors(api: API) -> Executors<String, String> {
+    static func executors(cloud api: API?) -> Executors<String, String> {
         var ex = Executors<String, String>()
         if deviceAvailable {
             ex.device = { question in
@@ -54,7 +54,7 @@ enum AssistantTask {
                 return Attempt(answer.text, uncertainty: answer.confident ? 0.25 : 0.8)
             }
         }
-        if api.token != nil {
+        if let api {
             ex.redactedCloud = { question in
                 let (text, count) = Redactor.redact(question)
                 let reply = try await api.llm(task: "support", prompt: text)
