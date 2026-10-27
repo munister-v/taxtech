@@ -59,6 +59,12 @@ final class AppModel {
         Keychain.write("sandboxToken", session.token)
     }
 
+    func register(name: String, phone: String, email: String, password: String) async throws {
+        let session = try await api.register(name: name, phone: phone, email: email, password: password)
+        token = session.token
+        Keychain.write("sandboxToken", session.token)
+    }
+
     func signInWithApple(identityToken: String, nonce: String, fullName: String?) async throws {
         let session = try await api.appleLogin(identityToken: identityToken, nonce: nonce, fullName: fullName)
         token = session.token

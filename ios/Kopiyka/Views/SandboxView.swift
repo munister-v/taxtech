@@ -1,39 +1,5 @@
-import AuthenticationServices
-import CryptoKit
 import EdgeRouter
 import SwiftUI
-
-/// Навчальний банк на віртуальних грошах: рахунок, картки, історія, поповнення й переказ.
-/// Перед переказом EdgeRouter оцінює ризик на телефоні (Layer 1) або на сервері (усі шари).
-struct SandboxView: View {
-    @Environment(AppModel.self) private var model
-    @Environment(\.scenePhase) private var phase
-    @State private var pinRequired = false
-
-    var body: some View {
-        NavigationStack {
-            if model.signedIn {
-                if pinRequired && !model.bankUnlocked {
-                    PinLockView().toolbar(.hidden, for: .navigationBar)
-                } else {
-                    BankView()
-                }
-            } else {
-                SignInView()
-                    .labForm()
-                    .navigationTitle("Навчальний банк")
-            }
-        }
-        .task(id: model.signedIn) {
-            pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
-        }
-        .onChange(of: phase) { _, p in
-            guard p == .background else { return }
-            model.bankUnlocked = false
-            Task { pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? pinRequired) : false }
-        }
-    }
-}
 
 struct TopUpView: View {
     @Environment(AppModel.self) private var model
@@ -83,6 +49,8 @@ struct TransferView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let balance: Double
+    var startByCard = false
+    var startRecipient = ""
     let done: () async -> Void
 
     @State private var recipient = ""
@@ -189,7 +157,13 @@ struct TransferView: View {
                 if let error { Section { Text(error).foregroundStyle(.secondary) } }
             }
             .labForm()
-            .task { await loadSaved() }
+            .task {
+                if recipient.isEmpty {
+                    byCard = startByCard
+                    recipient = startRecipient
+                }
+                await loadSaved()
+            }
             .navigationTitle("Переказ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -250,131 +224,4 @@ struct TransferView: View {
 
     static let levels = ["low": "Низький", "medium": "Середній", "high": "Високий", "critical": "Критичний"]
     static let flags = FraudFlags.titles
-}
-
-struct SignInView: View {
-    @Environment(AppModel.self) private var model
-    @State private var server = ""
-    @State private var email = ""
-    @State private var password = ""
-    @State private var status: String?
-    @State private var working = false
-    @State private var nonce = ""
-    @Environment(\.colorScheme) private var scheme
-
-    var body: some View {
-        LabForm {
-            Section {
-                Text("Гроші тут віртуальні: справжніх рахунків, карток і переказів немає. Банк потрібен, щоб навчитися фінансів і перевірити, де краще рахувати - на телефоні чи на сервері.")
-                    .foregroundStyle(.secondary)
-            }
-            Section("Сервер") {
-                TextField("Адреса", text: $server)
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                Button("Перевірити зв'язок") { Task { await ping() } }
-            }
-            Section {
-                SignInWithAppleButton(.continue) { request in
-                    applyServer()
-                    nonce = Self.randomNonce()
-                    request.requestedScopes = [.fullName, .email]
-                    request.nonce = Self.sha256(nonce)
-                } onCompletion: { result in
-                    Task { await finishApple(result) }
-                }
-                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
-                .frame(height: 52)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-            } footer: {
-                Text("Вхід через Apple створює навчальний акаунт із віртуальним рахунком. Пошту можна сховати: Apple дасть застосунку лише анонімну адресу.")
-            }
-            Section("Вхід за поштою") {
-                TextField("Пошта", text: $email)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                SecureField("Пароль", text: $password)
-                Button("Увійти") { Task { await signIn() } }
-                    .disabled(email.isEmpty || password.isEmpty || working)
-            }
-            if let status {
-                Section { Text(status).foregroundStyle(.secondary) }
-            }
-        }
-        .onAppear {
-            server = model.serverURL.absoluteString
-            #if DEBUG
-            // демо-вхід для симулятора: simctl launch з SIMCTL_CHILD_KOPIYKA_DEMO_* (значення з server/.env.example)
-            let env = ProcessInfo.processInfo.environment
-            if email.isEmpty, let id = env["KOPIYKA_DEMO_IDENTITY"] { email = id }
-            if password.isEmpty, let pw = env["KOPIYKA_DEMO_PASSWORD"] { password = pw }
-            #endif
-        }
-        .onSubmit { applyServer() }
-    }
-
-    private func finishApple(_ result: Result<ASAuthorization, Error>) async {
-        switch result {
-        case .failure(let error):
-            // користувач закрив вікно - не помилка
-            if (error as? ASAuthorizationError)?.code != .canceled { status = error.localizedDescription }
-        case .success(let auth):
-            guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
-                  let data = credential.identityToken, let token = String(data: data, encoding: .utf8) else {
-                status = "Apple не віддала токен входу."
-                return
-            }
-            // ім'я Apple віддає лише при першому вході
-            let name = credential.fullName.flatMap {
-                PersonNameComponentsFormatter.localizedString(from: $0, style: .default)
-            }
-            working = true
-            defer { working = false }
-            do {
-                try await model.signInWithApple(identityToken: token, nonce: nonce, fullName: name)
-            } catch {
-                status = error.localizedDescription
-            }
-        }
-    }
-
-    private static func randomNonce() -> String {
-        (0..<32).map { _ in String(format: "%02x", UInt8.random(in: .min ... .max)) }.joined()
-    }
-
-    private static func sha256(_ s: String) -> String {
-        SHA256.hash(data: Data(s.utf8)).map { String(format: "%02x", $0) }.joined()
-    }
-
-    private func applyServer() {
-        if let url = URL(string: server.trimmingCharacters(in: .whitespaces)), url.scheme != nil {
-            model.serverURL = url
-        }
-    }
-
-    private func ping() async {
-        applyServer()
-        let clock = ContinuousClock()
-        let t0 = clock.now
-        do {
-            _ = try await model.api.ping()
-            status = "Сервер на зв'язку, \(Format.ms(clock.now - t0))"
-        } catch {
-            status = "Немає зв'язку: \(error.localizedDescription)"
-        }
-    }
-
-    private func signIn() async {
-        applyServer()
-        working = true
-        defer { working = false }
-        do {
-            try await model.signIn(email: email, password: password)
-        } catch {
-            status = error.localizedDescription
-        }
-    }
 }

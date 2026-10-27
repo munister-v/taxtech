@@ -150,6 +150,14 @@ enum BankText {
         return f.date(from: String(s.prefix(10)))
     }
 
+    /// «Сьогодні», «Учора» або «27 жовтня».
+    static func dayTitle(_ day: Date) -> String {
+        let cal = Calendar.current
+        if cal.isDateInToday(day) { return "Сьогодні" }
+        if cal.isDateInYesterday(day) { return "Учора" }
+        return day.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA")))
+    }
+
     static func isoDay(_ d: Date) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")

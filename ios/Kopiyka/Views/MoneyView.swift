@@ -196,7 +196,7 @@ struct MoneyView: View {
                 ForEach(Array(expenses.prefix(20).enumerated()), id: \.element.id) { i, e in
                     if i > 0 { Rule() }
                     AmountRow(title: e.merchant,
-                              subtitle: "\(e.category), \(BankView.dayTitle(Calendar.current.startOfDay(for: e.date)).lowercased())",
+                              subtitle: "\(e.category), \(BankText.dayTitle(Calendar.current.startOfDay(for: e.date)).lowercased())",
                               amount: "−" + Format.money(e.amount))
                         .contentShape(.rect)
                         .contextMenu {

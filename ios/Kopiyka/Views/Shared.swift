@@ -3,22 +3,48 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var phase
     @State private var showConsent = false
-    @State private var selection = AppTab.home
+    @State private var selection = AppTab.overview
+    @State private var pinRequired = false
 
-    enum AppTab: Hashable { case home, money, assistant, bank, lab }
+    enum AppTab: Hashable { case overview, operations, cards, shop, profile }
 
     var body: some View {
-        TabView(selection: $selection) {
-            Tab("Головна", systemImage: "house", value: AppTab.home) { HomeView { selection = $0 } }
-            Tab("Гроші", systemImage: "list.bullet.rectangle", value: AppTab.money) { MoneyView() }
-            Tab("Помічник", systemImage: "text.bubble", value: AppTab.assistant) { AssistantView() }
-            Tab("Банк", systemImage: "building.columns", value: AppTab.bank) { SandboxView() }
-            Tab("Лабораторія", systemImage: "flask", value: AppTab.lab) { LabView() }
+        Group {
+            if !model.signedIn {
+                AuthView()
+            } else if pinRequired && !model.bankUnlocked {
+                PinLockView()
+            } else {
+                TabView(selection: $selection) {
+                    Tab("Огляд", systemImage: "square.grid.2x2", value: AppTab.overview) { OverviewView { selection = $0 } }
+                    Tab("Операції", systemImage: "waveform.path.ecg", value: AppTab.operations) { OperationsView() }
+                    Tab("Картки", systemImage: "creditcard", value: AppTab.cards) { CardsTab() }
+                    Tab("Магазин", systemImage: "bag", value: AppTab.shop) { ShopView() }
+                    Tab("Профіль", systemImage: "person", value: AppTab.profile) { ProfileView() }
+                }
+            }
+        }
+        .task(id: model.signedIn) {
+            pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
+        }
+        .onChange(of: phase) { _, p in
+            // з фону банк знову просить PIN
+            guard p == .background else { return }
+            model.bankUnlocked = false
+            Task { pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? pinRequired) : false }
         }
         .onAppear {
             #if DEBUG
-            if ProcessInfo.processInfo.environment["KOPIYKA_OPEN"] != nil { selection = .bank }
+            // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|shop|profile
+            switch ProcessInfo.processInfo.environment["KOPIYKA_TAB"] {
+            case "operations": selection = .operations
+            case "cards": selection = .cards
+            case "shop": selection = .shop
+            case "profile": selection = .profile
+            default: break
+            }
             #endif
             showConsent = !model.consentAsked
             #if DEBUG
