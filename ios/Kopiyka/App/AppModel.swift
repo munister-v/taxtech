@@ -18,6 +18,15 @@ final class AppModel {
     private(set) var feedback: [UUID: Bool] = [:]
     private(set) var context = DeviceContext()
 
+    /// У симуляторі сервер на цьому ж Mac; на телефоні - за ім'ям Mac у домашній мережі (mDNS).
+    static var defaultServer: URL {
+        #if targetEnvironment(simulator)
+        URL(string: "http://localhost:5050")!
+        #else
+        URL(string: "http://MacBook-Air-Vyacheslaw.local:5050")!
+        #endif
+    }
+
     var api: API { API(baseURL: serverURL, token: token) }
     var signedIn: Bool { token != nil }
 
@@ -38,7 +47,7 @@ final class AppModel {
         let provider = contextProvider
         router = EdgeRouter(directory: dir) { await provider.snapshot() }
         serverURL = UserDefaults.standard.string(forKey: "serverURL").flatMap(URL.init(string:))
-            ?? URL(string: "http://localhost:5050")!
+            ?? Self.defaultServer
     }
 
     func signIn(email: String, password: String) async throws {

@@ -4,16 +4,22 @@ import SwiftUI
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @State private var showConsent = false
+    @State private var selection = AppTab.money
+
+    enum AppTab: Hashable { case money, receipt, assistant, bank, lab }
 
     var body: some View {
-        TabView {
-            Tab("Гроші", systemImage: "list.bullet.rectangle") { MoneyView() }
-            Tab("Чек", systemImage: "doc.text.viewfinder") { ReceiptView() }
-            Tab("Помічник", systemImage: "text.bubble") { AssistantView() }
-            Tab("Банк", systemImage: "building.columns") { SandboxView() }
-            Tab("Лабораторія", systemImage: "flask") { LabView() }
+        TabView(selection: $selection) {
+            Tab("Гроші", systemImage: "list.bullet.rectangle", value: AppTab.money) { MoneyView() }
+            Tab("Чек", systemImage: "doc.text.viewfinder", value: AppTab.receipt) { ReceiptView() }
+            Tab("Помічник", systemImage: "text.bubble", value: AppTab.assistant) { AssistantView() }
+            Tab("Банк", systemImage: "building.columns", value: AppTab.bank) { SandboxView() }
+            Tab("Лабораторія", systemImage: "flask", value: AppTab.lab) { LabView() }
         }
         .onAppear {
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["KOPIYKA_OPEN"] != nil { selection = .bank }
+            #endif
             showConsent = !model.consentAsked
             #if DEBUG
             if ProcessInfo.processInfo.environment["KOPIYKA_SHOW_CONSENT"] == "1" { showConsent = true }

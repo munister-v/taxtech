@@ -63,6 +63,7 @@ struct LabForm<Content: View>: View {
         Form {
             Group { content }.listRowBackground(Theme.surface)
         }
+        .tint(Theme.ink)
     }
 }
 

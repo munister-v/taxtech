@@ -90,6 +90,7 @@ struct LabView: View {
         @Bindable var model = model
         return Section {
             Toggle("Мовна модель на сервері", isOn: $model.cloudAIAllowed)
+                .tint(Theme.ink.opacity(0.6))
         } footer: {
             Text(model.signedIn
                  ? "Текст чека й питання помічнику йдуть на сервер лише без номерів карток, телефонів, пошти й ІПН."

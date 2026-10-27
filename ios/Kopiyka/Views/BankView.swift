@@ -5,6 +5,9 @@ final class BankModel {
     var account: API.Account?
     var cards: [API.Card] = []
     var history: [API.Transaction] = []
+    var deposits: [API.Deposit] = []
+    var credits: [API.Credit] = []
+    var goals: [API.Goal] = []
     var error: String?
     var loaded = false
 
@@ -14,14 +17,18 @@ final class BankModel {
             async let c = api.cards()
             async let h = api.history()
             (account, cards, history) = try await (a, c, h)
+            cards = cards.filter { !$0.isClosed }
             error = nil
         } catch {
             self.error = error.localizedDescription
         }
+        deposits = ((try? await api.deposits()) ?? []).filter(\.isActive)
+        credits = ((try? await api.credits()) ?? []).filter(\.isActive)
+        goals = (try? await api.goals()) ?? []
         loaded = true
     }
 
-    var primaryCard: API.Card? { cards.first }
+    var primaryCard: API.Card? { cards.first { $0.isPrimary } ?? cards.first }
 
     /// Історія по днях, найновіші першими.
     var days: [(day: Date, items: [API.Transaction])] {
@@ -37,6 +44,9 @@ struct BankView: View {
     @State private var bank = BankModel()
     @State private var sheet: Sheet?
     @State private var busyCard = false
+    #if DEBUG
+    @State private var debugOpen = false
+    #endif
 
     enum Sheet: String, Identifiable {
         case topUp, transfer, design
@@ -58,6 +68,7 @@ struct BankView: View {
                 if let error = bank.error {
                     Text(error).font(.footnote).foregroundStyle(.secondary)
                 }
+                hub
                 operations
                 Text("Гроші навчальні: їх не можна вивести чи витратити поза застосунком.")
                     .font(.footnote)
@@ -78,6 +89,11 @@ struct BankView: View {
         }
         .refreshable { await bank.load(model.api) }
         .task { await bank.load(model.api) }
+        #if DEBUG
+        // simctl launch з SIMCTL_CHILD_KOPIYKA_OPEN=cards|deposits|credits|goals|contacts|limits|analytics|history
+        .navigationDestination(isPresented: $debugOpen) { debugScreen }
+        .onAppear { debugOpen = ProcessInfo.processInfo.environment["KOPIYKA_OPEN"] != nil }
+        #endif
         .sheet(item: $sheet) { s in
             switch s {
             case .topUp: TopUpView { await bank.load(model.api) }
@@ -89,6 +105,21 @@ struct BankView: View {
             }
         }
     }
+
+    #if DEBUG
+    @ViewBuilder private var debugScreen: some View {
+        switch ProcessInfo.processInfo.environment["KOPIYKA_OPEN"] {
+        case "cards": CardsView()
+        case "deposits": DepositsView()
+        case "credits": CreditsView()
+        case "goals": GoalsView()
+        case "contacts": ContactsView()
+        case "limits": LimitsView()
+        case "analytics": AnalyticsView()
+        default: HistoryView()
+        }
+    }
+    #endif
 
     private var balance: some View {
         VStack(spacing: 6) {
@@ -131,13 +162,42 @@ struct BankView: View {
         return ActionBar(items: items)
     }
 
+    /// Усе, що вміє банк, - рядками з коротким підсумком праворуч.
+    private var hub: some View {
+        let dep = bank.deposits.reduce(0) { $0 + $1.amount }
+        let debt = bank.credits.reduce(0) { $0 + $1.balanceRemaining }
+        return VStack(alignment: .leading, spacing: 12) {
+            BlockTitle("Банк")
+            Surface {
+                HubRow("Картки", bank.cards.isEmpty ? "" : "\(bank.cards.count)") { CardsView() }
+                Rule()
+                HubRow("Депозити", dep > 0 ? Format.money(dep) : "") { DepositsView() }
+                Rule()
+                HubRow("Кредити", debt > 0 ? Format.money(debt) : "") { CreditsView() }
+                Rule()
+                HubRow("Цілі", bank.goals.isEmpty ? "" : "\(bank.goals.count)") { GoalsView() }
+                Rule()
+                HubRow("Контакти й шаблони", "") { ContactsView() }
+                Rule()
+                HubRow("Ліміти й платежі", "") { LimitsView() }
+                Rule()
+                HubRow("Аналітика", "") { AnalyticsView() }
+            }
+        }
+    }
+
     private var operations: some View {
         VStack(alignment: .leading, spacing: 12) {
-            BlockTitle("Операції")
+            HStack(alignment: .firstTextBaseline) {
+                BlockTitle("Операції")
+                NavigationLink("Уся історія") { HistoryView() }
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Theme.ink)
+            }
             if bank.loaded && bank.history.isEmpty {
                 Text("Операцій ще немає").foregroundStyle(.secondary).padding(.horizontal, 4)
             }
-            ForEach(bank.days.prefix(30), id: \.day) { day in
+            ForEach(bank.days.prefix(4), id: \.day) { day in
                 VStack(alignment: .leading, spacing: 8) {
                     Text(Self.dayTitle(day.day))
                         .font(.footnote.weight(.medium))
@@ -159,6 +219,34 @@ struct BankView: View {
         if cal.isDateInToday(day) { return "Сьогодні" }
         if cal.isDateInYesterday(day) { return "Учора" }
         return day.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA")))
+    }
+}
+
+/// Рядок переходу до розділу банку.
+struct HubRow<Destination: View>: View {
+    let title: String
+    let detail: String
+    @ViewBuilder let destination: Destination
+
+    init(_ title: String, _ detail: String, @ViewBuilder destination: () -> Destination) {
+        self.title = title
+        self.detail = detail
+        self.destination = destination()
+    }
+
+    var body: some View {
+        NavigationLink { destination } label: {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(detail).foregroundStyle(.secondary).monospacedDigit()
+                Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 15)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 }
 

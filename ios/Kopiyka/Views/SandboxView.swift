@@ -70,6 +70,9 @@ struct TransferView: View {
     let done: () async -> Void
 
     @State private var recipient = ""
+    @State private var byCard = false
+    @State private var contacts: [API.Contact] = []
+    @State private var templates: [API.Template] = []
     @State private var amount: Double?
     @State private var note = ""
     @State private var verdict: FraudTask.Verdict?
@@ -97,12 +100,36 @@ struct TransferView: View {
                     .listRowBackground(Color.clear)
                 }
                 Section {
-                    TextField("Рахунок одержувача, KP-…", text: $recipient)
+                    Picker("Куди", selection: $byCard) {
+                        Text("На рахунок").tag(false)
+                        Text("На картку").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                    TextField(byCard ? "Номер картки" : "Рахунок одержувача, KP-…", text: $recipient)
+                        .keyboardType(byCard ? .numberPad : .default)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                     TextField("Призначення", text: $note)
+                    if !contacts.isEmpty || !templates.isEmpty {
+                        Menu("Обрати зі збережених") {
+                            ForEach(contacts.filter { ($0.accountNumber ?? "").isEmpty == false }) { c in
+                                Button(c.contactName) { byCard = false; recipient = c.accountNumber ?? "" }
+                            }
+                            ForEach(templates) { t in
+                                Button("Шаблон: \(t.name)") {
+                                    byCard = false
+                                    recipient = t.recipientAccount ?? ""
+                                    if let a = t.amount { amount = a }
+                                    note = t.description ?? ""
+                                }
+                            }
+                        }
+                    }
                 }
                 .onChange(of: recipient) { reset() }
+                .onChange(of: byCard) { reset() }
                 .onChange(of: amount) { reset() }
                 .onChange(of: note) { reset() }
 
@@ -146,6 +173,7 @@ struct TransferView: View {
                 if let error { Section { Text(error).foregroundStyle(.secondary) } }
             }
             .labForm()
+            .task { await loadSaved() }
             .navigationTitle("Переказ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -155,6 +183,11 @@ struct TransferView: View {
     }
 
     private var valid: Bool { (amount ?? 0) > 0 && recipient.count >= 4 }
+
+    private func loadSaved() async {
+        contacts = (try? await model.api.contacts()) ?? []
+        templates = (try? await model.api.templates()) ?? []
+    }
 
     private func reset() {
         verdict = nil
@@ -182,7 +215,11 @@ struct TransferView: View {
         busy = true
         defer { busy = false }
         do {
-            _ = try await model.api.transfer(amount ?? 0, to: recipient, description: note)
+            if byCard {
+                try await model.api.transferByCard(amount ?? 0, cardNumber: recipient, description: note)
+            } else {
+                _ = try await model.api.transfer(amount ?? 0, to: recipient, description: note)
+            }
             outcome = "Надіслано \(Format.money(amount ?? 0)) на \(recipient)"
             await model.feedback(record.id, correct: true)
             await done()
