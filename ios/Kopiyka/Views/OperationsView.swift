@@ -157,10 +157,10 @@ struct OperationsView: View {
         }
     }
 
-    private func byType(_ s: API.Analytics) -> some View {
-        let out = s.byType.filter { $0.direction == "out" }.sorted { $0.total > $1.total }
+    @ViewBuilder private func byType(_ s: API.Analytics) -> some View {
+        let out = s.byType.filter { $0.direction == "out" && $0.total > 0 }.sorted { $0.total > $1.total }
         let total = max(out.reduce(0) { $0 + $1.total }, 1)
-        return VStack(alignment: .leading, spacing: 12) {
+        if !out.isEmpty { VStack(alignment: .leading, spacing: 12) {
             BlockTitle("Витрати за видами")
             Surface {
                 ForEach(Array(out.enumerated()), id: \.element.id) { i, t in
@@ -179,7 +179,7 @@ struct OperationsView: View {
                     .padding(.vertical, 13)
                 }
             }
-        }
+        } }
     }
 
     private var insightList: some View {
