@@ -1,0 +1,19 @@
+[Unit]
+Description=TaxTech навчальний банк (Flask, gunicorn)
+After=network.target
+
+[Service]
+User=kopiyka
+Group=kopiyka
+WorkingDirectory=/opt/kopiyka/server
+EnvironmentFile=/opt/kopiyka/server/.env
+ExecStart=/opt/kopiyka/venv/bin/gunicorn --workers 2 --bind 127.0.0.1:5050 --access-logfile - start:app
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/kopiyka/server/database
+
+[Install]
+WantedBy=multi-user.target

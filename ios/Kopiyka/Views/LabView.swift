@@ -1,7 +1,7 @@
 import EdgeRouter
 import SwiftUI
 
-/// Лабораторія: стратегія для порівняння, параметри методу, живий контекст, графік відключень,
+/// Лабораторія: стратегія для порівняння, параметри методу, живий контекст,
 /// підсумки за журналом і експорт журналу для статті.
 struct LabView: View {
     @Environment(AppModel.self) private var model
@@ -18,7 +18,6 @@ struct LabView: View {
                 privacy
                 parameters
                 now
-                outages
                 summary
                 journal
             }
@@ -127,7 +126,6 @@ struct LabView: View {
             LabeledContent("Заряд", value: c.batteryLevel.map { "\(Int($0 * 100))%\(c.isCharging ? ", заряджається" : "")" } ?? "невідомо")
             LabeledContent("Енергозбереження", value: c.lowPowerMode ? "увімкнено" : "вимкнено")
             LabeledContent("Нагрів", value: Self.thermal[c.thermal] ?? "")
-            LabeledContent("Імовірність відключення", value: "\(Int(c.outageProbability * 100))%")
             LabeledContent("Перевитрата енергії Z", value: Format.joules(s.state.energyQueue))
             ForEach(Self.taskTitles.sorted(by: <), id: \.key) { id, title in
                 LabeledContent("Поріг каскаду, \(title.lowercased())",
@@ -136,31 +134,6 @@ struct LabView: View {
             LabeledContent("Модель на телефоні", value: AssistantTask.deviceStatus)
         }
         .monospacedDigit()
-    }
-
-    private var outages: some View {
-        Section {
-            ForEach(model.snapshot.outages.intervals, id: \.start) { i in
-                Text("\(i.start.formatted(date: .omitted, time: .shortened)) - \(i.end.formatted(date: .omitted, time: .shortened))")
-                    .monospacedDigit()
-            }
-            Button("Відключення через 10 хвилин на 2 години") { addOutage(in: 600, hours: 2) }
-            Button("Відключення зараз на годину") { addOutage(in: 0, hours: 1) }
-            if !model.snapshot.outages.intervals.isEmpty {
-                Button("Прибрати графік", role: .destructive) {
-                    Task { await model.configure { $0.outages.intervals = [] } }
-                }
-            }
-        } header: {
-            Text("Графік відключень світла")
-        } footer: {
-            Text("Під час відключень мобільна мережа слабшає. Метод знає графік заздалегідь і переходить на телефон ще до того, як сервер почне не відповідати.")
-        }
-    }
-
-    private func addOutage(in seconds: TimeInterval, hours: Double) {
-        let i = DateInterval(start: .now.addingTimeInterval(seconds), duration: hours * 3600)
-        Task { await model.configure { $0.outages.intervals.append(i) } }
     }
 
     private var summary: some View {
