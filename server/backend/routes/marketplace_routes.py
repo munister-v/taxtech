@@ -687,6 +687,33 @@ def _authorize_and_capture_payment(
     }
 
 
+# Категорії вітрини: ключові слова шукаються в назві й описі товару
+CAT_KEYWORDS: dict[str, list[str]] = {
+    'phones':     ['iphone', 'galaxy s', 'galaxy a', 'galaxy z', 'pixel', 'смартфон', 'xiaomi', 'redmi', 'oneplus'],
+    'laptops':    ['macbook', 'ноутбук', 'laptop', 'zenbook', 'thinkpad', 'xps', 'legion', 'spectre', 'ультрабук'],
+    'audio':      ['sony wh', 'sony wf', 'airpods', 'buds', 'навушники', 'headphone', 'bose'],
+    'gaming':     ['playstation', 'xbox', 'nintendo', 'gamepad', 'геймпад', 'ps5'],
+    'appliances': ['smart tv', 'телевізор', 'lg oled', 'qled', 'кавомашина', 'пральна', 'холодильник'],
+    'home':       ['dyson', 'робот', 'пилосос', 'tefal', 'kitchenaid', 'puricare', 'міксер'],
+    'wearables':  ['apple watch', 'galaxy watch', 'garmin', 'smartwatch'],
+    'tablets':    ['ipad', 'tablet', 'планшет', 'galaxy tab', 'xiaomi pad'],
+    'gadgets':    ['dji', 'дрон', 'gopro'],
+}
+
+
+def _category_counts(conn: Any) -> dict[str, int]:
+    rows = conn.execute(
+        "SELECT title, description FROM marketplace_products WHERE is_active = TRUE AND COALESCE(image_url, '') <> ''"
+    ).fetchall() or []
+    counts = {key: 0 for key in CAT_KEYWORDS}
+    for r in rows:
+        text = f"{r.get('title') or ''} {r.get('description') or ''}".lower()
+        for key, kws in CAT_KEYWORDS.items():
+            if any(kw in text for kw in kws):
+                counts[key] += 1
+    return {k: v for k, v in counts.items() if v}
+
+
 @marketplace_bp.get('/catalog')
 def catalog():
     _ensure_schema()
@@ -715,17 +742,6 @@ def catalog():
         try: where.append('price <= %s'); params.append(float(max_price))
         except ValueError: pass
 
-    CAT_KEYWORDS: dict[str, list[str]] = {
-        'phones':     ['iphone','samsung galaxy','pixel','смартфон','xiaomi','redmi','honor','nokia','oppo','google pixel'],
-        'laptops':    ['macbook','ноутбук','laptop','asus rog','dell xps','lenovo','thinkpad','hp','ultrabook','book air','book pro'],
-        'audio':      ['sony wh','airpods','навушники','headphone','beats','jabra','sennheiser','bose','akg'],
-        'gaming':     ['playstation','xbox','nintendo','gamepad','геймпад','ps5','series x','switch oled'],
-        'appliances': ['smart tv','телевізор','кавомашина','delonghi','coffee','пральна','холодильник','qled'],
-        'home':       ['dyson','робот','vacuum','пилосос','чайник','kettle','фритюр','air fryer','мультиварка'],
-        'wearables':  ['apple watch','watch series','galaxy watch','fitbit','garmin','smartwatch'],
-        'tablets':    ['ipad','tablet','планшет','galaxy tab'],
-        'gadgets':    ['dji','drone','дрон','gopro','gimbal','квадрокоптер'],
-    }
     if category and category in CAT_KEYWORDS:
         kws = CAT_KEYWORDS[category]
         sub = ' OR '.join(['(LOWER(title) LIKE %s OR LOWER(description) LIKE %s)'] * len(kws))
@@ -748,10 +764,12 @@ def catalog():
     with get_connection() as conn:
         total = int(((conn.execute(count_sql, params).fetchone()) or {}).get('total') or 0)
         rows  = conn.execute(data_sql, params + [per_page, (page - 1) * per_page]).fetchall()
+        categories = _category_counts(conn)
 
     pages = max(1, -(-total // per_page))
     return jsonify({'ok': True, 'data': {
         'items':    [_to_payload_product(dict(r)) for r in (rows or [])],
+        'categories': categories,
         'total':    total,
         'page':     page,
         'per_page': per_page,
