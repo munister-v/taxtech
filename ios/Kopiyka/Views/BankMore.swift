@@ -22,7 +22,7 @@ struct DonationsView: View {
                 .listRowBackground(Color.clear)
             }
             if loaded && items.isEmpty {
-                Section { Text("Донатів ще немає.").foregroundStyle(.secondary) }
+                Section { BrandEmpty(title: "Донатів ще немає").listRowBackground(Color.clear) }
             }
             if !items.isEmpty {
                 Section("Історія") {
@@ -106,7 +106,7 @@ struct PayoutsView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { Text("Виплат ще немає.").foregroundStyle(.secondary) }
+                Section { BrandEmpty(title: "Виплат ще немає").listRowBackground(Color.clear) }
             }
             ForEach(items) { p in
                 HStack(alignment: .firstTextBaseline) {
@@ -193,7 +193,7 @@ struct DebtsView: View {
                 .listRowInsets(EdgeInsets())
             }
             if loaded && open.isEmpty {
-                Section { Text("Відкритих боргів немає.").foregroundStyle(.secondary) }
+                Section { BrandEmpty(title: "Відкритих боргів немає").listRowBackground(Color.clear) }
             }
             group("Мені винні", toMe)
             group("Я винен", mine)
@@ -323,7 +323,7 @@ struct NoticesView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { Text("Сповіщень немає.").foregroundStyle(.secondary) }
+                Section { BrandEmpty(title: "Сповіщень немає").listRowBackground(Color.clear) }
             }
             ForEach(items) { n in
                 VStack(alignment: .leading, spacing: 3) {

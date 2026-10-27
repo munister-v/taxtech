@@ -56,12 +56,12 @@ struct Meter: View {
 
     var body: some View {
         GeometryReader { g in
-            Rectangle().fill(Theme.line)
+            Capsule().fill(Theme.line)
                 .overlay(alignment: .leading) {
-                    Rectangle().fill(Theme.ink).frame(width: g.size.width * max(0, min(value, 1)))
+                    Capsule().fill(Theme.accent).frame(width: max(6, g.size.width * max(0, min(value, 1))))
                 }
         }
-        .frame(height: 4)
+        .frame(height: 6)
     }
 }
 

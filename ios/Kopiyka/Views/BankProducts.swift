@@ -65,35 +65,33 @@ struct DepositsView: View {
     @State private var screen = Screen()
     @State private var loaded = false
 
+    private var active: [API.Deposit] { items.filter(\.isActive) }
+
     var body: some View {
-        LabForm {
-            if loaded && items.isEmpty {
-                Section { Text("Депозитів ще немає.").foregroundStyle(.secondary) }
-            }
-            ForEach(items) { d in
-                Section {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(d.description?.isEmpty == false ? d.description! : "Депозит на \(d.termMonths) міс.").font(.headline)
-                        Spacer()
-                        Text(Format.money(d.amount)).font(.headline).monospacedDigit()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                if loaded && items.isEmpty {
+                    BrandEmpty(title: "Депозитів ще немає", action: "Відкрити депозит") { opening = true }
+                } else if !items.isEmpty {
+                    HeroPanel {
+                        HeroCaption("На депозитах")
+                        BigAmount(value: active.reduce(0) { $0 + $1.amount }, size: 40).padding(.top, 6)
+                        HStack(alignment: .top, spacing: 16) {
+                            Stat(value: "+" + Format.money(active.reduce(0) { $0 + $1.interestEarned }), label: "дохід за строк", inverted: true)
+                            Stat(value: "\(active.count)", label: "активних", inverted: true)
+                        }
+                        .padding(.top, 14)
                     }
-                    Line("Ставка", "\(d.interestRate.formatted())% річних")
-                    Line("Дохід за строк", Format.money(d.interestEarned))
-                    Line("До", BankText.date(d.maturityDate))
-                    Meter(value: d.progress ?? 0)
-                    if d.isActive {
-                        Button("Закрити депозит") { closing = d }
-                    } else {
-                        Text("Закрито").foregroundStyle(.secondary)
-                    }
+                    ForEach(items) { d in card(d) }
+                    Button("Відкрити депозит") { opening = true }.buttonStyle(InkButton())
                 }
+                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
-            ErrorSection(error: screen.error)
+            .padding(Theme.gutter)
         }
-        .labForm()
+        .screenBackground()
         .navigationTitle("Депозити")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { Button("Новий депозит", systemImage: "plus") { opening = true } }
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $opening) { OpenDepositView { await load() } }
@@ -107,6 +105,36 @@ struct DepositsView: View {
                 }
             }
         }
+    }
+
+    private func card(_ d: API.Deposit) -> some View {
+        Surface {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(d.description?.isEmpty == false ? d.description! : "Депозит на \(d.termMonths) міс.").font(.headline)
+                        Text("\(d.interestRate.formatted())% річних").font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Text(Format.money(d.amount)).font(.title3.weight(.bold)).monospacedDigit()
+                }
+                if d.isActive {
+                    Meter(value: d.progress ?? 0)
+                    HStack {
+                        Text("+\(Format.money(d.interestEarned))").font(.subheadline.weight(.semibold)).monospacedDigit()
+                        Spacer()
+                        Text("до \(BankText.date(d.maturityDate))").font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    Button(d.matured == true ? "Забрати з відсотками" : "Закрити достроково") { closing = d }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
+                } else {
+                    Text("Закрито").font(.subheadline).foregroundStyle(.secondary)
+                }
+            }
+            .padding(16)
+        }
+        .opacity(d.isActive ? 1 : 0.6)
     }
 
     private func load() async {
@@ -171,48 +199,74 @@ struct CreditsView: View {
     @State private var screen = Screen()
     @State private var loaded = false
 
+    private var active: [API.Credit] { items.filter(\.isActive) }
+
     var body: some View {
-        LabForm {
-            if loaded && items.isEmpty {
-                Section { Text("Кредитів немає.").foregroundStyle(.secondary) }
-            }
-            ForEach(items) { c in
-                Section {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(c.description?.isEmpty == false ? c.description! : "Кредит на \(c.termMonths) міс.").font(.headline)
-                        Spacer()
-                        Text(Format.money(c.balanceRemaining)).font(.headline).monospacedDigit()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                if loaded && items.isEmpty {
+                    BrandEmpty(title: "Кредитів немає", action: "Оформити кредит") { applying = true }
+                } else if !items.isEmpty {
+                    HeroPanel {
+                        HeroCaption("Залишок боргу")
+                        BigAmount(value: active.reduce(0) { $0 + $1.balanceRemaining }, size: 40).padding(.top, 6)
+                        HStack(alignment: .top, spacing: 16) {
+                            Stat(value: Format.money(active.reduce(0) { $0 + $1.monthlyPayment }), label: "платіж на місяць", inverted: true)
+                            Stat(value: active.compactMap(\.nextPaymentDate).min().map { BankText.date($0) } ?? "-",
+                                 label: "наступний платіж", inverted: true)
+                        }
+                        .padding(.top, 14)
                     }
-                    Line("Узято", Format.money(c.principal))
-                    Line("Ставка", "\(c.interestRate.formatted())% річних")
-                    Line("Щомісячний платіж", Format.money(c.monthlyPayment))
-                    Line("Сплачено", Format.money(c.totalPaid))
-                    if c.isActive {
-                        Line("Наступний платіж", BankText.date(c.nextPaymentDate))
-                        Meter(value: c.progress ?? 0)
-                        Button("Сплатити") { repaying = c }
-                    } else {
-                        Text("Погашено").foregroundStyle(.secondary)
-                    }
+                    ForEach(items) { c in card(c) }
+                    Button("Оформити кредит") { applying = true }.buttonStyle(LineButton())
                 }
+                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
-            ErrorSection(error: screen.error)
+            .padding(Theme.gutter)
         }
-        .labForm()
+        .screenBackground()
         .navigationTitle("Кредити")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { Button("Новий кредит", systemImage: "plus") { applying = true } }
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $applying) { TakeCreditView { await load() } }
         .sheet(item: $repaying) { c in
             AmountSheet(title: "Платіж за кредитом", action: "Сплатити",
-                        hint: "Залишилось сплатити \(Format.money(c.balanceRemaining)). Сума більша за залишок погасить кредит повністю.",
+                        hint: "Залишилось \(Format.money(c.balanceRemaining)).",
                         amount: min(c.monthlyPayment, c.balanceRemaining)) { a in
                 try await model.api.repayCredit(c.id, amount: a)
                 await load()
             }
         }
+    }
+
+    private func card(_ c: API.Credit) -> some View {
+        Surface {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(c.description?.isEmpty == false ? c.description! : "Кредит на \(c.termMonths) міс.").font(.headline)
+                        Text("\(Format.money(c.principal)) під \(c.interestRate.formatted())%").font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Text(Format.money(c.balanceRemaining)).font(.title3.weight(.bold)).monospacedDigit()
+                }
+                if c.isActive {
+                    Meter(value: c.progress ?? 0)
+                    HStack {
+                        Text("сплачено \(Format.money(c.totalPaid))").font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
+                        Spacer()
+                        Text(BankText.date(c.nextPaymentDate)).font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    Button("Сплатити \(Format.money(min(c.monthlyPayment, c.balanceRemaining)))") { repaying = c }
+                        .buttonStyle(InkButton())
+                } else {
+                    Text("Погашено").font(.subheadline.weight(.semibold))
+                }
+            }
+            .padding(16)
+        }
+        .opacity(c.isActive ? 1 : 0.6)
     }
 
     private func load() async {

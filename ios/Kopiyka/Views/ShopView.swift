@@ -192,14 +192,7 @@ struct ShopView: View {
         }
         .padding(.top, 4)
 
-        if items.isEmpty && !loading {
-            VStack(spacing: 8) {
-                Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.tertiary)
-                Text("Нічого не знайдено").foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 40)
-        }
+        if items.isEmpty && !loading { BrandEmpty(title: "Нічого не знайдено") }
         LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
             ForEach(items) { p in
                 ProductTile(product: p, inCart: cart[p] ?? 0, open: { detail = p }, add: { add(p) }, remove: { remove(p) })
@@ -254,14 +247,14 @@ struct ShopView: View {
 
     @ViewBuilder private var ordersList: some View {
         if orders.isEmpty {
-            empty("shippingbox", "Замовлень ще немає", "")
+            BrandEmpty(title: "Замовлень ще немає", action: "До каталогу") { tab = .catalog }
         }
         ForEach(orders) { o in OrderRow(order: o) }
     }
 
     @ViewBuilder private var invoicesList: some View {
         if invoices.isEmpty {
-            empty("doc.text", "Інвойсів ще немає", "")
+            BrandEmpty(title: "Інвойсів ще немає")
         } else {
             HeroPanel {
                 HeroCaption("Оплачено інвойсів")
@@ -277,16 +270,6 @@ struct ShopView: View {
                 }
             }
         }
-    }
-
-    private func empty(_ symbol: String, _ title: String, _ text: String) -> some View {
-        VStack(spacing: 10) {
-            Image(systemName: symbol).font(.system(size: 40)).foregroundStyle(.tertiary)
-            Text(title).font(.headline)
-            if !text.isEmpty { Text(text).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center) }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 40)
     }
 }
 

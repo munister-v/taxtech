@@ -211,3 +211,69 @@ struct MoneyField: View {
         }
     }
 }
+
+/// Порожній стан: великий знак TaxTech, заголовок і, якщо є, головна дія.
+struct BrandEmpty: View {
+    let title: String
+    var action: String?
+    var perform: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 16) {
+            MarkView(height: 84, color: Theme.accent)
+                .padding(22)
+                .background(Theme.surface, in: .circle)
+            Text(title).font(.title3.weight(.bold)).multilineTextAlignment(.center)
+            if let action, let perform {
+                Button(action, action: perform).buttonStyle(InkButton()).frame(maxWidth: 260)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 36)
+    }
+}
+
+/// Рядок переходу: жовтий круглий значок, назва, значення праворуч і шеврон.
+struct IconRow: View {
+    let title: String
+    let symbol: String
+    var detail: String?
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: symbol)
+                .font(.system(size: 15, weight: .semibold))
+                .frame(width: 36, height: 36)
+                .background(Theme.accent, in: .circle)
+                .foregroundStyle(Theme.onAccent)
+            Text(title).font(.body.weight(.medium))
+            Spacer()
+            if let detail { Text(detail).foregroundStyle(.secondary).monospacedDigit() }
+            Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .contentShape(.rect)
+    }
+}
+
+/// Група рядків на поверхні з тонкими лініями між ними.
+struct RowGroup<Content: View>: View {
+    var title: String?
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let title { Text(title).font(.title3.weight(.bold)) }
+            VStack(spacing: 0) {
+                Group(subviews: content) { subviews in
+                    ForEach(Array(subviews.enumerated()), id: \.offset) { i, v in
+                        if i > 0 { Rule().padding(.leading, 50) }
+                        v
+                    }
+                }
+            }
+            .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
+        }
+    }
+}

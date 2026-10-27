@@ -125,29 +125,30 @@ struct OperationsView: View {
         let byBucket = Dictionary(grouping: spent) { Calendar.current.dateInterval(of: period.unit, for: $0.date)?.start ?? $0.date }
             .map { (day: $0.key, sum: $0.value.reduce(0) { $0 + $1.amount }) }
             .sorted { $0.day < $1.day }
-        return Surface {
+        return HeroPanel {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("Витрати за \(period.title)").caption()
+                    HeroCaption("Витрати за \(period.title)")
                     Spacer()
                     HStack(spacing: 4) {
                         ForEach(Period.allCases, id: \.self) { p in
                             Button(p.rawValue) { period = p }
                                 .font(.caption.weight(.semibold))
                                 .frame(width: 28, height: 24)
-                                .background(period == p ? Theme.accent : .clear, in: .rect(cornerRadius: 7, style: .continuous))
-                                .foregroundStyle(period == p ? Theme.onAccent : .secondary)
+                                .background(period == p ? Theme.onAccent : .clear, in: .rect(cornerRadius: 7, style: .continuous))
+                                .foregroundStyle(period == p ? Theme.accent : Theme.onAccent.opacity(0.6))
                         }
                     }
                     .buttonStyle(.plain)
                 }
-                BigAmount(value: spent.reduce(0) { $0 + $1.amount }, size: 30)
+                BigAmount(value: spent.reduce(0) { $0 + $1.amount }, size: 38)
                 if byBucket.isEmpty {
-                    Text("Витрат за цей час немає").font(.footnote).foregroundStyle(.secondary)
+                    Text("Витрат за цей час немає").font(.footnote).foregroundStyle(Theme.onAccent.opacity(0.7))
                 } else {
                     Chart(byBucket, id: \.day) { b in
                         BarMark(x: .value("Коли", b.day, unit: period.unit), y: .value("Сума", b.sum))
-                            .foregroundStyle(Theme.accent)
+                            .foregroundStyle(Theme.onAccent)
+                            .cornerRadius(3)
                     }
                     .chartYAxis(.hidden)
                     .chartXAxis {
@@ -157,10 +158,10 @@ struct OperationsView: View {
                                 : .dateTime.day().month(.twoDigits).locale(Locale(identifier: "uk_UA")))
                         }
                     }
+                    .foregroundStyle(Theme.onAccent)
                     .frame(height: 130)
                 }
             }
-            .padding(18)
         }
     }
 
@@ -205,7 +206,7 @@ struct OperationsView: View {
 
     @ViewBuilder private var history: some View {
         if loaded && items.isEmpty {
-            Text("Нічого не знайдено").foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 24)
+            BrandEmpty(title: filter.search.isEmpty ? "Операцій ще немає" : "Нічого не знайдено")
         }
         if sort == .amount {
             Surface {

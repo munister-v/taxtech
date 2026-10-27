@@ -11,35 +11,30 @@ struct GoalsView: View {
     @State private var loaded = false
 
     var body: some View {
-        LabForm {
-            if loaded && items.isEmpty {
-                Section { Text("Цілей ще немає.").foregroundStyle(.secondary) }
-            }
-            ForEach(items) { g in
-                Section {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(g.title).font(.headline)
-                        Spacer()
-                        Text("\(Int(g.progress * 100))%").font(.headline).monospacedDigit()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                if loaded && items.isEmpty {
+                    BrandEmpty(title: "Цілей ще немає", action: "Поставити ціль") { adding = true }
+                } else if !items.isEmpty {
+                    let saved = items.reduce(0) { $0 + $1.currentAmount }, target = items.reduce(0) { $0 + $1.targetAmount }
+                    HeroPanel {
+                        HeroCaption("Відкладено")
+                        BigAmount(value: saved, size: 40).padding(.top, 6)
+                        Text("з \(Format.money(target))").font(.subheadline.weight(.medium))
+                            .foregroundStyle(Theme.onAccent.opacity(0.7))
                     }
-                    Meter(value: g.progress)
-                    Line("Накопичено", "\(Format.money(g.currentAmount)) з \(Format.money(g.targetAmount))")
-                    if let d = g.deadline, !d.isEmpty { Line("До", BankText.date(d)) }
-                    Button("Відкласти") { funding = g }
-                    Button("Видалити ціль") {
-                        Task {
-                            await screen.run { try await model.api.deleteGoal(g.id) }
-                            await load()
-                        }
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                        ForEach(items) { g in tile(g) }
                     }
+                    Button("Нова ціль") { adding = true }.buttonStyle(LineButton())
                 }
+                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
-            ErrorSection(error: screen.error)
+            .padding(Theme.gutter)
         }
-        .labForm()
+        .screenBackground()
         .navigationTitle("Цілі")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { Button("Нова ціль", systemImage: "plus") { adding = true } }
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $adding) { NewGoalView { await load() } }
@@ -49,6 +44,51 @@ struct GoalsView: View {
                 await load()
             }
         }
+    }
+
+    /// Ціль: кільце прогресу з відсотком, назва, скільки відкладено, дії.
+    private func tile(_ g: API.Goal) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ZStack {
+                Circle().stroke(Theme.line, lineWidth: 7)
+                Circle().trim(from: 0, to: g.progress)
+                    .stroke(Theme.accent, style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Text("\(Int(g.progress * 100))%").font(.subheadline.weight(.bold)).monospacedDigit()
+            }
+            .frame(width: 64, height: 64)
+            Text(g.title).font(.headline).lineLimit(2, reservesSpace: true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Format.money(g.currentAmount)).font(.subheadline.weight(.bold)).monospacedDigit()
+                Text("з \(Format.money(g.targetAmount))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                if let d = g.deadline, !d.isEmpty { Text("до \(BankText.date(d))").font(.caption).foregroundStyle(.secondary) }
+            }
+            HStack {
+                Button { funding = g } label: {
+                    Image(systemName: "plus").font(.subheadline.weight(.bold))
+                        .frame(width: 36, height: 36)
+                        .background(Theme.accent, in: .circle)
+                        .foregroundStyle(Theme.onAccent)
+                }
+                .buttonStyle(PressScale())
+                .accessibilityLabel("Відкласти")
+                Spacer()
+                Menu {
+                    Button("Видалити ціль", role: .destructive) {
+                        Task {
+                            await screen.run { try await model.api.deleteGoal(g.id) }
+                            await load()
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis").font(.subheadline.weight(.bold)).frame(width: 36, height: 36)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
     }
 
     private func load() async {
