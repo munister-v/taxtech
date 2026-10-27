@@ -289,3 +289,32 @@ struct RowGroup<Content: View>: View {
         }
     }
 }
+
+
+/// Вкладки-текст із підкресленням активної: легша заміна сегмент-плашки.
+struct TextTabs<T: Hashable>: View {
+    let items: [(T, String)]
+    @Binding var selection: T
+    @Namespace private var ns
+
+    var body: some View {
+        HStack(spacing: 22) {
+            ForEach(items.indices, id: \.self) { i in
+                let on = selection == items[i].0
+                Button { withAnimation(.snappy(duration: 0.25)) { selection = items[i].0 } } label: {
+                    VStack(spacing: 6) {
+                        Text(items[i].1).font(.system(size: 17, weight: on ? .bold : .medium))
+                            .foregroundStyle(on ? Theme.ink : Color.secondary)
+                        ZStack {
+                            Capsule().fill(Color.clear).frame(height: 3)
+                            if on { Capsule().fill(Theme.accent).frame(height: 3).matchedGeometryEffect(id: "tab", in: ns) }
+                        }
+                    }
+                    .fixedSize()
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+}

@@ -265,30 +265,12 @@ struct ShopView: View {
     }
 }
 
-/// Вкладки магазину: текст із підкресленням активної, без плашки.
+/// Вкладки магазину.
 struct ShopTabs: View {
     @Binding var selection: ShopView.Tab
-    @Namespace private var ns
 
     var body: some View {
-        HStack(spacing: 22) {
-            ForEach(ShopView.Tab.allCases, id: \.self) { t in
-                let on = selection == t
-                Button { withAnimation(.snappy(duration: 0.25)) { selection = t } } label: {
-                    VStack(spacing: 6) {
-                        Text(t.title).font(.system(size: 17, weight: on ? .bold : .medium))
-                            .foregroundStyle(on ? Theme.ink : Color.secondary)
-                        ZStack {
-                            Capsule().fill(Color.clear).frame(height: 3)
-                            if on { Capsule().fill(Theme.accent).frame(height: 3).matchedGeometryEffect(id: "tab", in: ns) }
-                        }
-                    }
-                    .fixedSize()
-                }
-                .buttonStyle(.plain)
-            }
-            Spacer(minLength: 0)
-        }
+        TextTabs(items: ShopView.Tab.allCases.map { ($0, $0.title) }, selection: $selection)
     }
 }
 

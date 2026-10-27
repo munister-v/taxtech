@@ -82,10 +82,10 @@ struct CardsTab: View {
             Button { issuing = true } label: {
                 Label("Випустити", systemImage: "plus")
                     .font(.subheadline.weight(.semibold))
-                    .padding(.horizontal, 14)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(Theme.accent, in: .rect(cornerRadius: 13, style: .continuous))
-                    .foregroundStyle(Theme.onAccent)
+                    .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                    .foregroundStyle(Theme.ink)
             }
             .buttonStyle(PressScale())
         }
@@ -122,13 +122,7 @@ struct CardsTab: View {
         VStack(alignment: .leading, spacing: 16) {
             Surface {
                 VStack(alignment: .leading, spacing: 0) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(revealed?.cardNumber ?? c.maskedNumber).font(.headline.monospaced())
-                        Spacer()
-                        Text(c.isBlocked ? "Заморожена" : "Активна").font(.footnote.weight(.medium))
-                            .foregroundStyle(c.isBlocked ? .secondary : Theme.ink)
-                    }
-                    .padding(16)
+                    Line2("Статус", c.isBlocked ? "Заморожена" : "Активна")
                     Rule()
                     Line2("Тип", "Віртуальна\(c.expiryDisplay.map { ", до \($0)" } ?? "")")
                     Rule()
@@ -163,10 +157,22 @@ struct CardsTab: View {
                         }
                     }
                     BigAmount(value: c.displayBalance ?? 0, size: 38)
-                    HStack(spacing: 10) {
-                        Button("Поповнити") { topping = c }.buttonStyle(InkButton())
+                    VStack(spacing: 10) {
+                        Button { topping = c } label: {
+                            Label("Поповнити картку", systemImage: "plus")
+                                .font(.body.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .background(Theme.ink, in: .capsule)
+                                .foregroundStyle(Theme.onInk)
+                        }
+                        .buttonStyle(PressScale())
                         if !c.isPrimary {
-                            Button("Зробити головною") { act { try await model.api.setPrimary(c.id) } }.buttonStyle(LineButton())
+                            Button("Зробити головною") { act { try await model.api.setPrimary(c.id) } }
+                                .font(.subheadline.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                                .foregroundStyle(Theme.ink)
+                                .buttonStyle(PressScale())
                         }
                     }
                 }
@@ -185,12 +191,11 @@ struct CardsTab: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
                 QuickTile(title: revealed == nil ? "Реквізити" : "Сховати", symbol: "creditcard") {
                     if revealed != nil { revealed = nil } else { act { revealed = try await model.api.reveal(c.id) } }
                 }
                 NavigationLink { SecurityView() } label: { TileLabel(title: "PIN", symbol: "lock") }.buttonStyle(.plain)
-                QuickTile(title: "Дизайн", symbol: "paintbrush") { designing = c }
                 QuickTile(title: "Рахунок", symbol: "number") {
                     if let n = account?.accountNumber { UIPasteboard.general.string = n }
                 }

@@ -51,23 +51,8 @@ struct OperationsView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     header
                     search
-                    SegmentBar(items: [(String?.none, "Усі"), (String?.some("in"), "Надходження"), (String?.some("out"), "Витрати")],
-                               selection: $filter.direction)
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.up.arrow.down").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
-                        ForEach(Sort.allCases, id: \.self) { s in
-                            Button { withAnimation(.snappy(duration: 0.2)) { sort = s } } label: {
-                                Text(s.rawValue)
-                                    .font(.subheadline.weight(.semibold))
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .foregroundStyle(sort == s ? Theme.ink : .secondary)
-                                    .background(sort == s ? Theme.ink.opacity(0.12) : .clear, in: .capsule)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        Spacer()
-                    }
+                    TextTabs(items: [(String?.none, "Усі"), (String?.some("in"), "Надходження"), (String?.some("out"), "Витрати")],
+                             selection: $filter.direction)
                     if filter.search.isEmpty && filter.direction != "in" { spending }
                     if filter.search.isEmpty, let summary { byType(summary) }
                     if filter.search.isEmpty && !insights.isEmpty { insightList }
@@ -121,9 +106,9 @@ struct OperationsView: View {
                     .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 11)
+        .overlay(Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1))
     }
 
     // MARK: Витрати за період
@@ -214,6 +199,21 @@ struct OperationsView: View {
     @ViewBuilder private var history: some View {
         if loaded && items.isEmpty {
             BrandEmpty(title: filter.search.isEmpty ? "Операцій ще немає" : "Нічого не знайдено")
+        } else {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Історія").font(.title3.weight(.bold))
+                Text("\(items.count)").foregroundStyle(.secondary).monospacedDigit()
+                Spacer()
+                Menu {
+                    Picker("Сортування", selection: $sort) {
+                        ForEach(Sort.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    }
+                } label: {
+                    Label(sort.rawValue, systemImage: "arrow.up.arrow.down")
+                        .font(.subheadline.weight(.medium)).foregroundStyle(Theme.ink)
+                }
+            }
+            .padding(.top, 4)
         }
         if sort == .amount {
             Surface {

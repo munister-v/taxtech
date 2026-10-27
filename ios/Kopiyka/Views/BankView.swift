@@ -44,7 +44,7 @@ struct TransactionRow: View {
     var body: some View {
         AmountRow(title: title,
                   subtitle: "\(kind), \(tx.date.formatted(date: .omitted, time: .shortened))",
-                  amount: (tx.isIncome ? "+" : "−") + Format.money(tx.amount))
+                  amount: (tx.isIncome ? "+" : "−") + Format.money(tx.amount), positive: tx.isIncome)
     }
 
     /// «(віртуальна покупка)» сервер дописує до кожної покупки - тут це зайве, екран і так про віртуальні гроші.

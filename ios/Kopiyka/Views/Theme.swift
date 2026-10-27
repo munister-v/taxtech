@@ -227,11 +227,13 @@ struct AmountRow: View {
     let title: String
     let subtitle: String
     let amount: String
+    /// Надходження виділяємо вагою шрифту, списання - спокійніші.
+    var positive = false
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(title).lineLimit(1)
+                Text(title).lineLimit(2)
                 Text(subtitle)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -239,8 +241,10 @@ struct AmountRow: View {
             }
             Spacer(minLength: 8)
             Text(amount)
-                .font(.body.weight(.semibold))
+                .font(.body.weight(positive ? .bold : .regular))
                 .monospacedDigit()
+                .foregroundStyle(positive ? Theme.ink : Theme.ink.opacity(0.82))
+                .fixedSize()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
