@@ -215,7 +215,7 @@ def me():
             'bank_account_linked':  bool(account),         # True якщо рахунок існує
             'bank_account_number':  account.get('account_number') if account else None,
             # банківський рахунок створено автоматично — попереджаємо UI
-            'bank_notice': 'Рахунок у пісочниці створено автоматично (віртуальні гривні).' if auto_created else None,
+            'bank_notice': 'Рахунок у пісочниці створено автоматично (токени TAX).' if auto_created else None,
         }})
     except Exception as exc:
         return api_error(str(exc))

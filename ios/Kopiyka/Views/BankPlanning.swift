@@ -13,7 +13,7 @@ struct GoalsView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { Text("Цілей ще немає. Поставте ціль і відкладайте на неї з рахунку.").foregroundStyle(.secondary) }
+                Section { Text("Цілей ще немає.").foregroundStyle(.secondary) }
             }
             ForEach(items) { g in
                 Section {
@@ -72,7 +72,7 @@ struct NewGoalView: View {
             LabForm {
                 Section {
                     TextField("Назва", text: $title)
-                    TextField("Скільки потрібно, ₴", value: $target, format: .number).keyboardType(.decimalPad)
+                    TextField("Скільки потрібно, TAX", value: $target, format: .number).keyboardType(.decimalPad)
                     Toggle("Є строк", isOn: $hasDeadline)
                         .tint(Theme.ink.opacity(0.6))
                     if hasDeadline { DatePicker("До", selection: $deadline, in: Date.now..., displayedComponents: .date) }
@@ -152,8 +152,6 @@ struct ContactsView: View {
                 Button("Додати шаблон") { addingTemplate = true }
             } header: {
                 Text("Шаблони платежів")
-            } footer: {
-                Text("Шаблон підставляє одержувача й суму в переказ одним дотиком.")
             }
             ErrorSection(error: screen.error)
         }
@@ -235,7 +233,7 @@ struct NewTemplateView: View {
                     TextField("Рахунок одержувача, KP-…", text: $recipient)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                    TextField("Сума, ₴ (необов'язково)", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX (необов'язково)", value: $amount, format: .number).keyboardType(.decimalPad)
                     TextField("Призначення", text: $note)
                 }
                 ErrorSection(error: screen.error)
@@ -361,7 +359,7 @@ struct NewLimitView: View {
                     Picker("Вид операцій", selection: $type) {
                         ForEach(["payment", "transfer", "donation"], id: \.self) { Text(BankText.type($0)).tag($0) }
                     }
-                    TextField("Ліміт на місяць, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Ліміт на місяць, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                 }
                 ErrorSection(error: screen.error)
                 FormAction(title: "Поставити ліміт", disabled: (amount ?? 0) <= 0 || screen.busy) {
@@ -401,7 +399,7 @@ struct NewRecurringView: View {
                     TextField("Рахунок одержувача, KP-…", text: $recipient)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                    TextField("Сума, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                     Picker("Як часто", selection: $frequency) {
                         ForEach(BankText.frequencies, id: \.0) { Text($0.1).tag($0.0) }
                     }

@@ -92,7 +92,7 @@ struct OperationsView: View {
     }
 
     private var header: some View {
-        ScreenTitle(title: "Операції", subtitle: "Історія, витрати, аналітика") {
+        ScreenTitle(title: "Операції") {
             HStack(spacing: 8) {
                 NavigationLink { StatementsView() } label: { RoundGlyph(symbol: "doc.text") }
                     .buttonStyle(.plain)
@@ -135,13 +135,13 @@ struct OperationsView: View {
                             Button(p.rawValue) { period = p }
                                 .font(.caption.weight(.semibold))
                                 .frame(width: 28, height: 24)
-                                .background(period == p ? Theme.ink : .clear, in: .rect(cornerRadius: 7, style: .continuous))
-                                .foregroundStyle(period == p ? Theme.onInk : .secondary)
+                                .background(period == p ? Theme.accent : .clear, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                                .foregroundStyle(period == p ? Theme.onAccent : .secondary)
                         }
                     }
                     .buttonStyle(.plain)
                 }
-                BigAmount(value: spent.reduce(0) { $0 + $1.amount }, size: 34)
+                BigAmount(value: spent.reduce(0) { $0 + $1.amount }, size: 30)
                 if byBucket.isEmpty {
                     Text("Витрат за цей час немає").font(.footnote).foregroundStyle(.secondary)
                 } else {

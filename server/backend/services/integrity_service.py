@@ -26,8 +26,27 @@ def _hash_tx(tx_id: int, account_id: int, amount: float,
     return hashlib.sha256(payload.encode()).hexdigest()
 
 
+def fingerprint(tx: dict) -> str:
+    """Відбиток операції, яка не потрапила в ланцюг (поповнення, покупки): SHA-256 її полів."""
+    return _hash_tx(int(tx.get('id') or 0), int(tx.get('account_id') or 0), float(tx.get('amount') or 0),
+                    str(tx.get('direction') or ''), str(tx.get('created_at') or ''), '')
+
+
 class IntegrityService:
     """Записує та перевіряє хеш-ланцюг транзакцій."""
+
+    def hashes_for(self, txs: list[dict]) -> dict[int, str]:
+        """Хеш запису кожної операції: ланка ланцюга, якщо вона є, інакше відбиток полів."""
+        ids = [int(t['id']) for t in txs if t.get('id') is not None]
+        chain: dict[int, str] = {}
+        if ids:
+            with get_connection() as conn:
+                marks = ','.join(['%s'] * len(ids))
+                for row in conn.execute(
+                    f'SELECT transaction_id, tx_hash FROM integrity_hashes WHERE transaction_id IN ({marks})', ids
+                ).fetchall():
+                    chain[int(row['transaction_id'])] = row['tx_hash']
+        return {int(t['id']): chain.get(int(t['id'])) or fingerprint(t) for t in txs if t.get('id') is not None}
 
     def record(self, tx_id: int, account_id: int,
                amount: float, direction: str, created_at: str) -> str:

@@ -1,6 +1,6 @@
 """Конфігурація навчального банку Kopiyka (з .env).
 
-Усі гроші в цьому сервері віртуальні (валюта VUAH — «віртуальні гривні»),
+Усі гроші в цьому сервері віртуальні: валюта - навчальний токен TAX,
 це пісочниця для дослідження edge/cloud-маршрутизації AI-задач.
 """
 from pathlib import Path
@@ -38,9 +38,9 @@ PORT = int(os.getenv('PORT') or '5050')
 APPLE_CLIENT_ID = os.getenv('APPLE_CLIENT_ID', 'com.eprisjournal.kopiyka').strip()
 
 # ── Віртуальна валюта ────────────────────────────────────────────────────────
-# Код валюти навмисно НЕ з ISO 4217: VUAH = «віртуальна гривня» пісочниці.
-CURRENCY_CODE = 'VUAH'
-CURRENCY_LABEL = 'віртуальні гривні'
+# Код валюти навмисно НЕ з ISO 4217: TAX - токенізований атрибут лабораторії TaxTech, не гроші.
+CURRENCY_CODE = 'TAX'
+CURRENCY_LABEL = 'токени TAX'
 ACCOUNT_PREFIX = 'KP-'           # номери рахунків: KP-100001, KP-100002, …
 
 # Примітивний anti-bruteforce rate-limit для auth endpoints

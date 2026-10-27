@@ -1,4 +1,4 @@
--- PostgreSQL-схема навчального банку Kopiyka (пісочниця на ВІРТУАЛЬНИХ грошах, валюта VUAH).
+-- PostgreSQL-схема навчального банку Kopiyka (пісочниця на ВІРТУАЛЬНИХ грошах, валюта TAX).
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     account_number TEXT NOT NULL UNIQUE,
-    currency TEXT NOT NULL DEFAULT 'VUAH',
+    currency TEXT NOT NULL DEFAULT 'TAX',
     balance REAL NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS journal_entries (
     account_id      INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     entry_type      VARCHAR(6) NOT NULL CHECK (entry_type IN ('debit','credit')),
     amount          NUMERIC(14,2) NOT NULL CHECK (amount > 0),
-    currency        VARCHAR(4) NOT NULL DEFAULT 'VUAH',
+    currency        VARCHAR(4) NOT NULL DEFAULT 'TAX',
     description     TEXT NOT NULL DEFAULT '',
     balance_after   NUMERIC(14,2),
     settled         BOOLEAN NOT NULL DEFAULT FALSE,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS account_holds (
     account_id      INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     payment_order_id INTEGER REFERENCES payment_orders(id) ON DELETE SET NULL,
     amount          NUMERIC(14,2) NOT NULL CHECK (amount > 0),
-    currency        VARCHAR(4) NOT NULL DEFAULT 'VUAH',
+    currency        VARCHAR(4) NOT NULL DEFAULT 'TAX',
     reason          VARCHAR(100) NOT NULL DEFAULT 'authorization',
     status          VARCHAR(20) NOT NULL DEFAULT 'active'
                     CHECK (status IN ('active','released','expired','captured')),

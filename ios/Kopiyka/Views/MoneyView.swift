@@ -220,7 +220,7 @@ struct AddExpenseView: View {
     var body: some View {
         NavigationStack {
             LabForm {
-                TextField("Сума, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                 TextField("Де", text: $merchant)
                 Picker("Категорія", selection: $category) {
                     ForEach(Self.categories, id: \.self, content: Text.init)

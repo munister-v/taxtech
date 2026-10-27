@@ -60,7 +60,7 @@ class FeatureService:
         self.account_repo.update_balance(account['id'], new_balance)
         self.account_repo.add_transaction(account['id'], 'savings', 'out', amount, f"Внесок у накопичення: {goal['title']}")
         self.repo.update_goal_amount(goal_id, new_goal_amount)
-        self.repo.add_audit_log(user_id, 'goal_contribution', f"Поповнення цілі '{goal['title']}' на {amount:.2f} VUAH.")
+        self.repo.add_audit_log(user_id, 'goal_contribution', f"Поповнення цілі '{goal['title']}' на {amount:.2f} TAX.")
         return self.repo.list_savings_goals(user_id)
 
     def delete_goal(self, user_id: int, goal_id: int):
@@ -87,7 +87,7 @@ class FeatureService:
         self.account_repo.update_balance(account['id'], new_balance)
         self.account_repo.add_transaction(account['id'], 'donation', 'out', amount, f'Донат: {fund_name}')
         self.repo.create_donation(user_id, fund_name, amount, comment)
-        self.repo.add_audit_log(user_id, 'donation', f'Донат {amount:.2f} VUAH у напрямі {fund_name}.')
+        self.repo.add_audit_log(user_id, 'donation', f'Донат {amount:.2f} TAX у напрямі {fund_name}.')
         return self.repo.list_donations(user_id)
 
     def list_payouts(self, user_id: int):
@@ -104,7 +104,7 @@ class FeatureService:
         self.account_repo.update_balance(account['id'], new_balance)
         self.account_repo.add_transaction(account['id'], 'payout', 'in', amount, title)
         self.repo.create_payout(user_id, title, amount, payout_type)
-        self.repo.add_audit_log(user_id, 'demo_payout', f'Нараховано виплату {amount:.2f} VUAH.')
+        self.repo.add_audit_log(user_id, 'demo_payout', f'Нараховано виплату {amount:.2f} TAX.')
         return self.repo.list_payouts(user_id)
 
     def list_payment_templates(self, user_id: int):

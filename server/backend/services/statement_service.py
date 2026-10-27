@@ -1,4 +1,4 @@
-"""Сервіс генерації навчальних виписок у PDF-форматі (віртуальні гривні, VUAH)."""
+"""Сервіс генерації навчальних виписок і чеків у PDF (суми в навчальному токені TAX)."""
 from __future__ import annotations
 
 import io
@@ -112,6 +112,11 @@ _TX_TYPE_LABELS = {
     'payout': 'Виплата',
     'donation': 'Донат',
     'savings': 'Накопичення',
+    'credit': 'Кредит',
+    'credit_repay': 'Погашення кредиту',
+    'deposit': 'Депозит',
+    'marketplace': 'Магазин',
+    'card_topup': 'Поповнення картки',
 }
 
 _REPORT_TYPE_LABELS = {
@@ -395,7 +400,8 @@ class StatementService:
         return 'весь час'
 
     def _money(self, value: float) -> str:
-        return f'VUAH {float(value):,.2f}'.replace(',', ' ')
+        # 1 234,56 TAX - пробіл між тисячами, кома перед копійками
+        return f'{float(value):,.2f}'.replace(',', ' ').replace('.', ',') + ' TAX'
 
     # ──────────────────────────────────────────────────────────────────────
     # Receipt PDF
@@ -403,7 +409,7 @@ class StatementService:
     def _build_receipt(self, account: dict, user: dict, tx: dict) -> bytes:
         """Генерує A6 PDF квитанцію для однієї транзакції."""
         buf = io.BytesIO()
-        width, height = 105 * mm, 165 * mm   # A6 extended
+        width, height = 105 * mm, 190 * mm   # A6, подовжений під токен і хеш запису
         doc = SimpleDocTemplate(
             buf,
             pagesize=(width, height),
@@ -431,7 +437,7 @@ class StatementService:
             date_short = '—'
 
         tx_type = _TX_TYPE_LABELS.get(tx.get('tx_type'), tx.get('tx_type') or 'Операція')
-        receipt_kind = 'Навчальний чек (віртуальні гривні)'
+        receipt_kind = 'Навчальний чек (токени TAX)'
         tx_num = int(tx.get('id') or 0)
 
         story = []
@@ -495,6 +501,8 @@ class StatementService:
 
         related = tx.get('related_account') or '—'
         desc = str(tx.get('description') or '—')
+        from .integrity_service import IntegrityService
+        record_hash = IntegrityService().hashes_for([{**dict(tx), 'account_id': tx.get('account_id') or account.get('id')}]).get(tx_num, '')
         if len(desc) > 50:
             desc = desc[:47] + '…'
 
@@ -509,6 +517,8 @@ class StatementService:
             _row('Комісія',      self._money(commission)),
             _row('Разом',        self._money(total)),
             _row('Опис',         desc),
+            _row('Токен',        'TAX · навчальний, не гроші'),
+            _row('Хеш запису',   f'<font name="Courier" size="6.5">{record_hash[:32]}<br/>{record_hash[32:]}</font>'),
             _row('Верифікація',  '✓ ПІДТВЕРДЖЕНО', ok_s),
         ]
 
@@ -689,7 +699,7 @@ class StatementService:
             Paragraph(current_balance, balance),
             Spacer(1, 1.5 * mm),
             Paragraph('Валюта', subtitle),
-            Paragraph(f"{account.get('currency') or 'VUAH'} — віртуальні гривні", value),
+            Paragraph('TAX — навчальний токен лабораторії', value),
             Spacer(1, 1.5 * mm),
             Paragraph('Дата формування', subtitle),
             Paragraph(now_str, ParagraphStyle('nw', parent=styles['Normal'], fontSize=8.5, fontName=_f(), textColor=_STEEL)),
@@ -1082,6 +1092,8 @@ class StatementService:
                 running -= amount
             balance_by_id[int(tx.get('id') or 0)] = running
 
+        from .integrity_service import IntegrityService
+        record_hashes = IntegrityService().hashes_for([{**dict(t), 'account_id': t.get('account_id')} for t in txs])
         for idx, tx in enumerate(txs, 1):
             tx_id = int(tx.get('id') or 0)
             amount = float(tx.get('amount') or 0)
@@ -1104,6 +1116,9 @@ class StatementService:
             desc_cells = [Paragraph(desc, cell)]
             if related:
                 desc_cells.append(Paragraph(str(related), muted))
+            h = record_hashes.get(int(tx.get('id') or 0))
+            if h:
+                desc_cells.append(Paragraph(f'<font name="Courier">#{h[:16]}</font>', muted))
 
             tx_type = _TX_TYPE_LABELS.get(tx.get('tx_type'), tx.get('tx_type') or '—')
             balance_after = balance_by_id.get(tx_id, 0.0)

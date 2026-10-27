@@ -24,6 +24,7 @@ struct RootView: View {
                     Tab("Податки", systemImage: "percent", value: AppTab.taxes) { TaxesView() }
                     Tab("Магазин", systemImage: "bag", value: AppTab.shop) { ShopView() }
                 }
+                .tint(Theme.tint)
             }
         }
         .task(id: model.signedIn) {
@@ -57,7 +58,8 @@ struct RootView: View {
 
 enum Format {
     static func money(_ v: Double) -> String {
-        v.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "uk_UA"))) + " ₴"
+        // валюта застосунку - навчальний токен TAX, не гривня
+        v.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
     }
 
     static func ms(_ v: Double) -> String {
@@ -103,18 +105,16 @@ struct FeedbackButtons: View {
     @State private var sent: Bool?
 
     var body: some View {
-        if let sent {
-            Text(sent ? "Дякуємо, враховано" : "Враховано як помилку")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        } else {
-            HStack(spacing: 20) {
-                Button("Правильно") { send(true) }
-                Button("Неправильно") { send(false) }
-            }
-            .font(.footnote)
-            .buttonStyle(.borderless)
+        HStack(spacing: 16) {
+            Button { send(true) } label: { Image(systemName: sent == true ? "hand.thumbsup.fill" : "hand.thumbsup") }
+                .accessibilityLabel("Правильно")
+            Button { send(false) } label: { Image(systemName: sent == false ? "hand.thumbsdown.fill" : "hand.thumbsdown") }
+                .accessibilityLabel("Неправильно")
         }
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+        .buttonStyle(.borderless)
+        .disabled(sent != nil)
     }
 
     private func send(_ correct: Bool) {

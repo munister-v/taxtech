@@ -48,7 +48,7 @@ def test_removed_admin_and_crm_routes_are_absent(client):
 def test_api_catalog_lists_only_sandbox_routes(client):
     data = client.get('/api').get_json()
     assert data['ok'] is True
-    assert data['currency'] == 'VUAH'
+    assert data['currency'] == 'TAX'
     paths = {r['path'] for r in data['routes']}
     assert '/api/research/ping' in paths
     assert '/api/transactions/transfer' in paths

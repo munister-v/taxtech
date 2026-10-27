@@ -38,7 +38,7 @@ class LedgerService:
         tx_in_id: Optional[int] = None,
         sender_balance_after: Optional[float] = None,
         recipient_balance_after: Optional[float] = None,
-        currency: str = 'VUAH',
+        currency: str = 'TAX',
     ) -> tuple[int, int]:
         """Записує пару DEBIT/CREDIT. Повертає (debit_entry_id, credit_entry_id)."""
         suffix = get_returning_id_suffix()
@@ -79,7 +79,7 @@ class LedgerService:
         card_id: int,
         amount: float,
         account_balance_after: float,
-        currency: str = 'VUAH',
+        currency: str = 'TAX',
     ) -> int:
         """Внутрішня проводка: рахунок → картка (debit account, memo credit card)."""
         suffix = get_returning_id_suffix()

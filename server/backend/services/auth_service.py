@@ -69,7 +69,7 @@ class AuthService:
             password_hash=hash_password(data['password']),
         )
         self.ensure_user_bank_account(user_id)
-        self.features.add_audit_log(user_id, 'register', 'Створено обліковий запис та рахунок у пісочниці (віртуальні гривні).')
+        self.features.add_audit_log(user_id, 'register', 'Створено обліковий запис та рахунок у пісочниці (токени TAX).')
         return self.login({
             'identity': phone,
             'password': data['password'],

@@ -136,7 +136,7 @@ class PaymentCore:
             self._save_risk_events(order_id, user_id, risk)
             self._features.add_audit_log(
                 user_id, 'payment_blocked',
-                f'Переказ {amount:.2f} VUAH заблоковано (score={risk.score}).'
+                f'Переказ {amount:.2f} TAX заблоковано (score={risk.score}).'
             )
             raise ValueError(
                 f'Переказ заблоковано системою безпеки (ризик: {risk.score}/100). '
@@ -172,7 +172,7 @@ class PaymentCore:
 
         self._features.add_audit_log(
             user_id, 'transfer',
-            f'Переказ {amount:.2f} VUAH на {recipient_account_number} '
+            f'Переказ {amount:.2f} TAX на {recipient_account_number} '
             f'(order={order_id}, risk={risk.level}).'
         )
 
@@ -180,7 +180,7 @@ class PaymentCore:
         try:
             self._features.create_notification(
                 recipient['user_id'], 'transfer_received',
-                f'Надходження VUAH {amount:,.0f}'.replace(',', ' '),
+                f'Надходження {amount:,.0f} TAX'.replace(',', ' '),
                 f'Від {sender["account_number"]}: {description}',
                 '💸',
             )

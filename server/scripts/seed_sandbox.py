@@ -1,4 +1,4 @@
-"""Генератор синтетичних даних для пісочниці Kopiyka (ВІРТУАЛЬНІ гроші, VUAH).
+"""Генератор синтетичних даних для пісочниці Kopiyka (ВІРТУАЛЬНІ гроші, TAX).
 
 Створює N демо-користувачів з рахунками, віртуальними картками та ~6 місяцями
 транзакцій, чиї суми й час подібні до PaySim:
@@ -217,7 +217,7 @@ def build_normal_events(rng: random.Random, users: list[SeedUser],
         # Стартовий баланс, щоб перші витрати не впиралися в нуль
         events.append(Event(start - timedelta(hours=1), None, u.index,
                             round(rng.lognormvariate(math.log(15_000), 0.4), 2),
-                            'topup', 'Стартове поповнення (віртуальні гривні)'))
+                            'topup', 'Стартове поповнення'))
     while day <= end_local:
         dow = day.weekday()
         for u in users:
@@ -225,13 +225,13 @@ def build_normal_events(rng: random.Random, users: list[SeedUser],
                 ts = day.replace(hour=9, minute=rng.randrange(60)).astimezone(timezone.utc)
                 if start <= ts <= end:
                     events.append(Event(ts, None, u.index, u.salary, 'topup',
-                                        'Зарплата (віртуальні гривні)'))
+                                        'Зарплата'))
             if rng.random() < 0.04:                   # рідкісне поповнення з «картки іншого банку»
                 ts = _local_moment(rng, day)
                 if start <= ts <= end:
                     events.append(Event(ts, None, u.index,
                                         round(rng.lognormvariate(math.log(2_000), 0.6), -1),
-                                        'topup', 'Поповнення рахунку (віртуальні гривні)'))
+                                        'topup', 'Поповнення рахунку'))
             for _ in range(_poisson(rng, u.rate * DOW_MULT[dow])):
                 ts = _local_moment(rng, day)
                 if not (start <= ts <= end):
@@ -243,7 +243,7 @@ def build_normal_events(rng: random.Random, users: list[SeedUser],
                 else:
                     to = rng.choice(u.contacts)
                     events.append(Event(ts, u.index, to, _p2p_amount(rng), 'transfer',
-                                        'Переказ знайомому (віртуальні гривні)'))
+                                        'Переказ знайомому'))
         day += timedelta(days=1)
     return events
 
@@ -420,7 +420,7 @@ def insert_all(users: list[SeedUser], events: list[Event], rng: random.Random,
                 # шахрайські серії не повинні зникати — «доливаємо» віртуальні гроші заздалегідь
                 top = round(ev.amount - balances[snd.index] + 500, 2)
                 balances[snd.index] += top
-                add_tx(snd, 'topup', 'in', top, 'Поповнення рахунку (віртуальні гривні)', None,
+                add_tx(snd, 'topup', 'in', top, 'Поповнення рахунку', None,
                        ev.ts - timedelta(minutes=7), Event(ev.ts, None, snd.index, top, 'topup', ''))
             balances[snd.index] -= ev.amount
             if ev.receiver is None:                                # оплата мерчанту
@@ -498,7 +498,7 @@ def main(argv=None) -> int:
     total = sum(stats.values())
     out_total = sum(v for (d, _), v in stats.items() if d == 'out')
     out_fraud = sum(v for (d, p), v in stats.items() if d == 'out' and p != 'normal')
-    print(f'Пісочниця Kopiyka (усі суми — віртуальні гривні, {CURRENCY_CODE})')
+    print(f'Пісочниця Kopiyka (усі суми — токени TAX, {CURRENCY_CODE})')
     print(f'Період: {start.isoformat()} … {end.isoformat()}  seed={args.seed}')
     print(f'Користувачів: {len(users)}, транзакцій: {total} (вихідних: {out_total})')
     print(f'Шахрайських вихідних: {out_fraud} ({out_fraud / max(out_total, 1):.2%})')

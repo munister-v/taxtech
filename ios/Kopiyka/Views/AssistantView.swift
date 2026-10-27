@@ -17,8 +17,9 @@ struct AssistantView: View {
 
     static let suggestions = [
         "Як скласти бюджет на місяць?",
-        "Чому переказ може заблокувати антифрод?",
-        "Як заморозити картку в навчальному банку?",
+        "Скільки податку платить ФОП 3 групи?",
+        "Як повернути ПДФО за навчання?",
+        "Що таке хеш запису в чеку?",
     ]
 
     var body: some View {
@@ -69,7 +70,7 @@ struct AssistantView: View {
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .padding(.vertical, 8)
-                .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
+                .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
                 .padding(.horizontal)
                 .padding(.bottom, 6)
             }
@@ -77,37 +78,26 @@ struct AssistantView: View {
     }
 
     private var intro: some View {
-        VStack(spacing: 22) {
-            MarkView(height: 60)
-                .padding(.top, 40)
-            VStack(spacing: 8) {
-                Text("Спитайте про гроші")
-                    .font(.system(.title2, weight: .semibold))
-                Text("Відповідь дасть модель на телефоні або на сервері - залежно від мережі, заряду й упевненості.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            Surface {
-                ForEach(Array(Self.suggestions.enumerated()), id: \.offset) { i, s in
-                    if i > 0 { Rule() }
-                    Button {
-                        question = s
-                        ask()
-                    } label: {
-                        HStack {
-                            Text(s).foregroundStyle(.primary)
-                            Spacer()
-                            Image(systemName: "arrow.up.right").foregroundStyle(.secondary)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
-                        .contentShape(.rect)
+        Surface {
+            ForEach(Array(Self.suggestions.enumerated()), id: \.offset) { i, s in
+                if i > 0 { Rule() }
+                Button {
+                    question = s
+                    ask()
+                } label: {
+                    HStack {
+                        Text(s).foregroundStyle(.primary)
+                        Spacer()
+                        Image(systemName: "arrow.up.right").foregroundStyle(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+                    .contentShape(.rect)
                 }
+                .buttonStyle(.plain)
             }
         }
+        .padding(.top, 8)
     }
 
     private func questionBubble(_ text: String) -> some View {
@@ -117,7 +107,7 @@ struct AssistantView: View {
                 .foregroundStyle(Theme.onInk)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 11)
-                .background(Theme.ink, in: .rect(cornerRadius: 18, style: .continuous))
+                .background(Theme.ink, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
         }
     }
 
@@ -127,13 +117,11 @@ struct AssistantView: View {
                 if let a = t.answer { Text(a) }
                 if let e = t.error { Text(e).foregroundStyle(.secondary) }
                 if let r = t.record {
-                    Rule().padding(.leading, 0)
-                    RoutedNote(record: r)
                     FeedbackButtons(id: r.id)
                 }
             }
             .padding(16)
-            .background(Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
+            .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
             Spacer(minLength: 32)
         }
     }

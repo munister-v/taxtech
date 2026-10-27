@@ -13,7 +13,7 @@ struct ScreenTitle<Trailing: View>: View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
                 if let subtitle { Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary) }
-                Text(title).font(.system(size: 36, weight: .bold)).tracking(-1)
+                Text(title).font(Theme.display(26)).tracking(-0.5)
             }
             Spacer()
             trailing
@@ -38,8 +38,8 @@ struct HeroPanel<Content: View>: View {
         VStack(alignment: .leading, spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(22)
-            .foregroundStyle(Theme.onInk)
-            .background(Theme.ink, in: .rect(cornerRadius: 26, style: .continuous))
+            .foregroundStyle(Theme.onAccent)
+            .background(Theme.accent, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
     }
 }
 
@@ -51,10 +51,10 @@ struct HeroCaption: View {
 
     var body: some View {
         Text(text)
-            .font(.caption.weight(.semibold))
-            .tracking(1)
+            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+            .tracking(0.8)
             .textCase(.uppercase)
-            .foregroundStyle(Theme.onInk.opacity(0.6))
+            .foregroundStyle(Theme.onAccent.opacity(0.6))
     }
 }
 
@@ -67,13 +67,13 @@ struct Stat: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(value)
-                .font(.system(size: 19, weight: .semibold))
+                .font(Theme.display(15, .medium))
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Text(label)
                 .font(.caption)
-                .foregroundStyle(inverted ? Theme.onInk.opacity(0.6) : .secondary)
+                .foregroundStyle(inverted ? Theme.onAccent.opacity(0.6) : .secondary)
                 .lineLimit(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,11 +97,11 @@ struct SegmentBar<Value: Hashable>: View {
                             .font(.subheadline.weight(.semibold))
                             .padding(.horizontal, 14)
                             .padding(.vertical, 9)
-                            .foregroundStyle(selection == value ? Theme.onInk : .secondary)
+                            .foregroundStyle(selection == value ? Theme.onAccent : .secondary)
                             .background {
                                 if selection == value {
-                                    RoundedRectangle(cornerRadius: 11, style: .continuous)
-                                        .fill(Theme.ink)
+                                    RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
+                                        .fill(Theme.accent)
                                         .matchedGeometryEffect(id: "seg", in: ns)
                                 }
                             }
@@ -112,7 +112,7 @@ struct SegmentBar<Value: Hashable>: View {
             }
             .padding(4)
         }
-        .background(Theme.surface, in: .rect(cornerRadius: 15, style: .continuous))
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
         .sensoryFeedback(.selection, trigger: selection)
     }
 }
@@ -129,8 +129,8 @@ struct CircleAction: View {
                 Image(systemName: symbol)
                     .font(.system(size: 20, weight: .semibold))
                     .frame(width: 58, height: 58)
-                    .background(Theme.ink, in: .circle)
-                    .foregroundStyle(Theme.onInk)
+                    .background(Theme.accent, in: .rect(cornerRadius: Theme.corner))
+                    .foregroundStyle(Theme.onAccent)
                 Text(title)
                     .font(.caption.weight(.medium))
                     .multilineTextAlignment(.center)
@@ -160,7 +160,7 @@ struct SplitBar: View {
 
     var body: some View {
         let total = max(parts.reduce(0) { $0 + $1.value }, 0.0001)
-        let ink = inverted ? Theme.onInk : Theme.ink
+        let ink = inverted ? Theme.onAccent : Theme.ink
         VStack(alignment: .leading, spacing: 10) {
             GeometryReader { g in
                 HStack(spacing: 2) {
@@ -172,14 +172,14 @@ struct SplitBar: View {
                 }
             }
             .frame(height: 10)
-            .clipShape(.rect(cornerRadius: 3))
+            .clipShape(.rect(cornerRadius: Theme.corner))
             HStack(spacing: 14) {
                 ForEach(Array(parts.enumerated()), id: \.offset) { i, p in
                     HStack(spacing: 5) {
                         Rectangle().fill(ink.opacity(1 - Double(i) * 0.28)).frame(width: 10, height: 10)
                         Text("\(p.label) \(Int((p.value / total * 100).rounded()))%")
                             .font(.caption)
-                            .foregroundStyle(inverted ? Theme.onInk.opacity(0.7) : .secondary)
+                            .foregroundStyle(inverted ? Theme.onAccent.opacity(0.7) : .secondary)
                     }
                 }
             }
@@ -198,9 +198,9 @@ struct MoneyField: View {
             HStack {
                 TextField("0", value: $value, format: .number.precision(.fractionLength(0...2)))
                     .keyboardType(.decimalPad)
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(Theme.display(24))
                     .monospacedDigit()
-                Text("₴").font(.title2).foregroundStyle(.secondary)
+                Text("TAX").font(.title3.weight(.semibold)).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

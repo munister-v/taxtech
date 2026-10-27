@@ -117,7 +117,7 @@ def delete_goal(goal_id: int):
         return api_error(str(exc), 404)
 
 
-# ── Донації (благодійність, віртуальні гривні) ──────────────────────────────
+# ── Донації (благодійність, токени TAX) ──────────────────────────────
 
 @feature_bp.get('/donations')
 @auth_required
@@ -160,7 +160,7 @@ def demo_payout():
     """POST /api/payouts/demo-accrual — демо-нарахування (тільки на dev).
 
     Флаг ALLOW_DEMO_PAYOUT_ACCRUAL вмикає ендпоінт явно. Корисно для
-    тестування UI надходжень без сид-скрипта. Гроші віртуальні (VUAH).
+    тестування UI надходжень без сид-скрипта. Гроші віртуальні (TAX).
     """
     if not bool(current_app.config.get('ALLOW_DEMO_PAYOUT_ACCRUAL', False)):
         return api_error('Демо-нарахування вимкнено на цьому середовищі.', 403)

@@ -10,7 +10,7 @@
   POST /fraud/score  — Bearer-токен; скоринг FraudEngine з вибором шарів l1/l2/l3
   POST /llm          — Bearer-токен; Anthropic Messages API, моделі small/large
 
-Гроші пісочниці віртуальні (VUAH) — скоринг нічого не блокує і не записує.
+Гроші пісочниці віртуальні (TAX) — скоринг нічого не блокує і не записує.
 """
 from __future__ import annotations
 

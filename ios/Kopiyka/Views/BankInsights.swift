@@ -1,3 +1,4 @@
+import QuickLook
 import Charts
 import SwiftUI
 
@@ -8,6 +9,8 @@ struct TransactionDetailView: View {
     @State private var note = ""
     @State private var screen = Screen()
     @State private var receipt: URL?
+    @State private var preview: URL?
+    @State private var copied = false
 
     var body: some View {
         NavigationStack {
@@ -28,12 +31,34 @@ struct TransactionDetailView: View {
                     if let r = tx.relatedAccount { Line(tx.isIncome ? "Від" : "Кому", r) }
                 }
                 Section {
-                    if let receipt {
-                        ShareLink(item: receipt) { Label("Квитанція PDF", systemImage: "square.and.arrow.up") }
+                    if receipt != nil {
+                        Button { preview = receipt } label: { Label("Відкрити квитанцію", systemImage: "doc.richtext") }
                     } else {
-                        Button("Квитанція PDF") {
-                            Task { await screen.run { receipt = try await model.api.document("transactions/\(tx.id)/receipt", name: "Квитанція \(tx.id).pdf") } }
+                        Button("Переглянути квитанцію") {
+                            Task {
+                                await screen.run {
+                                    receipt = try await model.api.document("transactions/\(tx.id)/receipt", name: "Квитанція \(tx.id).pdf")
+                                    preview = receipt
+                                }
+                            }
                         }
+                    }
+                }
+                if let h = tx.hash {
+                    Section {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(h.prefix(32) + "\n" + h.suffix(32))
+                                .font(.footnote.monospaced())
+                                .textSelection(.enabled)
+                            Button(copied ? "Скопійовано" : "Скопіювати хеш") {
+                                UIPasteboard.general.string = h
+                                copied = true
+                            }
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Theme.ink)
+                        }
+                    } header: {
+                        Text("Хеш запису")
                     }
                 }
                 Section("Нотатка") {
@@ -50,6 +75,7 @@ struct TransactionDetailView: View {
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } } }
             .onAppear { note = tx.note ?? "" }
         }
+        .quickLookPreview($preview)
         .presentationDetents([.medium, .large])
     }
 }

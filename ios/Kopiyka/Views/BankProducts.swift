@@ -21,7 +21,7 @@ struct IssueCardView: View {
                                 VStack(spacing: 8) {
                                     VirtualCardView(number: "", expiry: nil, holder: nil, design: d, compact: true)
                                         .overlay {
-                                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                            RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
                                                 .strokeBorder(Theme.ink, lineWidth: design == d ? 2 : 0)
                                                 .padding(-5)
                                         }
@@ -68,7 +68,7 @@ struct DepositsView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { Text("Депозитів ще немає. Відкрийте перший - відсотки нараховуються за строк.").foregroundStyle(.secondary) }
+                Section { Text("Депозитів ще немає.").foregroundStyle(.secondary) }
             }
             ForEach(items) { d in
                 Section {
@@ -131,7 +131,7 @@ struct OpenDepositView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Сума, ₴ (від 500)", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX (від 500)", value: $amount, format: .number).keyboardType(.decimalPad)
                     Picker("Строк", selection: $months) {
                         ForEach(Self.rates.keys.sorted(), id: \.self) { Text("\($0) міс. · \(Self.rates[$0]!.formatted())%").tag($0) }
                     }
@@ -139,7 +139,7 @@ struct OpenDepositView: View {
                         .tint(Theme.ink.opacity(0.6))
                     TextField("Назва (необов'язково)", text: $note)
                 } footer: {
-                    Text("Орієнтовний дохід: \(Format.money(estimate)). Сума списується з рахунку на весь строк.")
+                    Text("Дохід приблизно \(Format.money(estimate)).")
                 }
                 ErrorSection(error: screen.error)
                 FormAction(title: "Відкрити депозит", disabled: (amount ?? 0) < 500 || screen.busy) {
@@ -174,7 +174,7 @@ struct CreditsView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { Text("Кредитів немає. Гроші віртуальні, тож це спосіб подивитись, як працює графік платежів.").foregroundStyle(.secondary) }
+                Section { Text("Кредитів немає.").foregroundStyle(.secondary) }
             }
             ForEach(items) { c in
                 Section {
@@ -236,13 +236,13 @@ struct TakeCreditView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Сума, ₴ (1 000 - 500 000)", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX (1 000 - 500 000)", value: $amount, format: .number).keyboardType(.decimalPad)
                     Picker("Строк", selection: $months) {
                         ForEach(Self.rates.keys.sorted(), id: \.self) { Text("\($0) міс. · \(Self.rates[$0]!.formatted())%").tag($0) }
                     }
                     TextField("Мета (необов'язково)", text: $note)
                 } footer: {
-                    Text("Орієнтовний платіж: \(Format.money(monthly)) на місяць. Точний графік дасть сервер.")
+                    Text("Приблизно \(Format.money(monthly)) на місяць.")
                 }
                 ErrorSection(error: screen.error)
                 FormAction(title: "Оформити кредит", disabled: (amount ?? 0) < 1000 || screen.busy) {

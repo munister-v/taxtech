@@ -99,7 +99,9 @@
   }
 }
 
-/* TaxTech - лише сірі тони: так само знебарвлюються емодзі й значки, яким не задати колір */
-html {
-  filter: grayscale(1);
+@font-face {
+  font-family: 'Unbounded';
+  src: url('/fonts/Unbounded.ttf') format('truetype');
+  font-weight: 200 900;
+  font-display: swap;
 }

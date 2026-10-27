@@ -21,7 +21,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#121212', color: '#d8d8d8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontFamily: 'sans-serif' }}>
           <div style={{ fontSize: 20 }}>{tt.error_boundary_title}</div>
           <div style={{ fontSize: 13, color: 'rgba(215,215,215, 0.6)', maxWidth: 400, textAlign: 'center' }}>{this.state.error}</div>
-          <button onClick={() => window.location.reload()} style={{ marginTop: 8, padding: '10px 20px', borderRadius: 10, background: gold, color: text.primary, border: 'none', cursor: 'pointer', fontWeight: 600 }}>{tt.error_boundary_refresh}</button>
+          <button onClick={() => window.location.reload()} style={{ marginTop: 8, padding: '10px 20px', borderRadius: 8, background: gold, color: text.primary, border: 'none', cursor: 'pointer', fontWeight: 600 }}>{tt.error_boundary_refresh}</button>
         </div>
       );
     }
@@ -31,9 +31,9 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
 
 // ─── Design tokens ────────────────────────────────────────────
 // Champagne-platinum palette — muted, private-banking feel
-const gold        = '#b0b0b0';   // warm platinum (was bright gold)
-const goldDark    = '#737373';   // dark platinum
-const goldLight   = '#cdcdcd';   // light champagne
+const gold        = '#FFD400';   // сигнальний жовтий - колір токена TAX
+const goldDark    = '#C9A800';
+const goldLight   = '#FFE566';
 const bg = {
   card:   'rgba(255,255,255, 0.042)',
   card2:  'rgba(255,255,255, 0.026)',
@@ -47,8 +47,9 @@ const text = {
   dim:       'rgba(194,194,194, 0.38)',
   gold:      gold,
 };
-const radius = { sm: 10, md: 14, lg: 18, xl: 22, '2xl': 28 };
+const radius = { sm: 4, md: 6, lg: 6, xl: 8, '2xl': 10 };
 const fontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
+const displayFont = "'Unbounded', -apple-system, sans-serif";
 const mobileTabBarOffset = 'calc(74px + env(safe-area-inset-bottom, 0px))';
 const mobileDockInset = `calc(${mobileTabBarOffset} + 8px)`;
 const mobileDockInsetCompact = `calc(${mobileTabBarOffset} - 6px)`;
@@ -56,13 +57,13 @@ const mobileDockInsetCompact = `calc(${mobileTabBarOffset} - 6px)`;
 // ─── Type scale helpers ───────────────────────────────────────
 const T = {
   /** 36px display — balance hero */
-  hero:    { fontSize: 36, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.1 } as React.CSSProperties,
+  hero:    { fontFamily: displayFont, fontSize: 36, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.1 } as React.CSSProperties,
   /** 28px screen title */
-  h1:      { fontSize: 28, fontWeight: 700, letterSpacing: -0.7, lineHeight: 1.2 } as React.CSSProperties,
+  h1:      { fontFamily: displayFont, fontSize: 28, fontWeight: 700, letterSpacing: -0.7, lineHeight: 1.2 } as React.CSSProperties,
   /** 22px section heading */
-  h2:      { fontSize: 22, fontWeight: 600, letterSpacing: -0.4, lineHeight: 1.25 } as React.CSSProperties,
+  h2:      { fontFamily: displayFont, fontSize: 22, fontWeight: 600, letterSpacing: -0.4, lineHeight: 1.25 } as React.CSSProperties,
   /** 17px card/panel title */
-  h3:      { fontSize: 17, fontWeight: 600, letterSpacing: -0.2, lineHeight: 1.3 } as React.CSSProperties,
+  h3:      { fontFamily: displayFont, fontSize: 17, fontWeight: 600, letterSpacing: -0.2, lineHeight: 1.3 } as React.CSSProperties,
   /** 15px body large */
   bodyLg:  { fontSize: 15, fontWeight: 400, lineHeight: 1.5 } as React.CSSProperties,
   /** 14px body default */
@@ -284,10 +285,11 @@ function localeForLang(lang: AppLang): string {
 }
 
 function formatUah(value: number, lang: AppLang = getStoredLanguage()): string {
-  return `₴ ${new Intl.NumberFormat(localeForLang(lang), {
+  // валюта - навчальний токен TAX, не гривня
+  return `${new Intl.NumberFormat(localeForLang(lang), {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(Number.isFinite(value) ? value : 0)}`;
+  }).format(Number.isFinite(value) ? value : 0)}\u00a0TAX`;
 }
 
 function apiUrl(url: string): string {
@@ -413,7 +415,7 @@ const translations = {
     dep_status_closed: 'Закрито',
     dep_status_early: 'Закрито достроково',
     dep_no_items: 'У вас немає активних депозитів',
-    dep_min_amount: 'Мінімальна сума — ₴500',
+    dep_min_amount: 'Мінімальна сума — 500 TAX',
     dep_accrued: 'Нараховано',
     dep_total_payout: 'До виплати',
     lang_uk: 'Українська',
@@ -437,7 +439,7 @@ const translations = {
     transfer_account_number: 'Номер рахунку',
     transfer_optional_desc: 'Опис (опційно)',
     transfer_comment: 'Коментар',
-    amount_label: 'Сума (₴)',
+    amount_label: 'Сума (TAX)',
     enter_amount: 'Вкажіть суму',
     enter_recipient: 'Вкажіть отримувача',
     session_expired: 'Сесія завершилась. Увійдіть повторно.',
@@ -677,7 +679,7 @@ const translations = {
     settings_limits: 'Budget Limits', settings_limits_sub: 'Monthly spending limit by category', settings_limit_add: 'Add limit', settings_limit_spent: 'spent', settings_limit_of: 'of',
     settings_pin: 'PIN code', settings_pin_sub: 'To confirm operations', settings_pin_set: 'Set PIN', settings_pin_change: 'Change PIN', settings_pin_clear: 'Remove PIN', settings_pin_active: 'PIN is set',
     settings_app_info: 'About', settings_version: 'Version', settings_api_status: 'API Status', settings_support: 'Support',
-    dep_title: 'Deposits', dep_open: 'Open deposit', dep_amount: 'Deposit amount', dep_term: 'Term', dep_rate: 'Rate', dep_monthly: 'mo.', dep_interest: 'Interest', dep_maturity: 'Maturity date', dep_days_left: 'days left', dep_auto_renew: 'Auto-renew', dep_close: 'Close deposit', dep_close_early: 'Early withdrawal (no interest)', dep_status_active: 'Active', dep_status_matured: 'Matured', dep_status_closed: 'Closed', dep_status_early: 'Early closed', dep_no_items: 'No active deposits', dep_min_amount: 'Minimum — ₴500', dep_accrued: 'Accrued', dep_total_payout: 'Total payout',
+    dep_title: 'Deposits', dep_open: 'Open deposit', dep_amount: 'Deposit amount', dep_term: 'Term', dep_rate: 'Rate', dep_monthly: 'mo.', dep_interest: 'Interest', dep_maturity: 'Maturity date', dep_days_left: 'days left', dep_auto_renew: 'Auto-renew', dep_close: 'Close deposit', dep_close_early: 'Early withdrawal (no interest)', dep_status_active: 'Active', dep_status_matured: 'Matured', dep_status_closed: 'Closed', dep_status_early: 'Early closed', dep_no_items: 'No active deposits', dep_min_amount: 'Minimum — 500 TAX', dep_accrued: 'Accrued', dep_total_payout: 'Total payout',
     lang_uk: 'Ukrainian',
     lang_en: 'English',
     lang_it: 'Italian',
@@ -699,7 +701,7 @@ const translations = {
     transfer_account_number: 'Account number',
     transfer_optional_desc: 'Description (optional)',
     transfer_comment: 'Comment',
-    amount_label: 'Amount (₴)',
+    amount_label: 'Amount (TAX)',
     enter_amount: 'Enter amount',
     enter_recipient: 'Enter recipient',
     session_expired: 'Session expired. Sign in again.',
@@ -939,7 +941,7 @@ const translations = {
     settings_limits: "Limiti di spesa', settings_limits_sub: 'Limite mensile per categoria', settings_limit_add: 'Aggiungi', settings_limit_spent: 'speso', settings_limit_of: 'di",
     settings_pin: "Codice PIN', settings_pin_sub: 'Per confermare le operazioni', settings_pin_set: 'Imposta PIN', settings_pin_change: 'Cambia PIN', settings_pin_clear: 'Rimuovi PIN', settings_pin_active: 'PIN attivo",
     settings_app_info: "Info', settings_version: 'Versione', settings_api_status: 'Stato API', settings_support: 'Supporto",
-    dep_title: "Depositi', dep_open: 'Apri deposito', dep_amount: 'Importo', dep_term: 'Durata', dep_rate: 'Tasso', dep_monthly: 'mesi', dep_interest: 'Interessi', dep_maturity: 'Scadenza', dep_days_left: 'giorni rimasti', dep_auto_renew: 'Rinnovo automatico', dep_close: 'Chiudi deposito', dep_close_early: 'Chiusura anticipata (senza interessi)', dep_status_active: 'Attivo', dep_status_matured: 'Scaduto', dep_status_closed: 'Chiuso', dep_status_early: 'Chiuso anticipatamente', dep_no_items: 'Nessun deposito attivo', dep_min_amount: 'Minimo — ₴500', dep_accrued: 'Maturato', dep_total_payout: 'Totale rimborso",
+    dep_title: "Depositi', dep_open: 'Apri deposito', dep_amount: 'Importo', dep_term: 'Durata', dep_rate: 'Tasso', dep_monthly: 'mesi', dep_interest: 'Interessi', dep_maturity: 'Scadenza', dep_days_left: 'giorni rimasti', dep_auto_renew: 'Rinnovo automatico', dep_close: 'Chiudi deposito', dep_close_early: 'Chiusura anticipata (senza interessi)', dep_status_active: 'Attivo', dep_status_matured: 'Scaduto', dep_status_closed: 'Chiuso', dep_status_early: 'Chiuso anticipatamente', dep_no_items: 'Nessun deposito attivo', dep_min_amount: 'Minimo — 500 TAX', dep_accrued: 'Maturato', dep_total_payout: 'Totale rimborso",
     lang_uk: 'Ucraino',
     lang_en: 'Inglese',
     lang_it: 'Italiano',
@@ -961,7 +963,7 @@ const translations = {
     transfer_account_number: 'Numero conto',
     transfer_optional_desc: 'Descrizione (opzionale)',
     transfer_comment: 'Commento',
-    amount_label: 'Importo (₴)',
+    amount_label: 'Importo (TAX)',
     enter_amount: 'Inserisci importo',
     enter_recipient: 'Inserisci destinatario',
     session_expired: 'Sessione scaduta. Accedi di nuovo.',
@@ -1201,7 +1203,7 @@ const translations = {
     settings_limits: 'Límites de gasto', settings_limits_sub: 'Límite mensual por categoría', settings_limit_add: 'Agregar', settings_limit_spent: 'gastado', settings_limit_of: 'de',
     settings_pin: 'Código PIN', settings_pin_sub: 'Para confirmar operaciones', settings_pin_set: 'Establecer PIN', settings_pin_change: 'Cambiar PIN', settings_pin_clear: 'Eliminar PIN', settings_pin_active: 'PIN activo',
     settings_app_info: 'Acerca de', settings_version: 'Versión', settings_api_status: 'Estado API', settings_support: 'Soporte',
-    dep_title: 'Depósitos', dep_open: 'Abrir depósito', dep_amount: 'Monto', dep_term: 'Plazo', dep_rate: 'Tasa', dep_monthly: 'mes.', dep_interest: 'Intereses', dep_maturity: 'Vencimiento', dep_days_left: 'días restantes', dep_auto_renew: 'Renovación automática', dep_close: 'Cerrar depósito', dep_close_early: 'Cierre anticipado (sin intereses)', dep_status_active: 'Activo', dep_status_matured: 'Vencido', dep_status_closed: 'Cerrado', dep_status_early: 'Cerrado anticipadamente', dep_no_items: 'Sin depósitos activos', dep_min_amount: 'Mínimo — ₴500', dep_accrued: 'Acumulado', dep_total_payout: 'Pago total',
+    dep_title: 'Depósitos', dep_open: 'Abrir depósito', dep_amount: 'Monto', dep_term: 'Plazo', dep_rate: 'Tasa', dep_monthly: 'mes.', dep_interest: 'Intereses', dep_maturity: 'Vencimiento', dep_days_left: 'días restantes', dep_auto_renew: 'Renovación automática', dep_close: 'Cerrar depósito', dep_close_early: 'Cierre anticipado (sin intereses)', dep_status_active: 'Activo', dep_status_matured: 'Vencido', dep_status_closed: 'Cerrado', dep_status_early: 'Cerrado anticipadamente', dep_no_items: 'Sin depósitos activos', dep_min_amount: 'Mínimo — 500 TAX', dep_accrued: 'Acumulado', dep_total_payout: 'Pago total',
     lang_uk: 'Ucraniano',
     lang_en: 'Inglés',
     lang_it: 'Italiano',
@@ -1223,7 +1225,7 @@ const translations = {
     transfer_account_number: 'Número de cuenta',
     transfer_optional_desc: 'Descripción (opcional)',
     transfer_comment: 'Comentario',
-    amount_label: 'Importe (₴)',
+    amount_label: 'Importe (TAX)',
     enter_amount: 'Introduce el importe',
     enter_recipient: 'Introduce el destinatario',
     session_expired: 'La sesión ha expirado. Inicia sesión de nuevo.',
@@ -1610,7 +1612,7 @@ function Toast({ msg }: { msg: string }) {
       position: 'fixed', bottom: mobileDockInset,
       left: '50%', transform: 'translateX(-50%)',
       zIndex: 9999, pointerEvents: 'none',
-      padding: '12px 18px', borderRadius: 18,
+      padding: '12px 18px', borderRadius: 8,
       background: 'rgba(26,26,26, 0.96)',
       backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
       border: '1px solid rgba(172,172,172, 0.18)',
@@ -2014,7 +2016,7 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
   const titleShadow = hasPhoto ? '0 1px 3px rgba(0,0,0, 0.62)' : '0 1px 1px rgba(0,0,0, 0.2)';
   return (
     <div style={{
-      position: 'relative', aspectRatio: '1.586 / 1', borderRadius: 22,
+      position: 'relative', aspectRatio: '1.586 / 1', borderRadius: 8,
       background: v.bg,
       boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55), 0 6px 16px -8px rgba(0,0,0, 0.4), inset 0 1px 0 rgba(255,255,255, 0.18)',
       color: v.text, overflow: 'hidden',
@@ -2063,7 +2065,7 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
                   {isPrimary ? 'БАЛАНС РАХУНКУ' : 'БАЛАНС КАРТКИ'}
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: v.text, textShadow: titleShadow, letterSpacing: 0.3 }}>
-                  ₴ {balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TAX
                 </div>
               </div>
             )}
@@ -2193,7 +2195,7 @@ function BalanceHistoryChart() {
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
           <span style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8 }}>{t('balance_history_title')}</span>
           <span style={{ fontSize: 12, color: isUp ? '#a9a9a9' : '#888888', fontWeight: 600, fontFeatureSettings: '"tnum"' }}>
-            {isUp ? '+' : ''}{fmtInt(diff)}{fmtDec(diff)} ₴
+            {isUp ? '+' : ''}{fmtInt(diff)}{fmtDec(diff)} TAX
           </span>
         </div>
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block', height: 52, overflow: 'visible' }}>
@@ -2238,7 +2240,7 @@ function InsightsStrip() {
       <div style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>{t('insights_title')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {insights.map((ins, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.1)', borderRadius: 14 }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.1)', borderRadius: 8 }}>
             <span style={{ fontSize: 16, flexShrink: 0, lineHeight: 1.4 }}>{ins.icon}</span>
             <span style={{ fontSize: 12, color: text.secondary, lineHeight: 1.5 }}>{ins.text}</span>
           </div>
@@ -2274,7 +2276,7 @@ function TopRecipientsMini({ onTransfer }: { onTransfer: (account: string) => vo
           <button key={i} onClick={() => onTransfer(r.related_account)} style={{
             flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
             padding: '10px 12px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.12)',
-            borderRadius: 16, cursor: 'pointer', minWidth: 80,
+            borderRadius: 8, cursor: 'pointer', minWidth: 80,
           }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', background: `${gold}`, border: `1px solid ${gold}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: gold, fontFamily: 'monospace' }}>
               {r.related_account.slice(-2)}
@@ -2342,7 +2344,7 @@ function ActivityRow({ iconBg, iconEl, title, subtitle, amount, positive, onClic
   return (
     <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', cursor: onClick ? 'pointer' : 'default', transition: 'background 0.15s' }}>
       <div style={{
-        width: 40, height: 40, borderRadius: 12, background: iconBg,
+        width: 40, height: 40, borderRadius: 8, background: iconBg,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         border: `1px solid rgba(176,176,176, 0.10)`,
         boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)',
@@ -2405,7 +2407,7 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
       </div>
       <div style={{ position: 'relative' }}>
         <div style={{ ...T.num, fontSize: 46, fontWeight: 300, letterSpacing: -1.8, color: text.primary, lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 26, fontWeight: 600, color: gold, letterSpacing: -0.5 }}>₴</span>
+          <span style={{ fontSize: 26, fontWeight: 600, color: gold, letterSpacing: -0.5 }}>TAX</span>
           <span style={{ textShadow: '0 0 40px rgba(236,236,236, 0.12)' }}>{visible ? fmtInt(balance) : '• • • • • • •'}</span>
           <span style={{ fontSize: 24, fontWeight: 300, color: 'rgba(235,235,235, 0.38)', letterSpacing: -0.5 }}>{visible ? fmtDec(balance) : ''}</span>
         </div>
@@ -2428,7 +2430,7 @@ function ActivityFeed({ title = true, transactions }: { title?: boolean; transac
   const rows = transactions.slice(0, 5).map(tx => {
     const cat = txToCat(tx);
     const s = CAT_STYLES[cat];
-    return { iconBg: s.bg, iconEl: s.icon, title: tx.description, subtitle: fmtTime(tx.created_at, lang), amount: `₴\u00a0${fmtInt(tx.amount)}${fmtDec(tx.amount)}`, positive: tx.direction === 'in' };
+    return { iconBg: s.bg, iconEl: s.icon, title: tx.description, subtitle: fmtTime(tx.created_at, lang), amount: `${fmtInt(tx.amount)}${fmtDec(tx.amount)}\u00a0TAX`, positive: tx.direction === 'in' };
   });
   return (
     <div>
@@ -2441,7 +2443,7 @@ function ActivityFeed({ title = true, transactions }: { title?: boolean; transac
           </button>
         </div>
       )}
-      <div style={{ background: 'rgba(255,255,255, 0.048)', border: `1px solid rgba(176,176,176, 0.10)`, borderRadius: 20, overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 2px 12px rgba(0,0,0, 0.08)' }}>
+      <div style={{ background: 'rgba(255,255,255, 0.048)', border: `1px solid rgba(176,176,176, 0.10)`, borderRadius: 8, overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 2px 12px rgba(0,0,0, 0.08)' }}>
         {rows.length === 0 ? (
           <div style={{ padding: '28px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: 13, color: text.muted, marginBottom: 4 }}>{t('no_transactions_yet')}</div>
@@ -2530,7 +2532,7 @@ function ThreeDSModal({
         width: '92%', maxWidth: 400,
         background: '#232323',
         border: '1px solid rgba(172,172,172, 0.18)',
-        borderRadius: 24, overflow: 'hidden',
+        borderRadius: 8, overflow: 'hidden',
         boxShadow: '0 32px 80px rgba(0,0,0, 0.7)',
       }}>
         {/* Header — Visa Secure style */}
@@ -2574,13 +2576,13 @@ function ThreeDSModal({
         <div style={{ padding: '24px 20px 28px' }}>
           {/* Payment summary */}
           <div style={{
-            background: 'rgba(255,255,255, 0.04)', borderRadius: 14,
+            background: 'rgba(255,255,255, 0.04)', borderRadius: 8,
             border: '1px solid rgba(172,172,172, 0.12)',
             padding: '14px 16px', marginBottom: 20,
           }}>
             <div style={{ fontSize: 11, color: 'rgba(215,215,215, 0.5)', letterSpacing: 1, marginBottom: 4 }}>СУМА ПЕРЕКАЗУ</div>
             <div style={{ fontSize: 26, fontWeight: 700, color: '#ebebeb', letterSpacing: -0.5 }}>
-              ₴{amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })}
+              {amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })}{'\u00a0TAX'}
             </div>
             {recipient && (
               <div style={{ fontSize: 12, color: 'rgba(215,215,215, 0.5)', marginTop: 4 }}>
@@ -2598,7 +2600,7 @@ function ThreeDSModal({
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
             background: 'rgba(171,171,171, 0.1)', border: '1px solid rgba(171,171,171, 0.2)',
-            borderRadius: 10, padding: '8px 12px', marginBottom: 16,
+            borderRadius: 8, padding: '8px 12px', marginBottom: 16,
           }}>
             <span style={{ fontSize: 14 }}>🧪</span>
             <div>
@@ -2627,7 +2629,7 @@ function ThreeDSModal({
                 fontFamily: '"SF Mono", monospace',
                 background: 'rgba(255,255,255, 0.06)',
                 border: `1px solid ${error ? 'rgba(110,110,110, 0.5)' : 'rgba(172,172,172, 0.2)'}`,
-                borderRadius: 14, color: '#ebebeb', outline: 'none',
+                borderRadius: 8, color: '#ebebeb', outline: 'none',
                 boxSizing: 'border-box',
               }}
               placeholder="••••••"
@@ -2640,7 +2642,7 @@ function ThreeDSModal({
           </div>
 
           {error && (
-            <div style={{ padding: '10px 14px', background: 'rgba(90,90,90, 0.12)', borderRadius: 10, color: '#989898', fontSize: 13, marginBottom: 12 }}>
+            <div style={{ padding: '10px 14px', background: 'rgba(90,90,90, 0.12)', borderRadius: 8, color: '#989898', fontSize: 13, marginBottom: 12 }}>
               {error}
             </div>
           )}
@@ -2649,7 +2651,7 @@ function ThreeDSModal({
             <button
               onClick={onCancel}
               style={{
-                flex: 1, padding: '13px', borderRadius: 12,
+                flex: 1, padding: '13px', borderRadius: 8,
                 background: 'rgba(255,255,255, 0.05)',
                 border: '1px solid rgba(172,172,172, 0.15)',
                 color: 'rgba(215,215,215, 0.7)', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
@@ -2661,7 +2663,7 @@ function ThreeDSModal({
               onClick={verify}
               disabled={loading || expired || otp.length !== 6}
               style={{
-                flex: 2, padding: '13px', borderRadius: 12,
+                flex: 2, padding: '13px', borderRadius: 8,
                 background: loading || expired || otp.length !== 6
                   ? 'rgba(51,51,51, 0.4)'
                   : '#4f4f4f',
@@ -2778,7 +2780,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
         const backendMsg = String((j && (j.error || j.message)) || '').trim();
         throw new Error(backendMsg || `${t('operation_error')} (${r.status})`);
       }
-      toast(mode === 'topup' ? `${t('topup_success')} ₴\u00a0${amtNum.toFixed(2)}` : `${t('transfer_success')} ₴\u00a0${amtNum.toFixed(2)}`);
+      toast(mode === 'topup' ? `${t('topup_success')} ${amtNum.toFixed(2)}\u00a0TAX` : `${t('transfer_success')} ${amtNum.toFixed(2)}\u00a0TAX`);
       refreshDashboard();
       onClose();
     } catch (err: unknown) {
@@ -2792,7 +2794,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
   const inp: React.CSSProperties = {
     width: '100%', padding: '12px 14px', boxSizing: 'border-box',
     background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`,
-    borderRadius: 12, color: '#ebebeb', fontSize: 15, outline: 'none', fontFamily: 'inherit',
+    borderRadius: 8, color: '#ebebeb', fontSize: 15, outline: 'none', fontFamily: 'inherit',
   };
 
   const amtNum = parseAmount(amount);
@@ -2844,9 +2846,9 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
           <div>
             <input style={{ ...inp, fontSize: 13 }} value={description} onChange={e => setDescription(e.target.value)} placeholder={cfg.placeholder} />
           </div>
-          {error && <div style={{ padding: '10px 14px', background: 'rgba(90,90,90, 0.12)', border: '1px solid rgba(90,90,90, 0.25)', borderRadius: 10, color: '#989898', fontSize: 13 }}>{error}</div>}
+          {error && <div style={{ padding: '10px 14px', background: 'rgba(90,90,90, 0.12)', border: '1px solid rgba(90,90,90, 0.25)', borderRadius: 8, color: '#989898', fontSize: 13 }}>{error}</div>}
           <button type="submit" disabled={loading} style={{
-            marginTop: 4, padding: '15px', borderRadius: 14,
+            marginTop: 4, padding: '15px', borderRadius: 8,
             border: `1px solid ${bg.border}`,
             background: loading ? 'rgba(51,51,51, 0.4)' : 'rgba(53,53,53, 0.95)',
             color: loading ? text.dim : text.primary, fontSize: 15, fontWeight: 600,
@@ -2884,7 +2886,7 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
     if (!amtNum || amtNum <= 0) { toast('Введіть суму'); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 900));
-    toast(`✅ ${dir === 'buy' ? `Куплено ${fxAmt.toFixed(4)} ${currency} за ₴${amtNum.toFixed(2)}` : `Продано ${amtNum.toFixed(4)} ${currency} → ₴${fxAmt.toFixed(2)}`}`);
+    toast(`✅ ${dir === 'buy' ? `Куплено ${fxAmt.toFixed(4)} ${currency} за ${amtNum.toFixed(2)}\u00a0TAX` : `Продано ${amtNum.toFixed(4)} ${currency} → ${fxAmt.toFixed(2)}\u00a0TAX`}`);
     setLoading(false); onClose();
   }
 
@@ -2896,16 +2898,16 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: text.primary }}>Обмін валюти</div>
           <div style={{ flex: 1 }} />
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255, 0.06)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255, 0.06)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
-        <div style={{ display: 'flex', background: 'rgba(36,36,36, 0.6)', borderRadius: 14, padding: 4, marginBottom: 20 }}>
+        <div style={{ display: 'flex', background: 'rgba(36,36,36, 0.6)', borderRadius: 8, padding: 4, marginBottom: 20 }}>
           {([['buy', '🛒 Купити'] as const, ['sell', '💵 Продати'] as const]).map(([d, label]) => (
-            <button key={d} onClick={() => setDir(d)} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: dir === d ? `${goldDark}` : 'transparent', color: dir === d ? '#242424' : text.muted, fontWeight: dir === d ? 700 : 500, fontSize: 13 }}>{label}</button>
+            <button key={d} onClick={() => setDir(d)} style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: dir === d ? `${goldDark}` : 'transparent', color: dir === d ? '#242424' : text.muted, fontWeight: dir === d ? 700 : 500, fontSize: 13 }}>{label}</button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           {rates.map(r => (
-            <button key={r.code} onClick={() => setCurrency(r.code)} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, border: `1.5px solid ${currency === r.code ? gold : 'rgba(172,172,172, 0.15)'}`, background: currency === r.code ? 'rgba(171,171,171, 0.1)' : 'rgba(255,255,255, 0.03)', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <button key={r.code} onClick={() => setCurrency(r.code)} style={{ flex: 1, padding: '10px 6px', borderRadius: 8, border: `1.5px solid ${currency === r.code ? gold : 'rgba(172,172,172, 0.15)'}`, background: currency === r.code ? 'rgba(171,171,171, 0.1)' : 'rgba(255,255,255, 0.03)', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span style={{ fontSize: 18 }}>{CURRENCY_FLAGS[r.code] ?? '🌐'}</span>
               <span style={{ fontSize: 11, fontWeight: 700, color: currency === r.code ? gold : text.secondary }}>{r.code}</span>
               <span style={{ fontSize: 10, color: text.muted }}>{(dir === 'buy' ? r.rate * (1 + SPREAD) : r.rate * (1 - SPREAD)).toFixed(2)}</span>
@@ -2913,26 +2915,26 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
           ))}
         </div>
         <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{dir === 'buy' ? `Сума в гривнях (UAH)` : `Сума в ${currency}`}</label>
-          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.2)`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
+          <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{dir === 'buy' ? `Сума в токенах TAX` : `Сума в ${currency}`}</label>
+          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 8, background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.2)`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
         </div>
         {amtNum > 0 && (
-          <div style={{ background: 'rgba(172,172,172, 0.05)', border: '1px solid rgba(172,172,172, 0.12)', borderRadius: 14, padding: '14px 16px', marginBottom: 20 }}>
+          <div style={{ background: 'rgba(172,172,172, 0.05)', border: '1px solid rgba(172,172,172, 0.12)', borderRadius: 8, padding: '14px 16px', marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: text.muted }}>Ви отримаєте</span>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#a9a9a9' }}>{dir === 'buy' ? `${fxAmt.toFixed(4)} ${currency}` : `₴${fxAmt.toFixed(2)}`}</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#a9a9a9' }}>{dir === 'buy' ? `${fxAmt.toFixed(4)} ${currency}` : `${fxAmt.toFixed(2)}\u00a0TAX`}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: text.muted }}>Курс</span>
-              <span style={{ fontSize: 13, color: text.secondary }}>{dir === 'buy' ? `1 ${currency} = ₴${buyRate.toFixed(4)}` : `1 ${currency} = ₴${sellRate.toFixed(4)}`}</span>
+              <span style={{ fontSize: 13, color: text.secondary }}>{dir === 'buy' ? `1 ${currency} = ${buyRate.toFixed(4)}\u00a0TAX` : `1 ${currency} = ${sellRate.toFixed(4)}\u00a0TAX`}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 12, color: text.muted }}>Комісія банку (1.5%)</span>
-              <span style={{ fontSize: 12, color: text.muted }}>₴{commission.toFixed(2)}</span>
+              <span style={{ fontSize: 12, color: text.muted }}>{commission.toFixed(2)}{'\u00a0TAX'}</span>
             </div>
           </div>
         )}
-        <button onClick={handleExchange} disabled={loading || !amtNum} style={{ width: '100%', padding: '16px', borderRadius: 16, border: 'none', cursor: loading || !amtNum ? 'default' : 'pointer', background: loading || !amtNum ? 'rgba(51,51,51, 0.4)' : `${goldDark}`, color: loading || !amtNum ? text.dim : '#242424', fontSize: 16, fontWeight: 700, fontFamily: 'inherit' }}>
+        <button onClick={handleExchange} disabled={loading || !amtNum} style={{ width: '100%', padding: '16px', borderRadius: 8, border: 'none', cursor: loading || !amtNum ? 'default' : 'pointer', background: loading || !amtNum ? 'rgba(51,51,51, 0.4)' : `${goldDark}`, color: loading || !amtNum ? text.dim : '#242424', fontSize: 16, fontWeight: 700, fontFamily: 'inherit' }}>
           {loading ? '⏳ Виконується…' : `${dir === 'buy' ? 'Купити' : 'Продати'} ${currency}`}
         </button>
       </div>
@@ -2957,9 +2959,9 @@ function MonthlyFinanceSummary({ transactions }: { transactions: TxItem[] }) {
   const expensesDelta = prevExpenses > 0 ? ((expenses - prevExpenses) / prevExpenses * 100) : 0;
   const monthName = now.toLocaleDateString(lang === 'uk' ? 'uk-UA' : lang === 'en' ? 'en-US' : lang === 'it' ? 'it-IT' : 'es-ES', { month: 'long' });
   const items = [
-    { label: 'Дохід', value: `₴${fmtInt(income)}`, color: '#a9a9a9', icon: <TrendUpIcon color="#a9a9a9" /> },
-    { label: 'Витрати', value: `₴${fmtInt(expenses)}`, color: income > 0 && expenses > income ? '#888888' : text.secondary, icon: <TrendDownIcon color={income > 0 && expenses > income ? '#888888' : text.secondary} />, sub: prevExpenses > 0 ? `${expensesDelta >= 0 ? '+' : ''}${expensesDelta.toFixed(0)}% vs минулий міс.` : undefined },
-    { label: 'Баланс', value: `${net >= 0 ? '+' : '−'}₴${fmtInt(Math.abs(net))}`, color: net >= 0 ? '#a9a9a9' : '#888888', icon: <WalletIcon color={net >= 0 ? '#a9a9a9' : '#888888'} /> },
+    { label: 'Дохід', value: `${fmtInt(income)}\u00a0TAX`, color: '#a9a9a9', icon: <TrendUpIcon color="#a9a9a9" /> },
+    { label: 'Витрати', value: `${fmtInt(expenses)}\u00a0TAX`, color: income > 0 && expenses > income ? '#888888' : text.secondary, icon: <TrendDownIcon color={income > 0 && expenses > income ? '#888888' : text.secondary} />, sub: prevExpenses > 0 ? `${expensesDelta >= 0 ? '+' : ''}${expensesDelta.toFixed(0)}% vs минулий міс.` : undefined },
+    { label: 'Баланс', value: `${net >= 0 ? '+' : '−'}${fmtInt(Math.abs(net))}\u00a0TAX`, color: net >= 0 ? '#a9a9a9' : '#888888', icon: <WalletIcon color={net >= 0 ? '#a9a9a9' : '#888888'} /> },
     { label: 'Заощадження', value: `${savingsRate}%`, color: savingsRate >= 20 ? '#a9a9a9' : savingsRate >= 10 ? gold : text.secondary, icon: <BankIcon color={savingsRate >= 20 ? '#a9a9a9' : savingsRate >= 10 ? gold : text.secondary} /> },
   ];
   if (!income && !expenses) return null;
@@ -3007,7 +3009,7 @@ function CurrencyRatesBar({ onRatesLoaded, onExchange }: { onRatesLoaded?: (r: F
           <div key={r.code} onClick={onExchange} style={{ ...glassCard(), padding: '10px 14px', flexShrink: 0, minWidth: 72, display: 'flex', flexDirection: 'column', gap: 4, cursor: onExchange ? 'pointer' : 'default' }}>
             <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, fontWeight: 600 }}>{r.code}</div>
             <div style={{ fontSize: 15, color: text.primary, fontWeight: 700, fontFeatureSettings: '"tnum"' }}>
-              {r.rate.toFixed(2)}<span style={{ fontSize: 10, color: text.muted, fontWeight: 400 }}> ₴</span>
+              {r.rate.toFixed(2)}<span style={{ fontSize: 10, color: text.muted, fontWeight: 400 }}> TAX</span>
             </div>
           </div>
         ))}
@@ -3086,20 +3088,20 @@ function SavingsGoalsMini() {
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
           background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.18)`,
-          borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
+          borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
         }}>+ Нова</button>
       </div>
 
       {showCreate && (
         <div style={{ ...glassCard(), padding: '14px 16px', marginBottom: 10 }}>
           <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Назва цілі"
-            style={{ width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
-          <input value={newTarget} onChange={e => setNewTarget(e.target.value)} placeholder="Сума, ₴" type="text" inputMode="decimal"
-            style={{ width: '100%', padding: '9px 12px', marginBottom: 10, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+          <input value={newTarget} onChange={e => setNewTarget(e.target.value)} placeholder="Сума, TAX" type="text" inputMode="decimal"
+            style={{ width: '100%', padding: '9px 12px', marginBottom: 10, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           <button onClick={createGoal} disabled={creating} style={{
             width: '100%', padding: '10px', fontSize: 13, fontWeight: 600,
             background: `${gold}`, color: '#161616',
-            border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+            border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
           }}>{creating ? '…' : 'Створити'}</button>
         </div>
       )}
@@ -3126,8 +3128,8 @@ function SavingsGoalsMini() {
               <div style={{ width: `${pct}%`, height: '100%', background: `${goldDark}`, borderRadius: 4, transition: 'width 0.6s ease' }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isContributing ? 10 : 0 }}>
-              <span style={{ color: text.muted, fontSize: 11 }}>₴{fmtInt(goal.current_amount)}</span>
-              <span style={{ color: text.muted, fontSize: 11 }}>з ₴{fmtInt(goal.target_amount)}</span>
+              <span style={{ color: text.muted, fontSize: 11 }}>{fmtInt(goal.current_amount)}{'\u00a0TAX'}</span>
+              <span style={{ color: text.muted, fontSize: 11 }}>з {fmtInt(goal.target_amount)}{'\u00a0TAX'}</span>
             </div>
             {!isContributing ? (
               <button onClick={() => { setContributeId(goal.id); setContributeAmt(''); }} style={{
@@ -3215,7 +3217,7 @@ function RecurringSection() {
     finally { setCreating(false); }
   };
 
-  const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
+  const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
   return (
     <div style={{ padding: '24px 22px 0' }}>
@@ -3224,19 +3226,19 @@ function RecurringSection() {
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
           background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.18)`,
-          borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
+          borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
         }}>+ Новий</button>
       </div>
 
       {showCreate && (
         <div style={{ ...glassCard(), padding: '16px', marginBottom: 12 }}>
           <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Назва платежу" style={inputStyle} />
-          <input value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="Сума, ₴" type="text" inputMode="decimal" style={inputStyle} />
+          <input value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="Сума, TAX" type="text" inputMode="decimal" style={inputStyle} />
           <input value={form.recipient_account} onChange={e => setForm(f => ({ ...f, recipient_account: e.target.value }))} placeholder="Рахунок отримувача (необов'язково)" style={inputStyle} />
           <select value={form.frequency} onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))} style={{ ...inputStyle, marginBottom: 12 }}>
             {Object.entries(FREQ_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
-          <button onClick={create} disabled={creating} style={{ width: '100%', padding: '10px', fontSize: 13, fontWeight: 600, background: `${gold}`, color: '#161616', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={create} disabled={creating} style={{ width: '100%', padding: '10px', fontSize: 13, fontWeight: 600, background: `${gold}`, color: '#161616', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
             {creating ? '…' : 'Створити'}
           </button>
         </div>
@@ -3252,7 +3254,7 @@ function RecurringSection() {
         {list.map(rec => (
           <div key={rec.id} style={{ ...glassCard(), padding: '14px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: rec.is_active ? 'rgba(180,180,180, 0.15)' : 'rgba(172,172,172, 0.08)', border: `1px solid ${rec.is_active ? 'rgba(180,180,180, 0.3)' : 'rgba(172,172,172, 0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🔄</div>
+              <div style={{ width: 36, height: 36, borderRadius: 8, background: rec.is_active ? 'rgba(180,180,180, 0.15)' : 'rgba(172,172,172, 0.08)', border: `1px solid ${rec.is_active ? 'rgba(180,180,180, 0.3)' : 'rgba(172,172,172, 0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>🔄</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: text.secondary, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.title}</div>
                 <div style={{ fontSize: 11, color: text.muted }}>
@@ -3261,7 +3263,7 @@ function RecurringSection() {
                 </div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: text.secondary, fontFeatureSettings: '"tnum"' }}>₴{fmtInt(rec.amount)}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: text.secondary, fontFeatureSettings: '"tnum"' }}>{fmtInt(rec.amount)}{'\u00a0TAX'}</div>
                 <div style={{ fontSize: 10, color: rec.is_active ? '#a9a9a9' : 'rgba(126,126,126, 0.7)', marginTop: 2 }}>{rec.is_active ? 'Активний' : 'Призупинено'}</div>
               </div>
             </div>
@@ -3310,12 +3312,12 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
 
   const tips = [
     income > 0 && expenses / income > 0.8 && 'Витрати перевищують 80% доходу — розгляньте бюджет',
-    balance < 1000 && 'Підтримуйте резервний фонд від ₴5 000',
+    balance < 1000 && 'Підтримуйте резервний фонд від 5 000 TAX',
     monthTx.length < 3 && 'Мало активності — використовуйте картку для кешбеку',
   ].filter(Boolean) as string[];
 
   return (
-    <div style={{ margin: '0 22px 20px', background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 20, padding: '18px 20px', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ margin: '0 22px 20px', background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 8, padding: '18px 20px', overflow: 'hidden', position: 'relative' }}>
       <div style={{ position: 'absolute', top: 0, right: 0, width: 120, height: 120, borderRadius: '50%', background: `${level.color}`, pointerEvents: 'none' }} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
@@ -3341,7 +3343,7 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
           { label: 'Баланс', val: Math.round(balanceScore) },
           { label: 'Активність', val: Math.round(activityScore) },
         ].map(({ label, val }) => (
-          <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255, 0.03)', borderRadius: 10, padding: '8px 4px' }}>
+          <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255, 0.03)', borderRadius: 8, padding: '8px 4px' }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: text.primary }}>{val}</div>
             <div style={{ fontSize: 9, color: text.muted, marginTop: 2 }}>{label}</div>
           </div>
@@ -3431,7 +3433,7 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
           const isEditing = editing === cat.key;
 
           return (
-            <div key={cat.key} style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 16, padding: '12px 14px' }}>
+            <div key={cat.key} style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 8, padding: '12px 14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: limit > 0 ? 10 : 0 }}>
                 <span style={{ fontSize: 20 }}>{cat.icon}</span>
                 <div style={{ flex: 1 }}>
@@ -3439,10 +3441,10 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
                     <span style={{ fontSize: 13, fontWeight: 600, color: text.primary }}>{cat.label}</span>
                     {limit > 0 && (
                       <span style={{ fontSize: 12, color: pct >= 100 ? '#757575' : text.secondary, fontWeight: 600 }}>
-                        ₴{spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })} / ₴{limit.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}
+                        {spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'} / {limit.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'}
                       </span>
                     )}
-                    {limit === 0 && <span style={{ fontSize: 11, color: text.dim }}>₴{spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })} цього місяця</span>}
+                    {limit === 0 && <span style={{ fontSize: 11, color: text.dim }}>{spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'} цього місяця</span>}
                   </div>
                 </div>
                 <button onClick={() => { setEditing(isEditing ? null : cat.key); setEditVal(limit > 0 ? String(limit) : ''); }}
@@ -3453,10 +3455,10 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
               {isEditing && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                   <input type="text" inputMode="decimal" value={editVal} onChange={e => setEditVal(e.target.value)}
-                    placeholder="Ліміт ₴"
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255, 0.05)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none' }} />
+                    placeholder="Ліміт TAX"
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255, 0.05)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none' }} />
                   <button onClick={() => { const v = parseFloat(editVal.replace(',', '.')); if (v > 0) saveBudget(cat.key, v); }}
-                    style={{ padding: '8px 14px', borderRadius: 10, border: 'none', background: '#a9a9a9', color: '#ffffff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#a9a9a9', color: '#ffffff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                     ОК
                   </button>
                 </div>
@@ -3513,9 +3515,9 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
   }
 
   return (
-    <div style={{ margin: '0 18px 20px', background: `rgba(171,171,171, 0.1)`, border: `1px solid rgba(171,171,171, 0.25)`, borderRadius: 22, padding: '18px 20px', boxShadow: '0 18px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.05)' }}>
+    <div style={{ margin: '0 18px 20px', background: `rgba(171,171,171, 0.1)`, border: `1px solid rgba(171,171,171, 0.25)`, borderRadius: 8, padding: '18px 20px', boxShadow: '0 18px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.05)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <div style={{ width: 42, height: 42, borderRadius: 13, background: 'rgba(171,171,171, 0.2)', border: `1px solid rgba(171,171,171, 0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 42, height: 42, borderRadius: 8, background: 'rgba(171,171,171, 0.2)', border: `1px solid rgba(171,171,171, 0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.6-4.9-2.6-4.9 2.6.9-5.6-4-3.9 5.5-.8L12 3z" stroke={gold} strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
@@ -3525,16 +3527,16 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
           <div style={{ fontSize: 12, color: text.muted }}>Поділіться TaxTech з одногрупниками</div>
         </div>
       </div>
-      <div style={{ background: 'rgba(0,0,0, 0.2)', borderRadius: 12, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: 'rgba(0,0,0, 0.2)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, marginBottom: 2 }}>ВАШ КОД</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: gold, letterSpacing: 2 }}>{code}</div>
         </div>
-        <button onClick={copyLink} style={{ padding: '7px 14px', borderRadius: 10, border: `1px solid rgba(171,171,171, 0.3)`, background: copied ? 'rgba(169,169,169, 0.15)' : 'rgba(171,171,171, 0.1)', color: copied ? '#a9a9a9' : gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+        <button onClick={copyLink} style={{ padding: '7px 14px', borderRadius: 8, border: `1px solid rgba(171,171,171, 0.3)`, background: copied ? 'rgba(169,169,169, 0.15)' : 'rgba(171,171,171, 0.1)', color: copied ? '#a9a9a9' : gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
           {copied ? '✓ Скопійовано' : 'Копіювати'}
         </button>
       </div>
-      <button onClick={shareLink} style={{ width: '100%', padding: '12px', borderRadius: 14, border: 'none', background: 'rgba(171,171,171, 0.25)', color: gold, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+      <button onClick={shareLink} style={{ width: '100%', padding: '12px', borderRadius: 8, border: 'none', background: 'rgba(171,171,171, 0.25)', color: gold, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8a3 3 0 100-6 3 3 0 000 6zM6 15a3 3 0 100-6 3 3 0 000 6zM18 22a3 3 0 100-6 3 3 0 000 6zM8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
         Поділитися посиланням
       </button>
@@ -3741,12 +3743,12 @@ function OverviewScreen() {
         </button>
       </div>
       {!cards.length ? (
-        <div style={{ maxWidth: 380, padding: '16px 18px', borderRadius: 16, border: `1px solid ${bg.border}`, background: bg.card }}>
+        <div style={{ maxWidth: 380, padding: '16px 18px', borderRadius: 8, border: `1px solid ${bg.border}`, background: bg.card }}>
           <div style={{ fontSize: 14, color: text.secondary, marginBottom: 6 }}>{t('cards_not_issued')}</div>
           <div style={{ fontSize: 12, color: text.muted, marginBottom: 12 }}>{t('cards_issue_hint')}</div>
           <button
             onClick={() => goTo('cards')}
-            style={{ padding: '8px 12px', borderRadius: 10, border: `1px solid ${bg.border}`, background: 'rgba(255,255,255, 0.03)', color: text.secondary, cursor: 'pointer' }}
+            style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${bg.border}`, background: 'rgba(255,255,255, 0.03)', color: text.secondary, cursor: 'pointer' }}
           >
             {t('open_cards')}
           </button>
@@ -3759,7 +3761,7 @@ function OverviewScreen() {
             style={{
               maxWidth: 380,
               overflow: 'hidden',
-              borderRadius: 22,
+              borderRadius: 8,
               touchAction: 'pan-y',
             }}
             onTouchStart={handleCardTouchStart}
@@ -3799,7 +3801,7 @@ function OverviewScreen() {
                           <div style={{
                             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                             backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                            transform: 'rotateY(180deg)', borderRadius: 22, overflow: 'hidden',
+                            transform: 'rotateY(180deg)', borderRadius: 8, overflow: 'hidden',
                             background: v.bg, boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55)',
                           }}>
                             {v.image && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${v.image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3)', transform: 'scale(1.04)' }} />}
@@ -3875,7 +3877,7 @@ function OverviewScreen() {
             <svg key="chat" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="#d8d8d8" strokeWidth="1.6" strokeLinejoin="round" /></svg>,
             <svg key="bell" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
           ].map((icon, i) => (
-            <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 12, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginLeft: 10, position: 'relative' }}>
+            <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 8, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginLeft: 10, position: 'relative' }}>
               {icon}
               {i === 1 && unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#888888', border: '1.5px solid rgba(18,18,18, 0.9)' }} />}
             </button>
@@ -3886,7 +3888,7 @@ function OverviewScreen() {
         <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: 24, alignItems: 'start' }}>
           {/* Left: balance + card + quick actions */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ padding: 24, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 22 }}>
+            <div style={{ padding: 24, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 8 }}>
               <BalanceBlock visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)} balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'} />
             </div>
             {cardSection}
@@ -3896,7 +3898,7 @@ function OverviewScreen() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <ActivityFeed transactions={transactions} />
             {/* Spending stats mini */}
-            <div style={{ padding: 20, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 22 }}>
+            <div style={{ padding: 20, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 8 }}>
               <div style={{ ...T.h3, color: text.secondary, marginBottom: 14 }}>{t('spending_this_month')}</div>
               {!spendRows.length && (
                 <div style={{ fontSize: 12, color: text.muted }}>{t('insufficient_spend_data')}</div>
@@ -3927,7 +3929,7 @@ function OverviewScreen() {
         <div style={{
           ...glassCard({
             padding: '18px 18px 16px',
-            borderRadius: 28,
+            borderRadius: 8,
             background: 'rgba(33,33,33, 0.9)',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.24), inset 0 1px 0 rgba(255,255,255, 0.06)',
           }),
@@ -3947,7 +3949,7 @@ function OverviewScreen() {
               <svg key="chat" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="#d8d8d8" strokeWidth="1.6" strokeLinejoin="round" /></svg>,
               <svg key="bell" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
             ].map((icon, i) => (
-              <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.045)', border: '1px solid rgba(176,176,176, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.06), 0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+              <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255,255,255, 0.045)', border: '1px solid rgba(176,176,176, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.06), 0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
 
                 {icon}
                 {i === 1 && unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#888888', border: '1.5px solid rgba(18,18,18, 0.9)' }} />}
@@ -3961,20 +3963,20 @@ function OverviewScreen() {
               {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
             </div>
             <div style={{ padding: '8px 12px', borderRadius: 999, background: flowNet >= 0 ? 'rgba(169,169,169, 0.14)' : 'rgba(136,136,136, 0.14)', border: `1px solid ${flowNet >= 0 ? 'rgba(169,169,169, 0.24)' : 'rgba(136,136,136, 0.22)'}`, fontSize: 11, color: flowNet >= 0 ? '#c5c5c5' : '#bfbfbf', fontWeight: 600, fontFeatureSettings: '"tnum" 1' }}>
-              {flowNetSign}₴{fmtInt(Math.abs(flowNet))}{fmtDec(Math.abs(flowNet))} цього місяця
+              {flowNetSign}{fmtInt(Math.abs(flowNet))}{fmtDec(Math.abs(flowNet))}{'\u00a0TAX'} цього місяця
             </div>
           </div>
         </div>
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
+        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 8, background: 'rgba(29,29,29, 0.72)' }) }}>
           {cardSection}
         </div>
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: 'rgba(28,28,28, 0.7)' }) }}>
+        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 8, background: 'rgba(28,28,28, 0.7)' }) }}>
           {quickActionsSection}
         </div>
       </div>
@@ -4028,11 +4030,11 @@ function OverviewScreen() {
               {t('no_new_notifications')}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 18, overflow: 'hidden', maxHeight: '60vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 8, overflow: 'hidden', maxHeight: '60vh', overflowY: 'auto' }}>
               {apiNotifications.map((notif, i) => (
                 <Fragment key={notif.id}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', opacity: notif.is_read ? 0.65 : 1 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: notif.is_read ? 'rgba(172,172,172, 0.08)' : 'rgba(169,169,169, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 17 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: notif.is_read ? 'rgba(172,172,172, 0.08)' : 'rgba(169,169,169, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 17 }}>
                       {notif.icon || '🔔'}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -4228,7 +4230,7 @@ function CardsScreen() {
       });
       const j = await r.json();
       if (!r.ok || !j.ok) throw new Error(j.message || t('operation_error'));
-      toast(`Картку •• ${card.number} поповнено на ₴${amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} ✓`);
+      toast(`Картку •• ${card.number} поповнено на ${amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })}\u00a0TAX ✓`);
       setTopupModal(false);
       setTopupAmount('');
       refreshDashboard();
@@ -4300,7 +4302,7 @@ function CardsScreen() {
         <div style={{
           ...glassCard({
             padding: '18px 18px 16px',
-            borderRadius: 26,
+            borderRadius: 8,
             background: 'rgba(29,29,29, 0.92)',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.22), inset 0 1px 0 rgba(255,255,255, 0.05)',
           }),
@@ -4323,7 +4325,7 @@ function CardsScreen() {
             </div>
             <button onClick={() => openDesignModal('issue')} style={{
               padding: '11px 16px', background: `${goldLight}`,
-              color: '#292929', border: 'none', borderRadius: 16, fontSize: 13, fontWeight: 700,
+              color: '#292929', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700,
               fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
               boxShadow: `0 10px 22px -10px rgba(172,172,172, 0.45), inset 0 1px 0 rgba(240,240,240, 0.55)`,
               opacity: designLoading && designMode === 'issue' ? 0.65 : 1,
@@ -4365,7 +4367,7 @@ function CardsScreen() {
                     <div style={{
                       position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                       backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                      transform: 'rotateY(180deg)', borderRadius: 22, overflow: 'hidden',
+                      transform: 'rotateY(180deg)', borderRadius: 8, overflow: 'hidden',
                       background: v.bg, boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55)',
                     }}>
                       {v.image && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${v.image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3)', transform: 'scale(1.04)' }} />}
@@ -4415,7 +4417,7 @@ function CardsScreen() {
           );
         })}
         {!cards.length && (
-          <div style={{ padding: '20px', borderRadius: 18, border: `1px solid ${bg.border}`, background: bg.card, color: text.muted, minWidth: 280 }}>
+          <div style={{ padding: '20px', borderRadius: 8, border: `1px solid ${bg.border}`, background: bg.card, color: text.muted, minWidth: 280 }}>
             {t('cards_not_issued')}
           </div>
         )}
@@ -4423,7 +4425,7 @@ function CardsScreen() {
 
       {/* Card details */}
       <div style={{ padding: '20px 22px 0' }}>
-        <div style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 22, padding: 20 }}>
+        <div style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 8, padding: 20 }}>
           {!card ? (
             <div style={{ color: text.muted }}>{t('card_not_found')}</div>
           ) : (
@@ -4447,14 +4449,14 @@ function CardsScreen() {
             <button
               onClick={() => openDesignModal('current')}
               style={{
-                padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.24)',
+                padding: '7px 12px', borderRadius: 8, border: '1px solid rgba(172,172,172, 0.24)',
                 background: 'rgba(255,255,255, 0.04)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >{t('change_label')}</button>
           </div>
 
           {/* Card balance block */}
-          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'rgba(255,255,255, 0.03)', borderRadius: 14, border: '1px solid rgba(172,172,172, 0.1)' }}>
+          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'rgba(255,255,255, 0.03)', borderRadius: 8, border: '1px solid rgba(172,172,172, 0.1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
@@ -4467,13 +4469,13 @@ function CardsScreen() {
               <div style={{ display: 'flex', gap: 8 }}>
                 {!card?.isPrimary && card?.statusRaw === 'active' && (
                   <button onClick={() => setTopupModal(true)} style={{
-                    padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.22)',
+                    padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(172,172,172, 0.22)',
                     background: 'rgba(172,172,172, 0.08)', color: goldLight, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                   }}>Поповнити</button>
                 )}
                 {!card?.isPrimary && card?.statusRaw !== 'closed' && (
                   <button onClick={setPrimaryCard} style={{
-                    padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.22)',
+                    padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(172,172,172, 0.22)',
                     background: 'rgba(255,255,255, 0.03)', color: text.muted, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
                   }}>Зробити головною</button>
                 )}
@@ -4511,7 +4513,7 @@ function CardsScreen() {
                 minHeight: layout === 'mobile' ? 94 : undefined,
                 padding: layout === 'mobile' ? '14px 12px' : '10px 4px',
                 background: 'rgba(255,255,255, 0.045)',
-                border: '1px solid rgba(172,172,172, 0.12)', borderRadius: 16,
+                border: '1px solid rgba(172,172,172, 0.12)', borderRadius: 8,
                 color: '#d8d8d8', fontSize: layout === 'mobile' ? 12.5 : 11, fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer',
                 textAlign: layout === 'mobile' ? 'left' : 'center', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)',
               }}>
@@ -4523,7 +4525,7 @@ function CardsScreen() {
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={toggleBlock} style={{
               flex: 1, padding: '12px', background: isFrozen ? 'rgba(169,169,169, 0.08)' : 'rgba(177,177,177, 0.08)',
-              border: `1px solid ${isFrozen ? 'rgba(169,169,169, 0.2)' : 'rgba(177,177,177, 0.2)'}`, borderRadius: 12,
+              border: `1px solid ${isFrozen ? 'rgba(169,169,169, 0.2)' : 'rgba(177,177,177, 0.2)'}`, borderRadius: 8,
               color: isFrozen ? '#a9a9a9' : '#b1b1b1', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               opacity: busyCardId === card.id || card.statusRaw === 'closed' ? 0.6 : 1,
@@ -4533,7 +4535,7 @@ function CardsScreen() {
             </button>
             <button onClick={closeCard} style={{
               flex: 1, padding: '12px', background: 'rgba(126,126,126, 0.06)',
-              border: '1px solid rgba(126,126,126, 0.2)', borderRadius: 12,
+              border: '1px solid rgba(126,126,126, 0.2)', borderRadius: 8,
               color: '#7e7e7e', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               opacity: busyCardId === card.id || card.statusRaw === 'closed' ? 0.6 : 1,
@@ -4570,7 +4572,7 @@ function CardsScreen() {
                 type="password" inputMode="numeric" maxLength={4}
                 value={pinValue} onChange={e => setPinValue(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder="••••"
-                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 8, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
               />
             </div>
             <div>
@@ -4579,7 +4581,7 @@ function CardsScreen() {
                 type="password" inputMode="numeric" maxLength={4}
                 value={pinConfirm} onChange={e => setPinConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder="••••"
-                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid ${pinConfirm && pinValue !== pinConfirm ? 'rgba(110,110,110, 0.5)' : 'rgba(172,172,172, 0.18)'}`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid ${pinConfirm && pinValue !== pinConfirm ? 'rgba(110,110,110, 0.5)' : 'rgba(172,172,172, 0.18)'}`, borderRadius: 8, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
               />
               {pinConfirm && pinValue !== pinConfirm && <div style={{ fontSize: 11, color: '#888888', marginTop: 4 }}>{t('pin_mismatch')}</div>}
             </div>
@@ -4592,7 +4594,7 @@ function CardsScreen() {
             <button
               onClick={changePin} disabled={pinLoading || pinValue.length !== 4 || pinValue !== pinConfirm}
               style={{
-                width: '100%', padding: '14px', borderRadius: 16, border: 'none', fontSize: 15, fontWeight: 700,
+                width: '100%', padding: '14px', borderRadius: 8, border: 'none', fontSize: 15, fontWeight: 700,
                 background: (pinLoading || pinValue.length !== 4 || pinValue !== pinConfirm) ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
                 color: text.primary, cursor: (pinLoading || pinValue.length !== 4 || pinValue !== pinConfirm) ? 'default' : 'pointer', fontFamily: fontFamily,
               }}>{pinLoading ? t('saving') : t('save_pin')}</button>
@@ -4628,7 +4630,7 @@ function CardsScreen() {
                 onClick={() => setSelectedDesign(opt.design)}
                 style={{
                   padding: 10,
-                  borderRadius: 14,
+                  borderRadius: 8,
                   border: selectedDesign === opt.design ? '1px solid rgba(215,215,215, 0.42)' : '1px solid rgba(172,172,172, 0.18)',
                   background: selectedDesign === opt.design ? 'rgba(255,255,255, 0.08)' : 'rgba(255,255,255, 0.03)',
                   color: text.secondary,
@@ -4664,7 +4666,7 @@ function CardsScreen() {
               onClick={() => setDesignModal(false)}
               disabled={designLoading}
               style={{
-                flex: 1, padding: '13px 12px', borderRadius: 14, border: '1px solid rgba(172,172,172, 0.22)',
+                flex: 1, padding: '13px 12px', borderRadius: 8, border: '1px solid rgba(172,172,172, 0.22)',
                 background: 'rgba(255,255,255, 0.03)', color: text.secondary, fontSize: 14, fontWeight: 600, cursor: designLoading ? 'default' : 'pointer',
               }}
             >{t('cancel_label')}</button>
@@ -4672,7 +4674,7 @@ function CardsScreen() {
               onClick={applyCardDesign}
               disabled={designLoading}
               style={{
-                flex: 1.2, padding: '13px 12px', borderRadius: 14, border: 'none',
+                flex: 1.2, padding: '13px 12px', borderRadius: 8, border: 'none',
                 background: `${goldDark}`,
                 color: '#292929', fontSize: 14, fontWeight: 800, cursor: designLoading ? 'default' : 'pointer',
                 opacity: designLoading ? 0.7 : 1,
@@ -4703,7 +4705,7 @@ function CardsScreen() {
             type="text" inputMode="decimal"
             value={topupAmount} onChange={e => setTopupAmount(e.target.value)}
             placeholder="0.00"
-            style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
+            style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 8, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
           />
           <div style={{ fontSize: 11, color: text.dim, marginBottom: 20 }}>
             Баланс рахунку: {formatUah(Number(account?.balance || 0))}
@@ -4711,7 +4713,7 @@ function CardsScreen() {
           <button
             onClick={topupCard} disabled={topupLoading || !topupAmount}
             style={{
-              width: '100%', padding: '14px', borderRadius: 16, border: 'none', fontSize: 15, fontWeight: 700,
+              width: '100%', padding: '14px', borderRadius: 8, border: 'none', fontSize: 15, fontWeight: 700,
               background: (!topupAmount || topupLoading) ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
               color: text.primary, cursor: (!topupAmount || topupLoading) ? 'default' : 'pointer', fontFamily: 'inherit',
             }}>{topupLoading ? 'Обробка...' : 'Поповнити'}</button>
@@ -4781,7 +4783,7 @@ function DepositsSection() {
         headers: { 'Idempotency-Key': idempotencyKey },
         body: JSON.stringify({ amount: amt, term_months: termMonths, auto_renew: autoRenew, idempotency_key: idempotencyKey }),
       });
-      toast(`✓ Депозит ₴${amt.toLocaleString('uk-UA')} відкрито`);
+      toast(`✓ Депозит ${amt.toLocaleString('uk-UA')}\u00a0TAX відкрито`);
       setShowCreate(false); setAmount('');
       setAutoRenew(false);
       load();
@@ -4799,7 +4801,7 @@ function DepositsSection() {
         body: JSON.stringify({ early, idempotency_key: idempotencyKey }),
       });
       const payout = data?.payout ?? 0;
-      toast(`✓ Депозит закрито. Виплачено ₴${Number(payout).toLocaleString('uk-UA')}`);
+      toast(`✓ Депозит закрито. Виплачено ${Number(payout).toLocaleString('uk-UA')}\u00a0TAX`);
       load();
     } catch (e: unknown) { toast(e instanceof Error ? e.message : t('operation_error')); }
     finally { setClosing(null); }
@@ -4825,7 +4827,7 @@ function DepositsSection() {
   const panelStyle: React.CSSProperties = {
     background: 'rgba(32,32,32, 0.72)',
     border: '1px solid rgba(183,183,183, 0.12)',
-    borderRadius: 26,
+    borderRadius: 8,
     overflow: 'hidden',
     boxShadow: '0 18px 44px rgba(0,0,0, 0.16), inset 0 1px 0 rgba(255,255,255, 0.04)',
   };
@@ -4834,7 +4836,7 @@ function DepositsSection() {
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     gap: 1,
     background: 'rgba(183,183,183, 0.08)',
-    borderRadius: 18,
+    borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 14,
   };
@@ -4845,7 +4847,7 @@ function DepositsSection() {
   const actionBtnBase: React.CSSProperties = {
     flex: 1,
     padding: '14px 12px',
-    borderRadius: 16,
+    borderRadius: 8,
     fontFamily: 'inherit',
     fontSize: 13,
     cursor: 'pointer',
@@ -4854,7 +4856,7 @@ function DepositsSection() {
   const sectionIconStyle: React.CSSProperties = {
     width: 42,
     height: 42,
-    borderRadius: 14,
+    borderRadius: 8,
     background: 'rgba(157,157,157, 0.24)',
     border: '1px solid rgba(171,171,171, 0.22)',
     display: 'flex',
@@ -4883,7 +4885,7 @@ function DepositsSection() {
           onClick={() => setShowCreate(v => !v)}
           style={{
             padding: '10px 16px',
-            borderRadius: 14,
+            borderRadius: 8,
             background: showCreate ? 'rgba(255,255,255, 0.06)' : 'rgba(126,126,126, 0.95)',
             border: showCreate ? `1px solid ${bg.border}` : '1px solid rgba(171,171,171, 0.22)',
             color: showCreate ? text.secondary : '#f5f5f5',
@@ -4911,7 +4913,7 @@ function DepositsSection() {
                 type="text" inputMode="decimal"
                 value={amount} onChange={e => setAmount(e.target.value)}
                 placeholder="0,00"
-                style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255, 0.045)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 14, color: text.primary, fontSize: 22, fontWeight: 500, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }}
+                style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255, 0.045)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 8, color: text.primary, fontSize: 22, fontWeight: 500, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }}
               />
               <div style={{ fontSize: 11, color: text.muted, marginTop: 4 }}>{t('dep_min_amount')}</div>
             </div>
@@ -4924,7 +4926,7 @@ function DepositsSection() {
                     key={m} type="button"
                     onClick={() => setTermMonths(m)}
                     style={{
-                      padding: '10px 4px', borderRadius: 12, fontFamily: 'inherit', cursor: 'pointer',
+                      padding: '10px 4px', borderRadius: 8, fontFamily: 'inherit', cursor: 'pointer',
                       border: termMonths === m ? `1px solid ${gold}55` : `1px solid rgba(172,172,172, 0.14)`,
                       background: termMonths === m ? `rgba(171,171,171, 0.12)` : 'rgba(255,255,255, 0.04)',
                       color: termMonths === m ? gold : text.secondary,
@@ -4939,10 +4941,10 @@ function DepositsSection() {
             </div>
 
             {/* Projected return */}
-            <div style={{ background: 'rgba(171,171,171, 0.07)', border: `1px solid rgba(171,171,171, 0.15)`, borderRadius: 16, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ background: 'rgba(171,171,171, 0.07)', border: `1px solid rgba(171,171,171, 0.15)`, borderRadius: 8, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8 }}>{t('dep_accrued')}</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: gold }}>+₴{projectedInterest()}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: gold }}>+{projectedInterest()}{'\u00a0TAX'}</div>
               </div>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, textAlign: 'right' }}>{t('dep_rate')}</div>
@@ -4959,7 +4961,7 @@ function DepositsSection() {
                 type="button"
                 onClick={() => setAutoRenew(v => !v)}
                 style={{
-                  width: 44, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer',
+                  width: 44, height: 26, borderRadius: 8, border: 'none', cursor: 'pointer',
                   background: autoRenew ? gold : 'rgba(172,172,172, 0.2)',
                   position: 'relative', transition: 'background 0.2s',
                 }}
@@ -4973,7 +4975,7 @@ function DepositsSection() {
             </div>
 
             <button type="submit" disabled={creating} style={{
-              padding: '14px', borderRadius: 14, border: 'none',
+              padding: '14px', borderRadius: 8, border: 'none',
               background: creating ? 'rgba(51,51,51, 0.4)' : `${goldDark}`,
               color: creating ? text.dim : '#242424', fontSize: 14, fontWeight: 700,
               cursor: creating ? 'default' : 'pointer', fontFamily: 'inherit',
@@ -5001,7 +5003,7 @@ function DepositsSection() {
               <div key={dep.id} style={panelStyle}>
                 <div style={{ padding: '18px 18px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                    <div style={{ ...sectionIconStyle, width: 56, height: 56, borderRadius: 18 }}>
+                    <div style={{ ...sectionIconStyle, width: 56, height: 56, borderRadius: 8 }}>
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M4 10h16M6 10V8a6 6 0 0112 0v2M6 10v8a2 2 0 002 2h8a2 2 0 002-2v-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M12 13v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -5100,7 +5102,7 @@ function CreditsSection() {
       activeSuffix: 'активних',
       toggleOpen: 'Взяти кредит',
       amountLabel: 'Сума кредиту',
-      amountPlaceholder: '1 000 – 500 000 ₴',
+      amountPlaceholder: '1 000 – 500 000 TAX',
       termLabel: 'Строк',
       monthlyPayment: 'ЩОМІСЯЧНИЙ ПЛАТІЖ',
       totalCost: 'ЗАГАЛЬНА ВАРТІСТЬ',
@@ -5116,8 +5118,8 @@ function CreditsSection() {
       overdue: 'Прострочено на {days} днів',
       payInstallment: 'Сплатити платіж',
       repayFull: 'Погасити',
-      minAmount: 'Мінімальна сума — ₴1 000',
-      maxAmount: 'Максимальна сума — ₴500 000',
+      minAmount: 'Мінімальна сума — 1 000 TAX',
+      maxAmount: 'Максимальна сума — 500 TAX 000',
       serverNoResponse: 'Сервер не відповів — зачекайте хвилину і спробуйте ще раз',
       createSuccess: 'Кредит оформлено',
       repaySuccess: 'Кредит погашено',
@@ -5133,7 +5135,7 @@ function CreditsSection() {
       activeSuffix: 'active',
       toggleOpen: 'Get a loan',
       amountLabel: 'Loan amount',
-      amountPlaceholder: '1,000 – 500,000 ₴',
+      amountPlaceholder: '1,000 – 500,000 TAX',
       termLabel: 'Term',
       monthlyPayment: 'MONTHLY PAYMENT',
       totalCost: 'TOTAL COST',
@@ -5149,8 +5151,8 @@ function CreditsSection() {
       overdue: 'Overdue by {days} days',
       payInstallment: 'Pay installment',
       repayFull: 'Repay fully',
-      minAmount: 'Minimum amount is ₴1,000',
-      maxAmount: 'Maximum amount is ₴500,000',
+      minAmount: 'Minimum amount is 1,000 TAX',
+      maxAmount: 'Maximum amount is 500,000 TAX',
       serverNoResponse: 'Server did not respond. Please try again shortly',
       createSuccess: 'Loan issued',
       repaySuccess: 'Loan repaid',
@@ -5166,7 +5168,7 @@ function CreditsSection() {
       activeSuffix: 'attivi',
       toggleOpen: 'Richiedi prestito',
       amountLabel: 'Importo del prestito',
-      amountPlaceholder: '1.000 – 500.000 ₴',
+      amountPlaceholder: '1.000 – 500.000 TAX',
       termLabel: 'Durata',
       monthlyPayment: 'RATA MENSILE',
       totalCost: 'COSTO TOTALE',
@@ -5182,8 +5184,8 @@ function CreditsSection() {
       overdue: 'Scaduto da {days} giorni',
       payInstallment: 'Paga rata',
       repayFull: 'Estingui',
-      minAmount: 'L’importo minimo è ₴1.000',
-      maxAmount: 'L’importo massimo è ₴500.000',
+      minAmount: 'L’importo minimo è 1.000 TAX',
+      maxAmount: 'L’importo massimo è 500.000 TAX',
       serverNoResponse: 'Il server non risponde. Riprova tra poco',
       createSuccess: 'Prestito erogato',
       repaySuccess: 'Prestito estinto',
@@ -5199,7 +5201,7 @@ function CreditsSection() {
       activeSuffix: 'activos',
       toggleOpen: 'Solicitar crédito',
       amountLabel: 'Importe del crédito',
-      amountPlaceholder: '1.000 – 500.000 ₴',
+      amountPlaceholder: '1.000 – 500.000 TAX',
       termLabel: 'Plazo',
       monthlyPayment: 'CUOTA MENSUAL',
       totalCost: 'COSTE TOTAL',
@@ -5215,8 +5217,8 @@ function CreditsSection() {
       overdue: 'Atrasado {days} días',
       payInstallment: 'Pagar cuota',
       repayFull: 'Liquidar',
-      minAmount: 'El importe mínimo es ₴1.000',
-      maxAmount: 'El importe máximo es ₴500.000',
+      minAmount: 'El importe mínimo es 1.000 TAX',
+      maxAmount: 'El importe máximo es 500.000 TAX',
       serverNoResponse: 'El servidor no responde. Inténtalo de nuevo en un momento',
       createSuccess: 'Crédito emitido',
       repaySuccess: 'Crédito liquidado',
@@ -5232,14 +5234,14 @@ function CreditsSection() {
   const panelStyle: React.CSSProperties = {
     background: 'rgba(32,32,32, 0.72)',
     border: '1px solid rgba(183,183,183, 0.12)',
-    borderRadius: 26,
+    borderRadius: 8,
     overflow: 'hidden',
     boxShadow: '0 18px 44px rgba(0,0,0, 0.16), inset 0 1px 0 rgba(255,255,255, 0.04)',
   };
   const sectionIconStyle: React.CSSProperties = {
     width: 42,
     height: 42,
-    borderRadius: 14,
+    borderRadius: 8,
     background: 'rgba(102,102,102, 0.28)',
     border: '1px solid rgba(128,128,128, 0.2)',
     display: 'flex',
@@ -5254,7 +5256,7 @@ function CreditsSection() {
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     gap: 1,
     background: 'rgba(183,183,183, 0.08)',
-    borderRadius: 18,
+    borderRadius: 8,
     overflow: 'hidden',
   };
   const metricCellStyle: React.CSSProperties = {
@@ -5345,7 +5347,7 @@ function CreditsSection() {
             <div style={{ fontSize: 12, color: text.muted }}>{activeCredits > 0 ? `${activeCredits} ${tt.activeSuffix}` : tt.subtitle}</div>
           </div>
         </div>
-        <button onClick={() => setShowCreate(v => !v)} style={{ padding: '10px 16px', borderRadius: 14, border: showCreate ? `1px solid ${bg.border}` : '1px solid rgba(128,128,128, 0.18)', cursor: 'pointer', background: showCreate ? 'rgba(255,255,255, 0.06)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', boxShadow: showCreate ? 'none' : '0 12px 28px rgba(47,47,47, 0.22)' }}>{showCreate ? '✕' : tt.toggleOpen}</button>
+        <button onClick={() => setShowCreate(v => !v)} style={{ padding: '10px 16px', borderRadius: 8, border: showCreate ? `1px solid ${bg.border}` : '1px solid rgba(128,128,128, 0.18)', cursor: 'pointer', background: showCreate ? 'rgba(255,255,255, 0.06)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', boxShadow: showCreate ? 'none' : '0 12px 28px rgba(47,47,47, 0.22)' }}>{showCreate ? '✕' : tt.toggleOpen}</button>
       </div>
 
       {showCreate && (
@@ -5353,20 +5355,20 @@ function CreditsSection() {
           <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
               <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{tt.amountLabel}</label>
-              <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder={tt.amountPlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.045)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 16, outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }} />
+              <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder={tt.amountPlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 8, background: 'rgba(255,255,255, 0.045)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 16, outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }} />
             </div>
             <div>
               <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 8 }}>{tt.termLabel}</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {CREDIT_TERMS.map(mo => (
-                  <button key={mo} type="button" onClick={() => setTerm(mo)} style={{ flex: 1, padding: '10px 0', borderRadius: 12, border: `1.5px solid ${term === mo ? '#787878' : bg.border}`, background: term === mo ? 'rgba(120,120,120, 0.14)' : 'rgba(255,255,255, 0.035)', color: term === mo ? '#cacaca' : text.muted, fontSize: 12, fontWeight: term === mo ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button key={mo} type="button" onClick={() => setTerm(mo)} style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: `1.5px solid ${term === mo ? '#787878' : bg.border}`, background: term === mo ? 'rgba(120,120,120, 0.14)' : 'rgba(255,255,255, 0.035)', color: term === mo ? '#cacaca' : text.muted, fontSize: 12, fontWeight: term === mo ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {mo}м<div style={{ fontSize: 10, marginTop: 2 }}>{CREDIT_RATES[mo]}%</div>
                   </button>
                 ))}
               </div>
             </div>
             {amtNum > 0 && (
-              <div style={{ background: 'rgba(120,120,120, 0.08)', border: '1px solid rgba(120,120,120, 0.18)', borderRadius: 16, padding: 14, display: 'flex', gap: 16 }}>
+              <div style={{ background: 'rgba(120,120,120, 0.08)', border: '1px solid rgba(120,120,120, 0.18)', borderRadius: 8, padding: 14, display: 'flex', gap: 16 }}>
                 <div style={{ flex: 1, textAlign: 'center' }}>
                   <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, marginBottom: 4 }}>{tt.monthlyPayment}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: '#cacaca' }}>{formatUah(monthlyPayment, lang)}</div>
@@ -5377,8 +5379,8 @@ function CreditsSection() {
                 </div>
               </div>
             )}
-            <input value={desc} onChange={e => setDesc(e.target.value)} placeholder={tt.purposePlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.045)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }} />
-            <button type="submit" disabled={creating} style={{ padding: '14px', borderRadius: 16, border: 'none', background: creating ? 'rgba(51,51,51, 0.4)' : 'rgba(98,98,98, 0.96)', color: creating ? text.dim : '#f8f8f8', fontSize: 14, fontWeight: 700, cursor: creating ? 'default' : 'pointer', fontFamily: 'inherit', boxShadow: creating ? 'none' : '0 14px 30px rgba(47,47,47, 0.2)' }}>{creating ? '…' : tt.submit}</button>
+            <input value={desc} onChange={e => setDesc(e.target.value)} placeholder={tt.purposePlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 8, background: 'rgba(255,255,255, 0.045)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }} />
+            <button type="submit" disabled={creating} style={{ padding: '14px', borderRadius: 8, border: 'none', background: creating ? 'rgba(51,51,51, 0.4)' : 'rgba(98,98,98, 0.96)', color: creating ? text.dim : '#f8f8f8', fontSize: 14, fontWeight: 700, cursor: creating ? 'default' : 'pointer', fontFamily: 'inherit', boxShadow: creating ? 'none' : '0 14px 30px rgba(47,47,47, 0.2)' }}>{creating ? '…' : tt.submit}</button>
           </form>
         </div>
       )}
@@ -5421,8 +5423,8 @@ function CreditsSection() {
                 {overdue && <div style={{ padding: '10px 16px', background: 'rgba(93,93,93, 0.12)', borderTop: `1px solid rgba(93,93,93, 0.22)` }}><div style={{ fontSize: 12, color: '#adadad', fontWeight: 600 }}>⚠️ {tt.overdue.replace('{days}', String(Math.abs(cr.days_to_payment ?? 0)))}</div></div>}
                 {isActive && (
                   <div style={{ padding: '14px 16px 16px', display: 'flex', gap: 8 }}>
-                    <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id)} style={{ flex: 1, padding: '14px', borderRadius: 16, border: 'none', cursor: 'pointer', background: repaying === cr.id ? 'rgba(51,51,51, 0.4)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', boxShadow: repaying === cr.id ? 'none' : '0 14px 30px rgba(47,47,47, 0.18)' }}>{repaying === cr.id ? '…' : tt.payInstallment}</button>
-                    <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id, true)} style={{ padding: '14px 16px', borderRadius: 16, border: `1px solid rgba(120,120,120, 0.28)`, background: 'rgba(255,255,255, 0.02)', color: '#cacaca', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{tt.repayFull}</button>
+                    <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id)} style={{ flex: 1, padding: '14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: repaying === cr.id ? 'rgba(51,51,51, 0.4)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', boxShadow: repaying === cr.id ? 'none' : '0 14px 30px rgba(47,47,47, 0.18)' }}>{repaying === cr.id ? '…' : tt.payInstallment}</button>
+                    <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id, true)} style={{ padding: '14px 16px', borderRadius: 8, border: `1px solid rgba(120,120,120, 0.28)`, background: 'rgba(255,255,255, 0.02)', color: '#cacaca', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{tt.repayFull}</button>
                   </div>
                 )}
               </div>
@@ -5573,7 +5575,7 @@ function OperationsScreen() {
 
   // Spending total from real data
   const totalSpent = transactions.filter(t => t.direction === 'out').reduce((s, t) => s + t.amount, 0);
-  const spentLabel = account && transactions.length > 0 ? `₴\u00a0${fmtInt(totalSpent)}${fmtDec(totalSpent)}` : '₴\u00a042\u00a0380';
+  const spentLabel = account && transactions.length > 0 ? `${fmtInt(totalSpent)}${fmtDec(totalSpent)}\u00a0TAX` : '42\u00a0380\u00a0TAX';
 
   return (
     <>
@@ -5583,7 +5585,7 @@ function OperationsScreen() {
         <div style={{
           ...glassCard({
             padding: '18px 18px 16px',
-            borderRadius: 26,
+            borderRadius: 8,
             background: 'rgba(29,29,29, 0.9)',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.2), inset 0 1px 0 rgba(255,255,255, 0.05)',
           }),
@@ -5597,7 +5599,7 @@ function OperationsScreen() {
             <div style={{ ...T.h1, color: text.primary }}>{t('operations_title')}</div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={downloadExport} disabled={dlExport} title={t('download_csv')} style={{ width: 36, height: 36, borderRadius: 10, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: gold }}>
+            <button onClick={downloadExport} disabled={dlExport} title={t('download_csv')} style={{ width: 36, height: 36, borderRadius: 8, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: gold }}>
               {dlExport ? <span style={{ fontSize: 16 }}>…</span> : (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M4 4h12l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={gold} strokeWidth="1.6" strokeLinejoin="round"/>
@@ -5605,7 +5607,7 @@ function OperationsScreen() {
                 </svg>
               )}
             </button>
-            <button onClick={downloadStatement} title={t('statement_pdf')} style={{ width: 36, height: 36, borderRadius: 10, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: gold }}>
+            <button onClick={downloadStatement} title={t('statement_pdf')} style={{ width: 36, height: 36, borderRadius: 8, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: gold }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke={gold} strokeWidth="1.6" strokeLinejoin="round"/>
                 <path d="M14 2v6h6" stroke={gold} strokeWidth="1.6" strokeLinejoin="round"/>
@@ -5620,7 +5622,7 @@ function OperationsScreen() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={t('search_transactions')}
-            style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 12, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
           />
         </div>
         <div style={{ display: 'flex', gap: 4, padding: '3px', background: 'rgba(36,36,36, 0.5)', borderRadius: 100, marginTop: 10 }}>
@@ -5670,7 +5672,7 @@ function OperationsScreen() {
       </div>
 
       <div style={{ padding: '0 18px 18px' }}>
-        <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
+        <div style={{ padding: 20, ...glassCard({ borderRadius: 8, background: 'rgba(29,29,29, 0.72)' }) }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
             <div>
               <div style={{ ...sectionLabel, padding: 0, marginBottom: 4 }}>{t('spending_this_month')}</div>
@@ -5732,7 +5734,7 @@ function OperationsScreen() {
         const SPEND_LABELS: Record<string, string> = { transfer: t('spend_transfer'), food: t('spend_food'), transport: t('spend_transport'), utility: t('spend_utility'), shopping: t('spend_shopping'), subscription: t('spend_subscription'), income: t('filter_income') };
         return (
           <div style={{ padding: '0 18px 18px' }}>
-            <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
+            <div style={{ padding: 20, ...glassCard({ borderRadius: 8, background: 'rgba(29,29,29, 0.72)' }) }}>
               <div style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>{t('filter_outcome')}</div>
               {rows.map(({ cat, pct, amt }) => {
                 const s = CAT_STYLES[cat];
@@ -5744,7 +5746,7 @@ function OperationsScreen() {
                         <span style={{ fontSize: 12, color: text.secondary }}>{SPEND_LABELS[cat] || cat}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                        <span style={{ fontSize: 12, color: text.secondary, fontFeatureSettings: '"tnum"' }}>{fmtInt(amt)}{fmtDec(amt)} ₴</span>
+                        <span style={{ fontSize: 12, color: text.secondary, fontFeatureSettings: '"tnum"' }}>{fmtInt(amt)}{fmtDec(amt)} TAX</span>
                         <span style={{ fontSize: 10, color: text.muted }}>{pct}%</span>
                       </div>
                     </div>
@@ -5777,7 +5779,7 @@ function OperationsScreen() {
       {txGroups.map((g, gi) => (
         <div key={gi} style={{ padding: '4px 18px 12px' }}>
           <div style={{ ...sectionLabel }}>{g.group}</div>
-          <div style={{ background: 'rgba(31,31,31, 0.82)', border: `1px solid ${bg.border}`, borderRadius: 20, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
+          <div style={{ background: 'rgba(31,31,31, 0.82)', border: `1px solid ${bg.border}`, borderRadius: 8, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
             {g.items.map((item, i) => {
               const s = CAT_STYLES[item.cat];
               return (
@@ -5786,7 +5788,7 @@ function OperationsScreen() {
                     onClick={() => { if (item.txId) { setSelectedTxId(item.txId); const tx = transactions.find(tx => tx.id === item.txId); setTxNote(tx?.note ?? ''); } }}
                     style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: item.txId ? 'pointer' : 'default' }}>
                     <div style={{
-                      width: 36, height: 36, borderRadius: 10, background: s.bg,
+                      width: 36, height: 36, borderRadius: 8, background: s.bg,
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                       border: `1px solid ${s.color}22`,
                     }}>{s.icon}</div>
@@ -5795,7 +5797,7 @@ function OperationsScreen() {
                       <div style={{ ...T.sm, color: text.muted }}>{item.subtitle}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ ...T.body, fontWeight: 600, color: item.positive ? '#a9a9a9' : text.secondary, ...T.num }}>{item.amount} ₴</div>
+                      <div style={{ ...T.body, fontWeight: 600, color: item.positive ? '#a9a9a9' : text.secondary, ...T.num }}>{item.amount} TAX</div>
                       {item.txId ? (
                         <button onClick={e => { e.stopPropagation(); downloadReceipt(item.txId!); }} disabled={dlReceipt === item.txId} title={t('download_receipt')} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.15)`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: goldLight }}>{dlReceipt === item.txId ? '…' : <ReceiptIcon size={14} color={goldLight} />}</button>
                       ) : (
@@ -5829,13 +5831,13 @@ function OperationsScreen() {
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
-            {(() => { const s = CAT_STYLES[txToCat(selectedTxData)]; return <div style={{ width: 44, height: 44, borderRadius: 14, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>; })()}
+            {(() => { const s = CAT_STYLES[txToCat(selectedTxData)]; return <div style={{ width: 44, height: 44, borderRadius: 8, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>; })()}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedTxData.description}</div>
               <div style={{ fontSize: 12, color: text.muted, marginTop: 3 }}>{fmtTime(selectedTxData.created_at, lang)}</div>
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: selectedTxData.direction === 'in' ? '#a9a9a9' : text.primary, fontFeatureSettings: '"tnum"', flexShrink: 0 }}>
-              {selectedTxData.direction === 'in' ? '+' : '-'}{fmtInt(selectedTxData.amount)}{fmtDec(selectedTxData.amount)} ₴
+              {selectedTxData.direction === 'in' ? '+' : '-'}{fmtInt(selectedTxData.amount)}{fmtDec(selectedTxData.amount)} TAX
             </div>
           </div>
           <label style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, display: 'block', marginBottom: 8 }}>{t('tx_note_label')}</label>
@@ -5844,13 +5846,13 @@ function OperationsScreen() {
             onChange={e => setTxNote(e.target.value)}
             placeholder={t('tx_note_placeholder')}
             rows={3}
-            style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 14, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 8, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }}
           />
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <button onClick={() => setSelectedTxId(null)} style={{ flex: 1, padding: '12px', background: 'rgba(172,172,172, 0.07)', border: '1px solid rgba(172,172,172, 0.15)', borderRadius: 14, color: text.muted, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
+            <button onClick={() => setSelectedTxId(null)} style={{ flex: 1, padding: '12px', background: 'rgba(172,172,172, 0.07)', border: '1px solid rgba(172,172,172, 0.15)', borderRadius: 8, color: text.muted, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
               {t('cancel_label')}
             </button>
-            <button onClick={saveNote} disabled={savingNote} style={{ flex: 2, padding: '12px', background: `${gold}`, border: 'none', borderRadius: 14, color: '#161616', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', opacity: savingNote ? 0.7 : 1 }}>
+            <button onClick={saveNote} disabled={savingNote} style={{ flex: 2, padding: '12px', background: `${gold}`, border: 'none', borderRadius: 8, color: '#161616', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', opacity: savingNote ? 0.7 : 1 }}>
               {savingNote ? '…' : t('profile_save')}
             </button>
           </div>
@@ -5898,7 +5900,7 @@ function ProfileToggle({ label, sub, on, onChange, icon }: { label: string; sub?
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px' }}>
       <div style={{
-        width: 36, height: 36, borderRadius: 10, background: 'rgba(172,172,172, 0.1)',
+        width: 36, height: 36, borderRadius: 8, background: 'rgba(172,172,172, 0.1)',
         border: `1px solid rgba(172,172,172, 0.18)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       }}>{icon}</div>
@@ -6154,7 +6156,7 @@ function ProfileScreen() {
   ];
 
   const section = (children: React.ReactNode) => (
-    <div style={{ background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
+    <div style={{ background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 8, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
       {children}
     </div>
   );
@@ -6167,7 +6169,7 @@ function ProfileScreen() {
         <div style={{
           ...glassCard({
             padding: '22px 18px 18px',
-            borderRadius: 28,
+            borderRadius: 8,
             background: 'rgba(29,29,29, 0.92)',
             boxShadow: '0 22px 44px rgba(0,0,0, 0.22), inset 0 1px 0 rgba(255,255,255, 0.05)',
           }),
@@ -6202,7 +6204,7 @@ function ProfileScreen() {
           <button
             onClick={() => photoInputRef.current?.click()}
             style={{
-              padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.24)',
+              padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(172,172,172, 0.24)',
               background: 'rgba(255,255,255, 0.05)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}
           >
@@ -6212,7 +6214,7 @@ function ProfileScreen() {
             <button
               onClick={removeProfilePhoto}
               style={{
-                padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(126,126,126, 0.25)',
+                padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(126,126,126, 0.25)',
                 background: 'rgba(126,126,126, 0.08)', color: '#c3c3c3', fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >
@@ -6227,11 +6229,11 @@ function ProfileScreen() {
           <span style={{ fontSize: 11.5, color: '#a9a9a9', fontWeight: 500 }}>{t('profile_verified')}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, width: '100%', marginTop: 16 }}>
-          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(255,255,255, 0.05)' }}>
+          <div style={{ padding: '12px 14px', borderRadius: 8, background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(255,255,255, 0.05)' }}>
             <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.7, marginBottom: 4 }}>{t('profile_phone')}</div>
             <div style={{ fontSize: 13, color: text.secondary, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{phone}</div>
           </div>
-          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(255,255,255, 0.05)' }}>
+          <div style={{ padding: '12px 14px', borderRadius: 8, background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(255,255,255, 0.05)' }}>
             <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.7, marginBottom: 4 }}>{t('balance_total')}</div>
             <div style={{ fontSize: 13, color: text.primary, fontWeight: 700, fontFeatureSettings: '"tnum" 1' }}>{formatUah(Number(account?.balance || 0), lang)}</div>
           </div>
@@ -6264,7 +6266,7 @@ function ProfileScreen() {
                   onClick={() => setLang(option.value)}
                   style={{
                     padding: '11px 12px',
-                    borderRadius: 12,
+                    borderRadius: 8,
                     border: active ? `1px solid rgba(172,172,172, 0.34)` : '1px solid rgba(172,172,172, 0.14)',
                     background: active ? 'rgba(172,172,172, 0.16)' : 'rgba(255,255,255, 0.04)',
                     color: active ? text.primary : text.secondary,
@@ -6328,7 +6330,7 @@ function ProfileScreen() {
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', cursor: 'pointer' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="11" width="16" height="10" rx="2" stroke={gold} strokeWidth="1.6" /><path d="M8 11V8a4 4 0 018 0v3" stroke={gold} strokeWidth="1.6" /></svg>
             </div>
             <span style={{ fontSize: 14, color: text.secondary, fontWeight: 500 }}>{t('profile_change_password')}</span>
@@ -6343,15 +6345,15 @@ function ProfileScreen() {
             <form onSubmit={changePassword} style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <input
                 type="password" placeholder={t('profile_current_password')} value={oldPwd} onChange={e => setOldPwd(e.target.value)} required
-                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
               />
               <input
                 type="password" placeholder={t('profile_new_password')} value={newPwd} onChange={e => setNewPwd(e.target.value)} required
-                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
               />
               <button type="submit" disabled={pwdLoading} style={{
                 padding: '11px', background: pwdLoading ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
-                border: 'none', borderRadius: 10, color: text.primary, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: pwdLoading ? 'default' : 'pointer',
+                border: 'none', borderRadius: 8, color: text.primary, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: pwdLoading ? 'default' : 'pointer',
               }}>{pwdLoading ? '…' : t('profile_save')}</button>
             </form>
           </>
@@ -6392,7 +6394,7 @@ function ProfileScreen() {
                   <div style={{ fontSize: 13, color: text.secondary, fontWeight: 500, textTransform: 'capitalize' }}>{lim.tx_type}</div>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <span style={{ fontSize: 11, color: over ? '#989898' : text.muted }}>
-                      ₴{Number(lim.spent).toLocaleString('uk-UA')} {t('settings_limit_of')} ₴{Number(lim.monthly_limit).toLocaleString('uk-UA')}
+                      {Number(lim.spent).toLocaleString('uk-UA')}{'\u00a0TAX'} {t('settings_limit_of')} {Number(lim.monthly_limit).toLocaleString('uk-UA')}{'\u00a0TAX'}
                     </span>
                     <button onClick={() => deleteLimit(lim.tx_type)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#989898', fontSize: 12, padding: 0 }}>✕</button>
                   </div>
@@ -6405,15 +6407,15 @@ function ProfileScreen() {
           })}
           <form onSubmit={addLimit} style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <select value={newLimitType} onChange={e => setNewLimitType(e.target.value)}
-              style={{ flex: 1, padding: '9px 10px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}>
+              style={{ flex: 1, padding: '9px 10px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 8, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}>
               {['transfer','food','transport','utility','shopping','subscription'].map(v => <option key={v} value={v}>{v}</option>)}
             </select>
             <input value={newLimitAmt} onChange={e => setNewLimitAmt(e.target.value)}
               placeholder="5000" type="text" inputMode="decimal"
-              style={{ width: 80, padding: '9px 10px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
+              style={{ width: 80, padding: '9px 10px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 8, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
             />
             <button type="submit" disabled={limitsLoading}
-              style={{ padding: '9px 12px', borderRadius: 10, border: 'none', background: `${goldDark}`, color: '#242424', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '9px 12px', borderRadius: 8, border: 'none', background: `${goldDark}`, color: '#242424', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               {t('settings_limit_add')}
             </button>
           </form>
@@ -6446,9 +6448,9 @@ function ProfileScreen() {
                 type="password" inputMode="numeric" pattern="[0-9]*" maxLength={8}
                 value={pinInput} onChange={e => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 8))}
                 placeholder="••••"
-                style={{ flex: 1, padding: '10px 12px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 10, color: text.primary, fontSize: 20, letterSpacing: 8, outline: 'none', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '10px 12px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 8, color: text.primary, fontSize: 20, letterSpacing: 8, outline: 'none', fontFamily: 'inherit' }}
               />
-              <button type="submit" disabled={pinLoading || pinInput.length < 4} style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: pinInput.length >= 4 ? `${goldDark}` : 'rgba(95,95,95, 0.3)', color: '#242424', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}>
+              <button type="submit" disabled={pinLoading || pinInput.length < 4} style={{ padding: '10px 16px', borderRadius: 8, border: 'none', background: pinInput.length >= 4 ? `${goldDark}` : 'rgba(95,95,95, 0.3)', color: '#242424', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}>
                 {pinLoading ? '…' : t('profile_save')}
               </button>
             </form>
@@ -6488,9 +6490,9 @@ function ProfileScreen() {
                 display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10, padding: '12px',
                 background: a.done ? 'rgba(169,169,169, 0.12)' : 'rgba(255,255,255, 0.035)',
                 border: `1px solid ${a.done ? 'rgba(169,169,169, 0.18)' : 'rgba(172,172,172, 0.08)'}`,
-                borderRadius: 16, opacity: a.done ? 1 : 0.72, transition: 'opacity 0.3s',
+                borderRadius: 8, opacity: a.done ? 1 : 0.72, transition: 'opacity 0.3s',
               }}>
-                <div style={{ width: 34, height: 34, borderRadius: 12, background: a.done ? 'rgba(169,169,169, 0.14)' : 'rgba(172,172,172, 0.08)', border: `1px solid ${a.done ? 'rgba(169,169,169, 0.22)' : 'rgba(172,172,172, 0.12)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: a.done ? '#c5c5c5' : gold, fontSize: 11, fontWeight: 800, letterSpacing: 0.6 }}>
+                <div style={{ width: 34, height: 34, borderRadius: 8, background: a.done ? 'rgba(169,169,169, 0.14)' : 'rgba(172,172,172, 0.08)', border: `1px solid ${a.done ? 'rgba(169,169,169, 0.22)' : 'rgba(172,172,172, 0.12)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: a.done ? '#c5c5c5' : gold, fontSize: 11, fontWeight: 800, letterSpacing: 0.6 }}>
                   {a.title.split(/\s+/).slice(0, 2).map(part => part[0]).join('').slice(0, 2).toUpperCase()}
                 </div>
                 <div style={{ fontSize: 11.5, color: a.done ? text.secondary : text.muted, lineHeight: 1.35, fontWeight: a.done ? 600 : 500 }}>
@@ -6508,7 +6510,7 @@ function ProfileScreen() {
       {/* Sign out */}
       <div style={{ padding: '8px 18px' }}>
         <button onClick={logout} style={{
-          width: '100%', padding: '14px', borderRadius: 16,
+          width: '100%', padding: '14px', borderRadius: 8,
           background: 'rgba(126,126,126, 0.06)', border: '1px solid rgba(126,126,126, 0.18)',
           color: '#7e7e7e', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -6623,7 +6625,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
         </div>
         <div style={{
           height: 176,
-          borderRadius: 24,
+          borderRadius: 8,
           overflow: 'hidden',
           marginBottom: 18,
           background: 'rgba(216,216,216, 0.16)',
@@ -6640,7 +6642,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
           <div style={{ ...T.bodyLg, color: text.muted, lineHeight: 1.6, marginBottom: 20 }}>{product.description}</div>
         )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <div style={{ ...T.hero, fontWeight: 800, color: gold, ...T.num }}>₴{fmtInt(product.price)}{fmtDec(product.price)}</div>
+          <div style={{ ...T.hero, fontWeight: 800, color: gold, ...T.num }}>{fmtInt(product.price)}{fmtDec(product.price)}{'\u00a0TAX'}</div>
           {product.stock !== undefined && (
             <div style={{ fontSize: 12, color: product.stock > 0 ? text.muted : '#888888' }}>
               {product.stock > 0 ? `${t('in_stock')}: ${product.stock}` : t('market_out_of_stock')}
@@ -6651,7 +6653,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
           onClick={() => { onAddToCart(product); onClose(); }}
           disabled={product.stock !== undefined && product.stock <= 0}
           style={{
-            width: '100%', padding: '15px', borderRadius: 16, border: 'none', fontSize: 16, fontWeight: 700,
+            width: '100%', padding: '15px', borderRadius: 8, border: 'none', fontSize: 16, fontWeight: 700,
             background: (product.stock !== undefined && product.stock <= 0) ? 'rgba(95,95,95, 0.25)' : `${goldDark}`,
             color: text.primary, cursor: (product.stock !== undefined && product.stock <= 0) ? 'default' : 'pointer', fontFamily: 'inherit',
           }}
@@ -6683,7 +6685,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
 
   const fieldStyle: React.CSSProperties = {
     width: '100%', padding: '11px 14px', background: 'rgba(255,255,255, 0.05)',
-    border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 12,
+    border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 8,
     color: text.primary, fontSize: 14, outline: 'none', fontFamily: fontFamily,
     boxSizing: 'border-box',
   };
@@ -6714,7 +6716,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 16px', flexShrink: 0 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
           {step === 'shipping' && (
-            <button onClick={() => setStep('cart')} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(172,172,172, 0.1)', border: '1px solid rgba(172,172,172, 0.18)', color: gold, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <button onClick={() => setStep('cart')} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: '1px solid rgba(172,172,172, 0.18)', color: gold, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke={gold} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           )}
@@ -6739,13 +6741,13 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
                 WebkitOverflowScrolling: 'touch',
               }}>
                 {cart.map(item => (
-                  <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px', background: 'rgba(255,255,255, 0.04)', border: `1px solid ${bg.border}`, borderRadius: 16 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 13, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
+                  <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px', background: 'rgba(255,255,255, 0.04)', border: `1px solid ${bg.border}`, borderRadius: 8 }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 8, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
                       <ProductVisual product={item.product} size="cart" />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: text.secondary, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.title}</div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: gold }}>₴{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: gold }}>{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}{'\u00a0TAX'}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
@@ -6765,10 +6767,10 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
               }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14, padding: '0 4px' }}>
                 <span style={{ fontSize: 14, color: text.muted }}>{t('total_label')}:</span>
-                <span style={{ ...T.h2, fontWeight: 800, color: gold, ...T.num }}>₴{fmtInt(total)}{fmtDec(total)}</span>
+                <span style={{ ...T.h2, fontWeight: 800, color: gold, ...T.num }}>{fmtInt(total)}{fmtDec(total)}{'\u00a0TAX'}</span>
               </div>
                 <button onClick={() => setStep('shipping')} style={{
-                  width: '100%', padding: '15px', borderRadius: 16, border: 'none', fontSize: 16, fontWeight: 700,
+                  width: '100%', padding: '15px', borderRadius: 8, border: 'none', fontSize: 16, fontWeight: 700,
                   background: `${goldDark}`,
                   color: text.primary, cursor: 'pointer', fontFamily: fontFamily,
                 }}>{t('next_delivery')}</button>
@@ -6793,13 +6795,13 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '4px 4px 0' }}>
               <span style={{ fontSize: 13, color: text.muted }}>{t('pay_total')}:</span>
-              <span style={{ ...T.h2, fontWeight: 800, color: gold, ...T.num }}>₴{fmtInt(total)}{fmtDec(total)}</span>
+              <span style={{ ...T.h2, fontWeight: 800, color: gold, ...T.num }}>{fmtInt(total)}{fmtDec(total)}{'\u00a0TAX'}</span>
             </div>
             <button
               onClick={() => onCheckout({ name: shipName, phone: shipPhone, address: shipAddr })}
               disabled={checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8}
               style={{
-                width: '100%', padding: '15px', borderRadius: 16, border: 'none', fontSize: 16, fontWeight: 700,
+                width: '100%', padding: '15px', borderRadius: 8, border: 'none', fontSize: 16, fontWeight: 700,
                 background: (checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8)
                   ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
                 color: text.primary, cursor: (checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8) ? 'default' : 'pointer',
@@ -7034,7 +7036,7 @@ function MarketplaceScreen() {
           bottom: 'calc(112px + env(safe-area-inset-bottom, 0px))',
           zIndex: 160,
           border: '1px solid rgba(172,172,172, 0.3)',
-          borderRadius: 14,
+          borderRadius: 8,
           background: 'rgba(50,50,50, 0.92)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -7058,7 +7060,7 @@ function MarketplaceScreen() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ ...T.h1, color: text.primary }}>{t('market_title')}</div>
           {isMobileMarket && (
-            <button onClick={() => setShowCart(true)} style={{ position: 'relative', width: 44, height: 44, borderRadius: 14, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>
+            <button onClick={() => setShowCart(true)} style={{ position: 'relative', width: 44, height: 44, borderRadius: 8, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>
               ⌁
               {cartCount > 0 && (
                 <span style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: '50%', background: gold, color: text.primary, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount > 9 ? '9+' : cartCount}</span>
@@ -7067,10 +7069,10 @@ function MarketplaceScreen() {
           )}
         </div>
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 6, padding: 4, background: 'rgba(36,36,36, 0.5)', borderRadius: 14, width: 'fit-content', marginBottom: tab === 'catalog' ? 12 : 0 }}>
+        <div style={{ display: 'flex', gap: 6, padding: 4, background: 'rgba(36,36,36, 0.5)', borderRadius: 8, width: 'fit-content', marginBottom: tab === 'catalog' ? 12 : 0 }}>
           {MARKET_TABS.map(t => (
             <button key={t.k} onClick={() => setTab(t.k)} style={{
-              padding: '6px 16px', borderRadius: 10, fontSize: 13, fontWeight: 500, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              padding: '6px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               background: tab === t.k ? `${goldDark}` : 'transparent',
               color: tab === t.k ? '#161616' : text.muted,
             }}>{t.label}</button>
@@ -7080,7 +7082,7 @@ function MarketplaceScreen() {
         {tab === 'catalog' && (
           <div style={{ position: 'relative' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.4 }}><circle cx="11" cy="11" r="7" stroke="#d8d8d8" strokeWidth="1.8" /><path d="M20 20l-3-3" stroke="#d8d8d8" strokeWidth="1.8" strokeLinecap="round" /></svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('product_search')} style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 12, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('product_search')} style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
         )}
       </div>
@@ -7100,7 +7102,7 @@ function MarketplaceScreen() {
             <>
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${isMobileMarket ? 155 : 210}px, 1fr))`, gap: marketGridGap, padding: isMobileMarket ? '6px 22px' : '8px 32px' }}>
                 {pagedProducts.map(p => (
-                  <div key={p.id} onClick={() => setPreview(p)} style={{ background: 'rgba(255,255,255, 0.036)', border: '1px solid rgba(172,172,172, 0.07)', borderRadius: 18, overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer', transition: 'background 0.15s', height: marketCardHeight }}>
+                  <div key={p.id} onClick={() => setPreview(p)} style={{ background: 'rgba(255,255,255, 0.036)', border: '1px solid rgba(172,172,172, 0.07)', borderRadius: 8, overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer', transition: 'background 0.15s', height: marketCardHeight }}>
                     <div style={{ height: marketImageHeight, flexShrink: 0, background: `rgba(172,172,172, 0.08)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 42, position: 'relative', overflow: 'hidden' }}>
                       <ProductVisual product={p} />
                       {p.badge && (
@@ -7110,7 +7112,7 @@ function MarketplaceScreen() {
                     <div style={{ padding: marketCardPad, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
                       <div style={{ ...T.sm, fontSize: isMobileMarket ? 13 : T.sm.fontSize, fontWeight: 600, color: text.secondary, lineHeight: 1.25, ...marketTitleClamp }}>{p.title}</div>
                       <div style={{ marginTop: 'auto', paddingTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-                        <span style={{ ...T.body, fontWeight: 700, color: gold, ...T.num }}>₴{fmtInt(p.price)}</span>
+                        <span style={{ ...T.body, fontWeight: 700, color: gold, ...T.num }}>{fmtInt(p.price)}{'\u00a0TAX'}</span>
                         <button onClick={e => { e.stopPropagation(); addToCart(p); }} disabled={p.stock !== undefined && p.stock <= 0} style={{
                           width: 28, height: 28, borderRadius: 8, border: `1px solid ${bg.border}`, fontSize: 14, fontWeight: 700,
                           background: (p.stock !== undefined && p.stock <= 0) ? 'rgba(41,41,41, 0.4)' : 'rgba(172,172,172, 0.15)',
@@ -7130,7 +7132,7 @@ function MarketplaceScreen() {
                     onClick={() => goToCatalogPage(catalogPage - 1)}
                     disabled={catalogPage === 1}
                     style={{
-                      width: 32, height: 32, borderRadius: 10, border: `1px solid ${bg.border}`,
+                      width: 32, height: 32, borderRadius: 8, border: `1px solid ${bg.border}`,
                       background: catalogPage === 1 ? 'rgba(255,255,255, 0.03)' : 'rgba(172,172,172, 0.12)',
                       color: catalogPage === 1 ? text.dim : text.secondary, cursor: catalogPage === 1 ? 'default' : 'pointer',
                       fontFamily: 'inherit', fontWeight: 700,
@@ -7142,7 +7144,7 @@ function MarketplaceScreen() {
                       key={page}
                       onClick={() => goToCatalogPage(page)}
                       style={{
-                        minWidth: 32, height: 32, padding: '0 8px', borderRadius: 10, border: 'none',
+                        minWidth: 32, height: 32, padding: '0 8px', borderRadius: 8, border: 'none',
                         background: page === catalogPage ? `${goldDark}` : 'rgba(255,255,255, 0.04)',
                         color: page === catalogPage ? '#161616' : text.secondary, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
                       }}
@@ -7155,7 +7157,7 @@ function MarketplaceScreen() {
                     onClick={() => goToCatalogPage(catalogPage + 1)}
                     disabled={catalogPage === totalCatalogPages}
                     style={{
-                      width: 32, height: 32, borderRadius: 10, border: `1px solid ${bg.border}`,
+                      width: 32, height: 32, borderRadius: 8, border: `1px solid ${bg.border}`,
                       background: catalogPage === totalCatalogPages ? 'rgba(255,255,255, 0.03)' : 'rgba(172,172,172, 0.12)',
                       color: catalogPage === totalCatalogPages ? text.dim : text.secondary, cursor: catalogPage === totalCatalogPages ? 'default' : 'pointer',
                       fontFamily: 'inherit', fontWeight: 700,
@@ -7185,7 +7187,7 @@ function MarketplaceScreen() {
                 <div key={o.id} style={{
                   background: 'rgba(35,35,35, 0.72)',
                   border: `1px solid rgba(172,172,172, 0.24)`,
-                  borderRadius: 18,
+                  borderRadius: 8,
                   padding: '14px 16px',
                   display: 'flex',
                   alignItems: 'center',
@@ -7201,11 +7203,11 @@ function MarketplaceScreen() {
                     {o.invoice_number && <div style={{ fontSize: 11, color: text.dim, marginTop: 1, fontFamily: 'monospace' }}>{t('invoice_label')}: {o.invoice_number}</div>}
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ ...T.bodyLg, fontWeight: 700, color: gold, ...T.num }}>₴{fmtInt(o.total_amount)}{fmtDec(o.total_amount)}</div>
+                    <div style={{ ...T.bodyLg, fontWeight: 700, color: gold, ...T.num }}>{fmtInt(o.total_amount)}{fmtDec(o.total_amount)}{'\u00a0TAX'}</div>
                     <button onClick={() => downloadOrderReceipt(o.id)} disabled={dlPdf === `order-${o.id}`} style={{
                       marginTop: 7,
                       padding: '5px 11px',
-                      borderRadius: 10,
+                      borderRadius: 8,
                       border: `1px solid rgba(176,176,176, 0.38)`,
                       background: 'rgba(176,176,176, 0.25)',
                       color: text.primary,
@@ -7240,7 +7242,7 @@ function MarketplaceScreen() {
                 <div key={inv.invoice_number} style={{
                   background: 'rgba(35,35,35, 0.78)',
                   border: `1px solid rgba(172,172,172, 0.22)`,
-                  borderRadius: 16,
+                  borderRadius: 8,
                   padding: '14px 16px',
                   display: 'flex',
                   alignItems: 'center',
@@ -7258,12 +7260,12 @@ function MarketplaceScreen() {
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ ...T.bodyLg, fontWeight: 700, color: gold, ...T.num }}>₴{fmtInt(inv.amount)}{fmtDec(inv.amount)}</div>
+                    <div style={{ ...T.bodyLg, fontWeight: 700, color: gold, ...T.num }}>{fmtInt(inv.amount)}{fmtDec(inv.amount)}{'\u00a0TAX'}</div>
                     {inv.status === 'issued' && inv.order_id && (
                       <button onClick={() => downloadOrderReceipt(inv.order_id!)} disabled={dlPdf === `order-${inv.order_id}`} style={{
                         marginTop: 7,
                         padding: '5px 11px',
-                        borderRadius: 10,
+                        borderRadius: 8,
                         border: `1px solid rgba(176,176,176, 0.38)`,
                         background: 'rgba(176,176,176, 0.25)',
                         color: text.primary,
@@ -7342,7 +7344,7 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
             width: 'calc(20% - 12px)',
             background: 'rgba(176,176,176, 0.12)',
             border: '1px solid rgba(176,176,176, 0.12)',
-            borderRadius: 14,
+            borderRadius: 8,
             transition: 'left 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
             boxShadow: 'inset 0 1px 0 rgba(225,225,225, 0.06)',
             pointerEvents: 'none',
@@ -7412,7 +7414,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
   const fieldSt: React.CSSProperties = {
     width: '100%', padding: '9px 12px',
     background: 'rgba(255,255,255, 0.05)', border: '1px solid rgba(172,172,172, 0.18)',
-    borderRadius: 10, color: text.primary, fontSize: 13, outline: 'none',
+    borderRadius: 8, color: text.primary, fontSize: 13, outline: 'none',
     fontFamily, boxSizing: 'border-box',
   };
   const lblSt: React.CSSProperties = { fontSize: 10.5, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4, display: 'block' };
@@ -7435,7 +7437,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
           </svg>
           <div style={{ ...T.h3, color: text.primary, flex: 1 }}>{t('cart_title')}</div>
           {cartCount > 0 && (
-            <span style={{ fontSize: 11, fontWeight: 700, background: gold, color: '#161616', borderRadius: 20, padding: '2px 9px', letterSpacing: 0.2 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, background: gold, color: '#161616', borderRadius: 8, padding: '2px 9px', letterSpacing: 0.2 }}>
               {cartCount} {t('cart_items_count')}
             </span>
           )}
@@ -7455,13 +7457,13 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
         ) : step === 'cart' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {cart.map(item => (
-              <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255, 0.04)', border: `1px solid ${bg.border}`, borderRadius: 14 }}>
-                <div style={{ width: 42, height: 42, borderRadius: 11, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
+              <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255, 0.04)', border: `1px solid ${bg.border}`, borderRadius: 8 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 8, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
                   <ProductVisual product={item.product} size="cart" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12.5, fontWeight: 600, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.title}</div>
-                  <div style={{ fontSize: 12, color: gold, fontWeight: 700, marginTop: 2 }}>₴{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}</div>
+                  <div style={{ fontSize: 12, color: gold, fontWeight: 700, marginTop: 2 }}>{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}{'\u00a0TAX'}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                   <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(172,172,172, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
@@ -7500,13 +7502,13 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
         <div style={{ padding: '14px 20px 24px', borderTop: '1px solid rgba(172,172,172, 0.07)', flexShrink: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
             <span style={{ fontSize: 12, color: text.muted }}>{step === 'cart' ? t('total_label') : t('pay_total')}:</span>
-            <span style={{ ...T.num, fontSize: 20, fontWeight: 700, color: text.primary }}>₴{fmtInt(total)}{fmtDec(total)}</span>
+            <span style={{ ...T.num, fontSize: 20, fontWeight: 700, color: text.primary }}>{fmtInt(total)}{fmtDec(total)}{'\u00a0TAX'}</span>
           </div>
           <button
             onClick={() => step === 'cart' ? setStep('shipping') : onCheckout({ name: shipName, phone: shipPhone, address: shipAddr })}
             disabled={checkingOut || (step === 'shipping' && (shipName.trim().length < 2 || shipAddr.trim().length < 4))}
             style={{
-              width: '100%', padding: '13px 16px', borderRadius: 14,
+              width: '100%', padding: '13px 16px', borderRadius: 8,
               background: (checkingOut || (step === 'shipping' && (shipName.trim().length < 2 || shipAddr.trim().length < 4)))
                 ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
               border: 'none', color: '#161616', fontSize: 13.5, fontWeight: 700,
@@ -7580,7 +7582,7 @@ function DesktopSidebar({ active, onChange }: { active: TabKey; onChange: (k: Ta
           return (
             <button key={t.k} onClick={() => onChange(t.k)} style={{
               display: 'flex', alignItems: 'center', gap: 11,
-              padding: '10px 13px', borderRadius: 12,
+              padding: '10px 13px', borderRadius: 8,
               background: isActive ? 'rgba(172,172,172, 0.16)' : 'transparent',
               border: isActive ? `1px solid rgba(172,172,172, 0.24)` : '1px solid transparent',
               color: isActive ? text.primary : text.muted,
@@ -7596,10 +7598,10 @@ function DesktopSidebar({ active, onChange }: { active: TabKey; onChange: (k: Ta
       </nav>
 
       {/* Balance summary */}
-      <div style={{ margin: '0 10px 10px', padding: '14px 16px', borderRadius: 14, background: bg.card, border: `1px solid ${bg.border}` }}>
+      <div style={{ margin: '0 10px 10px', padding: '14px 16px', borderRadius: 8, background: bg.card, border: `1px solid ${bg.border}` }}>
         <div style={{ ...sectionLabel, padding: 0, marginBottom: 7 }}>{t('balance_total')}</div>
         <div style={{ ...T.num, fontSize: 21, fontWeight: 600, color: text.primary, letterSpacing: -0.7 }}>
-          <span style={{ fontSize: 13, color: gold, fontWeight: 500 }}>₴ </span>
+          <span style={{ fontSize: 13, color: gold, fontWeight: 500 }}>TAX </span>
           {account ? fmtInt(account.balance) + fmtDec(account.balance) : '———'}
         </div>
         {account?.account_number && (
@@ -7612,7 +7614,7 @@ function DesktopSidebar({ active, onChange }: { active: TabKey; onChange: (k: Ta
       {/* Logout */}
       <div style={{ padding: '0 10px 20px' }}>
         <button onClick={logout} style={{
-          width: '100%', padding: '10px', borderRadius: 11,
+          width: '100%', padding: '10px', borderRadius: 8,
           background: 'transparent', border: '1px solid rgba(126,126,126, 0.16)',
           color: 'rgba(134,134,134, 0.65)', fontFamily, fontSize: 12.5, fontWeight: 500,
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
@@ -7905,7 +7907,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <div style={{
-          borderRadius: 22,
+          borderRadius: 8,
           border: '1px solid rgba(215,215,215, 0.22)',
           background: 'rgba(16,16,16, 0.74)',
           boxShadow: '0 20px 50px rgba(0,0,0, 0.42), inset 0 1px 0 rgba(255,255,255, 0.08)',
@@ -8379,7 +8381,7 @@ export default function App() {
               <DesktopSidebar active={tab} onChange={setTab} />
               <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
                 {dataError && (
-                  <div style={{ margin: '12px 16px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid rgba(126,126,126, 0.25)', background: 'rgba(126,126,126, 0.08)', color: '#c6c6c6', fontSize: 13 }}>
+                  <div style={{ margin: '12px 16px 0', padding: '10px 12px', borderRadius: 8, border: '1px solid rgba(126,126,126, 0.25)', background: 'rgba(126,126,126, 0.08)', color: '#c6c6c6', fontSize: 13 }}>
                     {dataError}
                   </div>
                 )}
@@ -8444,7 +8446,7 @@ export default function App() {
                 }}
               >
               {dataError && (
-                <div style={{ margin: '10px 12px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid rgba(126,126,126, 0.25)', background: 'rgba(126,126,126, 0.08)', color: '#c6c6c6', fontSize: 13 }}>
+                <div style={{ margin: '10px 12px 0', padding: '10px 12px', borderRadius: 8, border: '1px solid rgba(126,126,126, 0.25)', background: 'rgba(126,126,126, 0.08)', color: '#c6c6c6', fontSize: 13 }}>
                   {dataError}
                 </div>
               )}

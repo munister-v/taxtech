@@ -1,3 +1,4 @@
+import QuickLook
 import SwiftUI
 
 // MARK: Донати
@@ -70,10 +71,8 @@ struct DonateView: View {
             LabForm {
                 Section {
                     Picker("Фонд", selection: $fund) { ForEach(Self.funds, id: \.self, content: Text.init) }
-                    TextField("Сума, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                     TextField("Коментар", text: $comment)
-                } footer: {
-                    Text("Донат навчальний: віртуальні гривні списуються з рахунку, у фонд нічого не йде.")
                 }
                 ErrorSection(error: screen.error)
                 FormAction(title: "Задонатити", disabled: (amount ?? 0) <= 0 || screen.busy) {
@@ -107,7 +106,7 @@ struct PayoutsView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { Text("Виплат ще немає. Нарахуйте навчальну виплату, щоб побачити, як вона приходить на рахунок.").foregroundStyle(.secondary) }
+                Section { Text("Виплат ще немає.").foregroundStyle(.secondary) }
             }
             ForEach(items) { p in
                 HStack(alignment: .firstTextBaseline) {
@@ -148,7 +147,7 @@ struct AccrueView: View {
             LabForm {
                 Section {
                     Picker("Вид", selection: $type) { ForEach(PayoutsView.types, id: \.0) { Text($0.1).tag($0.0) } }
-                    TextField("Сума, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                 }
                 ErrorSection(error: screen.error)
                 FormAction(title: "Нарахувати", disabled: (amount ?? 0) <= 0 || screen.busy) {
@@ -292,7 +291,7 @@ struct NewDebtView: View {
                 }
                 Section {
                     TextField("Ім'я", text: $name)
-                    TextField("Сума, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                     TextField("За що", text: $note)
                 }
                 ErrorSection(error: screen.error)
@@ -349,42 +348,73 @@ struct NoticesView: View {
 
 struct StatementsView: View {
     @Environment(AppModel.self) private var model
-    @State private var from = Calendar.current.date(byAdding: .month, value: -1, to: .now) ?? .now
+    @State private var period = Period.month
+    @State private var from = Calendar.current.dateInterval(of: .month, for: .now)?.start ?? .now
     @State private var to = Date.now
-    @State private var file: URL?
+    @State private var preview: URL?
     @State private var screen = Screen()
 
+    enum Period: Hashable { case month, previous, quarter, year, custom }
+
     private var range: String { "from_date=\(BankText.isoDay(from))&to_date=\(BankText.isoDay(to))" }
+    private var title: String { "\(BankText.date(BankText.isoDay(from))) - \(BankText.date(BankText.isoDay(to)))" }
 
     var body: some View {
-        LabForm {
-            Section {
-                DatePicker("З", selection: $from, in: ...to, displayedComponents: .date)
-                DatePicker("По", selection: $to, in: from...Date.now, displayedComponents: .date)
-            } footer: {
-                Text("Виписка з печаткою навчального банку. Гроші в ній віртуальні.")
-            }
-            Section {
-                Button("Виписка PDF") { fetch("transactions/statement?\(range)", "Виписка \(BankText.isoDay(from)) - \(BankText.isoDay(to)).pdf") }
-                Button("Таблиця CSV") { fetch("transactions/export?\(range)", "Операції \(BankText.isoDay(from)) - \(BankText.isoDay(to)).csv") }
-            }
-            .disabled(screen.busy)
-            if screen.busy { Section { ProgressView() } }
-            if let file {
-                Section {
-                    ShareLink(item: file) { Label(file.lastPathComponent, systemImage: "square.and.arrow.up") }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                SegmentBar(items: [(Period.month, "Цей місяць"), (.previous, "Минулий"), (.quarter, "3 місяці"),
+                                   (.year, "Рік"), (.custom, "Свій період")], selection: $period)
+                if period == .custom {
+                    Surface {
+                        DatePicker("З", selection: $from, in: ...to, displayedComponents: .date).padding(14)
+                        Rule()
+                        DatePicker("По", selection: $to, in: from...Date.now, displayedComponents: .date).padding(14)
+                    }
                 }
+                HeroPanel {
+                    HeroCaption("Виписка за період")
+                    Text(title).font(.title3.weight(.semibold)).padding(.top, 6)
+                }
+                VStack(spacing: 10) {
+                    Button { open("transactions/statement?\(range)", "Виписка \(BankText.isoDay(from)) - \(BankText.isoDay(to)).pdf") } label: {
+                        Label("Переглянути виписку", systemImage: "doc.richtext")
+                    }
+                    .buttonStyle(InkButton())
+                    Button { open("transactions/export?\(range)", "Операції \(BankText.isoDay(from)) - \(BankText.isoDay(to)).csv") } label: {
+                        Label("Таблиця операцій", systemImage: "tablecells")
+                    }
+                    .buttonStyle(LineButton())
+                }
+                .disabled(screen.busy)
+                if screen.busy { ProgressView().frame(maxWidth: .infinity) }
+                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
-            ErrorSection(error: screen.error)
+            .padding(Theme.gutter)
         }
-        .labForm()
+        .screenBackground()
         .navigationTitle("Виписки")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: range) { file = nil }
+        .onChange(of: period) { apply() }
+        .quickLookPreview($preview)
     }
 
-    private func fetch(_ path: String, _ name: String) {
-        Task { await screen.run { file = try await model.api.document(path, name: name) } }
+    private func apply() {
+        let cal = Calendar.current, now = Date.now
+        switch period {
+        case .month: from = cal.dateInterval(of: .month, for: now)?.start ?? now; to = now
+        case .previous:
+            let prev = cal.date(byAdding: .month, value: -1, to: now) ?? now
+            let m = cal.dateInterval(of: .month, for: prev)
+            from = m?.start ?? now
+            to = m.map { $0.end.addingTimeInterval(-1) } ?? now
+        case .quarter: from = cal.date(byAdding: .month, value: -3, to: now) ?? now; to = now
+        case .year: from = cal.dateInterval(of: .year, for: now)?.start ?? now; to = now
+        case .custom: break
+        }
+    }
+
+    private func open(_ path: String, _ name: String) {
+        Task { await screen.run { preview = try await model.api.document(path, name: name) } }
     }
 }
 
@@ -421,8 +451,6 @@ struct SecurityView: View {
                 }
             } header: {
                 Text("Код доступу")
-            } footer: {
-                Text("З PIN банк відкривається лише після коду - і щоразу, коли застосунок повертається з фону.")
             }
             Section { Button("Змінити пароль") { changingPassword = true } }
             Section {
@@ -526,8 +554,6 @@ struct PasswordView: View {
                 Section {
                     SecureField("Поточний пароль", text: $old).textContentType(.password)
                     SecureField("Новий пароль", text: $new).textContentType(.newPassword)
-                } footer: {
-                    Text("Якщо ви входите через Apple, пароля немає - змінювати нічого не треба.")
                 }
                 ErrorSection(error: screen.error)
                 FormAction(title: "Змінити", disabled: old.isEmpty || new.count < 8 || screen.busy) {
@@ -581,7 +607,7 @@ struct PinPad: View {
             Spacer(minLength: 24)
             MarkView(height: 40)
             Text(title)
-                .font(.system(size: 28, weight: .semibold))
+                .font(Theme.display(22))
                 .tracking(-0.4)
                 .padding(.top, 20)
             HStack(spacing: 14) {

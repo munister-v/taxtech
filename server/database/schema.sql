@@ -1,4 +1,4 @@
--- SQLite-схема навчального банку Kopiyka (пісочниця на ВІРТУАЛЬНИХ грошах, валюта VUAH).
+-- SQLite-схема навчального банку Kopiyka (пісочниця на ВІРТУАЛЬНИХ грошах, валюта TAX).
 -- Усі дати зберігаються як текст 'YYYY-MM-DD HH:MM:SS' в UTC (формат CURRENT_TIMESTAMP).
 PRAGMA foreign_keys = ON;
 
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL UNIQUE,
     account_number TEXT NOT NULL UNIQUE,
-    currency TEXT NOT NULL DEFAULT 'VUAH',
+    currency TEXT NOT NULL DEFAULT 'TAX',
     balance REAL NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS journal_entries (
     account_id       INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     entry_type       TEXT NOT NULL CHECK (entry_type IN ('debit','credit')),
     amount           REAL NOT NULL CHECK (amount > 0),
-    currency         TEXT NOT NULL DEFAULT 'VUAH',
+    currency         TEXT NOT NULL DEFAULT 'TAX',
     description      TEXT NOT NULL DEFAULT '',
     balance_after    REAL,
     settled          INTEGER NOT NULL DEFAULT 0,
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS account_holds (
     account_id       INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     payment_order_id INTEGER REFERENCES payment_orders(id) ON DELETE SET NULL,
     amount           REAL NOT NULL CHECK (amount > 0),
-    currency         TEXT NOT NULL DEFAULT 'VUAH',
+    currency         TEXT NOT NULL DEFAULT 'TAX',
     reason           TEXT NOT NULL DEFAULT 'authorization',
     status           TEXT NOT NULL DEFAULT 'active',
     expires_at       TEXT NOT NULL,

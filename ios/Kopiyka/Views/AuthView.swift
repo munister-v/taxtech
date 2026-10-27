@@ -22,8 +22,7 @@ struct AuthView: View {
             VStack(spacing: 0) {
                 VStack(spacing: 14) {
                     MarkView(height: 64)
-                    (Text("Tax").fontWeight(.bold) + Text("Tech").fontWeight(.light))
-                        .font(.system(size: 34))
+                    (Text("Tax").font(Theme.display(30, .bold)) + Text("Tech").font(Theme.display(30, .light)))
                         .tracking(-0.6)
                     Text("Особистий кабінет").caption()
                 }
@@ -62,7 +61,7 @@ struct AuthView: View {
                             .foregroundStyle(Theme.ink)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(12)
-                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
                     }
 
                     HStack {
@@ -93,13 +92,8 @@ struct AuthView: View {
                         .disabled(!valid || working)
                 }
                 .padding(20)
-                .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
+                .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
 
-                Text("Навчальний банк: картки, рахунки й перекази тут віртуальні. Справжніх грошей немає.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 20)
 
                 VStack(spacing: 10) {
                     Button(showServer ? "Сховати адресу сервера" : "Адреса сервера") { showServer.toggle() }
@@ -112,12 +106,12 @@ struct AuthView: View {
                             .autocorrectionDisabled()
                             .font(.footnote.monospaced())
                             .padding(12)
-                            .background(Theme.surface, in: .rect(cornerRadius: 12, style: .continuous))
+                            .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
                             .onSubmit { applyServer() }
                     }
                 }
                 .padding(.top, 24)
-                Text("TaxTech · \(Brand.lab)")
+                Text(Brand.lab)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)
@@ -152,8 +146,8 @@ struct AuthView: View {
             content()
                 .padding(.horizontal, 14)
                 .padding(.vertical, 13)
-                .background(Theme.bg, in: .rect(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+                .background(Theme.bg, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
         }
     }
 

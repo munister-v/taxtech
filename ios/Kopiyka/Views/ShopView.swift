@@ -1,7 +1,8 @@
+import QuickLook
 import SwiftUI
 
 /// Магазин: банер, категорії, хіти, каталог із сортуванням і підвантаженням, кошик унизу екрана,
-/// замовлення зі статусами кроками й чеком, інвойси. Платимо віртуальними гривнями через 3-D Secure.
+/// замовлення зі статусами кроками й чеком, інвойси. Платимо токенами TAX через 3-D Secure.
 struct ShopView: View {
     @Environment(AppModel.self) private var model
     @State private var tab = Tab.catalog
@@ -30,14 +31,14 @@ struct ShopView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    ScreenTitle(title: "Магазин", subtitle: "За віртуальні гривні") {
+                    ScreenTitle(title: "Магазин") {
                         Button { showCart = true } label: {
                             ZStack(alignment: .topTrailing) {
                                 RoundGlyph(symbol: "bag")
                                 if cartCount > 0 {
                                     Text("\(cartCount)").font(.caption2.weight(.bold)).monospacedDigit()
                                         .frame(minWidth: 18, minHeight: 18)
-                                        .background(Theme.ink, in: .circle).foregroundStyle(Theme.onInk)
+                                        .background(Theme.accent, in: .rect(cornerRadius: Theme.corner)).foregroundStyle(Theme.onAccent)
                                         .offset(x: 4, y: -4)
                                 }
                             }
@@ -147,8 +148,8 @@ struct ShopView: View {
                             Image(systemName: c.symbol)
                                 .font(.system(size: 20, weight: .medium))
                                 .frame(width: 58, height: 58)
-                                .background(category == c ? Theme.ink : Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
-                                .foregroundStyle(category == c ? Theme.onInk : Theme.ink)
+                                .background(category == c ? Theme.accent : Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+                                .foregroundStyle(category == c ? Theme.onAccent : Theme.ink)
                             Text(c.title).font(.caption.weight(category == c ? .semibold : .regular))
                                 .foregroundStyle(category == c ? Theme.ink : .secondary)
                         }
@@ -163,7 +164,7 @@ struct ShopView: View {
 
         if browsing && !hits.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Хіти").font(.title2.weight(.bold))
+                Text("Хіти").font(Theme.display(17))
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(hits.prefix(10)) { p in
@@ -176,7 +177,7 @@ struct ShopView: View {
         }
 
         HStack(alignment: .firstTextBaseline) {
-            Text(category == .all ? "Усі товари" : category.title).font(.title2.weight(.bold))
+            Text(category == .all ? "Усі товари" : category.title).font(Theme.display(17))
             Text("\(total)").foregroundStyle(.secondary).monospacedDigit()
             Spacer()
             Menu {
@@ -213,9 +214,7 @@ struct ShopView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
                     HeroCaption("Магазин TaxTech")
-                    Text("Справжні товари,\nвіртуальні гроші").font(.system(size: 26, weight: .bold)).tracking(-0.5)
-                    Text("Оплата з рахунку з 3-D Secure, чек PDF і статус замовлення.")
-                        .font(.footnote).foregroundStyle(Theme.onInk.opacity(0.7))
+                    Text("Справжні товари,\nвіртуальні гроші").font(Theme.display(19)).tracking(-0.3)
                 }
                 Spacer(minLength: 8)
                 MarkView(height: 44).colorInvert().opacity(0.9)
@@ -233,7 +232,7 @@ struct ShopView: View {
         Button { showCart = true } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(cartCount) у кошику").font(.caption).foregroundStyle(Theme.onInk.opacity(0.7))
+                    Text("\(cartCount) у кошику").font(.caption).foregroundStyle(Theme.onAccent.opacity(0.7))
                     Text(Format.money(cartTotal)).font(.headline).monospacedDigit()
                 }
                 Spacer()
@@ -242,8 +241,8 @@ struct ShopView: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
-            .foregroundStyle(Theme.onInk)
-            .background(Theme.ink, in: .rect(cornerRadius: 20, style: .continuous))
+            .foregroundStyle(Theme.onAccent)
+            .background(Theme.accent, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 8)
         }
@@ -255,19 +254,19 @@ struct ShopView: View {
 
     @ViewBuilder private var ordersList: some View {
         if orders.isEmpty {
-            empty("shippingbox", "Замовлень ще немає", "Додайте товари в кошик і оплатіть з рахунку.")
+            empty("shippingbox", "Замовлень ще немає", "")
         }
         ForEach(orders) { o in OrderRow(order: o) }
     }
 
     @ViewBuilder private var invoicesList: some View {
         if invoices.isEmpty {
-            empty("doc.text", "Інвойсів ще немає", "Інвойс з'являється на кожне замовлення.")
+            empty("doc.text", "Інвойсів ще немає", "")
         } else {
             HeroPanel {
                 HeroCaption("Оплачено інвойсів")
-                BigAmount(value: invoices.filter { $0.status == "paid" }.reduce(0) { $0 + $1.amount }, size: 34)
-                    .foregroundStyle(Theme.onInk).padding(.top, 6)
+                BigAmount(value: invoices.filter { $0.status == "paid" }.reduce(0) { $0 + $1.amount }, size: 30)
+                    .foregroundStyle(Theme.onAccent).padding(.top, 6)
             }
             Surface {
                 ForEach(Array(invoices.enumerated()), id: \.element.id) { i, inv in
@@ -284,7 +283,7 @@ struct ShopView: View {
         VStack(spacing: 10) {
             Image(systemName: symbol).font(.system(size: 40)).foregroundStyle(.tertiary)
             Text(title).font(.headline)
-            Text(text).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            if !text.isEmpty { Text(text).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center) }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
@@ -374,14 +373,14 @@ struct ProductArt: View {
                 .font(.system(size: size))
                 .grayscale(1)
                 .frame(maxWidth: .infinity, minHeight: height)
-                .background(Theme.bg, in: .rect(cornerRadius: 14, style: .continuous))
+                .background(Theme.bg, in: .rect(cornerRadius: Theme.corner, style: .continuous))
             if let b = product.badge, !b.isEmpty {
                 Text(b)
                     .font(.caption2.weight(.bold))
                     .tracking(0.8)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 4)
-                    .background(Theme.ink, in: .rect(cornerRadius: 6, style: .continuous))
+                    .background(Theme.ink, in: .rect(cornerRadius: Theme.corner, style: .continuous))
                     .foregroundStyle(Theme.onInk)
                     .padding(8)
             }
@@ -418,22 +417,22 @@ struct ProductTile: View {
                     Button(action: add) { Image(systemName: "plus").frame(width: 36, height: 34) }
                 }
                 .font(.subheadline.weight(.bold))
-                .foregroundStyle(Theme.onInk)
-                .background(Theme.ink, in: .rect(cornerRadius: 11, style: .continuous))
+                .foregroundStyle(Theme.onAccent)
+                .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
                 .buttonStyle(.plain)
             } else {
                 Button(action: add) {
                     Label("У кошик", systemImage: "plus")
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 34)
-                        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Theme.ink, lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous).strokeBorder(Theme.ink, lineWidth: 1))
                         .foregroundStyle(Theme.ink)
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(12)
-        .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
         .animation(.snappy(duration: 0.2), value: inCart)
     }
 }
@@ -462,13 +461,13 @@ struct HitCard: View {
                 Group { if inCart > 0 { Text("\(inCart)").monospacedDigit() } else { Image(systemName: "plus") } }
                     .font(.subheadline.weight(.bold))
                     .frame(width: 36, height: 36)
-                    .background(Theme.ink, in: .circle)
-                    .foregroundStyle(Theme.onInk)
+                    .background(Theme.accent, in: .rect(cornerRadius: Theme.corner))
+                    .foregroundStyle(Theme.onAccent)
             }
             .buttonStyle(PressScale())
         }
         .padding(10)
-        .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
     }
 }
 
@@ -486,10 +485,10 @@ struct ProductView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     ProductArt(product: product, size: 110, height: 260)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(product.title).font(.system(size: 26, weight: .bold)).tracking(-0.4)
+                        Text(product.title).font(Theme.display(19)).tracking(-0.3)
                         if let d = product.description { Text(d).foregroundStyle(.secondary) }
                     }
-                    BigAmount(value: product.price, size: 36)
+                    BigAmount(value: product.price, size: 30)
                     HStack(spacing: 16) {
                         Surface { Stat(value: "\(product.stock ?? 0) шт.", label: "в наявності").padding(14) }
                         Surface { Stat(value: inCart > 0 ? "\(inCart) шт." : "-", label: "уже в кошику").padding(14) }
@@ -509,8 +508,6 @@ struct ProductView: View {
                         .buttonStyle(InkButton())
                         Button("Додати в кошик") { add(qty); dismiss() }.buttonStyle(LineButton())
                     }
-                    Label("Оплата з рахунку TaxTech з підтвердженням 3-D Secure. Гроші віртуальні.", systemImage: "lock")
-                        .font(.footnote).foregroundStyle(.secondary)
                 }
                 .padding(Theme.gutter)
             }
@@ -526,6 +523,7 @@ struct OrderRow: View {
     @Environment(AppModel.self) private var model
     let order: API.Order
     @State private var receipt: URL?
+    @State private var preview: URL?
     @State private var busy = false
 
     private static let steps = ["Оплачено", "Обробка", "Відправлено", "Доставлено"]
@@ -560,14 +558,15 @@ struct OrderRow: View {
                         Text(n).font(.caption.monospaced()).foregroundStyle(.tertiary).lineLimit(1)
                     }
                     Spacer()
-                    if let receipt {
-                        ShareLink(item: receipt) { Label("Чек PDF", systemImage: "square.and.arrow.up") }
+                    if receipt != nil {
+                        Button { preview = receipt } label: { Label("Чек", systemImage: "doc.richtext") }
                     } else {
                         Button {
                             busy = true
                             Task {
                                 receipt = try? await model.api.document("marketplace/order/\(order.id)/receipt",
                                                                         name: "Чек замовлення \(order.id).pdf")
+                                preview = receipt
                                 busy = false
                             }
                         } label: {
@@ -581,6 +580,7 @@ struct OrderRow: View {
             }
             .padding(16)
         }
+        .quickLookPreview($preview)
     }
 }
 

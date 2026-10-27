@@ -28,7 +28,7 @@ def _month_label(iso_date: str) -> str:
 
 
 class AccountRepository(BaseRepository):
-    def create_account(self, user_id: int, account_number: str, currency: str = 'VUAH') -> int:
+    def create_account(self, user_id: int, account_number: str, currency: str = 'TAX') -> int:
         with self.connection() as conn:
             cursor = conn.execute(
                 '''
@@ -339,18 +339,18 @@ class AccountRepository(BaseRepository):
 
             insights = []
             if biggest:
-                insights.append({'icon': '💸', 'text': f"Найбільша витрата цього місяця: {biggest['description']} ({float(biggest['amount']):.2f} VUAH)"})
+                insights.append({'icon': '💸', 'text': f"Найбільша витрата цього місяця: {biggest['description']} ({float(biggest['amount']):.2f} TAX)"})
             if active_day:
                 dow = int(active_day['dow'])
                 insights.append({'icon': '📅', 'text': f"Найактивніший день: {days_uk[dow]} ({int(active_day['cnt'])} операцій за 30 днів)"})
             if avg_tx and avg_tx['total'] > 0:
-                insights.append({'icon': '📊', 'text': f"Середня операція цього місяця: {float(avg_tx['avg_amount']):.2f} VUAH (всього {int(avg_tx['total'])} операцій)"})
+                insights.append({'icon': '📊', 'text': f"Середня операція цього місяця: {float(avg_tx['avg_amount']):.2f} TAX (всього {int(avg_tx['total'])} операцій)"})
             if rates:
                 tin, tout = float(rates['total_in']), float(rates['total_out'])
                 if tin > 0:
                     savings_rate = round((tin - tout) / tin * 100, 1)
                     emoji = '🟢' if savings_rate > 20 else ('🟡' if savings_rate > 0 else '🔴')
-                    insights.append({'icon': emoji, 'text': f"Норма заощадження: {savings_rate}% (прихід {tin:.0f} VUAH, витрати {tout:.0f} VUAH)"})
+                    insights.append({'icon': emoji, 'text': f"Норма заощадження: {savings_rate}% (прихід {tin:.0f} TAX, витрати {tout:.0f} TAX)"})
 
             return {'insights': insights}
 
@@ -392,7 +392,7 @@ class AccountRepository(BaseRepository):
         transactions = self.list_transactions(account_id, from_date=from_date, to_date=to_date)
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(['ID', 'Тип', 'Напрям', 'Сума (VUAH)', 'Опис', "Пов'язаний рахунок", 'Дата'])
+        writer.writerow(['ID', 'Тип', 'Напрям', 'Сума (TAX)', 'Опис', "Пов'язаний рахунок", 'Дата'])
         type_labels = {
             'topup': 'Поповнення', 'transfer': 'Переказ', 'payment': 'Оплата', 'payout': 'Виплата',
             'donation': 'Донат', 'savings': 'Накопичення',

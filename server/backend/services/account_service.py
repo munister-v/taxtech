@@ -25,7 +25,7 @@ class AccountService:
         new_balance = round(account['balance'] + amount, 2)
         self.accounts.update_balance(account['id'], new_balance)
         self.accounts.add_transaction(account['id'], 'topup', 'in', amount, description)
-        self.features.add_audit_log(user_id, 'topup', f'Поповнення на {amount:.2f} VUAH.')
+        self.features.add_audit_log(user_id, 'topup', f'Поповнення на {amount:.2f} TAX.')
         return self.get_main_account(user_id)
 
     def transfer(self, user_id: int, recipient_account_number: str, amount: float, description: str, idempotency_key: str | None = None) -> dict:
@@ -61,14 +61,14 @@ class AccountService:
             self.features.create_notification(
                 user_id, 'budget_exceeded',
                 f'Бюджет перевищено ({tx_type})',
-                f'Витрачено VUAH {spent:,.0f} з VUAH {monthly_limit:,.0f} ліміту цього місяця'.replace(',', ' '),
+                f'Витрачено {spent:,.0f} TAX з {monthly_limit:,.0f} TAX ліміту цього місяця'.replace(',', ' '),
                 '🚨',
             )
         elif pct >= 80:
             self.features.create_notification(
                 user_id, 'budget_warning',
                 f'Бюджет майже вичерпано ({tx_type})',
-                f'Витрачено {pct}% від VUAH {monthly_limit:,.0f} ліміту'.replace(',', ' '),
+                f'Витрачено {pct}% від {monthly_limit:,.0f} TAX ліміту'.replace(',', ' '),
                 '⚠️',
             )
 
@@ -119,12 +119,12 @@ class AccountService:
             {'id': 'tx_10',        'title': '10 операцій',          'desc': 'Виконайте 10 транзакцій',          'icon': '📊', 'done': data['tx_count'] >= 10},
             {'id': 'tx_50',        'title': '50 операцій',          'desc': 'Виконайте 50 транзакцій',          'icon': '💫', 'done': data['tx_count'] >= 50},
             {'id': 'first_donate', 'title': 'Перший донат',         'desc': 'Задонатьте будь-яку суму',         'icon': '❤️', 'done': data['total_donated'] > 0},
-            {'id': 'donate_1k',    'title': 'Донат VUAH 1 000',        'desc': 'Задонатьте загалом VUAH 1 000',        'icon': '💙', 'done': data['total_donated'] >= 1000},
-            {'id': 'donate_10k',   'title': 'Меценат',              'desc': 'Задонатьте загалом VUAH 10 000',       'icon': '🏅', 'done': data['total_donated'] >= 10000},
+            {'id': 'donate_1k',    'title': 'Донат 1 000 TAX',        'desc': 'Задонатьте загалом 1 000 TAX',        'icon': '💙', 'done': data['total_donated'] >= 1000},
+            {'id': 'donate_10k',   'title': 'Меценат',              'desc': 'Задонатьте загалом 10 000 TAX',       'icon': '🏅', 'done': data['total_donated'] >= 10000},
             {'id': 'first_goal',   'title': 'Перша ціль',           'desc': 'Досягніть першої цілі',            'icon': '🎉', 'done': data['goals_done'] >= 1},
             {'id': 'goals_3',      'title': 'Три цілі',             'desc': 'Досягніть 3 цілі накопичень',      'icon': '🏆', 'done': data['goals_done'] >= 3},
-            {'id': 'saver_1k',     'title': 'Накопичувач',          'desc': 'Накопичте загалом VUAH 1 000',         'icon': '💰', 'done': data['total_saved'] >= 1000},
-            {'id': 'saver_10k',    'title': 'Великий заощаджувач',  'desc': 'Накопичте загалом VUAH 10 000',        'icon': '🏦', 'done': data['total_saved'] >= 10000},
+            {'id': 'saver_1k',     'title': 'Накопичувач',          'desc': 'Накопичте загалом 1 000 TAX',         'icon': '💰', 'done': data['total_saved'] >= 1000},
+            {'id': 'saver_10k',    'title': 'Великий заощаджувач',  'desc': 'Накопичте загалом 10 000 TAX',        'icon': '🏦', 'done': data['total_saved'] >= 10000},
             {'id': 'family',       'title': 'Близькі поруч',         'desc': 'Додайте 3 контакти',               'icon': '👥', 'done': data['contacts_count'] >= 3},
             {'id': 'transfer_5',   'title': 'Активний',              'desc': 'Виконайте 5 переказів',            'icon': '💸', 'done': data['transfers_count'] >= 5},
         ]

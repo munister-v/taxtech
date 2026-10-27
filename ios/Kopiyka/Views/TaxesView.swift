@@ -25,7 +25,7 @@ struct TaxesView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    ScreenTitle(title: "Податки", subtitle: "Україна, \(r.year)") {
+                    ScreenTitle(title: "Податки") {
                         Button { editingRates = true } label: { RoundGlyph(symbol: "slider.horizontal.3") }
                             .buttonStyle(.plain)
                             .accessibilityLabel("Ставки")
@@ -40,7 +40,7 @@ struct TaxesView: View {
                     case .deduction: DeductionPart(tax: tax)
                     case .calendar: CalendarPart(group: tax.group)
                     }
-                    Text("Навчальний калькулятор. Ставки й ліміти - станом на \(r.year) рік, їх можна змінити кнопкою вгорі. Перед сплатою звіряйтеся з tax.gov.ua.")
+                    Text("Ставки \(String(r.year)) року, 1 TAX = 1 гривня. Розрахунок орієнтовний.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -62,27 +62,27 @@ struct TaxesView: View {
 
     private var hero: some View {
         HeroPanel {
-            HeroCaption("Доходи \(String(year)) за даними банку")
-            BigAmount(value: incomeTotal, size: 40)
-                .foregroundStyle(Theme.onInk)
+            HeroCaption("Доходи \(String(year))")
+            BigAmount(value: incomeTotal, size: 34)
+                .foregroundStyle(Theme.onAccent)
                 .padding(.top, 6)
             HStack(alignment: .top, spacing: 16) {
-                Stat(value: Format.money(incomeTotal * (r.pdfo + r.military)), label: "ПДФО і військовий збір, якщо це зарплата", inverted: true)
-                Stat(value: Format.money(TaxMath.depositTax(interest: interest, r)), label: "утримано з процентів за депозитами", inverted: true)
+                Stat(value: Format.money(incomeTotal * (r.pdfo + r.military)), label: "податки, якщо це зарплата", inverted: true)
+                Stat(value: Format.money(TaxMath.depositTax(interest: interest, r)), label: "податок з депозитів", inverted: true)
             }
             .padding(.top, 16)
             if let next {
-                Rectangle().fill(Theme.onInk.opacity(0.2)).frame(height: 1).padding(.vertical, 16)
+                Rectangle().fill(Theme.onAccent.opacity(0.2)).frame(height: 1).padding(.vertical, 16)
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Найближчий строк").font(.caption).foregroundStyle(Theme.onInk.opacity(0.6))
+                        Text("Найближчий строк").font(.caption).foregroundStyle(Theme.onAccent.opacity(0.6))
                         Text(next.title).font(.subheadline.weight(.semibold))
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(next.date.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA"))))
                             .font(.subheadline.weight(.semibold))
-                        Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(Theme.onInk.opacity(0.6))
+                        Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(Theme.onAccent.opacity(0.6))
                     }
                 }
             }
@@ -157,7 +157,7 @@ private struct OverviewPart: View {
                                       amount: Format.money(d.interestEarned - TaxMath.depositTax(interest: d.interestEarned, rates)))
                         }
                     }
-                    Text("Банк сам утримує \(percent(rates.pdfo + rates.military)) з процентів, декларувати їх не треба.")
+                    Text("Податок з процентів банк утримує сам.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }
@@ -187,7 +187,7 @@ private struct SalaryPart: View {
             MoneyField(title: fromNet ? "Хочу на руки на місяць" : "Зарплата до податків на місяць", value: $amount)
             HeroPanel {
                 HeroCaption(fromNet ? "Треба нарахувати" : "На руки")
-                BigAmount(value: fromNet ? s.gross : s.net, size: 38).foregroundStyle(Theme.onInk).padding(.top, 6)
+                BigAmount(value: fromNet ? s.gross : s.net, size: 32).foregroundStyle(Theme.onAccent).padding(.top, 6)
                 SplitBar(parts: [("На руки", s.net), ("ПДФО", s.pdfo), ("ВЗ", s.military)], inverted: true)
                     .padding(.top, 16)
             }
@@ -239,7 +239,7 @@ private struct FopPart: View {
             MoneyField(title: "Дохід за рік", value: $income)
             HeroPanel {
                 HeroCaption("Податки ФОП за рік")
-                BigAmount(value: f.total, size: 38).foregroundStyle(Theme.onInk).padding(.top, 6)
+                BigAmount(value: f.total, size: 32).foregroundStyle(Theme.onAccent).padding(.top, 6)
                 HStack(alignment: .top, spacing: 16) {
                     Stat(value: Format.money(f.total / 12), label: "у середньому на місяць", inverted: true)
                     Stat(value: percent(f.effective), label: "від доходу", inverted: true)
@@ -280,8 +280,7 @@ private struct FopPart: View {
                     Rule()
                     Line2("Різниця", Format.money(income - f.total - salary.net * 12))
                 }
-                Text("Для порівняння весь дохід ФОП узято як зарплату до податків.").font(.footnote).foregroundStyle(.secondary)
-            }
+                }
             Button(tax.group == selected ? "Це моя група - строки в календарі" : "Я ФОП цієї групи") {
                 tax.group = tax.group == selected ? nil : selected
             }
@@ -310,15 +309,13 @@ private struct DeductionPart: View {
         let eligible = tax.deductions.reduce(0) { $0 + $1.amount }
         let refund = TaxMath.refund(eligible: eligible, salaryYear: salaryYear, r)
         VStack(alignment: .leading, spacing: 18) {
-            Text("Частину ПДФО із зарплати можна повернути за витрати на навчання, іпотеку, лікування безпліддя, страхування й благодійність.")
-                .font(.subheadline).foregroundStyle(.secondary)
             MoneyField(title: "Зарплата до податків за рік", value: $salaryYear)
             HeroPanel {
                 HeroCaption("Можна повернути")
-                BigAmount(value: refund, size: 40).foregroundStyle(Theme.onInk).padding(.top, 6)
+                BigAmount(value: refund, size: 34).foregroundStyle(Theme.onAccent).padding(.top, 6)
                 HStack(alignment: .top, spacing: 16) {
-                    Stat(value: Format.money(eligible), label: "витрати, що йдуть у знижку", inverted: true)
-                    Stat(value: Format.money(salaryYear * r.pdfo), label: "ПДФО за рік - більше не повернуть", inverted: true)
+                    Stat(value: Format.money(eligible), label: "витрати", inverted: true)
+                    Stat(value: Format.money(salaryYear * r.pdfo), label: "ПДФО за рік", inverted: true)
                 }
                 .padding(.top, 14)
             }
@@ -329,7 +326,7 @@ private struct DeductionPart: View {
                     .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
             }
             if tax.deductions.isEmpty {
-                Text("Додайте чеки й договори: оплата навчання, відсотки за іпотекою тощо.")
+                Text("Витрат ще немає.")
                     .font(.footnote).foregroundStyle(.secondary)
             } else {
                 Surface {
@@ -348,30 +345,10 @@ private struct DeductionPart: View {
                     }
                 }
             }
-            VStack(alignment: .leading, spacing: 8) {
-                BlockTitle("Як отримати")
-                Surface {
-                    step(1, "Зберіть документи: договір, квитанції, довідку про доходи з податкової.")
-                    Rule()
-                    step(2, "Подайте декларацію про майновий стан у Електронному кабінеті платника до 31 грудня наступного року.")
-                    Rule()
-                    step(3, "Податкова перевіряє і повертає гроші на рахунок, указаний у декларації.")
-                }
-                Text("Навчання - не більше \(Format.money(TaxMath.educationLimitPerMonth(r))) на місяць. Військовий збір не повертається.")
-                    .font(.footnote).foregroundStyle(.secondary)
-            }
+            Text("Декларація - до 31 грудня наступного року. Навчання - до \(Format.money(TaxMath.educationLimitPerMonth(r))) на місяць.")
+                .font(.footnote).foregroundStyle(.secondary)
         }
         .sheet(isPresented: $adding) { NewDeductionView { tax.deductions.append($0) } }
-    }
-
-    private func step(_ n: Int, _ text: String) -> some View {
-        HStack(alignment: .top, spacing: 14) {
-            Text("\(n)").font(.headline.monospacedDigit()).frame(width: 28, height: 28)
-                .background(Theme.ink, in: .circle).foregroundStyle(Theme.onInk)
-            Text(text).font(.subheadline)
-            Spacer(minLength: 0)
-        }
-        .padding(14)
     }
 }
 
@@ -387,7 +364,7 @@ private struct NewDeductionView: View {
             LabForm {
                 Section {
                     Picker("Витрата", selection: $kind) { ForEach(Deduction.Kind.allCases) { Text($0.title).tag($0) } }
-                    TextField("Сума за рік, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField("Сума за рік, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                     TextField("Нотатка: заклад, банк, договір", text: $note)
                 } footer: {
                     Text(kind.hint)
@@ -425,13 +402,13 @@ private struct CalendarPart: View {
                 .font(.footnote).foregroundStyle(.secondary)
             ForEach(byMonth, id: \.key) { month, items in
                 VStack(alignment: .leading, spacing: 10) {
-                    BlockTitle(month.formatted(.dateTime.month(.wide).year().locale(Locale(identifier: "uk_UA"))).capitalized)
+                    BlockTitle(BankText.monthYear(month))
                     Surface {
                         ForEach(Array(items.enumerated()), id: \.element.id) { i, d in
                             if i > 0 { Rule() }
                             HStack(alignment: .top, spacing: 14) {
                                 VStack(spacing: 0) {
-                                    Text(d.date.formatted(.dateTime.day())).font(.title2.weight(.bold)).monospacedDigit()
+                                    Text(d.date.formatted(.dateTime.day())).font(Theme.display(17)).monospacedDigit()
                                     Text(d.date.formatted(.dateTime.weekday(.abbreviated).locale(Locale(identifier: "uk_UA"))))
                                         .font(.caption2).foregroundStyle(.secondary)
                                 }
@@ -462,8 +439,8 @@ private struct RatesView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    field("Мінімальна зарплата, ₴", \.minWage)
-                    field("Прожитковий мінімум, ₴", \.subsistence)
+                    field("Мінімальна зарплата, TAX", \.minWage)
+                    field("Прожитковий мінімум, TAX", \.subsistence)
                 } header: {
                     Text("На 1 січня")
                 }

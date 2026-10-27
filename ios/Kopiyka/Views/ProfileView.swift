@@ -74,16 +74,12 @@ struct ProfileView: View {
                     sheet("Лабораторія", "flask", .lab)
                 } header: {
                     Text("На телефоні")
-                } footer: {
-                    Text("Облік витрат лежить лише на телефоні. Лабораторія показує, де застосунок рахує кожну задачу - на телефоні чи на сервері.")
                 }
                 invite
                 Section {
                     Button("Вийти") { model.signOut() }
                     Button("Видалити акаунт") { confirmDelete = true }
                         .foregroundStyle(.secondary)
-                } footer: {
-                    Text("TaxTech · \(Brand.lab). Навчальний банк: гроші віртуальні.")
                 }
             }
             .labForm()
@@ -125,7 +121,7 @@ struct ProfileView: View {
             VStack(spacing: 10) {
                 Initials(name: me?.fullName ?? "", size: 84)
                 Text(me?.fullName ?? " ").font(.title2.weight(.semibold))
-                Text("Навчальний акаунт").font(.footnote).foregroundStyle(.secondary)
+                Text(me?.bankAccountNumber ?? " ").font(.footnote.monospaced()).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
@@ -137,7 +133,6 @@ struct ProfileView: View {
         Section {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Запросити друга").font(.headline)
-                Text("Поділіться TaxTech з одногрупниками").font(.footnote).foregroundStyle(.secondary)
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Ваш код").caption()
@@ -145,11 +140,11 @@ struct ProfileView: View {
                     }
                     Spacer()
                     ShareLink(item: URL(string: "https://bank.munister.com.ua/?ref=\(inviteCode)")!,
-                              message: Text("Навчальний банк TaxTech: картки, депозити й перекази на віртуальних гривнях")) {
+                              message: Text("Навчальний банк TaxTech: картки, депозити й перекази на токенах TAX")) {
                         Text("Поділитися").font(.subheadline.weight(.semibold))
                             .padding(.horizontal, 14).padding(.vertical, 9)
-                            .background(Theme.ink, in: .rect(cornerRadius: 12, style: .continuous))
-                            .foregroundStyle(Theme.onInk)
+                            .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                            .foregroundStyle(Theme.onAccent)
                     }
                     .buttonStyle(.plain)
                 }

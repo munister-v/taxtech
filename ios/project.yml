@@ -48,6 +48,7 @@ targets:
     info:
       path: Kopiyka/Info.plist
       properties:
+        UIAppFonts: [Unbounded.ttf]
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
 

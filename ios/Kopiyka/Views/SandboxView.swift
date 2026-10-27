@@ -12,7 +12,7 @@ struct TopUpView: View {
     var body: some View {
         NavigationStack {
             LabForm {
-                TextField("Сума, віртуальні ₴", value: $amount, format: .number).keyboardType(.decimalPad)
+                TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
                 if let error { Text(error).foregroundStyle(.secondary) }
             }
             .labForm()

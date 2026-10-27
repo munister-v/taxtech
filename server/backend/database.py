@@ -148,6 +148,31 @@ def init_db() -> None:
         schema_sql = Path(SCHEMA_PATH).read_text(encoding='utf-8')
         with get_connection_sqlite() as conn:
             conn.executescript(schema_sql)
+    _currency_to_tax()
+
+
+def _currency_to_tax() -> None:
+    """Валюта пісочниці - токен TAX: старі записи з VUAH чи UAH переводимо (ідемпотентно)."""
+    tables = ('accounts', 'journal_entries', 'payment_orders', 'marketplace_products', 'marketplace_orders',
+              'marketplace_invoices', 'marketplace_payment_authorizations')
+    with get_connection() as conn:
+        conn.execute("UPDATE transactions SET description = replace(description, ' (віртуальні гривні)', '') "
+                     "WHERE description LIKE '%(віртуальні гривні)%'")
+        conn.execute("UPDATE transactions SET related_account = 'TAXTECH-MARKET' WHERE related_account = 'ARM-MARKETPLACE'")
+        conn.execute("UPDATE cards SET holder_name = 'TAXTECH' WHERE holder_name = 'KOPIYKA SANDBOX'")
+        try:
+            conn.execute("UPDATE marketplace_products SET description = replace(replace(description, 'ARM Bank', 'TaxTech'), ' ARM ', ' TaxTech ') "
+                         "WHERE description LIKE '%ARM%'")
+        except Exception:
+            if USE_PG:
+                conn.rollback()
+        for t in tables:
+            try:
+                conn.execute(f"UPDATE {t} SET currency = 'TAX' WHERE currency IN ('VUAH', 'UAH')")
+            except Exception:
+                # таблиці магазину створюються пізніше, при першому зверненні
+                if USE_PG:
+                    conn.rollback()
 
 
 def get_returning_id_suffix() -> str:

@@ -46,7 +46,7 @@ struct ReceiptView: View {
                 if fields != nil, let record {
                     Section("Розпізнано") {
                         TextField("Де", text: binding(\.merchant))
-                        TextField("Сума, ₴", value: binding(\.total), format: .number).keyboardType(.decimalPad)
+                        TextField("Сума, TAX", value: binding(\.total), format: .number).keyboardType(.decimalPad)
                         Picker("Категорія", selection: binding(\.category)) {
                             ForEach(AddExpenseView.categories, id: \.self, content: Text.init)
                         }
@@ -62,8 +62,6 @@ struct ReceiptView: View {
                     Section {
                         Button("Зберегти витрату") { save() }
                             .disabled((fields?.total ?? 0) <= 0)
-                    } footer: {
-                        Text("Якщо ви виправили суму, метод зарахує це як помилку і наступного разу буде обережнішим.")
                     }
                 }
             }

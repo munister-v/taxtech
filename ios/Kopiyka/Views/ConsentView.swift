@@ -68,7 +68,7 @@ struct ConsentView: View {
             Spacer(minLength: 0)
             MarkView(height: 150)
             Text(Brand.name)
-                .font(.system(size: 64, weight: .semibold))
+                .font(Theme.display(48, .bold))
                 .tracking(-2)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
@@ -175,7 +175,7 @@ private struct Slide<Content: View>: View {
 private extension View {
     /// Великий заголовок сторінки.
     func headline1() -> some View {
-        font(.system(size: 46, weight: .semibold))
+        font(Theme.display(34))
             .tracking(-1.2)
             .minimumScaleFactor(0.7)
             .fixedSize(horizontal: false, vertical: true)

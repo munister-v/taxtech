@@ -1,7 +1,7 @@
-"""Credit Service — навчальні споживчі кредити пісочниці Kopiyka (віртуальні гривні).
+"""Credit Service — навчальні споживчі кредити пісочниці Kopiyka (токени TAX).
 
 Логіка:
-  - Клієнт оформлює кредит: сума (1000–500000 VUAH), строк (3/6/12/24/36 міс)
+  - Клієнт оформлює кредит: сума (1000–500000 TAX), строк (3/6/12/24/36 міс)
   - Зараховуємо суму на рахунок одразу
   - Щомісячний платіж — ануїтет: principal * r * (1+r)^n / ((1+r)^n - 1)
   - Balance remaining зберігає повну суму до сплати за графіком, а не лише тіло кредиту
@@ -99,7 +99,7 @@ class CreditService:
     ) -> dict:
         self._ensure_schema()
         if amount < MIN_AMOUNT or amount > MAX_AMOUNT:
-            raise ValueError(f'Сума кредиту: від VUAH {MIN_AMOUNT:,.0f} до VUAH {MAX_AMOUNT:,.0f}.')
+            raise ValueError(f'Сума кредиту: від {MIN_AMOUNT:,.0f} TAX до {MAX_AMOUNT:,.0f} TAX.')
         if term_months not in RATES:
             raise ValueError(f'Доступні строки: {list(RATES.keys())} місяців.')
 

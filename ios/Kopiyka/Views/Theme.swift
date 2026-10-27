@@ -6,11 +6,13 @@ enum Brand {
     static let lab = "Віртуальна лабораторія цифрових фінансів і технологій розподіленого реєстру"
 }
 
-/// Візуальна мова: чорне на білому, без градієнтів і кольорових плашок. Плоскі поверхні,
-/// тонкі лінії, щільна типографіка, цифри - моноширинні. Різницю між елементами дають
-/// насиченість сірого, розмір і вага шрифту, а не колір.
+/// Візуальна мова TaxTech: чорне тло й теплий папір, один сигнальний жовтий - колір токена TAX.
+/// Гострі кути, широкий Unbounded у заголовках і сумах, моноширинний шрифт у реквізитах і хешах.
+/// Без градієнтів: різницю дають площини кольору, вага шрифту й лінії.
 enum Theme {
-    static let corner: CGFloat = 16
+    /// Кути - майже прямі: 6 для плиток і кнопок, 10 для великих панелей.
+    static let corner: CGFloat = 6
+    static let cornerLarge: CGFloat = 10
     static let gutter: CGFloat = 16
     static let hairline: CGFloat = 0.5
 
@@ -18,19 +20,27 @@ enum Theme {
         Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: dark) : UIColor(hex: light) })
     }
 
-    static let bg = dynamic(light: 0xFFFFFF, dark: 0x000000)
-    static let surface = dynamic(light: 0xF4F4F5, dark: 0x121214)
-    static let line = dynamic(light: 0xE2E2E5, dark: 0x2A2A2E)
-    static let ink = dynamic(light: 0x000000, dark: 0xFFFFFF)
-    /// Текст на чорній (у темній темі - білій) заливці.
-    static let onInk = dynamic(light: 0xFFFFFF, dark: 0x000000)
+    static let bg = dynamic(light: 0xF4F1EA, dark: 0x0E0E0C)
+    static let surface = dynamic(light: 0xFFFFFF, dark: 0x1A1A17)
+    static let line = dynamic(light: 0xDDD8CC, dark: 0x2F2E29)
+    static let ink = dynamic(light: 0x0E0E0C, dark: 0xF4F1EA)
+    /// Текст на заливці кольору тексту.
+    static let onInk = dynamic(light: 0xF4F1EA, dark: 0x0E0E0C)
+    /// Сигнальний жовтий - колір токена TAX: головні панелі, кнопки, вибране.
+    static let accent = Color(UIColor(hex: 0xFFD400))
+    /// Текст на жовтому - завжди чорний.
+    static let onAccent = Color(UIColor(hex: 0x0E0E0C))
+    /// Колір вибраного там, де жовтий на папері не читається (вкладки, перемикачі).
+    static let tint = dynamic(light: 0x0E0E0C, dark: 0xFFD400)
 
-    static func balance(_ size: CGFloat = 46) -> Font {
-        .system(size: size, weight: .semibold)
+    /// Unbounded - широкий шрифт заголовків і сум.
+    static func display(_ size: CGFloat, _ weight: Font.Weight = .semibold) -> Font {
+        .custom("Unbounded", size: size).weight(weight)
     }
 
-    /// Відтінок за місцем у переліку: найбільша категорія найтемніша. Кільце й смуги рядків
-    /// мають однаковий відтінок, тож легенда не потрібна.
+    static func balance(_ size: CGFloat = 46) -> Font { display(size, .semibold) }
+
+    /// Відтінок за місцем у переліку: найбільша категорія найтемніша.
     static func shade(_ rank: Int) -> Color {
         ink.opacity(max(0.14, 1 - 0.17 * Double(rank)))
     }
@@ -89,8 +99,8 @@ struct MarkView: View {
 extension View {
     /// Мала підпис-мітка над блоком: капітель, розряджений набір.
     func caption() -> some View {
-        font(.caption.weight(.medium))
-            .tracking(0.9)
+        font(.system(size: 11, weight: .semibold, design: .monospaced))
+            .tracking(0.8)
             .textCase(.uppercase)
             .foregroundStyle(.secondary)
     }
@@ -143,11 +153,11 @@ struct InkButton: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.body.weight(.semibold))
-            .foregroundStyle(Theme.onInk)
+            .font(Theme.display(14, .medium))
+            .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 15)
-            .background(Theme.ink, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+            .padding(.vertical, 16)
+            .background(Theme.accent, in: .rect(cornerRadius: Theme.corner))
             .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.35)
     }
 }
@@ -156,12 +166,12 @@ struct InkButton: ButtonStyle {
 struct LineButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.body.weight(.medium))
+            .font(Theme.display(14, .medium))
             .foregroundStyle(Theme.ink)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
-                .strokeBorder(Theme.ink.opacity(0.9), lineWidth: 1))
+            .padding(.vertical, 15)
+            .overlay(RoundedRectangle(cornerRadius: Theme.corner)
+                .strokeBorder(Theme.ink, lineWidth: 1.5))
             .opacity(configuration.isPressed ? 0.6 : 1)
     }
 }
@@ -243,7 +253,7 @@ enum CardDesign: String, CaseIterable, Identifiable {
         case .slate: "Графіт"
         case .navy: "Сталь"
         case .forest: "Попіл"
-        case .gold: "Папір"
+        case .gold: "Сигнал"
         case .rose: "Контур"
         }
     }
@@ -254,7 +264,7 @@ enum CardDesign: String, CaseIterable, Identifiable {
         case .slate: Color(white: 0.17)
         case .navy: Color(white: 0.56)
         case .forest: Color(white: 0.85)
-        case .gold: Color(white: 1)
+        case .gold: Theme.accent
         case .rose: .clear
         }
     }
@@ -271,7 +281,6 @@ enum CardDesign: String, CaseIterable, Identifiable {
     var border: Color? {
         switch self {
         case .dark: Color.white.opacity(0.25)
-        case .gold: Color.black.opacity(0.18)
         case .rose: Theme.ink
         default: nil
         }
@@ -307,7 +316,7 @@ struct VirtualCardView: View {
         .clipShape(.rect(cornerRadius: corner, style: .continuous))
     }
 
-    private var corner: CGFloat { compact ? 8 : 18 }
+    private var corner: CGFloat { compact ? 5 : 12 }
 
     private var watermark: some View {
         GeometryReader { g in

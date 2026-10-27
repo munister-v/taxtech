@@ -84,6 +84,8 @@ struct API: Sendable {
         let relatedAccount: String?
         let createdAt: String
         let note: String?
+        /// Хеш запису: ланка хеш-ланцюга рахунку або відбиток полів операції.
+        let hash: String?
 
         var isIncome: Bool { direction == "in" }
         /// Сервер пише час у UTC без зони: «2026-10-26 06:48:41».

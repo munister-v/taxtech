@@ -11,7 +11,7 @@
   GET  /api/transactions/export     — CSV-виписка
   GET  /api/analytics/*             — аналітика витрат
 
-Усі суми — віртуальні гривні (VUAH) навчальної пісочниці, не справжні гроші.
+Усі суми — токени TAX навчальної пісочниці, не справжні гроші.
 
 Грошові операції (topup, transfer) захищені:
   - rate_limit: не більше N операцій за вікно (захист від flood)
@@ -204,7 +204,7 @@ def topup():
     key_func=lambda: actor_rate_key('money:transfer'),
 )
 def transfer():
-    """POST /api/transactions/transfer — переказ на інший рахунок пісочниці (віртуальні гривні).
+    """POST /api/transactions/transfer — переказ на інший рахунок пісочниці (токени TAX).
 
     Body:
       amount                 (float) — сума переказу
@@ -311,6 +311,9 @@ def history():
             min_amount=min_amount,
             max_amount=max_amount,
         )
+        from ..services.integrity_service import IntegrityService
+        hashes = IntegrityService().hashes_for([dict(t) for t in data])
+        data = [{**dict(t), 'hash': hashes.get(int(t['id']))} for t in data]
         return jsonify({'ok': True, 'data': data})
     except Exception as exc:
         return api_error(str(exc))

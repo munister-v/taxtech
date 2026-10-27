@@ -25,7 +25,7 @@ struct CardsTab: View {
                     if loaded && cards.isEmpty {
                         VStack(spacing: 14) {
                             VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil, design: .rose)
-                            Text("Карток ще немає. Випустіть віртуальну картку - це безкоштовно.")
+                            Text("Карток ще немає.")
                                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
                         }
                     } else {
@@ -78,14 +78,14 @@ struct CardsTab: View {
     // MARK: Шапка і стрічка
 
     private var header: some View {
-        ScreenTitle(title: "Мої картки", subtitle: "Віртуальні картки") {
+        ScreenTitle(title: "Картки") {
             Button { issuing = true } label: {
                 Label("Випустити", systemImage: "plus")
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(Theme.ink, in: .rect(cornerRadius: 13, style: .continuous))
-                    .foregroundStyle(Theme.onInk)
+                    .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                    .foregroundStyle(Theme.onAccent)
             }
             .buttonStyle(PressScale())
         }
@@ -148,7 +148,7 @@ struct CardsTab: View {
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Баланс картки").caption()
-                    BigAmount(value: c.displayBalance ?? 0, size: 30)
+                    BigAmount(value: c.displayBalance ?? 0, size: 28)
                     HStack(spacing: 10) {
                         Button("Поповнити") { topping = c }.buttonStyle(InkButton())
                         if !c.isPrimary {
@@ -165,7 +165,7 @@ struct CardsTab: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Активність рахунку за місяць").caption()
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            BigAmount(value: monthOut, size: 26)
+                            BigAmount(value: monthOut, size: 24)
                             Text("витрат").font(.footnote).foregroundStyle(.secondary)
                         }
                     }
@@ -188,8 +188,6 @@ struct CardsTab: View {
                     .buttonStyle(LineButton())
                 Button("Закрити") { confirmClose = true }.buttonStyle(LineButton())
             }
-            Text("Реквізити віртуальні: з ними не можна заплатити поза навчальним банком.")
-                .font(.footnote).foregroundStyle(.secondary)
         }
         .disabled(screen.busy)
     }
@@ -225,7 +223,7 @@ struct TileLabel: View {
             Image(systemName: symbol)
                 .font(.system(size: 17, weight: .medium))
                 .frame(width: 42, height: 42)
-                .background(Theme.ink, in: .rect(cornerRadius: 12, style: .continuous))
+                .background(Theme.ink, in: .rect(cornerRadius: Theme.corner, style: .continuous))
                 .foregroundStyle(Theme.onInk)
             Spacer(minLength: 18)
             Text(title).font(.subheadline.weight(.semibold))

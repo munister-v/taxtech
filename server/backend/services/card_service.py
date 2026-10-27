@@ -268,11 +268,11 @@ class CardService:
             )
 
         self.features.add_audit_log(user_id, 'card_topup',
-            f'Поповнено картку {self._mask(card["card_number"])} на {amount:.2f} VUAH.')
+            f'Поповнено картку {self._mask(card["card_number"])} на {amount:.2f} TAX.')
         try:
             self.features.create_notification(user_id, 'card_topup',
                 'Картку поповнено',
-                f'Картку •••• {card["card_number"][-4:]} поповнено на {amount:.2f} VUAH.', '💳')
+                f'Картку •••• {card["card_number"][-4:]} поповнено на {amount:.2f} TAX.', '💳')
         except Exception:
             pass
 
