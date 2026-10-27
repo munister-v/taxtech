@@ -335,22 +335,32 @@ class AccountRepository(BaseRepository):
                   AND created_at >= {cur_month_sql}
             ''', (account_id,)).fetchone()
 
-            days_uk = ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+            days_uk = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', 'пʼятниця', 'субота']
+
+            def money(v: float, digits: int = 2) -> str:
+                return f"{v:,.{digits}f}".replace(',', '\u00a0').replace('.', ',')
+
+            def ops(n: int) -> str:
+                tail = n % 100
+                if 11 <= tail <= 14:
+                    return f"{n} операцій"
+                return f"{n} " + {1: 'операція', 2: 'операції', 3: 'операції', 4: 'операції'}.get(n % 10, 'операцій')
 
             insights = []
             if biggest:
-                insights.append({'icon': '💸', 'text': f"Найбільша витрата цього місяця: {biggest['description']} ({float(biggest['amount']):.2f} TAX)"})
+                insights.append({'icon': '💸', 'text': f"Найбільша витрата цього місяця: {biggest['description']} ({money(float(biggest['amount']))} TAX)"})
             if active_day:
                 dow = int(active_day['dow'])
-                insights.append({'icon': '📅', 'text': f"Найактивніший день: {days_uk[dow]} ({int(active_day['cnt'])} операцій за 30 днів)"})
+                insights.append({'icon': '📅', 'text': f"Найактивніший день — {days_uk[dow]}: {ops(int(active_day['cnt']))} за 30 днів"})
             if avg_tx and avg_tx['total'] > 0:
-                insights.append({'icon': '📊', 'text': f"Середня операція цього місяця: {float(avg_tx['avg_amount']):.2f} TAX (всього {int(avg_tx['total'])} операцій)"})
+                insights.append({'icon': '📊', 'text': f"Середня операція цього місяця: {money(float(avg_tx['avg_amount']))} TAX, усього {ops(int(avg_tx['total']))}"})
             if rates:
                 tin, tout = float(rates['total_in']), float(rates['total_out'])
                 if tin > 0:
                     savings_rate = round((tin - tout) / tin * 100, 1)
+                    shown = f"{savings_rate:.0f}" if savings_rate == int(savings_rate) else f"{savings_rate:.1f}".replace('.', ',')
                     emoji = '🟢' if savings_rate > 20 else ('🟡' if savings_rate > 0 else '🔴')
-                    insights.append({'icon': emoji, 'text': f"Норма заощадження: {savings_rate}% (прихід {tin:.0f} TAX, витрати {tout:.0f} TAX)"})
+                    insights.append({'icon': emoji, 'text': f"Норма заощадження: {shown}%, надходження {money(tin, 0)} TAX, витрати {money(tout, 0)} TAX"})
 
             return {'insights': insights}
 
