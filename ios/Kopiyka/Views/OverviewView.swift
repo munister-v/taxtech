@@ -21,7 +21,7 @@ struct OverviewView: View {
     let open: (RootView.AppTab) -> Void
 
     enum Sheet: String, Identifiable {
-        case topUp, byCard, byAccount, assistant
+        case topUp, byCard, byAccount
         var id: String { rawValue }
     }
 
@@ -38,7 +38,7 @@ struct OverviewView: View {
                         products
                         taxes
                         if !hits.isEmpty { shop }
-                        if points.count > 1 { dynamics }
+                        if Set(points.map(\.balance)).count > 1 { dynamics }
                         if !recipients.isEmpty { frequent }
                         recent
                     }
@@ -60,7 +60,6 @@ struct OverviewView: View {
                 case .topUp: TopUpView { await load() }
                 case .byCard: TransferView(balance: bank.account?.balance ?? 0, startByCard: true) { await load() }
                 case .byAccount: TransferView(balance: bank.account?.balance ?? 0, startRecipient: prefill) { await load() }
-                case .assistant: AssistantView()
                 }
             }
             .sheet(isPresented: $showProfile) { ProfileView().presentationDragIndicator(.visible) }
@@ -88,38 +87,20 @@ struct OverviewView: View {
     // MARK: Шапка
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 10) {
-                MarkView(height: 28, color: Theme.accent)
-                Text("TaxTech").font(.system(size: 22, weight: .bold)).tracking(-0.4)
-                Spacer()
-                RoundIcon(symbol: "text.bubble") { sheet = .assistant }
-                    .accessibilityLabel("Помічник")
-                NavigationLink { NoticesView() } label: {
-                    RoundGlyph(symbol: unread > 0 ? "bell.badge" : "bell")
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
-                Button { showProfile = true } label: { Initials(name: me?.fullName ?? "", size: 40) }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Профіль")
+        HStack(spacing: 8) {
+            MarkView(height: 22, color: Theme.accent)
+            Text("TaxTech").font(.system(size: 20, weight: .bold)).tracking(-0.3)
+            Spacer()
+            NavigationLink { NoticesView() } label: {
+                RoundGlyph(symbol: unread > 0 ? "bell.badge" : "bell")
             }
-            Text("\(Self.greeting), \(me.map { $0.fullName.split(separator: " ").first.map(String.init) ?? $0.fullName } ?? "")")
-                .font(.system(size: 28, weight: .bold))
-                .tracking(-0.5)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            .buttonStyle(.plain)
+            .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
+            Button { showProfile = true } label: { Initials(name: me?.fullName ?? "", size: 34) }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Профіль")
         }
         .padding(.top, 8)
-    }
-
-    static var greeting: String {
-        switch Calendar.current.component(.hour, from: .now) {
-        case 5..<12: "Доброго ранку"
-        case 12..<18: "Добрий день"
-        case 18..<23: "Добрий вечір"
-        default: "Доброї ночі"
-        }
     }
 
     // MARK: Баланс
@@ -155,8 +136,8 @@ struct OverviewView: View {
                 .foregroundStyle(Theme.onAccent.opacity(0.6))
                 .padding(.top, 4)
             }
-            if points.count > 1 { spark.padding(.top, 14) }
-            if let s = summary {
+            if Set(points.map(\.balance)).count > 1 { spark.padding(.top, 14) }
+            if let s = summary, s.currentMonth.totalIn > 0 || s.currentMonth.totalOut > 0 {
                 HStack(spacing: 10) {
                     flow("arrow.down.left", "+" + Format.money(s.currentMonth.totalIn), "Надійшло")
                     flow("arrow.up.right", "−" + Format.money(s.currentMonth.totalOut), "Витрачено")
@@ -530,15 +511,16 @@ struct Initials: View {
     }
 }
 
+/// Значок дії в шапці: без підкладки, лише гліф і зона дотику.
 struct RoundGlyph: View {
     let symbol: String
 
     var body: some View {
         Image(systemName: symbol)
-            .font(.system(size: 16, weight: .medium))
-            .frame(width: 40, height: 40)
-            .background(Theme.surface, in: .circle)
+            .font(.system(size: 19, weight: .regular))
+            .frame(width: 36, height: 36)
             .foregroundStyle(Theme.ink)
+            .contentShape(.rect)
     }
 }
 
