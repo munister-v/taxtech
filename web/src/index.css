@@ -1,16 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  
-  /* Deep, sophisticated palette — harmonized with ARM Bank */
-  --color-black: #292929;       /* bank --mono-ink / dark sidebar green */
-  --color-brand-light: #434343; /* bank --mono-blue-top */
-  --color-accent: #7d7d7d;      /* gold accent — unchanged */
-  --color-surface: #f4f4f4;     /* warm sage-white, matches bank body tones */
-  --color-muted: #777777;       /* bank --mono-muted */
+  /* Системний шрифт без мережевого запиту: швидший старт, нативний вигляд на кожній ОС */
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+
+  --color-black: #292929;
+  --color-brand-light: #434343;
+  --color-accent: #7d7d7d;
+  --color-surface: #f4f4f4;
+  --color-muted: #777777;
+
+  --breakpoint-3xl: 112rem;
+}
+
+/* ── Токени десктопного інтерфейсу ─────────────────────────────────────── */
+:root {
+  --kp-yellow: #ffd400;
+  --kp-ink: #f4f4f5;
+  --kp-ink-2: #d4d4d8;
+  --kp-muted: rgba(212, 212, 216, 0.64);
+  --kp-dim: rgba(212, 212, 216, 0.42);
+  --kp-line: rgba(255, 255, 255, 0.075);
+  --kp-line-2: rgba(255, 255, 255, 0.14);
+  --kp-fill: rgba(255, 255, 255, 0.04);
+  --kp-fill-2: rgba(255, 255, 255, 0.075);
+  --kp-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --kp-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 @layer base {
@@ -22,48 +38,180 @@
   }
 
   body {
-    @apply bg-surface text-black antialiased selection:bg-accent selection:text-white;
+    @apply antialiased;
+    background: #0b0b0c;
+    color: var(--kp-ink-2);
   }
-  
-  /* Smooth ambient veil. The old SVG noise read as grain on mobile OLED screens. */
-  body::after {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background:
-      rgba(221,221,221, 0.035);
-    pointer-events: none;
-    z-index: 9999;
+
+  ::selection {
+    background: rgba(255, 212, 0, 0.9);
+    color: #161616;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-black uppercase tracking-tighter;
+
+  /* Помітний фокус із клавіатури: раніше його не було зовсім */
+  :focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  input:focus-visible,
+  textarea:focus-visible {
+    outline-offset: 0;
   }
 }
 
 @layer components {
-  .u24-border {
-    @apply border-2 border-black;
-  }
-  
-  .u24-button {
-    @apply px-8 py-4 bg-black text-white font-black uppercase tracking-widest text-xs transition-all duration-300 hover:bg-accent hover:text-white hover:shadow-[4px_4px_0px_0px_#3c3c3c] hover:-translate-y-1 hover:-translate-x-1 border-2 border-black active:translate-y-0 active:translate-x-0 active:shadow-none flex items-center justify-center gap-3;
-  }
-
-  .u24-button-outline {
-    @apply px-8 py-4 bg-transparent text-black font-black uppercase tracking-widest text-xs transition-all duration-300 hover:bg-black hover:text-white hover:shadow-[4px_4px_0px_0px_#7d7d7d] hover:-translate-y-1 hover:-translate-x-1 border-2 border-black active:translate-y-0 active:translate-x-0 active:shadow-none flex items-center justify-center gap-3;
-  }
-  
-  .u24-card {
-    @apply border-2 border-black bg-surface transition-all duration-500 hover:shadow-[8px_8px_0px_0px_#292929] hover:-translate-y-1 hover:-translate-x-1 flex flex-col relative overflow-hidden;
+  /* Тло сцени: тихе холодне сяйво зверху й знизу, без кольорових плям */
+  .kp-stage {
+    background:
+      radial-gradient(1100px 520px at 72% -8%, rgba(255, 255, 255, 0.06), transparent 62%),
+      radial-gradient(800px 480px at -4% 104%, rgba(255, 255, 255, 0.035), transparent 60%),
+      #0b0b0c;
   }
 
-  /* Warm muted text helper */
-  .text-muted {
-    color: var(--color-muted);
+  /* Панель: плоска поверхня з тонким світловим краєм */
+  .kp-card {
+    position: relative;
+    border-radius: 24px;
+    border: 1px solid var(--kp-line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.022));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 28px 56px -32px rgba(0, 0, 0, 0.75);
+    transition: border-color 0.25s var(--kp-ease), background 0.25s var(--kp-ease);
+  }
+  .kp-card:hover {
+    border-color: var(--kp-line-2);
+  }
+  .kp-card-flat {
+    border-radius: 20px;
+    border: 1px solid var(--kp-line);
+    background: var(--kp-fill);
   }
 
-  /* Scrolling ticker animation */
+  /* Інтерактивні поверхні: у інлайн-стилів немає :hover, тому класи */
+  .kp-hover {
+    transition: background 0.18s var(--kp-ease), color 0.18s var(--kp-ease), border-color 0.18s var(--kp-ease), transform 0.18s var(--kp-ease);
+    cursor: pointer;
+  }
+  .kp-hover:hover {
+    background: var(--kp-fill-2);
+  }
+  .kp-hover:active {
+    transform: scale(0.985);
+  }
+  .kp-nav {
+    transition: background 0.18s var(--kp-ease), color 0.18s var(--kp-ease);
+  }
+  .kp-nav:hover {
+    background: var(--kp-fill);
+    color: var(--kp-ink);
+  }
+  .kp-row {
+    transition: background 0.15s var(--kp-ease);
+  }
+  .kp-row:hover {
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .kp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+    border: 1px solid var(--kp-line-2);
+    background: var(--kp-fill);
+    color: var(--kp-ink);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.18s var(--kp-ease), border-color 0.18s var(--kp-ease), transform 0.18s var(--kp-ease), box-shadow 0.18s var(--kp-ease);
+  }
+  .kp-btn:hover {
+    background: var(--kp-fill-2);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .kp-btn:active {
+    transform: scale(0.97);
+  }
+  .kp-btn-primary {
+    background: var(--kp-yellow);
+    border-color: transparent;
+    color: #17140a;
+    box-shadow: 0 10px 28px -12px rgba(255, 212, 0, 0.55);
+  }
+  .kp-btn-primary:hover {
+    background: #ffdf33;
+    border-color: transparent;
+    box-shadow: 0 14px 34px -12px rgba(255, 212, 0, 0.7);
+  }
+
+  .kp-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 7px;
+    border: 1px solid var(--kp-line-2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--kp-muted);
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  /* Поява блоків каскадом */
+  @keyframes kp-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .kp-rise {
+    animation: kp-rise 0.55s var(--kp-ease) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+  @keyframes kp-pop {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .kp-pop {
+    animation: kp-pop 0.2s var(--kp-ease) both;
+  }
+  @keyframes kp-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .kp-fade {
+    animation: kp-fade 0.2s ease both;
+  }
+
+  /* Скелетон замість напису «Завантаження» */
+  @keyframes kp-shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+  .kp-skel {
+    border-radius: 12px;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0.04) 30%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 70%);
+    background-size: 200% 100%;
+    animation: kp-shimmer 1.6s linear infinite;
+  }
+
+  /* Графік: лінія відкривається зліва направо */
+  @keyframes kp-wipe {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0 0 0 0); }
+  }
+  .kp-wipe {
+    animation: kp-wipe 1.1s var(--kp-ease) both;
+  }
+
+  /* Лише для старих класів, що лишилися в застосунку */
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -71,31 +219,48 @@
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
-  .animate-ticker {
-    animation: ticker 22s linear infinite;
-  }
+  .animate-ticker { animation: ticker 22s linear infinite; }
   .animate-ticker:hover { animation-play-state: paused; }
 
-  /* Pulse glow for online indicator */
   @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(125,125,125, .5); }
-    50%       { box-shadow: 0 0 0 6px rgba(125,125,125, 0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(125, 125, 125, 0.5); }
+    50%      { box-shadow: 0 0 0 6px rgba(125, 125, 125, 0); }
   }
   .animate-glow { animation: glow-pulse 2s ease-in-out infinite; }
 
-  /* Custom Scrollbar for a polished look */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  /* Смуга прокрутки в тон темі: раніше вона була світлою на темному тлі */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
   }
-  ::-webkit-scrollbar-track {
-    @apply bg-surface border-l-2 border-black;
-  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    @apply bg-black border-2 border-surface;
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-accent;
+    background: rgba(255, 255, 255, 0.3);
+    background-clip: content-box;
+    border: 3px solid transparent;
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.kp-slot:empty { display: none; }
+
+/* Вкладене скло в панелях: розмиття ззаду дає артефакти всередині анімованих блоків */
+.kp-card [style*="backdrop-filter"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

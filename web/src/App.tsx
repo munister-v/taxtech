@@ -76,7 +76,21 @@ const T = {
 };
 
 // ─── Liquid glass card ────────────────────────────────────────
-const glassCard = (extra?: React.CSSProperties): React.CSSProperties => ({
+const glassCard = (extra?: React.CSSProperties): React.CSSProperties => {
+  if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+    // Десктоп: та сама плоска поверхня, що й `.kp-card`; фон і тінь із виклику ігноруються
+    const { background: _bg, boxShadow: _sh, backdropFilter: _bf, WebkitBackdropFilter: _wbf, ...rest } = extra || {};
+    return {
+      background: 'linear-gradient(180deg, rgba(255,255,255, 0.052), rgba(255,255,255, 0.022))',
+      border: '1px solid rgba(255,255,255, 0.075)',
+      borderRadius: radius.xl,
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.05), 0 28px 56px -32px rgba(0,0,0, 0.75)',
+      ...rest,
+    };
+  }
+  return glassCardMobile(extra);
+};
+const glassCardMobile = (extra?: React.CSSProperties): React.CSSProperties => ({
   background: 'rgba(255,255,255, 0.055)',
   backdropFilter: 'blur(24px)',
   WebkitBackdropFilter: 'blur(24px)',
@@ -120,6 +134,9 @@ function BrandMark({
 const sectionLabel: React.CSSProperties = {
   ...T.caption, color: text.dim, padding: '0 6px 10px',
 };
+
+// Заголовок панелі на десктопі
+const dkTitle: React.CSSProperties = { ...T.h3, fontSize: 18, color: text.primary };
 
 // ─── Layout context ───────────────────────────────────────────
 const LayoutCtx = createContext<'mobile' | 'desktop'>('mobile');
@@ -634,6 +651,39 @@ const translations = {
     sort_newest: 'Нові',
     sort_oldest: 'Старі',
     sort_amount: 'Сума',
+    dk_search: 'Пошук і команди',
+    dk_search_ph: 'Знайти сторінку, дію чи операцію…',
+    dk_group_go: 'Перейти',
+    dk_group_actions: 'Дії',
+    dk_group_tx: 'Операції',
+    dk_no_results: 'Нічого не знайдено',
+    dk_collapse: 'Згорнути меню',
+    dk_expand: 'Розгорнути меню',
+    dk_copy_account: 'Скопіювати номер рахунку',
+    dk_copied: 'Номер рахунку скопійовано',
+    dk_days_short: 'д',
+    dk_this_month: 'за місяць',
+    dk_hide_balance: 'Сховати баланс',
+    dk_show_balance: 'Показати баланс',
+    dk_total: 'Разом',
+    dk_to_navigate: 'навігація',
+    dk_to_open: 'відкрити',
+    dk_to_close: 'закрити',
+    dk_menu: 'Меню',
+    dk_history_chart: 'Динаміка балансу',
+    dk_open: 'Відкрити',
+    dk_cat_payment: 'Оплати',
+    dk_cat_savings: 'Накопичення',
+    dk_cat_marketplace: 'Магазин',
+    dk_cat_marketplace_invoice: 'Рахунки магазину',
+    dk_cat_donation: 'Донати',
+    dk_cat_credit: 'Кредити',
+    dk_cat_topup: 'Поповнення',
+    dk_cat_other: 'Інше',
+    dk_login_title: 'Навчальний банк для віртуальних фінансів',
+    dk_login_p1: 'Картки, перекази й депозити — на токенах TAX',
+    dk_login_p2: 'Антифрод і 3-D Secure, як у справжньому банку',
+    dk_login_p3: 'Жодних реальних грошей: усе для навчання й досліджень',
   },
   en: {
     user_fallback: 'User',
@@ -896,6 +946,39 @@ const translations = {
     sort_newest: 'Newest',
     sort_oldest: 'Oldest',
     sort_amount: 'Amount',
+    dk_search: 'Search and commands',
+    dk_search_ph: 'Find a page, action or transaction…',
+    dk_group_go: 'Go to',
+    dk_group_actions: 'Actions',
+    dk_group_tx: 'Transactions',
+    dk_no_results: 'Nothing found',
+    dk_collapse: 'Collapse menu',
+    dk_expand: 'Expand menu',
+    dk_copy_account: 'Copy account number',
+    dk_copied: 'Account number copied',
+    dk_days_short: 'd',
+    dk_this_month: 'this month',
+    dk_hide_balance: 'Hide balance',
+    dk_show_balance: 'Show balance',
+    dk_total: 'Total',
+    dk_to_navigate: 'navigate',
+    dk_to_open: 'open',
+    dk_to_close: 'close',
+    dk_menu: 'Menu',
+    dk_history_chart: 'Balance trend',
+    dk_open: 'Open',
+    dk_cat_payment: 'Payments',
+    dk_cat_savings: 'Savings',
+    dk_cat_marketplace: 'Shop',
+    dk_cat_marketplace_invoice: 'Shop invoices',
+    dk_cat_donation: 'Donations',
+    dk_cat_credit: 'Credits',
+    dk_cat_topup: 'Top-ups',
+    dk_cat_other: 'Other',
+    dk_login_title: 'A learning bank for virtual finance',
+    dk_login_p1: 'Cards, transfers and deposits — in TAX tokens',
+    dk_login_p2: 'Anti-fraud and 3-D Secure, like a real bank',
+    dk_login_p3: 'No real money: everything is for study and research',
   },
   it: {
     user_fallback: 'Utente',
@@ -1158,6 +1241,39 @@ const translations = {
     sort_newest: 'Nuovi',
     sort_oldest: 'Vecchi',
     sort_amount: 'Importo',
+    dk_search: 'Cerca e comandi',
+    dk_search_ph: 'Trova una pagina, un’azione o un’operazione…',
+    dk_group_go: 'Vai a',
+    dk_group_actions: 'Azioni',
+    dk_group_tx: 'Operazioni',
+    dk_no_results: 'Nessun risultato',
+    dk_collapse: 'Comprimi il menu',
+    dk_expand: 'Espandi il menu',
+    dk_copy_account: 'Copia il numero del conto',
+    dk_copied: 'Numero del conto copiato',
+    dk_days_short: 'g',
+    dk_this_month: 'questo mese',
+    dk_hide_balance: 'Nascondi il saldo',
+    dk_show_balance: 'Mostra il saldo',
+    dk_total: 'Totale',
+    dk_to_navigate: 'navigare',
+    dk_to_open: 'aprire',
+    dk_to_close: 'chiudere',
+    dk_menu: 'Menu',
+    dk_history_chart: 'Andamento del saldo',
+    dk_open: 'Apri',
+    dk_cat_payment: 'Pagamenti',
+    dk_cat_savings: 'Risparmi',
+    dk_cat_marketplace: 'Negozio',
+    dk_cat_marketplace_invoice: 'Fatture del negozio',
+    dk_cat_donation: 'Donazioni',
+    dk_cat_credit: 'Crediti',
+    dk_cat_topup: 'Ricariche',
+    dk_cat_other: 'Altro',
+    dk_login_title: 'Una banca didattica per la finanza virtuale',
+    dk_login_p1: 'Carte, bonifici e depositi — in token TAX',
+    dk_login_p2: 'Antifrode e 3-D Secure, come in una banca vera',
+    dk_login_p3: 'Nessun denaro reale: tutto per studio e ricerca',
   },
   es: {
     user_fallback: 'Usuario',
@@ -1420,6 +1536,39 @@ const translations = {
     sort_newest: 'Nuevos',
     sort_oldest: 'Antiguos',
     sort_amount: 'Monto',
+    dk_search: 'Buscar y comandos',
+    dk_search_ph: 'Busca una página, acción u operación…',
+    dk_group_go: 'Ir a',
+    dk_group_actions: 'Acciones',
+    dk_group_tx: 'Operaciones',
+    dk_no_results: 'Sin resultados',
+    dk_collapse: 'Contraer el menú',
+    dk_expand: 'Expandir el menú',
+    dk_copy_account: 'Copiar el número de cuenta',
+    dk_copied: 'Número de cuenta copiado',
+    dk_days_short: 'd',
+    dk_this_month: 'este mes',
+    dk_hide_balance: 'Ocultar saldo',
+    dk_show_balance: 'Mostrar saldo',
+    dk_total: 'Total',
+    dk_to_navigate: 'navegar',
+    dk_to_open: 'abrir',
+    dk_to_close: 'cerrar',
+    dk_menu: 'Menú',
+    dk_history_chart: 'Evolución del saldo',
+    dk_open: 'Abrir',
+    dk_cat_payment: 'Pagos',
+    dk_cat_savings: 'Ahorros',
+    dk_cat_marketplace: 'Tienda',
+    dk_cat_marketplace_invoice: 'Facturas de la tienda',
+    dk_cat_donation: 'Donaciones',
+    dk_cat_credit: 'Créditos',
+    dk_cat_topup: 'Recargas',
+    dk_cat_other: 'Otro',
+    dk_login_title: 'Un banco educativo para finanzas virtuales',
+    dk_login_p1: 'Tarjetas, transferencias y depósitos — en tokens TAX',
+    dk_login_p2: 'Antifraude y 3-D Secure, como en un banco real',
+    dk_login_p3: 'Sin dinero real: todo para estudio e investigación',
   },
 } as const;
 
@@ -2015,7 +2164,7 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
   const titleShadow = hasPhoto ? '0 1px 3px rgba(0,0,0, 0.62)' : '0 1px 1px rgba(0,0,0, 0.2)';
   return (
     <div style={{
-      position: 'relative', aspectRatio: '1.586 / 1', borderRadius: 22,
+      position: 'relative', aspectRatio: '1.586 / 1', borderRadius: 22, containerType: 'inline-size',
       background: v.bg,
       boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55), 0 6px 16px -8px rgba(0,0,0, 0.4), inset 0 1px 0 rgba(255,255,255, 0.18)',
       color: v.text, overflow: 'hidden',
@@ -2049,36 +2198,36 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
         <rect width="100%" height="100%" fill={`url(#${patId})`} />
       </svg>
       <div style={{ position: 'absolute', inset: 0, background: v.shimmer, pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', inset: 0, padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ position: 'absolute', inset: 0, padding: 'clamp(14px, 6.4cqw, 26px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span aria-hidden style={{ width: 24, height: 24, color: v.text, display: 'inline-grid' }} dangerouslySetInnerHTML={{ __html: markSvg.replace('<svg ', '<svg style="width:100%;height:100%" ') }} />
-            <span style={{ fontSize: 15, fontWeight: 500, letterSpacing: 0.5, textShadow: titleShadow }}>
+            <span aria-hidden style={{ width: 'clamp(20px, 7cqw, 30px)', height: 'clamp(20px, 7cqw, 30px)', color: v.text, display: 'inline-grid' }} dangerouslySetInnerHTML={{ __html: markSvg.replace('<svg ', '<svg style="width:100%;height:100%" ') }} />
+            <span style={{ fontSize: 'max(14px, 4.4cqw)', fontWeight: 500, letterSpacing: 0.5, textShadow: titleShadow }}>
               Tax<span style={{ fontWeight: 300 }}>Tech</span>
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
             {balance !== undefined && (
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 7, fontWeight: 500, letterSpacing: 1.2, color: v.muted, textTransform: 'uppercase', marginBottom: 1 }}>
+                <div style={{ fontSize: 'max(9.5px, 2.4cqw)', fontWeight: 500, letterSpacing: 1, color: v.muted, textTransform: 'uppercase', marginBottom: 1 }}>
                   {isPrimary ? 'БАЛАНС РАХУНКУ' : 'БАЛАНС КАРТКИ'}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: v.text, textShadow: titleShadow, letterSpacing: 0.3 }}>
+                <div style={{ fontSize: 'max(12px, 3.8cqw)', fontWeight: 700, color: v.text, textShadow: titleShadow, letterSpacing: 0.3 }}>
                   {balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TAX
                 </div>
               </div>
             )}
             <span style={{
-              fontSize: 9, fontWeight: 600, letterSpacing: 1.8, color: v.muted, textTransform: 'uppercase',
+              fontSize: 'max(10px, 2.6cqw)', fontWeight: 600, letterSpacing: 1.6, color: v.muted, textTransform: 'uppercase',
               padding: 0,
               background: 'transparent',
             }}>{type || tt.card_virtual}</span>
           </div>
         </div>
         <div style={{
-          fontFamily: '"SF Mono", monospace', fontSize: 20, fontWeight: 600, letterSpacing: 2,
+          fontFamily: '"SF Mono", monospace', fontSize: 'clamp(15px, 5.6cqw, 26px)', fontWeight: 600, letterSpacing: 1.5,
           color: v.text, textShadow: titleShadow,
-          display: 'flex', gap: 14, alignItems: 'center', marginBottom: -8,
+          display: 'flex', gap: 'clamp(8px, 3.6cqw, 18px)', alignItems: 'center', marginBottom: -8,
           padding: 0,
           background: 'transparent',
         }}>
@@ -2093,13 +2242,13 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
           background: 'transparent',
         }}>
           <div>
-            <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: 1.2, color: v.muted, textTransform: 'uppercase', marginBottom: 3 }}>{tt.cardholder_label}</div>
-            <div style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.4, textShadow: titleShadow }}>{name}</div>
+            <div style={{ fontSize: 'max(9.5px, 2.4cqw)', fontWeight: 500, letterSpacing: 1, color: v.muted, textTransform: 'uppercase', marginBottom: 3 }}>{tt.cardholder_label}</div>
+            <div style={{ fontSize: 'max(12px, 3.6cqw)', fontWeight: 600, letterSpacing: 0.4, textShadow: titleShadow }}>{name}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: 1.2, color: v.muted, textTransform: 'uppercase', marginBottom: 3 }}>{tt.valid_label}</div>
-              <div style={{ fontSize: 12.5, fontWeight: 600, fontFamily: '"SF Mono", monospace', textShadow: titleShadow }}>{expiry}</div>
+              <div style={{ fontSize: 'max(9.5px, 2.4cqw)', fontWeight: 500, letterSpacing: 1, color: v.muted, textTransform: 'uppercase', marginBottom: 3 }}>{tt.valid_label}</div>
+              <div style={{ fontSize: 'max(12px, 3.6cqw)', fontWeight: 600, fontFamily: '"SF Mono", monospace', textShadow: titleShadow }}>{expiry}</div>
             </div>
             <div style={{ position: 'relative', width: 34, height: 22 }}>
               <div style={{ position: 'absolute', left: 0, top: 0, width: 22, height: 22, borderRadius: '50%', background: '#343434' }} />
@@ -2123,7 +2272,7 @@ function ContentWrap({ children, maxW = 720 }: { children: React.ReactNode; maxW
   const layout = useLayout();
   if (layout !== 'desktop') return <>{children}</>;
   return (
-    <div style={{ maxWidth: maxW, margin: '0 auto', padding: '0 32px', width: '100%', boxSizing: 'border-box' }}>
+    <div style={{ maxWidth: maxW, margin: '0 auto', padding: '0 40px', width: '100%', boxSizing: 'border-box' }}>
       {children}
     </div>
   );
@@ -2252,6 +2401,7 @@ function InsightsStrip() {
 // ─── Top Recipients Mini ──────────────────────────────────────
 function TopRecipientsMini({ onTransfer }: { onTransfer: (account: string) => void }) {
   const { t } = usePreferences();
+  const dk = useLayout() === 'desktop';
   const [recipients, setRecipients] = useState<TopRecipient[]>([]);
 
   useEffect(() => {
@@ -2268,8 +2418,8 @@ function TopRecipientsMini({ onTransfer }: { onTransfer: (account: string) => vo
   if (!recipients.length) return null;
 
   return (
-    <div style={{ padding: '0 22px 20px' }}>
-      <div style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>{t('top_recipients_title')}</div>
+    <div style={{ padding: dk ? 0 : '0 22px 20px' }}>
+      <div style={dk ? { ...dkTitle, marginBottom: 16 } : { fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>{t('top_recipients_title')}</div>
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 2 }}>
         {recipients.map((r, i) => (
           <button key={i} onClick={() => onTransfer(r.related_account)} style={{
@@ -2277,7 +2427,7 @@ function TopRecipientsMini({ onTransfer }: { onTransfer: (account: string) => vo
             padding: '10px 12px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.12)',
             borderRadius: 16, cursor: 'pointer', minWidth: 80,
           }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: `${gold}`, border: `1px solid ${gold}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: gold, fontFamily: 'monospace' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255, 0.08)', border: '1px solid rgba(255,255,255, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: text.primary, fontFamily: 'monospace' }}>
               {r.related_account.slice(-2)}
             </div>
             <span style={{ fontSize: 10, color: text.muted, fontFamily: 'monospace', letterSpacing: 0.5 }}>••{r.related_account.slice(-4)}</span>
@@ -2944,6 +3094,7 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
 // ─── Monthly Financial Summary ────────────────────────────────────────────────
 function MonthlyFinanceSummary({ transactions }: { transactions: TxItem[] }) {
   const { lang } = usePreferences();
+  const dk = useLayout() === 'desktop';
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -2965,8 +3116,8 @@ function MonthlyFinanceSummary({ transactions }: { transactions: TxItem[] }) {
   ];
   if (!income && !expenses) return null;
   return (
-    <div style={{ padding: '20px 22px 0' }}>
-      <div style={{ ...sectionLabel, paddingLeft: 0, paddingRight: 0, marginBottom: 12 }}>Фінансовий звіт · {monthName}</div>
+    <div style={{ padding: dk ? 0 : '20px 22px 0' }}>
+      <div style={dk ? { ...dkTitle, marginBottom: 16, textTransform: 'capitalize' } : { ...sectionLabel, paddingLeft: 0, paddingRight: 0, marginBottom: 12 }}>Фінансовий звіт · {monthName}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {items.map(({ label, value, color, icon, sub }) => (
           <div key={label} style={{ ...glassCard(), padding: '14px 16px' }}>
@@ -2985,6 +3136,7 @@ function MonthlyFinanceSummary({ transactions }: { transactions: TxItem[] }) {
 
 function CurrencyRatesBar({ onRatesLoaded, onExchange }: { onRatesLoaded?: (r: FxRate[]) => void; onExchange?: () => void } = {}) {
   const [rates, setRates] = useState<NbuRate[]>([]);
+  const dk = useLayout() === 'desktop';
   const FALLBACK: FxRate[] = [{ code: 'USD', rate: 41.20 }, { code: 'EUR', rate: 44.85 }, { code: 'GBP', rate: 52.10 }, { code: 'PLN', rate: 10.35 }];
   useEffect(() => {
     fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json')
@@ -2998,10 +3150,10 @@ function CurrencyRatesBar({ onRatesLoaded, onExchange }: { onRatesLoaded?: (r: F
   }, []);
   if (!rates.length) return null;
   return (
-    <div style={{ padding: '20px 22px 0' }}>
+    <div style={{ padding: dk ? 0 : '20px 22px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-        <div style={{ ...sectionLabel, paddingLeft: 0, paddingRight: 0, flex: 1 }}>Курси НБУ</div>
-        {onExchange && <button onClick={onExchange} style={{ fontSize: 12, color: gold, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>💱 Обміняти</button>}
+        <div style={dk ? { ...dkTitle, flex: 1 } : { ...sectionLabel, paddingLeft: 0, paddingRight: 0, flex: 1 }}>Курси НБУ</div>
+        {onExchange && <button onClick={onExchange} className={dk ? 'kp-btn' : undefined} style={dk ? { height: 36, padding: '0 14px', fontSize: 13 } : { fontSize: 12, color: gold, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>{dk ? 'Обміняти' : '💱 Обміняти'}</button>}
       </div>
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
         {rates.map(r => (
@@ -3021,6 +3173,7 @@ function CurrencyRatesBar({ onRatesLoaded, onExchange }: { onRatesLoaded?: (r: F
 interface SavingsGoal { id: number; title: string; target_amount: number; current_amount: number; deadline?: string; }
 function SavingsGoalsMini() {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
+  const dk = useLayout() === 'desktop';
   const { toast } = useApp();
   const token = localStorage.getItem('army_bank_token');
   const [contributeId, setContributeId] = useState<number | null>(null);
@@ -3081,9 +3234,9 @@ function SavingsGoalsMini() {
   };
 
   return (
-    <div style={{ padding: '20px 22px 0' }}>
+    <div style={{ padding: dk ? 0 : '20px 22px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={{ ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>Цілі заощаджень</div>
+        <div style={dk ? dkTitle : { ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>Цілі заощаджень</div>
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
           background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.18)`,
@@ -3289,34 +3442,91 @@ function getQuickActions(t: (key: TranslationKey) => string): { label: string; i
 }
 
 // ─── Financial Health Score ────────────────────────────────────────────────
-function FinancialHealthScore({ transactions, account }: { transactions: TxItem[]; account: AccountInfo | null }) {
-  if (!account) return null;
+function computeHealth(transactions: TxItem[], account: AccountInfo) {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthTx = transactions.filter(tx => new Date(tx.created_at) >= monthStart);
   const income = monthTx.filter(tx => tx.direction === 'in').reduce((s, tx) => s + tx.amount, 0);
   const expenses = monthTx.filter(tx => tx.direction === 'out').reduce((s, tx) => s + tx.amount, 0);
   const balance = account.balance;
-
-  // Score components (0-100 each)
   const savingsRate = income > 0 ? Math.max(0, Math.min(100, ((income - expenses) / income) * 100)) : 50;
   const balanceScore = Math.min(100, (balance / 50000) * 100);
   const activityScore = Math.min(100, monthTx.length * 5);
   const score = Math.round(savingsRate * 0.5 + balanceScore * 0.3 + activityScore * 0.2);
-
-  const level = score >= 80 ? { label: 'Відмінно', color: '#a9a9a9', icon: <TrophyIcon color="#a9a9a9" /> }
-    : score >= 60 ? { label: 'Добре', color: '#ababab', icon: <CheckBadgeIcon color="#ababab" /> }
-    : score >= 40 ? { label: 'Задовільно', color: '#afafaf', icon: <ChartIcon color="#afafaf" /> }
-    : { label: 'Потребує уваги', color: '#757575', icon: <AlertIcon color="#757575" /> };
-
+  const label = score >= 80 ? 'Відмінно' : score >= 60 ? 'Добре' : score >= 40 ? 'Задовільно' : 'Потребує уваги';
   const tips = [
     income > 0 && expenses / income > 0.8 && 'Витрати перевищують 80% доходу — розгляньте бюджет',
     balance < 1000 && 'Підтримуйте резервний фонд від 5 000 TAX',
     monthTx.length < 3 && 'Мало активності — використовуйте картку для кешбеку',
   ].filter(Boolean) as string[];
+  return { score, label, tips, parts: [
+    { label: 'Заощадження', val: Math.round(savingsRate) },
+    { label: 'Баланс', val: Math.round(balanceScore) },
+    { label: 'Активність', val: Math.round(activityScore) },
+  ] };
+}
+
+function DesktopHealth({ transactions, account }: { transactions: TxItem[]; account: AccountInfo | null }) {
+  const [on, setOn] = useState(false);
+  useEffect(() => { const id = requestAnimationFrame(() => setOn(true)); return () => cancelAnimationFrame(id); }, []);
+  if (!account) return null;
+  const { score, label, tips, parts } = computeHealth(transactions, account);
+  const R = 54, C = 2 * Math.PI * R;
+  return (
+    <div style={{ height: '100%' }}>
+      <div style={{ ...T.h3, fontSize: 18, color: text.primary, marginBottom: 20 }}>Фінансовий рейтинг</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div style={{ position: 'relative', width: 128, height: 128, flexShrink: 0 }}>
+          <svg viewBox="0 0 128 128" width="128" height="128" role="img" aria-label={`${score} / 100`} style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="64" cy="64" r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+            <circle cx="64" cy="64" r={R} fill="none" stroke="#f4f4f5" strokeWidth="10" strokeLinecap="round"
+              strokeDasharray={`${on ? (score / 100) * C : 0} ${C}`} style={{ transition: 'stroke-dasharray 1.1s var(--kp-ease)' }} />
+          </svg>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 38, fontWeight: 300, color: text.primary, letterSpacing: -1.5, lineHeight: 1, ...T.num }}>{score}</span>
+            <span style={{ fontSize: 12, color: text.dim, marginTop: 3 }}>з 100</span>
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: text.primary, marginBottom: 12 }}>{label}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+            {parts.map(p => (
+              <div key={p.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: text.muted, marginBottom: 4 }}>
+                  <span>{p.label}</span><span style={{ ...T.num, color: text.secondary, fontWeight: 600 }}>{p.val}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 4, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+                  <div style={{ width: on ? `${p.val}%` : 0, height: '100%', borderRadius: 4, background: 'rgba(244,244,245,0.82)', transition: 'width 1s var(--kp-ease)' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {tips.length > 0 && (
+        <ul style={{ margin: '20px 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {tips.map(tip => (
+            <li key={tip} style={{ fontSize: 13.5, lineHeight: 1.45, color: text.muted, padding: '10px 14px', borderRadius: 12, background: 'var(--kp-fill)' }}>{tip}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function FinancialHealthScore({ transactions, account }: { transactions: TxItem[]; account: AccountInfo | null }) {
+  const dk = useLayout() === 'desktop';
+  if (!account) return null;
+  const { score, label: levelLabel, tips, parts } = computeHealth(transactions, account);
+  const savingsRate = parts[0].val, balanceScore = parts[1].val, activityScore = parts[2].val;
+
+  const level = score >= 80 ? { label: levelLabel, color: '#a9a9a9', icon: <TrophyIcon color="#a9a9a9" /> }
+    : score >= 60 ? { label: levelLabel, color: '#ababab', icon: <CheckBadgeIcon color="#ababab" /> }
+    : score >= 40 ? { label: levelLabel, color: '#afafaf', icon: <ChartIcon color="#afafaf" /> }
+    : { label: levelLabel, color: '#757575', icon: <AlertIcon color="#757575" /> };
 
   return (
-    <div style={{ margin: '0 22px 20px', background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 20, padding: '18px 20px', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ margin: dk ? 0 : '0 22px 20px', background: bg.card, border: `1px solid ${bg.border}`, borderRadius: dk ? 24 : 20, padding: dk ? 24 : '18px 20px', overflow: 'hidden', position: 'relative', height: dk ? '100%' : undefined, boxSizing: 'border-box' }}>
       <div style={{ position: 'absolute', top: 0, right: 0, width: 120, height: 120, borderRadius: '50%', background: `${level.color}`, pointerEvents: 'none' }} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
@@ -3758,7 +3968,7 @@ function OverviewScreen() {
             ref={cardViewportRef}
             data-no-tab-swipe="true"
             style={{
-              maxWidth: 380,
+              maxWidth: layout === 'desktop' ? 460 : 380,
               overflow: 'hidden',
               borderRadius: 22,
               touchAction: 'pan-y',
@@ -3863,59 +4073,59 @@ function OverviewScreen() {
   const greeting = timeGreeting(lang);
 
   if (layout === 'desktop') {
+    const donutRows = byType
+      .map(r => ({ label: txTypeLabel(r.tx_type, t), value: Number(r.total) }))
+      .filter(r => r.value > 0)
+      .sort((x, y) => y.value - x.value)
+      .filter((r, _i, all) => r.value / all.reduce((a, b) => a + b.value, 0) >= 0.005);
     return (
-      <div style={{ padding: `${topPad} 32px 48px`, minHeight: '100%' }}>
-        {/* Top greeting bar */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 32 }}>
-          <div>
-            <div style={{ ...T.sm, color: text.muted, marginBottom: 4 }}>{greeting}</div>
-            <div style={{ ...T.h1, fontSize: 26, color: text.primary }}>{displayName}</div>
-          </div>
-          <div style={{ flex: 1 }} />
-          {[
-            <svg key="chat" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="#d8d8d8" strokeWidth="1.6" strokeLinejoin="round" /></svg>,
-            <svg key="bell" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
-          ].map((icon, i) => (
-            <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 12, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginLeft: 10, position: 'relative' }}>
-              {icon}
-              {i === 1 && unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#888888', border: '1.5px solid rgba(18,18,18, 0.9)' }} />}
-            </button>
-          ))}
-        </div>
-
-        {/* 2-column grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: 24, alignItems: 'start' }}>
-          {/* Left: balance + card + quick actions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <div style={{ padding: 24, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 22 }}>
-              <BalanceBlock visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)} balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'} />
-            </div>
+      <div style={{ padding: '32px 40px 72px', maxWidth: 1600, margin: '0 auto' }}>
+        <div className="grid grid-cols-12 gap-6">
+          <DesktopHero
+            span="col-span-12 xl:col-span-7 2xl:col-span-8"
+            firstName={firstName} greeting={greeting}
+            balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'}
+            flowNet={flowNet} visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)}
+          />
+          <section className="kp-card kp-rise col-span-12 xl:col-span-5 2xl:col-span-4" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 24, ['--i' as string]: 1 }}>
             {cardSection}
-            {quickActionsSection}
-          </div>
-          {/* Right: activity feed */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <ActivityFeed transactions={transactions} />
-            {/* Spending stats mini */}
-            <div style={{ padding: 20, background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 22 }}>
-              <div style={{ ...T.h3, color: text.secondary, marginBottom: 14 }}>{t('spending_this_month')}</div>
-              {!spendRows.length && (
-                <div style={{ fontSize: 12, color: text.muted }}>{t('insufficient_spend_data')}</div>
-              )}
-              {spendRows.map(({ label, pct, color }) => (
-                <div key={label} style={{ marginBottom: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                    <span style={{ fontSize: 12, color: text.secondary }}>{label}</span>
-                    <span style={{ fontSize: 12, color: text.muted, fontFeatureSettings: '"tnum"' }}>{pct}%</span>
+            <div style={{ flex: 1 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                { label: t('filter_income'), value: monthIn, sign: '+' },
+                { label: t('filter_outcome'), value: monthOut, sign: '−' },
+              ].map(x => (
+                <div key={x.label} className="kp-card-flat" style={{ padding: '16px 18px' }}>
+                  <div style={{ fontSize: 13, color: text.muted, marginBottom: 6 }}>{x.label}</div>
+                  <div style={{ fontSize: 22, fontWeight: 600, color: text.primary, letterSpacing: -0.5, ...T.num }}>
+                    {x.sign}{fmtInt(x.value)}<span style={{ fontSize: 14, color: 'var(--kp-dim)', fontWeight: 500 }}>{fmtDec(x.value)}</span>
                   </div>
-                  <div style={{ height: 4, background: 'rgba(172,172,172, 0.1)', borderRadius: 4 }}>
-                    <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 4, opacity: 0.8 }} />
-                  </div>
+                  <div style={{ fontSize: 12.5, color: text.dim, marginTop: 4 }}>{t('dk_this_month')}</div>
                 </div>
               ))}
             </div>
+          </section>
+
+          <DesktopActivity span="col-span-12 xl:col-span-7 2xl:col-span-8" transactions={transactions} />
+          <SpendDonut span="col-span-12 xl:col-span-5 2xl:col-span-4" rows={donutRows} />
+
+          <div className="kp-card kp-rise kp-slot col-span-12 md:col-span-6 xl:col-span-4" style={{ padding: 24, ['--i' as string]: 4 }}>
+            <MonthlyFinanceSummary transactions={transactions} />
+          </div>
+          <div className="kp-card kp-rise kp-slot col-span-12 md:col-span-6 xl:col-span-4" style={{ padding: 24, ['--i' as string]: 5 }}>
+            <DesktopHealth transactions={transactions} account={account} />
+          </div>
+          <div className="kp-card kp-rise kp-slot col-span-12 xl:col-span-4" style={{ padding: 24, ['--i' as string]: 6 }}>
+            <SavingsGoalsMini />
+          </div>
+          <div className="kp-card kp-rise kp-slot col-span-12 xl:col-span-8" style={{ padding: 24, ['--i' as string]: 7 }}>
+            <CurrencyRatesBar onRatesLoaded={setFxRates} onExchange={() => setShowFx(true)} />
+          </div>
+          <div className="kp-card kp-rise kp-slot col-span-12 xl:col-span-4" style={{ padding: 24, ['--i' as string]: 8 }}>
+            <TopRecipientsMini onTransfer={() => { openTransfer('by_account'); }} />
           </div>
         </div>
+        {showFx && fxRates.length > 0 && <FxExchangeModal rates={fxRates} onClose={() => setShowFx(false)} />}
       </div>
     );
   }
@@ -4293,10 +4503,8 @@ function CardsScreen() {
 
   const isFrozen = apiCards.length > 0 ? apiCards[safeIdx]?.status === 'blocked' : card?.statusRaw === 'blocked';
 
-  return (
+    const cardsHeader = (
     <>
-    <ContentWrap maxW={760}>
-    <div style={{ paddingBottom: layout === 'desktop' ? 80 : 24 }}>
       <div style={{ padding: `${topPad} 18px 14px` }}>
         <div style={{
           ...glassCard({
@@ -4337,8 +4545,14 @@ function CardsScreen() {
         </div>
       </div>
 
+    </>
+    );
+    const cardsStrip = (
+    <>
       {/* Horizontal card scroll */}
-      <div style={{
+      <div style={layout === 'desktop' ? {
+        display: 'grid', gridTemplateColumns: '1fr', gap: 20, padding: '0 18px 10px',
+      } : {
         display: 'flex', gap: 12, padding: '0 18px 10px',
         overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none',
       }}>
@@ -4346,7 +4560,7 @@ function CardsScreen() {
           const isSelected = i === safeIdx;
           const v = CARD_VARIANTS[c.variant] ?? CARD_VARIANTS.gold;
           return (
-            <div key={i} style={{ flexShrink: 0, width: 260, scrollSnapAlign: 'center' }}>
+            <div key={i} style={{ flexShrink: 0, width: layout === 'desktop' ? '100%' : 260, scrollSnapAlign: 'center' }}>
               {isSelected ? (
                 // ── Flippable selected card ──
                 <div style={{ perspective: 1000, width: '100%', aspectRatio: '1.586 / 1', cursor: 'pointer' }}
@@ -4422,6 +4636,10 @@ function CardsScreen() {
         )}
       </div>
 
+    </>
+    );
+    const cardsDetails = (
+    <>
       {/* Card details */}
       <div style={{ padding: '20px 22px 0' }}>
         <div style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 22, padding: 20 }}>
@@ -4547,6 +4765,28 @@ function CardsScreen() {
           )}
         </div>
       </div>
+    </>
+    );
+
+  return (
+    <>
+    <ContentWrap maxW={layout === 'desktop' ? 1560 : 760}>
+    <div style={{ paddingBottom: layout === 'desktop' ? 80 : 24 }}>
+      {layout === 'desktop' ? (
+        <>
+          <div style={{ margin: '0 -18px' }}>{cardsHeader}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 440px) minmax(0, 1fr)', gap: 24, alignItems: 'start', margin: '0 -18px' }}>
+            <div className="kp-rise" style={{ minWidth: 0 }}>{cardsStrip}</div>
+            <div className="kp-rise" style={{ minWidth: 0, position: 'sticky', top: 100, ['--i' as string]: 1 }}>{cardsDetails}</div>
+          </div>
+        </>
+      ) : (
+        <>
+          {cardsHeader}
+          {cardsStrip}
+          {cardsDetails}
+        </>
+      )}
     </div>
     </ContentWrap>
 
@@ -5576,10 +5816,8 @@ function OperationsScreen() {
   const totalSpent = transactions.filter(t => t.direction === 'out').reduce((s, t) => s + t.amount, 0);
   const spentLabel = account && transactions.length > 0 ? `${fmtInt(totalSpent)}${fmtDec(totalSpent)}\u00a0TAX` : '42\u00a0380\u00a0TAX';
 
-  return (
+    const opsHeader = (
     <>
-    <ContentWrap maxW={720}>
-    <div style={{ paddingBottom: layout === 'desktop' ? 80 : 24 }}>
       <div style={{ padding: `${topPad} 18px 14px` }}>
         <div style={{
           ...glassCard({
@@ -5670,6 +5908,10 @@ function OperationsScreen() {
         </div>
       </div>
 
+    </>
+    );
+    const opsChart = (
+    <>
       <div style={{ padding: '0 18px 18px' }}>
         <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -5712,6 +5954,10 @@ function OperationsScreen() {
         </div>
       </div>
 
+    </>
+    );
+    const opsCategory = (
+    <>
       {/* Category breakdown (only in "all" or "outcome" mode with real data) */}
       {(() => {
         const outTx = filtered.filter(tx => tx.direction === 'out');
@@ -5760,6 +6006,10 @@ function OperationsScreen() {
         );
       })()}
 
+    </>
+    );
+    const opsPlanning = (
+    <>
       {txFilter === 'all' && <InsightsStrip />}
       {txFilter === 'all' && <BudgetPlanner transactions={transactions} />}
 
@@ -5769,6 +6019,10 @@ function OperationsScreen() {
         <DepositsSection />
       </div>
 
+    </>
+    );
+    const opsTxList = (
+    <>
       {/* Transactions */}
       {txGroups.length === 0 && (
         <div style={{ padding: '40px 18px', textAlign: 'center', color: text.muted, fontSize: 14 }}>
@@ -5812,7 +6066,37 @@ function OperationsScreen() {
         </div>
       ))}
 
-      <RecurringSection />
+    </>
+    );
+    const opsRecurring = <RecurringSection />;
+
+  return (
+    <>
+    <ContentWrap maxW={layout === 'desktop' ? 1560 : 720}>
+    <div style={{ paddingBottom: layout === 'desktop' ? 80 : 24 }}>
+      {layout === 'desktop' ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(400px, 460px)', gap: 24, alignItems: 'start' }}>
+          <div className="kp-rise" style={{ minWidth: 0, margin: '0 -18px' }}>
+            {opsHeader}
+            {opsTxList}
+          </div>
+          <div className="kp-rise" style={{ minWidth: 0, margin: '0 -18px', ['--i' as string]: 1 }}>
+            {opsChart}
+            {opsCategory}
+            {opsPlanning}
+            {opsRecurring}
+          </div>
+        </div>
+      ) : (
+        <>
+          {opsHeader}
+          {opsChart}
+          {opsCategory}
+          {opsPlanning}
+          {opsTxList}
+          {opsRecurring}
+        </>
+      )}
       <div style={{ height: 20 }} />
     </div>
     </ContentWrap>
@@ -6155,14 +6439,14 @@ function ProfileScreen() {
   ];
 
   const section = (children: React.ReactNode) => (
-    <div style={{ background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
+    <div style={{ breakInside: 'avoid', background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
       {children}
     </div>
   );
-  const sectionTitleWrapStyle = { padding: '4px 18px 8px' };
+  const sectionTitleWrapStyle: React.CSSProperties = { padding: '4px 18px 8px', breakAfter: 'avoid', breakInside: 'avoid' };
 
   return (
-    <ContentWrap maxW={680}>
+    <ContentWrap maxW={layout === 'desktop' ? 1240 : 680}>
     <div style={{ paddingBottom: layout === 'desktop' ? 80 : 24 }}>
       <div style={{ padding: `${topPad} 18px 18px` }}>
         <div style={{
@@ -6241,6 +6525,7 @@ function ProfileScreen() {
         </div>
       </div>
 
+      <div style={layout === 'desktop' ? { columnCount: 2, columnGap: 0, margin: '0 -0px' } : undefined}>
       {/* Account info */}
       {section(<>
         <ProfileRow label={t('profile_name')} value={displayName} />
@@ -6475,7 +6760,7 @@ function ProfileScreen() {
 
       {/* Achievements */}
       {achievements && (
-        <div style={{ margin: '0 18px 14px' }}>
+        <div style={{ margin: '0 18px 14px', breakInside: 'avoid' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <span style={{ ...T.h3, color: text.secondary }}>{t('achievements_title')}</span>
             <span style={{ fontSize: 12, color: text.muted }}>{achievements.done}/{achievements.total} {t('achievements_progress')}</span>
@@ -6504,10 +6789,10 @@ function ProfileScreen() {
       )}
 
       {/* Referral */}
-      <ReferralWidget user={user} />
+      <div style={{ breakInside: 'avoid' }}><ReferralWidget user={user} /></div>
 
       {/* Sign out */}
-      <div style={{ padding: '8px 18px' }}>
+      <div style={{ padding: '8px 18px', breakInside: 'avoid' }}>
         <button onClick={logout} style={{
           width: '100%', padding: '14px', borderRadius: 16,
           background: 'rgba(126,126,126, 0.06)', border: '1px solid rgba(126,126,126, 0.18)',
@@ -6517,6 +6802,7 @@ function ProfileScreen() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 16l4-4-4-4M21 12H9M13 4a9 9 0 100 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           {t('profile_logout')}
         </button>
+      </div>
       </div>
     </div>
     </ContentWrap>
@@ -7420,11 +7706,11 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
 
   return (
     <div style={{
-      position: 'fixed', right: 0, top: 0, bottom: 0, width: 320,
+      position: 'fixed', right: 0, top: 76, bottom: 0, width: 320,
       display: 'flex', flexDirection: 'column',
-      background: 'rgba(22,22,22, 0.97)',
+      background: 'rgba(14,14,15, 0.97)',
       backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
-      borderLeft: '1px solid rgba(172,172,172, 0.1)',
+      borderLeft: '1px solid var(--kp-line)',
       zIndex: 90,
     }}>
       {/* Header */}
@@ -7523,109 +7809,718 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
 }
 
 // ─── Desktop sidebar ──────────────────────────────────────────
-function DesktopSidebar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) => void }) {
-  const { logout, user, account } = useApp();
+// ─── Desktop: іконки, оболонка, палітра команд ────────────────
+const ICON_PATHS = {
+  search: <><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></>,
+  bell: <><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10 21a2 2 0 004 0" /></>,
+  eye: <><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></>,
+  eyeOff: <><path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.4 5.1A10.9 10.9 0 0112 5c6 0 10 7 10 7a18 18 0 01-3.2 3.9M6.6 6.6A18 18 0 002 12s4 7 10 7a11 11 0 003.4-.5" /></>,
+  copy: <><rect x="9" y="9" width="11" height="11" rx="2.5" /><path d="M5 15V6a2 2 0 012-2h9" /></>,
+  logout: <><path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4" /><path d="M16 16l4-4-4-4M20 12H9" /></>,
+  panel: <><rect x="3" y="4" width="18" height="16" rx="3" /><path d="M9 4v16" /></>,
+  up: <path d="M12 19V5M5 12l7-7 7 7" />,
+  right: <path d="M5 12h14M13 5l7 7-7 7" />,
+  hash: <path d="M4 9h16M4 15h16M9 4L7 20M17 4l-2 16" />,
+  cart: <><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h12" /><circle cx="9" cy="21" r="1" /><circle cx="19" cy="21" r="1" /></>,
+  inbound: <path d="M17 7L7 17M7 8v9h9" />,
+  outbound: <path d="M7 17L17 7M8 7h9v9" />,
+  arrowUR: <path d="M7 17L17 7M8 7h9v9" />,
+  return: <path d="M9 10l-5 5 5 5M20 4v7a4 4 0 01-4 4H4" />,
+  chevR: <path d="M9 6l6 6-6 6" />,
+} as const;
+type IconName = keyof typeof ICON_PATHS;
+
+function Ico({ n, size = 18, sw = 1.7 }: { n: IconName; size?: number; sw?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+      {ICON_PATHS[n]}
+    </svg>
+  );
+}
+
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+const MOD_KEY = IS_MAC ? '⌘' : 'Ctrl';
+const RAIL_STORAGE_KEY = 'kopiyka_rail_collapsed';
+
+function useRailCollapsed() {
+  const width = useWindowWidth();
+  const [pref, setPref] = useState<boolean | null>(() => {
+    try { const v = localStorage.getItem(RAIL_STORAGE_KEY); return v === null ? null : v === '1'; } catch { return null; }
+  });
+  const collapsed = pref ?? width < 1240;
+  const toggle = () => {
+    const next = !collapsed;
+    setPref(next);
+    try { localStorage.setItem(RAIL_STORAGE_KEY, next ? '1' : '0'); } catch { /* ignore */ }
+  };
+  return [collapsed, toggle] as const;
+}
+
+function useCountUp(target: number, ms = 900) {
+  const [value, setValue] = useState(0);
+  const fromRef = useRef(0);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      fromRef.current = target; setValue(target); return;
+    }
+    const start = performance.now();
+    const a = fromRef.current;
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / ms);
+      const eased = 1 - Math.pow(1 - p, 4);
+      const cur = a + (target - a) * eased;
+      fromRef.current = cur;
+      setValue(cur);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return value;
+}
+
+function txTypeLabel(type: string, t: (key: TranslationKey) => string): string {
+  const base: Record<string, TranslationKey> = {
+    transfer: 'spend_transfer', food: 'spend_food', transport: 'spend_transport',
+    utility: 'spend_utility', shopping: 'spend_shopping', subscription: 'spend_subscription',
+  };
+  if (base[type]) return t(base[type]);
+  const key = `dk_cat_${type}` as TranslationKey;
+  return key in translations.uk ? t(key) : type;
+}
+
+// ── Бічне меню: розгорнуте або рейка з іконками ──
+function DesktopSidebar({ active, onChange, collapsed, onToggle }: { active: TabKey; onChange: (k: TabKey) => void; collapsed: boolean; onToggle: () => void }) {
+  const { logout, user, goTo } = useApp();
   const { profilePhoto, t } = usePreferences();
   const tabs = getTabs(t);
   const name = user?.full_name ?? t('user_fallback');
-  const userInitials = initials(name);
   return (
-    <div style={{
-      width: 252, flexShrink: 0,
+    <aside style={{
+      width: collapsed ? 88 : 272, flexShrink: 0,
+      transition: 'width 0.32s var(--kp-ease)',
       display: 'flex', flexDirection: 'column',
-      borderRight: `1px solid ${bg.border}`,
-      background: 'rgba(15,15,15, 0.72)',
-      backdropFilter: 'blur(28px)',
-      WebkitBackdropFilter: 'blur(28px)',
+      padding: '22px 14px 18px',
+      borderRight: '1px solid var(--kp-line)',
+      background: 'rgba(9,9,10, 0.62)',
+      backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
+      position: 'relative', zIndex: 20,
     }}>
-      {/* Logo */}
-      <div style={{ padding: '30px 22px 22px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-          <BrandMark size={36} radiusValue={10} />
-          <div>
-            <div style={{ ...T.h3, color: text.primary, lineHeight: 1.1 }}>
-              Tax<span style={{ fontWeight: 300, opacity: 0.8 }}>Tech</span>
-            </div>
-            <div style={{ fontSize: 10, color: text.dim, letterSpacing: 0.6, marginTop: 1 }}>{t('personal_cabinet')}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* User */}
-      <div style={{ padding: '14px 22px 16px', borderTop: `1px solid ${bg.border}`, borderBottom: `1px solid ${bg.border}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-            background: `${gold}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#242424',
-            boxShadow: `0 0 0 2px rgba(0,0,0, 0.5), 0 0 0 3.5px ${gold}50`,
-            overflow: 'hidden',
-          }}>
-            {profilePhoto ? <img src={profilePhoto} alt={t('profile_photo_alt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : userInitials}
-          </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: collapsed ? '0 0 0 6px' : '0 8px', height: 44, marginBottom: 22, overflow: 'hidden' }}>
+        <BrandMark size={40} radiusValue={12} />
+        {!collapsed && (
           <div style={{ minWidth: 0 }}>
-            <div style={{ ...T.body, fontWeight: 600, color: text.primary, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#b1b1b1', boxShadow: '0 0 6px #b1b1b188' }} />
-              <span style={{ fontSize: 10.5, color: '#b1b1b1', fontWeight: 500, letterSpacing: 0.2 }}>{t('profile_verified')}</span>
-            </div>
+            <div style={{ ...T.h3, fontSize: 19, color: text.primary, lineHeight: 1.1 }}>Tax<span style={{ fontWeight: 300, opacity: 0.8 }}>Tech</span></div>
+            <div style={{ fontSize: 12, color: text.dim, marginTop: 2 }}>{t('personal_cabinet')}</div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Navigation */}
-      <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
-        {tabs.map(t => {
-          const isActive = t.k === active;
+      <nav aria-label={t('dk_menu')} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {tabs.map(tb => {
+          const isActive = tb.k === active;
           return (
-            <button key={t.k} onClick={() => onChange(t.k)} style={{
-              display: 'flex', alignItems: 'center', gap: 11,
-              padding: '10px 13px', borderRadius: 12,
-              background: isActive ? 'rgba(172,172,172, 0.16)' : 'transparent',
-              border: isActive ? `1px solid rgba(172,172,172, 0.24)` : '1px solid transparent',
-              color: isActive ? text.primary : text.muted,
-              fontFamily, fontSize: 13.5, fontWeight: isActive ? 600 : 450,
-              cursor: 'pointer', transition: 'color 0.15s, background 0.15s, border-color 0.15s',
-              textAlign: 'left', letterSpacing: -0.1,
-            }}>
-              {t.icon(isActive ? gold : text.muted)}
-              {t.label}
+            <button
+              key={tb.k}
+              onClick={() => onChange(tb.k)}
+              className="kp-nav"
+              aria-current={isActive ? 'page' : undefined}
+              title={collapsed ? tb.label : undefined}
+              style={{
+                position: 'relative',
+                display: 'flex', alignItems: 'center', gap: 14,
+                height: 48, padding: collapsed ? 0 : '0 14px',
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                borderRadius: 14, border: 'none',
+                background: isActive ? 'var(--kp-fill-2)' : 'transparent',
+                color: isActive ? 'var(--kp-ink)' : 'var(--kp-muted)',
+                fontFamily, fontSize: 15, fontWeight: isActive ? 600 : 500, letterSpacing: -0.15,
+                cursor: 'pointer', textAlign: 'left',
+              }}
+            >
+              {isActive && <span aria-hidden style={{ position: 'absolute', left: collapsed ? 6 : -14, top: 13, bottom: 13, width: 3, borderRadius: 3, background: 'var(--kp-ink)' }} />}
+              {tb.icon(isActive ? '#f4f4f5' : 'rgba(212,212,216,0.62)')}
+              {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>{tb.label}</span>}
             </button>
           );
         })}
       </nav>
 
-      {/* Balance summary */}
-      <div style={{ margin: '0 10px 10px', padding: '14px 16px', borderRadius: 14, background: bg.card, border: `1px solid ${bg.border}` }}>
-        <div style={{ ...sectionLabel, padding: 0, marginBottom: 7 }}>{t('balance_total')}</div>
-        <div style={{ ...T.num, fontSize: 21, fontWeight: 600, color: text.primary, letterSpacing: -0.7 }}>
-          <span style={{ fontSize: 13, color: gold, fontWeight: 500 }}>TAX </span>
-          {account ? fmtInt(account.balance) + fmtDec(account.balance) : '———'}
-        </div>
-        {account?.account_number && (
-          <div style={{ marginTop: 5, fontSize: 10.5, color: text.dim, fontWeight: 500, letterSpacing: 0.3 }}>
-            {account.account_number}
-          </div>
-        )}
-      </div>
+      <div style={{ flex: 1 }} />
 
-      {/* Logout */}
-      <div style={{ padding: '0 10px 20px' }}>
-        <button onClick={logout} style={{
-          width: '100%', padding: '10px', borderRadius: 11,
-          background: 'transparent', border: '1px solid rgba(126,126,126, 0.16)',
-          color: 'rgba(134,134,134, 0.65)', fontFamily, fontSize: 12.5, fontWeight: 500,
-          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-          transition: 'border-color 0.15s, color 0.15s', letterSpacing: 0.1,
+      <button
+        onClick={() => goTo('profile')}
+        className="kp-hover"
+        title={collapsed ? name : undefined}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+          padding: collapsed ? '10px 0' : '10px 12px', justifyContent: collapsed ? 'center' : 'flex-start',
+          borderRadius: 16, border: '1px solid var(--kp-line)', background: 'var(--kp-fill)',
+          fontFamily, textAlign: 'left', color: 'inherit', marginBottom: 10,
+        }}
+      >
+        <span style={{
+          width: 38, height: 38, borderRadius: '50%', flexShrink: 0, overflow: 'hidden',
+          background: gold, color: '#1a1a1a', fontSize: 13, fontWeight: 700,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M17 16l4-4-4-4M21 12H9M13 4a9 9 0 100 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          {t('profile_logout')}
+          {profilePhoto ? <img src={profilePhoto} alt={t('profile_photo_alt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials(name)}
+        </span>
+        {!collapsed && (
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: 'block', fontSize: 14, fontWeight: 600, color: text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
+            <span style={{ display: 'block', fontSize: 12, color: text.dim, marginTop: 1 }}>{t('profile_verified')}</span>
+          </span>
+        )}
+      </button>
+
+      <div style={{ display: 'flex', gap: 8, flexDirection: collapsed ? 'column' : 'row' }}>
+        <button onClick={logout} className="kp-hover" title={t('profile_logout')} aria-label={t('profile_logout')} style={{
+          flex: collapsed ? 'none' : 1, width: collapsed ? '100%' : undefined, height: 42, borderRadius: 12, border: '1px solid var(--kp-line)', background: 'transparent',
+          color: 'var(--kp-muted)', fontFamily, fontSize: 13.5, fontWeight: 500,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}>
+          <Ico n="logout" size={16} />
+          {!collapsed && t('profile_logout')}
         </button>
+        <button onClick={onToggle} className="kp-hover" title={collapsed ? t('dk_expand') : t('dk_collapse')} aria-label={collapsed ? t('dk_expand') : t('dk_collapse')} aria-pressed={collapsed} style={{
+          width: collapsed ? '100%' : 42, height: 42, borderRadius: 12, border: '1px solid var(--kp-line)', background: 'transparent',
+          color: 'var(--kp-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Ico n="panel" size={17} />
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+// ── Сповіщення: випадна панель біля дзвіночка ──
+function NotificationsPopover() {
+  const { t, lang } = usePreferences();
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<ApiNotification[]>([]);
+  const [unread, setUnread] = useState(0);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('army_bank_token');
+    if (!token) return;
+    fetch(apiUrl('/api/notifications/unread-count'), { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => { if (j?.ok) setUnread(j.data?.count ?? 0); })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => { if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  async function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (!next) return;
+    const token = localStorage.getItem('army_bank_token');
+    try {
+      const [res] = await Promise.all([
+        fetch(apiUrl('/api/notifications'), { headers: { Authorization: `Bearer ${token ?? ''}` } }),
+        token ? fetch(apiUrl('/api/notifications/read-all'), { method: 'POST', headers: { Authorization: `Bearer ${token}` } }) : Promise.resolve(null),
+      ]);
+      if (res.ok) {
+        const j = await res.json();
+        if (j?.ok && Array.isArray(j.data)) setItems(j.data);
+      }
+      setUnread(0);
+    } catch { /* ignore */ }
+  }
+
+  return (
+    <div ref={wrapRef} style={{ position: 'relative' }}>
+      <button onClick={toggle} className="kp-hover" aria-label={t('notifications_center')} aria-expanded={open} style={{
+        position: 'relative', width: 44, height: 44, borderRadius: 14, border: '1px solid var(--kp-line)',
+        background: open ? 'var(--kp-fill-2)' : 'var(--kp-fill)', color: 'var(--kp-ink-2)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Ico n="bell" size={19} />
+        {unread > 0 && <span aria-hidden style={{ position: 'absolute', top: 10, right: 11, width: 8, height: 8, borderRadius: '50%', background: gold, boxShadow: '0 0 0 2px #0b0b0c' }} />}
+      </button>
+      {open && (
+        <div className="kp-pop" role="dialog" aria-label={t('notifications_center')} style={{
+          position: 'absolute', right: 0, top: 54, width: 400, maxHeight: 520, overflowY: 'auto', zIndex: 60,
+          borderRadius: 22, border: '1px solid var(--kp-line-2)', background: 'rgba(22,22,24, 0.96)',
+          backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
+          boxShadow: '0 40px 80px -24px rgba(0,0,0,0.8)', padding: 8,
+        }}>
+          <div style={{ padding: '12px 14px 8px', fontSize: 15, fontWeight: 600, color: text.primary }}>{t('notifications_center')}</div>
+          {items.length === 0 ? (
+            <div style={{ padding: '36px 16px', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('no_new_notifications')}</div>
+          ) : items.map(n => (
+            <div key={n.id} className="kp-row" style={{ padding: '12px 14px', borderRadius: 14, opacity: n.is_read ? 0.66 : 1 }}>
+              <div style={{ fontSize: 14, fontWeight: n.is_read ? 500 : 600, color: text.secondary }}>{n.title}</div>
+              {n.body ? <div style={{ fontSize: 13, color: text.muted, lineHeight: 1.45, marginTop: 3 }}>{n.body}</div> : null}
+              <div style={{ fontSize: 12, color: text.dim, marginTop: 5 }}>{fmtTime(n.created_at, lang)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Палітра команд (⌘K): пошук сторінок, дій і операцій ──
+type PaletteItem = { id: string; group: string; label: string; hint?: string; icon: React.ReactNode; run: () => void };
+
+function CommandPalette({ onClose, onNavigate }: { onClose: () => void; onNavigate: (k: TabKey) => void }) {
+  const { t } = usePreferences();
+  const { openTransfer, transactions, account, toast, logout } = useApp();
+  const [query, setQuery] = useState('');
+  const [cursor, setCursor] = useState(0);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const tabs = getTabs(t);
+
+  const all = useMemo<PaletteItem[]>(() => {
+    const go = (k: TabKey) => () => { onNavigate(k); };
+    const items: PaletteItem[] = tabs.map(tb => ({ id: `go-${tb.k}`, group: t('dk_group_go'), label: tb.label, icon: tb.icon('currentColor'), run: go(tb.k) }));
+    items.push(
+      { id: 'a-topup', group: t('dk_group_actions'), label: t('quick_topup'), icon: <Ico n="up" />, run: () => openTransfer('topup') },
+      { id: 'a-card', group: t('dk_group_actions'), label: t('quick_by_card'), icon: <Ico n="right" />, run: () => openTransfer('by_card') },
+      { id: 'a-acc', group: t('dk_group_actions'), label: t('quick_by_account'), icon: <Ico n="hash" />, run: () => openTransfer('by_account') },
+    );
+    if (account?.account_number) {
+      items.push({
+        id: 'a-copy', group: t('dk_group_actions'), label: t('dk_copy_account'), hint: account.account_number, icon: <Ico n="copy" />,
+        run: () => { navigator.clipboard?.writeText(account.account_number).then(() => toast(t('dk_copied'))).catch(() => {}); },
+      });
+    }
+    items.push({ id: 'a-out', group: t('dk_group_actions'), label: t('profile_logout'), icon: <Ico n="logout" />, run: logout });
+    return items;
+  }, [t, account, openTransfer, onNavigate, toast, logout]);
+
+  const q = query.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    if (!q) return all;
+    const base = all.filter(i => i.label.toLowerCase().includes(q) || (i.hint || '').toLowerCase().includes(q));
+    if (q.length < 2) return base;
+    const tx = transactions
+      .filter(x => (x.description || '').toLowerCase().includes(q) || String(x.amount).includes(q))
+      .slice(0, 6)
+      .map<PaletteItem>(x => ({
+        id: `tx-${x.id}`, group: t('dk_group_tx'), label: x.description || txTypeLabel(x.tx_type, t),
+        hint: `${x.direction === 'in' ? '+' : '−'}${fmtInt(x.amount)}${fmtDec(x.amount)} TAX`,
+        icon: <Ico n={x.direction === 'in' ? 'inbound' : 'outbound'} />, run: () => onNavigate('operations'),
+      }));
+    return [...base, ...tx];
+  }, [q, all, transactions, t, onNavigate]);
+
+  useEffect(() => { setCursor(0); }, [q]);
+  useEffect(() => {
+    listRef.current?.querySelector<HTMLElement>(`[data-idx="${cursor}"]`)?.scrollIntoView({ block: 'nearest' });
+  }, [cursor]);
+
+  const runAt = (i: number) => { const it = filtered[i]; if (!it) return; onClose(); it.run(); };
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') { e.preventDefault(); onClose(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); setCursor(c => Math.min(filtered.length - 1, c + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setCursor(c => Math.max(0, c - 1)); }
+    else if (e.key === 'Enter') { e.preventDefault(); runAt(cursor); }
+  };
+
+  let lastGroup = '';
+  return (
+    <div className="kp-fade" onMouseDown={onClose} style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'rgba(0,0,0,0.58)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '13vh' }}>
+      <div role="dialog" aria-modal="true" aria-label={t('dk_search')} className="kp-pop" onMouseDown={e => e.stopPropagation()} onKeyDown={onKeyDown} style={{
+        width: 'min(680px, calc(100vw - 48px))', borderRadius: 24, overflow: 'hidden',
+        border: '1px solid var(--kp-line-2)', background: 'rgba(20,20,22, 0.97)',
+        boxShadow: '0 50px 100px -30px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.06)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '0 22px', height: 64, borderBottom: '1px solid var(--kp-line)' }}>
+          <span style={{ color: 'var(--kp-muted)', display: 'flex' }}><Ico n="search" size={20} /></span>
+          <input
+            autoFocus value={query} onChange={e => setQuery(e.target.value)} placeholder={t('dk_search_ph')}
+            role="combobox" aria-expanded="true" aria-controls="kp-palette-list" aria-activedescendant={filtered[cursor] ? `kp-opt-${cursor}` : undefined}
+            style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: text.primary, fontSize: 17, fontFamily }}
+          />
+          <span className="kp-kbd">esc</span>
+        </div>
+        <div ref={listRef} id="kp-palette-list" role="listbox" style={{ maxHeight: 'min(420px, 52vh)', overflowY: 'auto', padding: 8 }}>
+          {filtered.length === 0 && <div style={{ padding: '36px 16px', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('dk_no_results')}</div>}
+          {filtered.map((it, i) => {
+            const header = it.group !== lastGroup ? it.group : null;
+            lastGroup = it.group;
+            const sel = i === cursor;
+            return (
+              <Fragment key={it.id}>
+                {header && <div style={{ padding: '12px 14px 6px', fontSize: 12, fontWeight: 600, color: text.dim }}>{header}</div>}
+                <div
+                  id={`kp-opt-${i}`} data-idx={i} role="option" aria-selected={sel}
+                  onMouseMove={() => setCursor(i)} onClick={() => runAt(i)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, height: 48, padding: '0 14px', borderRadius: 14, cursor: 'pointer', background: sel ? 'var(--kp-fill-2)' : 'transparent', color: sel ? text.primary : text.secondary }}
+                >
+                  <span style={{ color: sel ? text.primary : 'var(--kp-muted)', display: 'flex' }}>{it.icon}</span>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: 15, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.label}</span>
+                  {it.hint && <span style={{ fontSize: 13, color: text.muted, ...T.num }}>{it.hint}</span>}
+                  {sel && <span style={{ color: 'var(--kp-muted)', display: 'flex' }}><Ico n="return" size={15} /></span>}
+                </div>
+              </Fragment>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', gap: 18, padding: '12px 22px', borderTop: '1px solid var(--kp-line)', fontSize: 12.5, color: text.dim }}>
+          <span><span className="kp-kbd">↑</span> <span className="kp-kbd">↓</span>&nbsp; {t('dk_to_navigate')}</span>
+          <span><span className="kp-kbd">↵</span>&nbsp; {t('dk_to_open')}</span>
+          <span style={{ marginLeft: 'auto' }}><span className="kp-kbd">esc</span>&nbsp; {t('dk_to_close')}</span>
+        </div>
       </div>
     </div>
   );
 }
+
+// ── Верхня панель: пошук, баланс, сповіщення ──
+function DesktopTopbar({ tab, onOpenPalette }: { tab: TabKey; onOpenPalette: () => void }) {
+  const { account } = useApp();
+  const { t } = usePreferences();
+  return (
+    <header style={{
+      position: 'sticky', top: 0, zIndex: 30, height: 76,
+      display: 'flex', alignItems: 'center', gap: 16, padding: '0 40px',
+      background: 'rgba(11,11,12, 0.72)', backdropFilter: 'blur(22px) saturate(150%)', WebkitBackdropFilter: 'blur(22px) saturate(150%)',
+      borderBottom: '1px solid var(--kp-line)',
+    }}>
+      <button onClick={onOpenPalette} className="kp-hover" aria-label={t('dk_search')} aria-keyshortcuts="Control+K Meta+K" style={{
+        flex: '0 1 460px', height: 46, display: 'flex', alignItems: 'center', gap: 12, padding: '0 14px 0 16px',
+        borderRadius: 15, border: '1px solid var(--kp-line)', background: 'var(--kp-fill)',
+        color: 'var(--kp-muted)', fontFamily, fontSize: 14.5, textAlign: 'left',
+      }}>
+        <Ico n="search" size={18} />
+        <span style={{ flex: 1 }}>{t('dk_search')}</span>
+        <span className="kp-kbd">{MOD_KEY}</span><span className="kp-kbd" style={{ marginLeft: -6 }}>K</span>
+      </button>
+      <div style={{ flex: 1 }} />
+      {tab !== 'overview' && account && (
+        <div className="kp-fade" style={{ display: 'flex', alignItems: 'baseline', gap: 6, padding: '0 6px', ...T.num }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: gold }}>TAX</span>
+          <span style={{ fontSize: 18, fontWeight: 600, color: text.primary, letterSpacing: -0.4 }}>{fmtInt(account.balance)}</span>
+          <span style={{ fontSize: 13, color: 'var(--kp-dim)' }}>{fmtDec(account.balance)}</span>
+        </div>
+      )}
+      <NotificationsPopover />
+    </header>
+  );
+}
+
+function DesktopSkeleton() {
+  return (
+    <div style={{ padding: '32px 40px', maxWidth: 1560, margin: '0 auto' }} aria-busy="true">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: 24 }}>
+        <div className="kp-skel" style={{ gridColumn: 'span 8', height: 420, borderRadius: 24 }} />
+        <div className="kp-skel" style={{ gridColumn: 'span 4', height: 420, borderRadius: 24 }} />
+        <div className="kp-skel" style={{ gridColumn: 'span 7', height: 320, borderRadius: 24 }} />
+        <div className="kp-skel" style={{ gridColumn: 'span 5', height: 320, borderRadius: 24 }} />
+      </div>
+    </div>
+  );
+}
+
+function DesktopShell({ tab, onChange, dataError, loading, children }: { tab: TabKey; onChange: (k: TabKey) => void; dataError: string; loading: boolean; children: React.ReactNode }) {
+  const [collapsed, toggleRail] = useRailCollapsed();
+  const [palette, setPalette] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setPalette(v => !v); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }); }, [tab]);
+
+  return (
+    <div className="kp-stage" style={{ ...appBase, background: undefined, display: 'flex' }}>
+      <DesktopSidebar active={tab} onChange={onChange} collapsed={collapsed} onToggle={toggleRail} />
+      <div ref={scrollRef} style={{ flex: 1, minWidth: 0, overflowY: 'auto', overflowX: 'hidden' }}>
+        <DesktopTopbar tab={tab} onOpenPalette={() => setPalette(true)} />
+        {dataError && (
+          <div role="alert" style={{ margin: '16px 40px 0', padding: '12px 16px', borderRadius: 14, border: '1px solid var(--kp-line-2)', background: 'var(--kp-fill)', color: text.secondary, fontSize: 14 }}>{dataError}</div>
+        )}
+        <main key={tab} className="kp-fade">{loading ? <DesktopSkeleton /> : children}</main>
+      </div>
+      {palette && <CommandPalette onClose={() => setPalette(false)} onNavigate={k => { setPalette(false); onChange(k); }} />}
+    </div>
+  );
+}
+
+// ─── Desktop: головна (бенто-сітка) ───────────────────────────
+function BalanceTrend() {
+  const { t, lang } = usePreferences();
+  const [days, setDays] = useState(14);
+  const [points, setPoints] = useState<BalancePoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hover, setHover] = useState<number | null>(null);
+  const uid = useId().replace(/:/g, '');
+
+  useEffect(() => {
+    const token = localStorage.getItem('army_bank_token');
+    if (!token) { setLoading(false); return; }
+    const ctrl = new AbortController();
+    setLoading(true);
+    fetch(apiUrl(`/api/analytics/balance-history?days=${days}`), { headers: { Authorization: `Bearer ${token}` }, signal: ctrl.signal })
+      .then(r => r.ok ? r.json() : null)
+      .then(j => { setPoints(j?.ok && Array.isArray(j.data) ? j.data : []); setLoading(false); })
+      .catch(e => { if (e?.name !== 'AbortError') setLoading(false); });
+    return () => ctrl.abort();
+  }, [days]);
+
+  const W = 800, H = 200, PAD = 16;
+  const n = points.length;
+  const ready = n >= 2;
+  const vals = points.map(p => p.balance);
+  const min = ready ? Math.min(...vals) : 0;
+  const max = ready ? Math.max(...vals) : 1;
+  const range = max - min || 1;
+  const xAt = (i: number) => (i / (n - 1)) * W;
+  const yAt = (v: number) => H - PAD - ((v - min) / range) * (H - PAD * 2);
+  let line = '';
+  if (ready) {
+    line = `M ${xAt(0).toFixed(1)} ${yAt(vals[0]).toFixed(1)}`;
+    for (let i = 1; i < n; i++) {
+      const cx = (xAt(i - 1) + xAt(i)) / 2;
+      line += ` C ${cx.toFixed(1)} ${yAt(vals[i - 1]).toFixed(1)}, ${cx.toFixed(1)} ${yAt(vals[i]).toFixed(1)}, ${xAt(i).toFixed(1)} ${yAt(vals[i]).toFixed(1)}`;
+    }
+  }
+  const area = ready ? `${line} L ${W} ${H} L 0 ${H} Z` : '';
+  const locale = localeForLang(lang);
+  const fmtDay = (d: string) => new Date(d).toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+  const hp = hover != null && ready ? points[hover] : null;
+  const hx = hover != null && ready ? (hover / (n - 1)) * 100 : 0;
+  const hy = hp ? (yAt(hp.balance) / H) * 100 : 0;
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: text.muted }}>{t('dk_history_chart')}</span>
+        <div role="group" aria-label={t('dk_history_chart')} style={{ display: 'flex', gap: 2, padding: 3, borderRadius: 12, background: 'var(--kp-fill)', border: '1px solid var(--kp-line)' }}>
+          {[7, 14, 30].map(d => (
+            <button key={d} onClick={() => setDays(d)} aria-pressed={d === days} style={{
+              height: 28, padding: '0 12px', borderRadius: 9, border: 'none', fontFamily, fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+              background: d === days ? 'var(--kp-fill-2)' : 'transparent', color: d === days ? text.primary : 'var(--kp-muted)',
+              transition: 'background 0.18s, color 0.18s',
+            }}>{d}{t('dk_days_short')}</button>
+          ))}
+        </div>
+      </div>
+      <div
+        style={{ position: 'relative', height: 168, touchAction: 'none' }}
+        onMouseMove={e => { if (!ready) return; const r = e.currentTarget.getBoundingClientRect(); setHover(Math.max(0, Math.min(n - 1, Math.round(((e.clientX - r.left) / r.width) * (n - 1))))); }}
+        onMouseLeave={() => setHover(null)}
+      >
+        {loading && <div className="kp-skel" style={{ position: 'absolute', inset: 0 }} />}
+        {!loading && !ready && <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: text.dim, fontSize: 14, border: '1px dashed var(--kp-line-2)', borderRadius: 16 }}>{t('insufficient_spend_data')}</div>}
+        {ready && !loading && (
+          <>
+            <svg key={days} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`${t('dk_history_chart')}: ${fmtDay(points[0].day)} — ${fmtDay(points[n - 1].day)}`} className="kp-wipe" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
+              <defs>
+                <linearGradient id={`bt-${uid}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.16" />
+                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              {[0.25, 0.5, 0.75].map(g => <line key={g} x1="0" x2={W} y1={H * g} y2={H * g} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 6" vectorEffect="non-scaling-stroke" />)}
+              <path d={area} fill={`url(#bt-${uid})`} />
+              <path d={line} fill="none" stroke="#f4f4f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            </svg>
+            {hp && (
+              <>
+                <div aria-hidden style={{ position: 'absolute', top: 0, bottom: 0, left: `${hx}%`, width: 1, background: 'rgba(255,255,255,0.22)', pointerEvents: 'none' }} />
+                <div aria-hidden style={{ position: 'absolute', left: `${hx}%`, top: `${hy}%`, width: 11, height: 11, marginLeft: -5.5, marginTop: -5.5, borderRadius: '50%', background: '#f4f4f5', boxShadow: '0 0 0 4px rgba(255,255,255,0.16)', pointerEvents: 'none' }} />
+                <div style={{
+                  position: 'absolute', top: -4, left: `min(max(${hx}%, 78px), calc(100% - 78px))`, transform: 'translate(-50%, -100%)',
+                  padding: '8px 12px', borderRadius: 12, background: 'rgba(28,28,31,0.96)', border: '1px solid var(--kp-line-2)',
+                  boxShadow: '0 16px 32px -12px rgba(0,0,0,0.7)', pointerEvents: 'none', whiteSpace: 'nowrap', textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: 12, color: text.muted }}>{fmtDay(hp.day)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: text.primary, ...T.num }}>{fmtInt(hp.balance)}{fmtDec(hp.balance)} TAX</div>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
+      {ready && !loading && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 12, color: text.dim }}>
+          <span>{fmtDay(points[0].day)}</span><span>{fmtDay(points[n - 1].day)}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, visible, onToggle, span = '' }: {
+  span?: string; firstName: string; greeting: string; balance: number; accountNumber: string; flowNet: number; visible: boolean; onToggle: () => void;
+}) {
+  const { t } = usePreferences();
+  const { openTransfer, toast } = useApp();
+  const shown = useCountUp(balance);
+  const up = flowNet >= 0;
+  const actions: { mode: TransferMode | 'market'; label: string; icon: IconName; primary?: boolean }[] = [
+    { mode: 'topup', label: t('quick_topup'), icon: 'up', primary: true },
+    { mode: 'by_card', label: t('quick_by_card'), icon: 'right' },
+    { mode: 'by_account', label: t('quick_by_account'), icon: 'hash' },
+  ];
+  const { goTo } = useApp();
+  return (
+    <section className={`kp-card kp-rise ${span}`} style={{ padding: '30px 36px 30px', overflow: 'hidden', ['--i' as string]: 0 }}>
+      <div aria-hidden style={{ position: 'absolute', right: -140, top: -180, width: 460, height: 460, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(255,212,0,0.10), transparent)', pointerEvents: 'none' }} />
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 26 }}>
+        <div style={{ fontSize: 16, color: text.muted }}>{greeting}, <span style={{ color: text.primary, fontWeight: 600 }}>{firstName}</span></div>
+        <div style={{ flex: 1 }} />
+        {accountNumber && accountNumber !== '—' && (
+          <button
+            className="kp-hover" aria-label={t('dk_copy_account')} title={t('dk_copy_account')}
+            onClick={() => { navigator.clipboard?.writeText(accountNumber).then(() => toast(t('dk_copied'))).catch(() => {}); }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, height: 34, padding: '0 12px', borderRadius: 10, border: '1px solid var(--kp-line)', background: 'var(--kp-fill)', color: 'var(--kp-muted)', fontFamily, fontSize: 13, fontWeight: 500 }}
+          >
+            {accountNumber}<Ico n="copy" size={14} />
+          </button>
+        )}
+      </div>
+
+      <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: text.muted }}>{t('balance_total')}</span>
+          <button onClick={onToggle} className="kp-hover" aria-label={visible ? t('dk_hide_balance') : t('dk_show_balance')} aria-pressed={!visible} style={{ width: 30, height: 30, borderRadius: 9, border: 'none', background: 'transparent', color: 'var(--kp-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ico n={visible ? 'eye' : 'eyeOff'} size={17} />
+          </button>
+        </div>
+        <div style={{ ...T.num, display: 'flex', alignItems: 'baseline', gap: 12, lineHeight: 1, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 28, fontWeight: 600, color: gold, letterSpacing: -0.4 }}>TAX</span>
+          <span style={{ fontSize: 'clamp(52px, 5.4vw, 84px)', fontWeight: 300, letterSpacing: '-0.045em', color: text.primary }}>{visible ? fmtInt(shown) : '• • • • •'}</span>
+          {visible && <span style={{ fontSize: 'clamp(26px, 2.4vw, 38px)', fontWeight: 300, color: 'var(--kp-dim)', letterSpacing: -0.5 }}>{fmtDec(shown)}</span>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 18 }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, height: 30, padding: '0 12px', borderRadius: 999,
+            background: up ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.04)', color: up ? text.primary : text.muted,
+            fontSize: 13.5, fontWeight: 600, ...T.num,
+          }}>
+            <Ico n={up ? 'inbound' : 'outbound'} size={14} sw={2} />
+            {up ? '+' : '−'}{fmtInt(Math.abs(flowNet))}{fmtDec(Math.abs(flowNet))} TAX
+          </span>
+          <span style={{ fontSize: 13.5, color: text.dim }}>{t('dk_this_month')}</span>
+        </div>
+      </div>
+
+      <div style={{ position: 'relative', marginTop: 28 }}><BalanceTrend /></div>
+
+      <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(128px, 1fr))', gap: 10, marginTop: 26 }}>
+        {actions.map(a => (
+          <button key={a.mode} className={`kp-btn${a.primary ? ' kp-btn-primary' : ''}`} onClick={() => openTransfer(a.mode as TransferMode)}>
+            <Ico n={a.icon} size={17} sw={2} />{a.label}
+          </button>
+        ))}
+        <button className="kp-btn" onClick={() => goTo('market')}><Ico n="cart" size={17} sw={1.9} />{t('quick_market')}</button>
+      </div>
+    </section>
+  );
+}
+
+function DesktopActivity({ transactions, span = '' }: { transactions: TxItem[]; span?: string }) {
+  const { goTo } = useApp();
+  const { t, lang } = usePreferences();
+  const rows = transactions.slice(0, 8);
+  const dayLabel = (iso: string) => fmtDateLabel(iso, lang);
+  return (
+    <section className={`kp-card kp-rise ${span}`} style={{ padding: '26px 14px 12px', display: 'flex', flexDirection: 'column', ['--i' as string]: 2 }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px 12px' }}>
+        <span style={{ ...T.h3, fontSize: 18, color: text.primary }}>{t('recent_activity')}</span>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => goTo('operations')} className="kp-hover" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 32, padding: '0 10px 0 12px', borderRadius: 10, border: 'none', background: 'transparent', color: text.secondary, fontFamily, fontSize: 13.5, fontWeight: 600 }}>
+          {t('history')}<Ico n="chevR" size={15} sw={2} />
+        </button>
+      </div>
+      {rows.length === 0 ? (
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('no_transactions_yet')}</div>
+      ) : rows.map(tx => {
+        const incoming = tx.direction === 'in';
+        return (
+          <button key={tx.id} onClick={() => goTo('operations')} className="kp-row" style={{
+            display: 'grid', gridTemplateColumns: '22px minmax(0,1fr) auto auto', alignItems: 'center', columnGap: 16,
+            width: '100%', padding: '13px 14px', borderRadius: 14, border: 'none', background: 'transparent',
+            fontFamily, textAlign: 'left', cursor: 'pointer', color: 'inherit',
+          }}>
+            <span style={{ color: incoming ? text.primary : 'var(--kp-dim)', display: 'flex' }}><Ico n={incoming ? 'inbound' : 'outbound'} size={18} sw={1.9} /></span>
+            <span style={{ minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 500, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.description || txTypeLabel(tx.tx_type, t)}</span>
+              <span style={{ display: 'block', fontSize: 13, color: text.dim, marginTop: 2 }}>{dayLabel(tx.created_at)}, {fmtTime(tx.created_at, lang)}</span>
+            </span>
+            <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--kp-muted)', padding: '4px 10px', borderRadius: 999, background: 'var(--kp-fill)', whiteSpace: 'nowrap' }}>{txTypeLabel(tx.tx_type, t)}</span>
+            <span style={{ fontSize: 15.5, fontWeight: 600, minWidth: 120, textAlign: 'right', color: incoming ? text.primary : text.secondary, ...T.num }}>
+              {incoming ? '+' : '−'}{fmtInt(tx.amount)}{fmtDec(tx.amount)}&nbsp;TAX
+            </span>
+          </button>
+        );
+      })}
+    </section>
+  );
+}
+
+function SpendDonut({ rows, span = '' }: { rows: { label: string; value: number }[]; span?: string }) {
+  const { t } = usePreferences();
+  const [on, setOn] = useState(false);
+  useEffect(() => { const id = requestAnimationFrame(() => setOn(true)); return () => cancelAnimationFrame(id); }, []);
+  const total = rows.reduce((s, r) => s + r.value, 0);
+  const ramp = ['#f4f4f5', '#b4b4ba', '#85858c', '#5f5f66', '#45454b', '#323237'];
+  const R = 52, C = 2 * Math.PI * R;
+  let acc = 0;
+  return (
+    <section className={`kp-card kp-rise ${span}`} style={{ padding: '26px 28px 28px', ['--i' as string]: 3 }}>
+      <div style={{ ...T.h3, fontSize: 18, color: text.primary, marginBottom: 22 }}>{t('spending_this_month')}</div>
+      {total <= 0 ? (
+        <div style={{ padding: '40px 0', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('insufficient_spend_data')}</div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', width: 152, height: 152, flexShrink: 0 }}>
+            <svg viewBox="0 0 140 140" width="152" height="152" role="img" aria-label={t('spending_this_month')} style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="14" />
+              {rows.map((r, i) => {
+                const frac = r.value / total;
+                const len = Math.max(0, frac * C - 3);
+                const el = (
+                  <circle key={r.label} cx="70" cy="70" r={R} fill="none" stroke={ramp[Math.min(i, ramp.length - 1)]} strokeWidth="14" strokeLinecap="round"
+                    strokeDasharray={`${on ? len : 0} ${C}`} strokeDashoffset={-acc * C}
+                    style={{ transition: `stroke-dasharray 0.9s var(--kp-ease) ${i * 90}ms` }} />
+                );
+                acc += frac;
+                return el;
+              })}
+            </svg>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ...T.num }}>
+              <span style={{ fontSize: 12.5, color: text.dim }}>{t('dk_total')}</span>
+              <span style={{ fontSize: 22, fontWeight: 600, color: text.primary, letterSpacing: -0.6 }}>{fmtInt(total)}</span>
+              <span style={{ fontSize: 12, color: gold, fontWeight: 600 }}>TAX</span>
+            </div>
+          </div>
+          <ul style={{ flex: '1 1 150px', minWidth: 0, margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {rows.map((r, i) => (
+              <li key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '7px 0' }}>
+                <span aria-hidden style={{ width: 10, height: 10, borderRadius: 3, background: ramp[Math.min(i, ramp.length - 1)], flexShrink: 0 }} />
+                <span style={{ flex: 1, minWidth: 0, fontSize: 14.5, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.label}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: text.primary, ...T.num }}>{Math.round((r.value / total) * 100)}%</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
 
 // ─── Root app ─────────────────────────────────────────────────
 const SCREENS = { overview: OverviewScreen, operations: OperationsScreen, cards: CardsScreen, market: MarketplaceScreen, profile: ProfileScreen };
@@ -7782,8 +8677,35 @@ function WowSplash() {
 }
 
 // ─── Login screen ─────────────────────────────────────────────
+function LoginBrandPanel() {
+  const { t } = usePreferences();
+  const points = [t('dk_login_p1'), t('dk_login_p2'), t('dk_login_p3')];
+  return (
+    <aside className="kp-fade" style={{ position: 'relative', flex: '1 1 52%', minWidth: 0, overflow: 'hidden', padding: '56px 64px', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--kp-line)', background: 'radial-gradient(900px 520px at 20% 0%, rgba(255,255,255,0.07), transparent 60%), rgba(10,10,11,0.6)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <BrandMark size={44} radiusValue={13} />
+        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.5, color: text.primary }}>Tax<span style={{ fontWeight: 300, opacity: 0.8 }}>Tech</span></div>
+      </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 560 }}>
+        <div style={{ fontSize: 'clamp(34px, 3.4vw, 52px)', fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.06, color: text.primary, marginBottom: 36 }}>{t('dk_login_title')}</div>
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {points.map((p, i) => (
+            <li key={p} className="kp-rise" style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 17, color: text.secondary, ['--i' as string]: i + 2 }}>
+              <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: i === 0 ? gold : 'rgba(255,255,255,0.5)', flexShrink: 0 }} />{p}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div aria-hidden className="kp-rise" style={{ position: 'absolute', right: -70, bottom: -20, width: 460, transform: 'rotate(-10deg)', opacity: 0.92, ['--i' as string]: 3 }}>
+        <PremiumCard variant="obsidian" number="6897" name="TAXTECH" expiry="09/29" type="" balance={167504.68} isPrimary style={{ width: '100%' }} />
+      </div>
+    </aside>
+  );
+}
+
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const { t } = usePreferences();
+  const wide = useWindowWidth() >= 1024;
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [identity, setIdentity] = useState('');
   const [password, setPassword] = useState('');
@@ -7888,11 +8810,13 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0,       bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', pointerEvents: 'none',
               background: 'rgba(39,39,39, 0.48)',
       }} />
-      <div style={{ minHeight: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px', position: 'relative' }}>
-      <div style={{ width: '100%', maxWidth: 380 }}>
+      <div style={{ minHeight: '100%', display: 'flex', alignItems: 'stretch', position: 'relative' }}>
+      {wide && <LoginBrandPanel />}
+      <div style={{ flex: wide ? '1 1 48%' : 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px' }}>
+      <div style={{ width: '100%', maxWidth: wide ? 420 : 380 }}>
 
         {/* Logo block */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+        <div style={{ textAlign: 'center', marginBottom: 40, display: wide ? 'none' : undefined }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
             <BrandMark size={72} radiusValue={22} elevated />
           </div>
@@ -8055,14 +8979,14 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
             )}
 
             <button type="submit" disabled={loading} style={{
-              width: '100%', padding: '15px', borderRadius: radius.md, border: `1px solid rgba(172,172,172, 0.22)`,
+              width: '100%', padding: '15px', borderRadius: radius.md, border: 'none',
               background: loading
                 ? 'rgba(85,85,85, 0.25)'
-                : 'rgba(68,68,68, 0.94)',
-              color: loading ? text.dim : text.primary,
+                : gold,
+              color: loading ? text.dim : '#17140a',
               ...T.bodyLg, fontWeight: 600, cursor: loading ? 'default' : 'pointer',
               fontFamily, letterSpacing: 0.4,
-              boxShadow: loading ? 'none' : '0 1px 0 rgba(255,255,255, 0.06) inset, 0 8px 20px rgba(0,0,0, 0.35)',
+              boxShadow: loading ? 'none' : '0 10px 28px -12px rgba(255,212,0, 0.55)',
               transition: 'all 0.18s',
             }}>{loading ? t('wait_processing') : mode === 'login' ? t('sign_in') : t('create_account')}</button>
           </div>
@@ -8073,6 +8997,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div style={{ textAlign: 'center', marginTop: 24, ...T.caption, color: 'rgba(215,215,215, 0.72)', letterSpacing: 0.6 }}>
           TaxTech · {t('personal_cabinet')}
         </div>
+      </div>
       </div>
       </div>
     </div>
@@ -8375,22 +9300,9 @@ export default function App() {
       <AppCtx.Provider value={appCtx}>
         <BankDataCtx.Provider value={bankCtx}>
           <LayoutCtx.Provider value="desktop">
-            <div style={{ ...appBase, display: 'flex' }}>
-              <LuxuryAmbientFx />
-              <DesktopSidebar active={tab} onChange={setTab} />
-              <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-                {dataError && (
-                  <div style={{ margin: '12px 16px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid rgba(126,126,126, 0.25)', background: 'rgba(126,126,126, 0.08)', color: '#c6c6c6', fontSize: 13 }}>
-                    {dataError}
-                  </div>
-                )}
-                {loadingData ? (
-                  <div style={{ minHeight: '100%', display: 'grid', placeItems: 'center', color: text.muted }}>{t('loading_data')}</div>
-                ) : (
-                  <Screen />
-                )}
-              </div>
-            </div>
+            <DesktopShell tab={tab} onChange={setTab} dataError={dataError} loading={loadingData}>
+              <Screen />
+            </DesktopShell>
             {toastMsg && <Toast msg={toastMsg} />}
             {transferModal && <TransferModal mode={transferModal} onClose={() => setTransferModal(null)} />}
           </LayoutCtx.Provider>
