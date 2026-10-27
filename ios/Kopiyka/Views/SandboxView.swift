@@ -12,8 +12,7 @@ struct SandboxView: View {
                 BankView()
             } else {
                 SignInView()
-                    .scrollContentBackground(.hidden)
-                    .auroraScreen(height: 380)
+                    .labForm()
                     .navigationTitle("Навчальний банк")
             }
         }
@@ -30,10 +29,11 @@ struct TopUpView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            LabForm {
                 TextField("Сума, віртуальні ₴", value: $amount, format: .number).keyboardType(.decimalPad)
-                if let error { Text(error).foregroundStyle(.red) }
+                if let error { Text(error).foregroundStyle(.secondary) }
             }
+            .labForm()
             .navigationTitle("Поповнення")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -80,7 +80,7 @@ struct TransferView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            LabForm {
                 Section {
                     VStack(spacing: 6) {
                         TextField("0", value: $amount, format: .number)
@@ -143,8 +143,9 @@ struct TransferView: View {
                 }
 
                 if let outcome { Section { Text(outcome) } }
-                if let error { Section { Text(error).foregroundStyle(.red) } }
+                if let error { Section { Text(error).foregroundStyle(.secondary) } }
             }
+            .labForm()
             .navigationTitle("Переказ")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -207,7 +208,7 @@ struct SignInView: View {
     @State private var working = false
 
     var body: some View {
-        Form {
+        LabForm {
             Section {
                 Text("Гроші тут віртуальні: справжніх рахунків, карток і переказів немає. Банк потрібен, щоб навчитися фінансів і перевірити, де краще рахувати - на телефоні чи на сервері.")
                     .foregroundStyle(.secondary)

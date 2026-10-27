@@ -48,7 +48,7 @@ struct AssistantView: View {
                 }
                 .onChange(of: turns.count) { withAnimation { proxy.scrollTo(turns.last?.id, anchor: .bottom) } }
             }
-            .auroraScreen(height: 320)
+            .screenBackground()
             .navigationTitle("Помічник")
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
@@ -59,9 +59,9 @@ struct AssistantView: View {
                     Button(action: ask) {
                         Image(systemName: "arrow.up")
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.onInk)
                             .frame(width: 34, height: 34)
-                            .background(Theme.brand, in: .circle)
+                            .background(Theme.ink, in: .circle)
                     }
                     .disabled(question.trimmingCharacters(in: .whitespaces).isEmpty || working)
                     .opacity(question.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
@@ -69,7 +69,7 @@ struct AssistantView: View {
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .padding(.vertical, 8)
-                .glassEffect(in: .rect(cornerRadius: 24))
+                .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
                 .padding(.horizontal)
                 .padding(.bottom, 6)
             }
@@ -78,15 +78,11 @@ struct AssistantView: View {
 
     private var intro: some View {
         VStack(spacing: 22) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 52, weight: .semibold))
-                .foregroundStyle(LinearGradient(colors: [Theme.emerald, Theme.sky, Theme.violet],
-                                                startPoint: .topLeading, endPoint: .bottomTrailing))
-                .symbolEffect(.pulse)
+            MarkView(height: 60)
                 .padding(.top, 40)
             VStack(spacing: 8) {
                 Text("Спитайте про гроші")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .font(.system(.title2, weight: .semibold))
                 Text("Відповідь дасть модель на телефоні або на сервері - залежно від мережі, заряду й упевненості.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -94,7 +90,7 @@ struct AssistantView: View {
             }
             Surface {
                 ForEach(Array(Self.suggestions.enumerated()), id: \.offset) { i, s in
-                    if i > 0 { Divider().padding(.leading, 16) }
+                    if i > 0 { Rule() }
                     Button {
                         question = s
                         ask()
@@ -118,12 +114,10 @@ struct AssistantView: View {
         HStack {
             Spacer(minLength: 48)
             Text(text)
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.onInk)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 11)
-                .background(LinearGradient(colors: [Theme.teal, Theme.violet], startPoint: .topLeading,
-                                           endPoint: .bottomTrailing),
-                            in: .rect(cornerRadius: 20, style: .continuous))
+                .background(Theme.ink, in: .rect(cornerRadius: 18, style: .continuous))
         }
     }
 
@@ -131,16 +125,15 @@ struct AssistantView: View {
         HStack {
             VStack(alignment: .leading, spacing: 10) {
                 if let a = t.answer { Text(a) }
-                if let e = t.error { Text(e).foregroundStyle(.red) }
+                if let e = t.error { Text(e).foregroundStyle(.secondary) }
                 if let r = t.record {
-                    Divider()
+                    Rule().padding(.leading, 0)
                     RoutedNote(record: r)
                     FeedbackButtons(id: r.id)
                 }
             }
             .padding(16)
-            .background(Color(.secondarySystemGroupedBackground).opacity(0.92),
-                        in: .rect(cornerRadius: 20, style: .continuous))
+            .background(Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
             Spacer(minLength: 32)
         }
     }

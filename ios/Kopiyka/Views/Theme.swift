@@ -1,113 +1,109 @@
 import SwiftUI
 
-/// Візуальна мова: живе «сяйво» за головними числами, градієнтні картки, великі суми.
-/// Колір несе сенс - категорія, дизайн картки, надходження. Без кольорових крапок-статусів,
-/// пігулок-значків і кольорових квадратиків під іконками.
+/// Назва й позиціонування. Одне місце, щоб не розходилось між екранами.
+enum Brand {
+    static let name = "TaxTech"
+    static let lab = "Віртуальна лабораторія цифрових фінансів і технологій розподіленого реєстру"
+}
+
+/// Візуальна мова: чорне на білому, без градієнтів і кольорових плашок. Плоскі поверхні,
+/// тонкі лінії, щільна типографіка, цифри - моноширинні. Різницю між елементами дають
+/// насиченість сірого, розмір і вага шрифту, а не колір.
 enum Theme {
-    static let corner: CGFloat = 24
+    static let corner: CGFloat = 16
     static let gutter: CGFloat = 16
+    static let hairline: CGFloat = 0.5
 
-    static func balance(_ size: CGFloat = 44) -> Font {
-        .system(size: size, weight: .bold, design: .rounded)
+    private static func dynamic(light: UInt32, dark: UInt32) -> Color {
+        Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: dark) : UIColor(hex: light) })
     }
 
-    static func hex(_ v: UInt32) -> Color {
-        Color(red: Double(v >> 16 & 0xFF) / 255, green: Double(v >> 8 & 0xFF) / 255, blue: Double(v & 0xFF) / 255)
+    static let bg = dynamic(light: 0xFFFFFF, dark: 0x000000)
+    static let surface = dynamic(light: 0xF4F4F5, dark: 0x121214)
+    static let line = dynamic(light: 0xE2E2E5, dark: 0x2A2A2E)
+    static let ink = dynamic(light: 0x000000, dark: 0xFFFFFF)
+    /// Текст на чорній (у темній темі - білій) заливці.
+    static let onInk = dynamic(light: 0xFFFFFF, dark: 0x000000)
+
+    static func balance(_ size: CGFloat = 46) -> Font {
+        .system(size: size, weight: .semibold)
     }
 
-    static let emerald = hex(0x10B981)
-    static let teal = hex(0x14B8A6)
-    static let sky = hex(0x38BDF8)
-    static let violet = hex(0x8B5CF6)
-    static let amber = hex(0xF59E0B)
-    static let rose = hex(0xF43F5E)
-
-    /// Фірмовий перелив для гліфів дій і стовпців графіка.
-    static let brand = LinearGradient(colors: [emerald, teal, sky], startPoint: .topLeading, endPoint: .bottomTrailing)
-
-    /// Колір категорії витрат - той самий у кільці й у смузі рядка, тож легенда не потрібна.
-    static func category(_ name: String) -> [Color] {
-        switch name {
-        case "Продукти": [emerald, teal]
-        case "Кафе": [amber, hex(0xF97316)]
-        case "Пальне": [rose, hex(0xE11D48)]
-        case "Аптека": [sky, hex(0x3B82F6)]
-        case "Транспорт": [violet, hex(0x6366F1)]
-        case "Комуналка": [hex(0xFACC15), amber]
-        default: [hex(0x94A3B8), hex(0x64748B)]
-        }
+    /// Відтінок за місцем у переліку: найбільша категорія найтемніша. Кільце й смуги рядків
+    /// мають однаковий відтінок, тож легенда не потрібна.
+    static func shade(_ rank: Int) -> Color {
+        ink.opacity(max(0.14, 1 - 0.17 * Double(rank)))
     }
 }
 
-// MARK: Сяйво
-
-/// Повільне «північне сяйво» за верхом екрана: сітковий градієнт, що дихає, і плавний перехід у тло.
-struct AuroraBackground: View {
-    var height: CGFloat = 460
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        // 15 кадрів на секунду досить для повільного руху; анімація - не за рахунок батареї,
-        // яку застосунок сам же міряє
-        TimelineView(.animation(minimumInterval: 1 / 15, paused: Motion.paused(reduceMotion))) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            MeshGradient(width: 3, height: 3, points: points(t), colors: colors)
-                .opacity(scheme == .dark ? 0.55 : 0.35)
-        }
-        .frame(height: height)
-        .mask(LinearGradient(colors: [.black, .black.opacity(0.6), .clear], startPoint: .top, endPoint: .bottom))
-        .frame(maxHeight: .infinity, alignment: .top)
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
-    }
-
-    private var colors: [Color] {
-        [Theme.emerald, Theme.teal, Theme.violet,
-         Theme.sky, Theme.emerald, Theme.violet,
-         Theme.teal, Theme.sky, Theme.emerald]
-    }
-
-    private func points(_ t: Double) -> [SIMD2<Float>] {
-        let a = Float(sin(t * 0.35)) * 0.18
-        let b = Float(cos(t * 0.27)) * 0.16
-        return [
-            [0, 0], [0.5 + a * 0.5, 0], [1, 0],
-            [0, 0.5 + b], [0.5 + a, 0.5 - b], [1, 0.5 - a],
-            [0, 1], [0.5 - b * 0.5, 1], [1, 1],
-        ]
-    }
-}
-
-/// Коли рух вимкнено: «Зменшення руху» або режим енергозбереження.
-enum Motion {
-    static func paused(_ reduceMotion: Bool) -> Bool {
-        reduceMotion || ProcessInfo.processInfo.isLowPowerModeEnabled
+private extension UIColor {
+    convenience init(hex v: UInt32) {
+        self.init(red: CGFloat(v >> 16 & 0xFF) / 255, green: CGFloat(v >> 8 & 0xFF) / 255,
+                  blue: CGFloat(v & 0xFF) / 255, alpha: 1)
     }
 }
 
 extension View {
-    /// Тло екрана зі сяйвом угорі.
-    func auroraScreen(height: CGFloat = 460) -> some View {
-        background {
-            ZStack(alignment: .top) {
-                Color(.systemGroupedBackground)
-                AuroraBackground(height: height)
-            }
-            .ignoresSafeArea()
+    /// Тло екрана.
+    func screenBackground() -> some View {
+        background { Theme.bg.ignoresSafeArea() }
+    }
+
+    /// Тло форми: без стандартного тла груп.
+    func labForm() -> some View {
+        scrollContentBackground(.hidden).screenBackground()
+    }
+}
+
+/// Форма на плоских поверхнях лабораторії замість стандартних груп iOS.
+struct LabForm<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        Form {
+            Group { content }.listRowBackground(Theme.surface)
         }
+    }
+}
+
+// MARK: Знак
+
+/// Знак лабораторії - векторний, малюється кольором тексту.
+struct MarkView: View {
+    var height: CGFloat = 44
+
+    var body: some View {
+        Image("Mark")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(height: height)
+            .foregroundStyle(Theme.ink)
+            .accessibilityHidden(true)
+    }
+}
+
+// MARK: Типографіка
+
+extension View {
+    /// Мала підпис-мітка над блоком: капітель, розряджений набір.
+    func caption() -> some View {
+        font(.caption.weight(.medium))
+            .tracking(0.9)
+            .textCase(.uppercase)
+            .foregroundStyle(.secondary)
     }
 }
 
 // MARK: Поверхні
 
-/// Поверхня-картка на тлі екрана.
+/// Плоска поверхня з тонкою лінією.
 struct Surface<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
-            .background(Color(.secondarySystemGroupedBackground).opacity(0.92), in: .rect(cornerRadius: Theme.corner))
+            .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
     }
 }
 
@@ -123,40 +119,84 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(.title3.weight(.semibold))
+            Text(text).caption()
             Spacer()
             if let trailing {
-                Text(trailing).font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
+                Text(trailing).font(.footnote).foregroundStyle(.secondary).monospacedDigit()
             }
         }
         .padding(.horizontal, 4)
     }
 }
 
-/// Кругла скляна кнопка дії з підписом; гліф - фірмовим переливом.
-struct ActionButton: View {
-    let title: String
-    let symbol: String
-    let action: () -> Void
+/// Тонка роздільна лінія між рядками поверхні.
+struct Rule: View {
+    var body: some View {
+        Rectangle().fill(Theme.line).frame(height: Theme.hairline).padding(.leading, 16)
+    }
+}
+
+/// Головна дія: чорна плитка з контрастним текстом.
+struct InkButton: ButtonStyle {
+    @Environment(\.isEnabled) private var enabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .foregroundStyle(Theme.onInk)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 15)
+            .background(Theme.ink, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+            .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.35)
+    }
+}
+
+/// Другорядна дія: лише контур.
+struct LineButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.medium))
+            .foregroundStyle(Theme.ink)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
+                .strokeBorder(Theme.ink.opacity(0.9), lineWidth: 1))
+            .opacity(configuration.isPressed ? 0.6 : 1)
+    }
+}
+
+/// Ряд дій: гліф над підписом, у спільній плоскій поверхні, між діями - тонкі лінії.
+struct ActionBar: View {
+    struct Item: Identifiable {
+        let title: String
+        let symbol: String
+        let action: () -> Void
+        var id: String { title }
+    }
+
+    let items: [Item]
 
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: symbol)
-                    .font(.system(size: 21, weight: .semibold))
-                    .foregroundStyle(Theme.brand)
-                    .frame(width: 58, height: 58)
-                    .glassEffect(.regular.interactive(), in: .circle)
-                Text(title)
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+        HStack(spacing: 0) {
+            ForEach(Array(items.enumerated()), id: \.element.id) { i, item in
+                if i > 0 { Rectangle().fill(Theme.line).frame(width: Theme.hairline).padding(.vertical, 14) }
+                Button(action: item.action) {
+                    VStack(spacing: 8) {
+                        Image(systemName: item.symbol)
+                            .font(.system(size: 19, weight: .regular))
+                            .frame(height: 24)
+                        Text(item.title).font(.footnote.weight(.medium)).lineLimit(1).minimumScaleFactor(0.8)
+                    }
+                    .foregroundStyle(Theme.ink)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
             }
-            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.plain)
-        .sensoryFeedback(.selection, trigger: title)
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+        .sensoryFeedback(.selection, trigger: items.count)
     }
 }
 
@@ -165,7 +205,6 @@ struct AmountRow: View {
     let title: String
     let subtitle: String
     let amount: String
-    var income = false
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
@@ -180,7 +219,6 @@ struct AmountRow: View {
             Text(amount)
                 .font(.body.weight(.semibold))
                 .monospacedDigit()
-                .foregroundStyle(income ? AnyShapeStyle(Theme.brand) : AnyShapeStyle(.primary))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
@@ -190,101 +228,112 @@ struct AmountRow: View {
 // MARK: Картка
 
 /// Дизайни віртуальної картки - ті самі ідентифікатори, що приймає сервер (`PATCH /cards/{id}/design`).
+/// Усі плоскі: заливка, колір тексту, знак-водяний на кутку.
 enum CardDesign: String, CaseIterable, Identifiable {
-    case forest, gold, navy, rose, slate, dark
+    case dark, slate, navy, forest, gold, rose
 
     var id: String { rawValue }
 
-    init(server: String?) { self = CardDesign(rawValue: server ?? "") ?? .forest }
+    init(server: String?) { self = CardDesign(rawValue: server ?? "") ?? .dark }
 
     var title: String {
         switch self {
-        case .forest: "Смарагд"
-        case .gold: "Бурштин"
-        case .navy: "Північ"
-        case .rose: "Захід"
+        case .dark: "Чорний"
         case .slate: "Графіт"
-        case .dark: "Обсидіан"
+        case .navy: "Сталь"
+        case .forest: "Попіл"
+        case .gold: "Папір"
+        case .rose: "Контур"
         }
     }
 
-    /// 3×3 кольори сіткового градієнта.
-    var mesh: [Color] {
-        let h = Theme.hex
-        return switch self {
-        case .forest: [h(0x064E3B), h(0x047857), h(0x10B981),
-                       h(0x022C22), h(0x0F766E), h(0x34D399),
-                       h(0x011A14), h(0x064E3B), h(0x14B8A6)]
-        case .gold: [h(0x3B2205), h(0x8A5A12), h(0xE8B85A),
-                     h(0x5C3A0B), h(0xC88E2E), h(0xFBE3A1),
-                     h(0x241503), h(0x7A4D0E), h(0xD9A441)]
-        case .navy: [h(0x0B1437), h(0x1E3A8A), h(0x38BDF8),
-                     h(0x0A0F2C), h(0x4338CA), h(0x818CF8),
-                     h(0x050816), h(0x1E1B4B), h(0x6366F1)]
-        case .rose: [h(0x4C0519), h(0xBE123C), h(0xFB923C),
-                     h(0x3B0764), h(0xDB2777), h(0xFDBA74),
-                     h(0x1E0A2E), h(0x9D174D), h(0xF97316)]
-        case .slate: [h(0x1F2937), h(0x4B5563), h(0xD1D5DB),
-                      h(0x111827), h(0x6B7280), h(0xF3F4F6),
-                      h(0x0B0F17), h(0x374151), h(0x9CA3AF)]
-        case .dark: [h(0x050505), h(0x111827), h(0x312E81),
-                     h(0x0A0A0A), h(0x0F172A), h(0x134E4A),
-                     h(0x000000), h(0x1E1B4B), h(0x064E3B)]
+    var fill: Color {
+        switch self {
+        case .dark: Color(white: 0)
+        case .slate: Color(white: 0.17)
+        case .navy: Color(white: 0.56)
+        case .forest: Color(white: 0.85)
+        case .gold: Color(white: 1)
+        case .rose: .clear
+        }
+    }
+
+    var text: Color {
+        switch self {
+        case .dark, .slate: .white
+        case .navy, .forest, .gold: .black
+        case .rose: Theme.ink
+        }
+    }
+
+    /// Рамка потрібна там, де заливка зливається з тлом екрана.
+    var border: Color? {
+        switch self {
+        case .dark: Color.white.opacity(0.25)
+        case .gold: Color.black.opacity(0.18)
+        case .rose: Theme.ink
+        default: nil
         }
     }
 }
 
-/// Віртуальна картка: живий сітковий градієнт, відблиск, що повільно пробігає, тонка рамка.
+/// Віртуальна картка: плоска заливка, знак лабораторії великим водяним знаком у куті.
 struct VirtualCardView: View {
     let number: String
     let expiry: String?
     let holder: String?
-    var design = CardDesign.forest
+    var design = CardDesign.dark
     var frozen = false
     var compact = false
-    var animated = true
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 20,
-                                paused: !animated || compact || frozen || Motion.paused(reduceMotion))) { context in
-            let t = context.date.timeIntervalSinceReferenceDate
-            ZStack {
-                MeshGradient(width: 3, height: 3, points: points(t), colors: design.mesh)
-                sheen(t)
+        ZStack {
+            RoundedRectangle(cornerRadius: corner, style: .continuous).fill(design.fill)
+            watermark
+            if !compact { face }
+            if let border = design.border {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .strokeBorder(LinearGradient(colors: [.white.opacity(0.35), .white.opacity(0.05)],
-                                                 startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
-                if !compact { face }
-                if frozen {
-                    Rectangle().fill(.ultraThinMaterial)
-                    Label("Заморожена", systemImage: "snowflake")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                }
+                    .strokeBorder(border, lineWidth: design == .rose ? 1.5 : 1)
             }
-            .clipShape(.rect(cornerRadius: corner, style: .continuous))
+            if frozen {
+                RoundedRectangle(cornerRadius: corner, style: .continuous).fill(.black.opacity(0.62))
+                Label("Заморожена", systemImage: "snowflake")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+            }
         }
         .aspectRatio(1.586, contentMode: .fit)
-        .shadow(color: design.mesh[4].opacity(compact ? 0.2 : 0.45), radius: compact ? 6 : 24, y: compact ? 4 : 14)
+        .clipShape(.rect(cornerRadius: corner, style: .continuous))
     }
 
-    private var corner: CGFloat { compact ? 10 : 22 }
+    private var corner: CGFloat { compact ? 8 : 18 }
+
+    private var watermark: some View {
+        GeometryReader { g in
+            Image("Mark")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(height: g.size.height * 1.05)
+                .foregroundStyle(design.text.opacity(0.1))
+                .position(x: g.size.width * 0.86, y: g.size.height * 0.72)
+        }
+    }
 
     private var face: some View {
         VStack(alignment: .leading) {
             HStack(alignment: .firstTextBaseline) {
-                Text("копійка")
-                    .font(.system(.title2, design: .rounded, weight: .heavy))
+                Text(Brand.name)
+                    .font(.system(.title3, weight: .semibold))
                 Spacer()
                 Text("ВІРТУАЛЬНА")
-                    .font(.caption2.weight(.semibold))
+                    .font(.caption2.weight(.medium))
                     .tracking(1.6)
-                    .opacity(0.75)
+                    .opacity(0.7)
             }
             Spacer()
             Text(number)
-                .font(.system(.title3, design: .monospaced, weight: .medium))
+                .font(.system(.title3, design: .monospaced, weight: .regular))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
             HStack {
@@ -293,33 +342,9 @@ struct VirtualCardView: View {
                 if let expiry { Text(expiry).monospacedDigit() }
             }
             .font(.caption.weight(.medium))
-            .opacity(0.8)
+            .opacity(0.75)
         }
-        .padding(22)
-        .foregroundStyle(.white)
-        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
-    }
-
-    private func points(_ t: Double) -> [SIMD2<Float>] {
-        let a = Float(sin(t * 0.5)) * 0.12
-        let b = Float(cos(t * 0.4)) * 0.1
-        return [
-            [0, 0], [0.5, 0], [1, 0],
-            [0, 0.5], [0.5 + a, 0.5 + b], [1, 0.5],
-            [0, 1], [0.5, 1], [1, 1],
-        ]
-    }
-
-    /// Діагональний відблиск раз на кілька секунд - як світло на пластику.
-    private func sheen(_ t: Double) -> some View {
-        let phase = (t.truncatingRemainder(dividingBy: 6)) / 6
-        return GeometryReader { g in
-            LinearGradient(colors: [.clear, .white.opacity(0.22), .clear], startPoint: .leading, endPoint: .trailing)
-                .frame(width: g.size.width * 0.35)
-                .rotationEffect(.degrees(20))
-                .offset(x: -g.size.width * 0.5 + g.size.width * 2 * phase)
-                .blendMode(.plusLighter)
-        }
-        .opacity(compact ? 0 : 1)
+        .padding(20)
+        .foregroundStyle(design.text)
     }
 }

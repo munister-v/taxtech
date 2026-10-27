@@ -19,7 +19,7 @@ struct ReceiptView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            LabForm {
                 Section {
                     if VNDocumentCameraViewController.isSupported {
                         Button("Сфотографувати чек") { scanning = true }
@@ -39,7 +39,7 @@ struct ReceiptView: View {
                     }
                 }
                 if working { ProgressView() }
-                if let error { Text(error).foregroundStyle(.red) }
+                if let error { Text(error).foregroundStyle(.secondary) }
 
                 if fields != nil, let record {
                     Section("Розпізнано") {
@@ -65,8 +65,7 @@ struct ReceiptView: View {
                     }
                 }
             }
-            .scrollContentBackground(.hidden)
-            .auroraScreen(height: 340)
+            .labForm()
             .navigationTitle("Чек")
             .fullScreenCover(isPresented: $scanning) {
                 DocumentScanner { img in Task { await process(img) } }

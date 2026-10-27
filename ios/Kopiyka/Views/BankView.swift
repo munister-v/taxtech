@@ -31,7 +31,7 @@ final class BankModel {
     }
 }
 
-/// Головна навчального банку в стилі необанку: баланс, картка, дії, операції по днях.
+/// Головна навчального банку: баланс, картка, дії, операції по днях.
 struct BankView: View {
     @Environment(AppModel.self) private var model
     @State private var bank = BankModel()
@@ -56,7 +56,7 @@ struct BankView: View {
                 }
                 actions
                 if let error = bank.error {
-                    Text(error).font(.footnote).foregroundStyle(.red)
+                    Text(error).font(.footnote).foregroundStyle(.secondary)
                 }
                 operations
                 Text("Гроші навчальні: їх не можна вивести чи витратити поза застосунком.")
@@ -68,7 +68,7 @@ struct BankView: View {
             .padding(.horizontal, Theme.gutter)
             .padding(.top, 8)
         }
-        .auroraScreen()
+        .screenBackground()
         .navigationTitle("Банк")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -92,9 +92,7 @@ struct BankView: View {
 
     private var balance: some View {
         VStack(spacing: 6) {
-            Text("Віртуальний рахунок")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text("Віртуальний рахунок").caption()
             Text(bank.account.map { Format.money($0.balance) } ?? " ")
                 .font(Theme.balance())
                 .monospacedDigit()
@@ -114,24 +112,23 @@ struct BankView: View {
     }
 
     private var actions: some View {
-        HStack(alignment: .top) {
-            ActionButton(title: "Переказати", symbol: "arrow.up.right") { sheet = .transfer }
-            ActionButton(title: "Поповнити", symbol: "plus") { sheet = .topUp }
-            if bank.primaryCard != nil {
-                ActionButton(title: "Дизайн", symbol: "paintpalette") { sheet = .design }
-            }
-            if let card = bank.primaryCard {
-                ActionButton(title: card.isBlocked ? "Розморозити" : "Заморозити", symbol: "snowflake") {
-                    guard !busyCard else { return }
-                    busyCard = true
-                    Task {
-                        try? await model.api.toggleCardBlock(card.id)
-                        await bank.load(model.api)
-                        busyCard = false
-                    }
+        var items = [
+            ActionBar.Item(title: "Переказати", symbol: "arrow.up.right") { sheet = .transfer },
+            ActionBar.Item(title: "Поповнити", symbol: "plus") { sheet = .topUp },
+        ]
+        if let card = bank.primaryCard {
+            items.append(.init(title: "Дизайн", symbol: "rectangle.on.rectangle") { sheet = .design })
+            items.append(.init(title: card.isBlocked ? "Розморозити" : "Заморозити", symbol: "snowflake") {
+                guard !busyCard else { return }
+                busyCard = true
+                Task {
+                    try? await model.api.toggleCardBlock(card.id)
+                    await bank.load(model.api)
+                    busyCard = false
                 }
-            }
+            })
         }
+        return ActionBar(items: items)
     }
 
     private var operations: some View {
@@ -143,12 +140,12 @@ struct BankView: View {
             ForEach(bank.days.prefix(30), id: \.day) { day in
                 VStack(alignment: .leading, spacing: 8) {
                     Text(Self.dayTitle(day.day))
-                        .font(.subheadline.weight(.medium))
+                        .font(.footnote.weight(.medium))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 4)
                     Surface {
                         ForEach(Array(day.items.enumerated()), id: \.element.id) { i, tx in
-                            if i > 0 { Divider().padding(.leading, 16) }
+                            if i > 0 { Rule() }
                             TransactionRow(tx: tx)
                         }
                     }
@@ -171,8 +168,7 @@ struct TransactionRow: View {
     var body: some View {
         AmountRow(title: title,
                   subtitle: "\(kind), \(tx.date.formatted(date: .omitted, time: .shortened))",
-                  amount: (tx.isIncome ? "+" : "−") + Format.money(tx.amount),
-                  income: tx.isIncome)
+                  amount: (tx.isIncome ? "+" : "−") + Format.money(tx.amount))
     }
 
     /// «(віртуальна покупка)» сервер дописує до кожної покупки - тут це зайве, екран і так про віртуальні гроші.
@@ -192,13 +188,13 @@ struct TransactionRow: View {
     }
 }
 
-/// Вибір дизайну картки: живі мініатюри, вибрана - з рамкою акценту.
+/// Вибір дизайну картки: плоскі мініатюри, вибрана - з чорною рамкою.
 struct CardDesignPicker: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     let card: API.Card
     let changed: () async -> Void
-    @State private var selected: CardDesign = .forest
+    @State private var selected: CardDesign = .dark
     @State private var saving = false
 
     var body: some View {
@@ -217,9 +213,9 @@ struct CardDesignPicker: View {
                                 VStack(spacing: 8) {
                                     VirtualCardView(number: "", expiry: nil, holder: nil, design: d, compact: true)
                                         .overlay {
-                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                .strokeBorder(Color.accentColor, lineWidth: selected == d ? 3 : 0)
-                                                .padding(-4)
+                                            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                                .strokeBorder(Theme.ink, lineWidth: selected == d ? 2 : 0)
+                                                .padding(-5)
                                         }
                                     Text(d.title)
                                         .font(.footnote.weight(selected == d ? .semibold : .regular))

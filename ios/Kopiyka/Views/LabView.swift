@@ -11,7 +11,8 @@ struct LabView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            LabForm {
+                header
                 tiles
                 strategy
                 privacy
@@ -21,8 +22,7 @@ struct LabView: View {
                 summary
                 journal
             }
-            .scrollContentBackground(.hidden)
-            .auroraScreen(height: 340)
+            .labForm()
             .navigationTitle("Лабораторія")
             .refreshable { await model.refresh() }
             .task { await model.refresh() }
@@ -42,7 +42,20 @@ struct LabView: View {
         }
     }
 
-    /// Головні цифри журналу - плитками з переливом.
+    private var header: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 10) {
+                MarkView(height: 34)
+                Text(Brand.name).font(.system(size: 30, weight: .semibold)).tracking(-0.5)
+                Text(Brand.lab).font(.footnote).foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 8)
+            .listRowBackground(Color.clear)
+        }
+    }
+
+    /// Головні цифри журналу - плоскими плитками.
     private var tiles: some View {
         let d = model.decisions
         let n = Double(max(d.count, 1))
@@ -50,13 +63,10 @@ struct LabView: View {
         let judged = d.compactMap { model.feedback[$0.id] }
         return Section {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                StatTile(value: "\(d.count)", title: "рішень", colors: [Theme.emerald, Theme.teal])
-                StatTile(value: d.isEmpty ? "-" : "\(Int(Double(device) / n * 100))%", title: "на телефоні",
-                         colors: [Theme.sky, Theme.violet])
-                StatTile(value: d.isEmpty ? "-" : Format.ms(d.map(\.latencyMs).reduce(0, +) / n),
-                         title: "середня затримка", colors: [Theme.amber, Theme.rose])
-                StatTile(value: judged.isEmpty ? "-" : "\(Int(Double(judged.filter { $0 }.count) / Double(judged.count) * 100))%",
-                         title: "правильних відповідей", colors: [Theme.violet, Theme.rose])
+                StatTile(value: "\(d.count)", title: "рішень")
+                StatTile(value: d.isEmpty ? "-" : "\(Int(Double(device) / n * 100))%", title: "на телефоні")
+                StatTile(value: d.isEmpty ? "-" : Format.ms(d.map(\.latencyMs).reduce(0, +) / n), title: "середня затримка")
+                StatTile(value: judged.isEmpty ? "-" : "\(Int(Double(judged.filter { $0 }.count) / Double(judged.count) * 100))%", title: "правильних відповідей")
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -212,14 +222,12 @@ struct LabView: View {
 struct StatTile: View {
     let value: String
     let title: String
-    let colors: [Color]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(value)
-                .font(.system(.title, design: .rounded, weight: .bold))
+                .font(.system(.title, weight: .semibold))
                 .monospacedDigit()
-                .foregroundStyle(LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing))
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             Text(title)
@@ -228,6 +236,6 @@ struct StatTile: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Color(.secondarySystemGroupedBackground).opacity(0.92), in: .rect(cornerRadius: 20))
+        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
     }
 }

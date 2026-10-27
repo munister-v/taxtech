@@ -33,7 +33,7 @@ struct MoneyView: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 24)
             }
-            .auroraScreen()
+            .screenBackground()
             .navigationTitle("Гроші")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -68,8 +68,7 @@ struct MoneyView: View {
     private var hero: some View {
         VStack(spacing: 6) {
             Text("Витрати за \(Date.now.formatted(.dateTime.month(.wide).locale(Locale(identifier: "uk_UA"))))")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .caption()
             Text(Format.money(total))
                 .font(Theme.balance())
                 .monospacedDigit()
@@ -101,9 +100,7 @@ struct MoneyView: View {
         Surface {
             Chart(byDay, id: \.day) { d in
                 BarMark(x: .value("День", d.day, unit: .day), y: .value("Сума", d.sum), width: .ratio(0.62))
-                    .foregroundStyle(LinearGradient(colors: [Theme.sky, Theme.teal, Theme.emerald],
-                                                    startPoint: .top, endPoint: .bottom))
-                    .clipShape(.rect(cornerRadius: 4))
+                    .foregroundStyle(Theme.ink)
             }
             .chartXScale(domain: monthRange)
             .chartXAxis {
@@ -113,7 +110,7 @@ struct MoneyView: View {
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
-                    AxisGridLine().foregroundStyle(.quaternary)
+                    AxisGridLine().foregroundStyle(Theme.line)
                     AxisValueLabel()
                 }
             }
@@ -134,16 +131,16 @@ struct MoneyView: View {
             .sorted { $0.sum > $1.sum }
     }
 
+    private func rank(_ name: String) -> Int { byCategory.firstIndex { $0.name == name } ?? 0 }
+
     private var categories: some View {
         VStack(alignment: .leading, spacing: 12) {
             BlockTitle("Категорії")
             Surface {
-                // кільце й смуги одного кольору - легенда не потрібна
+                // кільце й смуги одного відтінку - легенда не потрібна
                 Chart(byCategory, id: \.name) { c in
-                    SectorMark(angle: .value("Сума", c.sum), innerRadius: .ratio(0.68), angularInset: 2)
-                        .cornerRadius(6)
-                        .foregroundStyle(LinearGradient(colors: Theme.category(c.name),
-                                                        startPoint: .top, endPoint: .bottom))
+                    SectorMark(angle: .value("Сума", c.sum), innerRadius: .ratio(0.72), angularInset: 1.5)
+                        .foregroundStyle(Theme.shade(rank(c.name)))
                 }
                 .chartBackground { _ in
                     VStack(spacing: 2) {
@@ -151,7 +148,7 @@ struct MoneyView: View {
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                         Text(Format.money(total))
-                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .font(.system(.title3, weight: .semibold))
                             .monospacedDigit()
                     }
                 }
@@ -159,7 +156,7 @@ struct MoneyView: View {
                 .padding(.vertical, 20)
 
                 ForEach(Array(byCategory.enumerated()), id: \.element.name) { i, c in
-                    Divider().padding(.leading, 16)
+                    Rule()
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .firstTextBaseline) {
                             Text(c.name)
@@ -173,15 +170,14 @@ struct MoneyView: View {
                                 .monospacedDigit()
                         }
                         GeometryReader { g in
-                            Capsule().fill(.quaternary)
+                            Rectangle().fill(Theme.line)
                                 .overlay(alignment: .leading) {
-                                    Capsule()
-                                        .fill(LinearGradient(colors: Theme.category(c.name),
-                                                             startPoint: .leading, endPoint: .trailing))
+                                    Rectangle()
+                                        .fill(Theme.shade(i))
                                         .frame(width: g.size.width * c.sum / max(total, 1))
                                 }
                         }
-                        .frame(height: 6)
+                        .frame(height: 4)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 13)
@@ -195,7 +191,7 @@ struct MoneyView: View {
             BlockTitle("Останні")
             Surface {
                 ForEach(Array(expenses.prefix(20).enumerated()), id: \.element.id) { i, e in
-                    if i > 0 { Divider().padding(.leading, 16) }
+                    if i > 0 { Rule() }
                     AmountRow(title: e.merchant,
                               subtitle: "\(e.category), \(BankView.dayTitle(Calendar.current.startOfDay(for: e.date)).lowercased())",
                               amount: "−" + Format.money(e.amount))
@@ -220,13 +216,14 @@ struct AddExpenseView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            LabForm {
                 TextField("Сума, ₴", value: $amount, format: .number).keyboardType(.decimalPad)
                 TextField("Де", text: $merchant)
                 Picker("Категорія", selection: $category) {
                     ForEach(Self.categories, id: \.self, content: Text.init)
                 }
             }
+            .labForm()
             .navigationTitle("Нова витрата")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
