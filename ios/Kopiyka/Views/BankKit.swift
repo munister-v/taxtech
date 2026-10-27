@@ -53,12 +53,13 @@ struct FormAction: View {
 /// Плоска смуга прогресу.
 struct Meter: View {
     let value: Double
+    var tint: Color = Theme.accent
 
     var body: some View {
         GeometryReader { g in
             Capsule().fill(Theme.line)
                 .overlay(alignment: .leading) {
-                    Capsule().fill(Theme.accent).frame(width: max(6, g.size.width * max(0, min(value, 1))))
+                    Capsule().fill(tint).frame(width: max(6, g.size.width * max(0, min(value, 1))))
                 }
         }
         .frame(height: 6)

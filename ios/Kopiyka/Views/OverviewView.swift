@@ -118,7 +118,7 @@ struct OverviewView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(hidden ? "Показати баланс" : "Сховати баланс")
             }
-            BigAmount(value: shown, hidden: hidden, size: 46)
+            BigAmount(value: shown, hidden: hidden, size: 54)
                 .foregroundStyle(Theme.onAccent)
                 .padding(.top, 8)
                 .redacted(reason: bank.loaded ? [] : .placeholder)
@@ -204,7 +204,7 @@ struct OverviewView: View {
 
     private var actions: some View {
         HStack(alignment: .top, spacing: 8) {
-            CircleAction(title: "Поповнити", symbol: "plus") { sheet = .topUp }
+            CircleAction(title: "Поповнити", symbol: "plus", primary: true) { sheet = .topUp }
             CircleAction(title: "На картку", symbol: "creditcard") { sheet = .byCard }
             CircleAction(title: "За рахунком", symbol: "arrow.left.arrow.right") { prefill = ""; sheet = .byAccount }
             CircleAction(title: "Податки", symbol: "percent") { open(.taxes) }
@@ -408,8 +408,9 @@ struct OverviewView: View {
                 }
                 .chartYScale(domain: .automatic(includesZero: false))
                 .chartYAxis(.hidden)
+                .chartXScale(range: .plotDimension(padding: 14))
                 .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 4)) {
+                    AxisMarks(values: .automatic(desiredCount: 3)) {
                         AxisValueLabel(format: .dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA")))
                     }
                 }
@@ -503,9 +504,14 @@ struct Initials: View {
 
     var body: some View {
         let letters = name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
-        Text(letters.isEmpty ? "TT" : letters)
-            .font(.system(size: size * 0.36, weight: .semibold))
-            .frame(width: size, height: size)
+        Group {
+            if letters.contains(where: \.isLetter) || letters.isEmpty {
+                Text(letters.isEmpty ? "TT" : letters).font(.system(size: size * 0.36, weight: .semibold))
+            } else {
+                Image(systemName: "person.fill").font(.system(size: size * 0.4, weight: .medium)).foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: size, height: size)
             .background(Theme.surface, in: .circle)
             .overlay(Circle().strokeBorder(Theme.line, lineWidth: 1))
     }

@@ -114,11 +114,11 @@ struct SegmentBar<Value: Hashable>: View {
                             .font(.subheadline.weight(.semibold))
                             .padding(.horizontal, 14)
                             .padding(.vertical, 9)
-                            .foregroundStyle(selection == value ? Theme.onAccent : .secondary)
+                            .foregroundStyle(selection == value ? AnyShapeStyle(Theme.onInk) : AnyShapeStyle(.secondary))
                             .background {
                                 if selection == value {
                                     RoundedRectangle(cornerRadius: 11, style: .continuous)
-                                        .fill(Theme.accent)
+                                        .fill(Theme.ink)
                                         .matchedGeometryEffect(id: "seg", in: ns)
                                 }
                             }
@@ -138,16 +138,18 @@ struct SegmentBar<Value: Hashable>: View {
 struct CircleAction: View {
     let title: String
     let symbol: String
+    var primary = false
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: 9) {
                 Image(systemName: symbol)
-                    .font(.system(size: 20, weight: .semibold))
-                    .frame(width: 58, height: 58)
-                    .background(Theme.accent, in: .circle)
-                    .foregroundStyle(Theme.onAccent)
+                    .font(.system(size: 21, weight: .semibold))
+                    .frame(width: 60, height: 60)
+                    .background(primary ? Theme.accent : Theme.surface, in: .circle)
+                    .overlay(Circle().strokeBorder(Theme.ink.opacity(primary ? 0 : 0.09), lineWidth: Theme.hairline))
+                    .foregroundStyle(primary ? Theme.onAccent : Theme.ink)
                 Text(title)
                     .font(.caption.weight(.medium))
                     .multilineTextAlignment(.center)

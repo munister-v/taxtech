@@ -25,6 +25,7 @@ struct RootView: View {
                     Tab("Магазин", systemImage: "bag", value: AppTab.shop) { ShopView() }
                 }
                 .tint(Theme.tint)
+                .overlay(alignment: .top) { TopFade() }
             }
         }
         .task(id: model.signedIn) {

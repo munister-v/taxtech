@@ -111,11 +111,12 @@ private struct OverviewPart: View {
                     Surface {
                         Chart(byMonth, id: \.month) { m in
                             BarMark(x: .value("Місяць", m.month, unit: .month), y: .value("Сума", m.sum))
-                                .foregroundStyle(Theme.accent)
+                                .foregroundStyle(m.month == byMonth.last?.month ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.ink.opacity(0.78)))
+                                .cornerRadius(4)
                         }
                         .chartXAxis {
                             AxisMarks(values: .stride(by: .month)) {
-                                AxisValueLabel(format: .dateTime.month(.narrow).locale(Locale(identifier: "uk_UA")))
+                                AxisValueLabel(format: .dateTime.month(.abbreviated).locale(Locale(identifier: "uk_UA")))
                             }
                         }
                         .chartYAxis {

@@ -16,7 +16,7 @@ struct OperationsView: View {
     enum Sort: String, CaseIterable { case newest = "Нові", oldest = "Старі", amount = "Сума" }
 
     enum Period: String, CaseIterable {
-        case week = "Т", month = "М", year = "Р"
+        case week = "Тиж", month = "Міс", year = "Рік"
         var title: String { switch self { case .week: "тиждень"; case .month: "місяць"; case .year: "рік" } }
         var start: Date {
             let cal = Calendar.current
@@ -53,11 +53,18 @@ struct OperationsView: View {
                     search
                     SegmentBar(items: [(String?.none, "Усі"), (String?.some("in"), "Надходження"), (String?.some("out"), "Витрати")],
                                selection: $filter.direction)
-                    HStack(spacing: 18) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.up.arrow.down").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                         ForEach(Sort.allCases, id: \.self) { s in
-                            Button(s.rawValue) { sort = s }
-                                .font(.footnote.weight(sort == s ? .semibold : .regular))
-                                .foregroundStyle(sort == s ? Theme.ink : .secondary)
+                            Button { withAnimation(.snappy(duration: 0.2)) { sort = s } } label: {
+                                Text(s.rawValue)
+                                    .font(.subheadline.weight(.semibold))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .foregroundStyle(sort == s ? Theme.ink : .secondary)
+                                    .background(sort == s ? Theme.ink.opacity(0.12) : .clear, in: .capsule)
+                            }
+                            .buttonStyle(.plain)
                         }
                         Spacer()
                     }
@@ -134,7 +141,7 @@ struct OperationsView: View {
                         ForEach(Period.allCases, id: \.self) { p in
                             Button(p.rawValue) { period = p }
                                 .font(.caption.weight(.semibold))
-                                .frame(width: 28, height: 24)
+                                .frame(width: 42, height: 26)
                                 .background(period == p ? Theme.ink : .clear, in: .rect(cornerRadius: 7, style: .continuous))
                                 .foregroundStyle(period == p ? AnyShapeStyle(Theme.onInk) : AnyShapeStyle(.secondary))
                         }
@@ -147,10 +154,11 @@ struct OperationsView: View {
                 } else {
                     Chart(byBucket, id: \.day) { b in
                         BarMark(x: .value("Коли", b.day, unit: period.unit), y: .value("Сума", b.sum))
-                            .foregroundStyle(Theme.accent)
+                            .foregroundStyle(b.day == byBucket.last?.day ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.ink.opacity(0.78)))
                             .cornerRadius(3)
                     }
                     .chartYAxis(.hidden)
+                    .chartXScale(range: .plotDimension(padding: 14))
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 4)) {
                             AxisValueLabel(format: period == .year
@@ -180,7 +188,7 @@ struct OperationsView: View {
                             Text("\(Int(t.total / total * 100))%").font(.footnote).foregroundStyle(.secondary)
                                 .frame(width: 40, alignment: .trailing)
                         }
-                        Meter(value: t.total / total)
+                        Meter(value: t.total / total, tint: i == 0 ? Theme.accent : Theme.ink.opacity(0.55))
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 13)

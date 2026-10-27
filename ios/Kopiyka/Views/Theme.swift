@@ -9,7 +9,7 @@ enum Brand {
 /// Візуальна мова TaxTech: чорне тло й теплий папір, один сигнальний жовтий - колір токена TAX.
 /// Без градієнтів: різницю дають площини кольору, вага шрифту й тонкі лінії.
 enum Theme {
-    static let corner: CGFloat = 16
+    static let corner: CGFloat = 18
     static let gutter: CGFloat = 16
     static let hairline: CGFloat = 0.5
 
@@ -107,7 +107,26 @@ struct Surface<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+            .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Theme.ink.opacity(0.07), lineWidth: Theme.hairline))
+    }
+}
+
+/// Затухання тла під рядком стану: заголовки не налазять на годинник при прокрутці.
+struct TopFade: View {
+    var body: some View {
+        GeometryReader { g in
+            let top = g.safeAreaInsets.top
+            LinearGradient(stops: [
+                .init(color: Theme.bg, location: 0),
+                .init(color: Theme.bg.opacity(0.96), location: top / (top + 10)),
+                .init(color: Theme.bg.opacity(0), location: 1),
+            ], startPoint: .top, endPoint: .bottom)
+            .frame(height: top + 10)
+            .offset(y: -top)
+        }
+        .allowsHitTesting(false)
     }
 }
 
@@ -123,13 +142,12 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).caption()
+            Text(text).font(.title3.weight(.bold))
             Spacer()
             if let trailing {
-                Text(trailing).font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                Text(trailing).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary).monospacedDigit()
             }
         }
-        .padding(.horizontal, 4)
     }
 }
 
@@ -293,6 +311,12 @@ struct VirtualCardView: View {
         ZStack {
             RoundedRectangle(cornerRadius: corner, style: .continuous).fill(design.fill)
             watermark
+            // відблиск зверху ліворуч і внутрішня світла рамка: картка читається предметом, а не плиткою
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .fill(LinearGradient(colors: [.white.opacity(design == .dark ? 0.10 : 0.22), .clear],
+                                     startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.6)))
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .strokeBorder(.white.opacity(design == .dark ? 0.10 : 0.28), lineWidth: 0.75)
             if !compact { face }
             if let border = design.border {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
