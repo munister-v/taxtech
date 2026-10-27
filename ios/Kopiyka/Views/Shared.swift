@@ -4,14 +4,14 @@ import SwiftUI
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @State private var showConsent = false
-    @State private var selection = AppTab.money
+    @State private var selection = AppTab.home
 
-    enum AppTab: Hashable { case money, receipt, assistant, bank, lab }
+    enum AppTab: Hashable { case home, money, assistant, bank, lab }
 
     var body: some View {
         TabView(selection: $selection) {
+            Tab("Головна", systemImage: "house", value: AppTab.home) { HomeView { selection = $0 } }
             Tab("Гроші", systemImage: "list.bullet.rectangle", value: AppTab.money) { MoneyView() }
-            Tab("Чек", systemImage: "doc.text.viewfinder", value: AppTab.receipt) { ReceiptView() }
             Tab("Помічник", systemImage: "text.bubble", value: AppTab.assistant) { AssistantView() }
             Tab("Банк", systemImage: "building.columns", value: AppTab.bank) { SandboxView() }
             Tab("Лабораторія", systemImage: "flask", value: AppTab.lab) { LabView() }

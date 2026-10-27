@@ -7,6 +7,7 @@ struct MoneyView: View {
     @Query(sort: \Expense.date, order: .reverse) private var expenses: [Expense]
     @Environment(\.modelContext) private var context
     @State private var adding = false
+    @State private var scanning = false
 
     private var thisMonth: [Expense] {
         let cal = Calendar.current
@@ -37,9 +38,11 @@ struct MoneyView: View {
             .navigationTitle("Гроші")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                Button("Чек", systemImage: "doc.text.viewfinder") { scanning = true }
                 Button("Додати", systemImage: "plus") { adding = true }
             }
             .sheet(isPresented: $adding) { AddExpenseView() }
+            .sheet(isPresented: $scanning) { ReceiptView(closable: true) }
             #if DEBUG
             .task { seedDemoIfAsked() }
             #endif

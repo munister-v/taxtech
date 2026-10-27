@@ -7,6 +7,8 @@ import VisionKit
 struct ReceiptView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    var closable = false
     @State private var item: PhotosPickerItem?
     @State private var image: UIImage?
     @State private var ocrTime: Duration?
@@ -67,6 +69,9 @@ struct ReceiptView: View {
             }
             .labForm()
             .navigationTitle("Чек")
+            .toolbar {
+                if closable { ToolbarItem(placement: .cancellationAction) { Button("Закрити") { dismiss() } } }
+            }
             .fullScreenCover(isPresented: $scanning) {
                 DocumentScanner { img in Task { await process(img) } }
                     .ignoresSafeArea()
