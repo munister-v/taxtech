@@ -48,6 +48,22 @@ struct AuthView: View {
                     .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
                     .frame(height: 52)
                     .clipShape(.rect(cornerRadius: Theme.corner, style: .continuous))
+                    .disabled(working)
+
+                    if working {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                            Text("Входимо…").font(.footnote).foregroundStyle(.secondary)
+                        }
+                    }
+                    if let status {
+                        Text(status)
+                            .font(.footnote)
+                            .foregroundStyle(Theme.ink)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+                    }
 
                     HStack {
                         Rectangle().fill(Theme.line).frame(height: Theme.hairline)
@@ -70,10 +86,6 @@ struct AuthView: View {
                     field("Пароль") {
                         SecureField(register ? "Щонайменше 8 символів" : "Пароль", text: $password)
                             .textContentType(register ? .newPassword : .password)
-                    }
-
-                    if let status {
-                        Text(status).font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     Button(register ? "Створити акаунт" : "Увійти") { Task { await submit() } }
@@ -163,8 +175,7 @@ struct AuthView: View {
     private func finishApple(_ result: Result<ASAuthorization, Error>) async {
         switch result {
         case .failure(let error):
-            // користувач закрив вікно - не помилка
-            if (error as? ASAuthorizationError)?.code != .canceled { status = error.localizedDescription }
+            status = Self.appleMessage(error)
         case .success(let auth):
             guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
                   let data = credential.identityToken, let token = String(data: data, encoding: .utf8) else {
@@ -180,8 +191,22 @@ struct AuthView: View {
             do {
                 try await model.signInWithApple(identityToken: token, nonce: nonce, fullName: name)
             } catch {
-                status = error.localizedDescription
+                status = "Сервер не прийняв вхід через Apple: \(error.localizedDescription)"
             }
+        }
+    }
+
+    /// Людське пояснення, чому Apple не пустила; nil - користувач сам закрив вікно.
+    private static func appleMessage(_ error: Error) -> String? {
+        guard let e = error as? ASAuthorizationError else { return "Apple: \(error.localizedDescription)" }
+        switch e.code {
+        case .canceled: return nil
+        case .unknown:
+            return "Apple не відповіла (код 1000). Перевірте, що в Параметрах виконано вхід в Apple ID з двоетапною перевіркою, і спробуйте ще раз."
+        case .notInteractive: return "Apple не змогла показати вікно входу. Спробуйте ще раз."
+        case .failed, .invalidResponse, .notHandled:
+            return "Apple не завершила вхід (код \(e.code.rawValue)). Спробуйте ще раз або увійдіть поштою."
+        default: return "Apple: код \(e.code.rawValue). \(e.localizedDescription)"
         }
     }
 
@@ -194,7 +219,7 @@ struct AuthView: View {
     }
 
     private func applyServer() {
-        if let url = URL(string: server.trimmingCharacters(in: .whitespaces)), url.scheme != nil {
+        if let url = URL(string: server.trimmingCharacters(in: .whitespaces)), url.scheme != nil, AppModel.reachable(url) {
             model.serverURL = url
         }
     }

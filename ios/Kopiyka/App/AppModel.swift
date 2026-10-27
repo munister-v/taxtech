@@ -49,8 +49,18 @@ final class AppModel {
         let provider = contextProvider
         router = EdgeRouter(directory: dir) { await provider.snapshot() }
         let saved = UserDefaults.standard.string(forKey: "serverURL").flatMap(URL.init(string:))
-        // адреса Mac у домашній мережі, збережена старими збірками, на телефоні вже не потрібна
-        serverURL = saved.flatMap { $0.host()?.hasSuffix(".local") == true ? nil : $0 } ?? Self.defaultServer
+        serverURL = saved.flatMap { Self.reachable($0) ? $0 : nil } ?? Self.defaultServer
+    }
+
+    /// Чи має сенс збережена адреса. На телефоні localhost, 127.0.0.1 і Mac у домашній мережі (.local)
+    /// лишилися від старих збірок: телефон шукав би сервер сам у собі.
+    static func reachable(_ url: URL) -> Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        let host = url.host() ?? ""
+        return !(host == "localhost" || host == "127.0.0.1" || host == "::1" || host.hasSuffix(".local"))
+        #endif
     }
 
     func signIn(email: String, password: String) async throws {

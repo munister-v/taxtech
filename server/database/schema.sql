@@ -311,3 +311,13 @@ CREATE TABLE IF NOT EXISTS research_labels (
     pattern TEXT NOT NULL DEFAULT 'normal'
 );
 CREATE INDEX IF NOT EXISTS idx_research_labels_pattern ON research_labels(pattern);
+
+-- Вхід через Face ID / Touch ID у веб-застосунку (WebAuthn passkey)
+CREATE TABLE IF NOT EXISTS passkeys (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    credential_id TEXT NOT NULL UNIQUE,
+    public_key    TEXT NOT NULL,
+    sign_count    INTEGER NOT NULL DEFAULT 0,
+    created_at    TEXT DEFAULT CURRENT_TIMESTAMP
+);

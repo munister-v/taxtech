@@ -7,19 +7,6 @@ from .base import BaseRepository
 
 class PasskeyRepository(BaseRepository):
 
-    def create_table(self) -> None:
-        with self.connection() as conn:
-            conn.execute('''
-                CREATE TABLE IF NOT EXISTS passkeys (
-                    id          SERIAL PRIMARY KEY,
-                    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                    credential_id   TEXT NOT NULL UNIQUE,
-                    public_key      TEXT NOT NULL,
-                    sign_count      INTEGER NOT NULL DEFAULT 0,
-                    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''') if False else None  # handled in migrations
-
     # ── CRUD ─────────────────────────────────────────────────────────────────
 
     def save(self, user_id: int, credential_id: str, public_key: str, sign_count: int) -> int:
