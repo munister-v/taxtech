@@ -135,19 +135,19 @@ struct OperationsView: View {
                             Button(p.rawValue) { period = p }
                                 .font(.caption.weight(.semibold))
                                 .frame(width: 28, height: 24)
-                                .background(period == p ? Theme.onAccent : .clear, in: .rect(cornerRadius: 7, style: .continuous))
-                                .foregroundStyle(period == p ? Theme.accent : Theme.onAccent.opacity(0.6))
+                                .background(period == p ? Theme.ink : .clear, in: .rect(cornerRadius: 7, style: .continuous))
+                                .foregroundStyle(period == p ? AnyShapeStyle(Theme.onInk) : AnyShapeStyle(.secondary))
                         }
                     }
                     .buttonStyle(.plain)
                 }
                 BigAmount(value: spent.reduce(0) { $0 + $1.amount }, size: 38)
                 if byBucket.isEmpty {
-                    Text("Витрат за цей час немає").font(.footnote).foregroundStyle(Theme.onAccent.opacity(0.7))
+                    Text("Витрат за цей час немає").font(.footnote).foregroundStyle(.secondary)
                 } else {
                     Chart(byBucket, id: \.day) { b in
                         BarMark(x: .value("Коли", b.day, unit: period.unit), y: .value("Сума", b.sum))
-                            .foregroundStyle(Theme.onAccent)
+                            .foregroundStyle(Theme.accent)
                             .cornerRadius(3)
                     }
                     .chartYAxis(.hidden)
@@ -158,7 +158,6 @@ struct OperationsView: View {
                                 : .dateTime.day().month(.twoDigits).locale(Locale(identifier: "uk_UA")))
                         }
                     }
-                    .foregroundStyle(Theme.onAccent)
                     .frame(height: 130)
                 }
             }

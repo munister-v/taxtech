@@ -64,7 +64,6 @@ struct TaxesView: View {
         HeroPanel {
             HeroCaption("Доходи \(String(year))")
             BigAmount(value: incomeTotal, size: 34)
-                .foregroundStyle(Theme.onAccent)
                 .padding(.top, 6)
             HStack(alignment: .top, spacing: 16) {
                 Stat(value: Format.money(incomeTotal * (r.pdfo + r.military)), label: "податки, якщо це зарплата", inverted: true)
@@ -72,17 +71,17 @@ struct TaxesView: View {
             }
             .padding(.top, 16)
             if let next {
-                Rectangle().fill(Theme.onAccent.opacity(0.2)).frame(height: 1).padding(.vertical, 16)
+                Rectangle().fill(Theme.line).frame(height: 1).padding(.vertical, 16)
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Найближчий строк").font(.caption).foregroundStyle(Theme.onAccent.opacity(0.6))
+                        Text("Найближчий строк").font(.caption).foregroundStyle(.secondary)
                         Text(next.title).font(.subheadline.weight(.semibold))
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(next.date.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA"))))
                             .font(.subheadline.weight(.semibold))
-                        Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(Theme.onAccent.opacity(0.6))
+                        Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(.secondary)
                     }
                 }
             }
@@ -187,7 +186,7 @@ private struct SalaryPart: View {
             MoneyField(title: fromNet ? "Хочу на руки на місяць" : "Зарплата до податків на місяць", value: $amount)
             HeroPanel {
                 HeroCaption(fromNet ? "Треба нарахувати" : "На руки")
-                BigAmount(value: fromNet ? s.gross : s.net, size: 32).foregroundStyle(Theme.onAccent).padding(.top, 6)
+                BigAmount(value: fromNet ? s.gross : s.net, size: 32).padding(.top, 6)
                 SplitBar(parts: [("На руки", s.net), ("ПДФО", s.pdfo), ("ВЗ", s.military)], inverted: true)
                     .padding(.top, 16)
             }
@@ -239,7 +238,7 @@ private struct FopPart: View {
             MoneyField(title: "Дохід за рік", value: $income)
             HeroPanel {
                 HeroCaption("Податки ФОП за рік")
-                BigAmount(value: f.total, size: 32).foregroundStyle(Theme.onAccent).padding(.top, 6)
+                BigAmount(value: f.total, size: 32).padding(.top, 6)
                 HStack(alignment: .top, spacing: 16) {
                     Stat(value: Format.money(f.total / 12), label: "у середньому на місяць", inverted: true)
                     Stat(value: percent(f.effective), label: "від доходу", inverted: true)
@@ -312,7 +311,7 @@ private struct DeductionPart: View {
             MoneyField(title: "Зарплата до податків за рік", value: $salaryYear)
             HeroPanel {
                 HeroCaption("Можна повернути")
-                BigAmount(value: refund, size: 34).foregroundStyle(Theme.onAccent).padding(.top, 6)
+                BigAmount(value: refund, size: 34).padding(.top, 6)
                 HStack(alignment: .top, spacing: 16) {
                     Stat(value: Format.money(eligible), label: "витрати", inverted: true)
                     Stat(value: Format.money(salaryYear * r.pdfo), label: "ПДФО за рік", inverted: true)

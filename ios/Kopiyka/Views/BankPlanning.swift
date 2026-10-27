@@ -21,7 +21,7 @@ struct GoalsView: View {
                         HeroCaption("Відкладено")
                         BigAmount(value: saved, size: 40).padding(.top, 6)
                         Text("з \(Format.money(target))").font(.subheadline.weight(.medium))
-                            .foregroundStyle(Theme.onAccent.opacity(0.7))
+                            .foregroundStyle(.secondary)
                     }
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                         ForEach(items) { g in tile(g) }

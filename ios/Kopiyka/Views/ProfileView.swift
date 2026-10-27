@@ -110,12 +110,12 @@ struct ProfileView: View {
                 Text(initials)
                     .font(.system(size: 26, weight: .bold))
                     .frame(width: 64, height: 64)
-                    .background(Theme.onAccent, in: .circle)
-                    .foregroundStyle(Theme.accent)
+                    .background(Theme.ink, in: .circle)
+                    .foregroundStyle(Theme.onInk)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(me?.fullName ?? " ").font(.title2.weight(.bold)).lineLimit(1).minimumScaleFactor(0.7)
                     if let e = me?.email, !e.isEmpty {
-                        Text(e).font(.subheadline).foregroundStyle(Theme.onAccent.opacity(0.7)).lineLimit(1)
+                        Text(e).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                     }
                 }
             }
@@ -146,14 +146,14 @@ struct ProfileView: View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(value).font(.subheadline.weight(.bold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
-                Text(label).font(.caption.weight(.medium)).foregroundStyle(Theme.onAccent.opacity(0.7))
+                Text(label).font(.caption.weight(.medium)).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
             Image(systemName: symbol).font(.caption.weight(.bold))
         }
         .padding(10)
         .frame(maxWidth: .infinity)
-        .background(Theme.onAccent.opacity(0.08), in: .rect(cornerRadius: 14, style: .continuous))
+        .background(Theme.bg, in: .rect(cornerRadius: 14, style: .continuous))
     }
 
     // MARK: Запрошення

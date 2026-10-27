@@ -30,26 +30,39 @@ extension ScreenTitle where Trailing == EmptyView {
     }
 }
 
-/// Інвертована панель: на світлому - чорна, на темному - біла. Для головної цифри екрана.
+/// Чи лежить вміст на жовтій панелі - тоді підписи й смуги беруть чорний замість сірого.
+private struct OnYellowKey: EnvironmentKey { static let defaultValue = false }
+
+extension EnvironmentValues {
+    var onYellow: Bool {
+        get { self[OnYellowKey.self] }
+        set { self[OnYellowKey.self] = newValue }
+    }
+}
+
+/// Панель головної цифри екрана. Жовта - лише одна на застосунок (баланс), решта - спокійні.
 struct HeroPanel<Content: View>: View {
+    var yellow = false
     @ViewBuilder var content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(22)
-            .foregroundStyle(Theme.onAccent)
+            .foregroundStyle(yellow ? Theme.onAccent : Theme.ink)
+            .environment(\.onYellow, yellow)
             .background(alignment: .bottomTrailing) {
-                MarkView(height: 150, color: Theme.onAccent.opacity(0.07))
+                MarkView(height: 150, color: (yellow ? Theme.onAccent : Theme.ink).opacity(yellow ? 0.07 : 0.04))
                     .offset(x: 34, y: 34)
             }
-            .background(Theme.accent)
+            .background(yellow ? Theme.accent : Theme.surface)
             .clipShape(.rect(cornerRadius: 26, style: .continuous))
     }
 }
 
 /// Підпис-мітка всередині інвертованої панелі.
 struct HeroCaption: View {
+    @Environment(\.onYellow) private var onYellow
     let text: String
 
     init(_ text: String) { self.text = text }
@@ -57,12 +70,13 @@ struct HeroCaption: View {
     var body: some View {
         Text(text)
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Theme.onAccent.opacity(0.75))
+            .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.75)) : AnyShapeStyle(.secondary))
     }
 }
 
 /// Пара «цифра - підпис» для рядів показників.
 struct Stat: View {
+    @Environment(\.onYellow) private var onYellow
     let value: String
     let label: String
     var inverted = false
@@ -76,7 +90,7 @@ struct Stat: View {
                 .minimumScaleFactor(0.6)
             Text(label)
                 .font(.footnote.weight(.medium))
-                .foregroundStyle(inverted ? Theme.onAccent.opacity(0.7) : .secondary)
+                .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.7)) : AnyShapeStyle(.secondary))
                 .lineLimit(2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -158,12 +172,13 @@ struct PressScale: ButtonStyle {
 
 /// Смуга з кількох частин, що разом дають ціле: куди йдуть гроші.
 struct SplitBar: View {
+    @Environment(\.onYellow) private var onYellow
     let parts: [(label: String, value: Double)]
     var inverted = false
 
     var body: some View {
         let total = max(parts.reduce(0) { $0 + $1.value }, 0.0001)
-        let ink = inverted ? Theme.onAccent : Theme.ink
+        let ink = onYellow ? Theme.onAccent : Theme.ink
         VStack(alignment: .leading, spacing: 10) {
             GeometryReader { g in
                 HStack(spacing: 2) {
@@ -182,7 +197,7 @@ struct SplitBar: View {
                         Rectangle().fill(ink.opacity(1 - Double(i) * 0.28)).frame(width: 10, height: 10)
                         Text("\(p.label) \(Int((p.value / total * 100).rounded()))%")
                             .font(.caption)
-                            .foregroundStyle(inverted ? Theme.onAccent.opacity(0.7) : .secondary)
+                            .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.7)) : AnyShapeStyle(.secondary))
                     }
                 }
             }
@@ -233,7 +248,7 @@ struct BrandEmpty: View {
     }
 }
 
-/// Рядок переходу: жовтий круглий значок, назва, значення праворуч і шеврон.
+/// Рядок переходу: назва, значення праворуч і шеврон.
 struct IconRow: View {
     let title: String
     let symbol: String
@@ -241,18 +256,13 @@ struct IconRow: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Image(systemName: symbol)
-                .font(.system(size: 15, weight: .semibold))
-                .frame(width: 36, height: 36)
-                .background(Theme.accent, in: .circle)
-                .foregroundStyle(Theme.onAccent)
             Text(title).font(.body.weight(.medium))
             Spacer()
             if let detail { Text(detail).foregroundStyle(.secondary).monospacedDigit() }
             Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 15)
         .contentShape(.rect)
     }
 }
@@ -268,7 +278,7 @@ struct RowGroup<Content: View>: View {
             VStack(spacing: 0) {
                 Group(subviews: content) { subviews in
                     ForEach(Array(subviews.enumerated()), id: \.offset) { i, v in
-                        if i > 0 { Rule().padding(.leading, 50) }
+                        if i > 0 { Rule() }
                         v
                     }
                 }

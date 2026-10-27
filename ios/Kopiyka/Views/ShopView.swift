@@ -138,8 +138,6 @@ struct ShopView: View {
         .padding(.vertical, 12)
         .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
 
-        if browsing { banner }
-
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 ForEach(ShopCategory.allCases) { c in
@@ -202,25 +200,6 @@ struct ShopView: View {
         if loading { ProgressView().frame(maxWidth: .infinity).padding() }
     }
 
-    private var banner: some View {
-        HeroPanel {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HeroCaption("Магазин TaxTech")
-                    Text("Справжні товари,\nвіртуальні гроші").font(.system(size: 22, weight: .bold)).tracking(-0.3)
-                }
-                Spacer(minLength: 8)
-                MarkView(height: 44).colorInvert().opacity(0.9)
-            }
-            HStack(spacing: 16) {
-                Stat(value: "\(total)", label: "товарів", inverted: true)
-                Stat(value: "\(ShopCategory.allCases.count - 1)", label: "категорій", inverted: true)
-                Stat(value: "\(orders.count)", label: "ваших замовлень", inverted: true)
-            }
-            .padding(.top, 16)
-        }
-    }
-
     private var cartBar: some View {
         Button { showCart = true } label: {
             HStack {
@@ -259,7 +238,7 @@ struct ShopView: View {
             HeroPanel {
                 HeroCaption("Оплачено інвойсів")
                 BigAmount(value: invoices.filter { $0.status == "paid" }.reduce(0) { $0 + $1.amount }, size: 30)
-                    .foregroundStyle(Theme.onAccent).padding(.top, 6)
+                    .padding(.top, 6)
             }
             Surface {
                 ForEach(Array(invoices.enumerated()), id: \.element.id) { i, inv in

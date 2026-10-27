@@ -125,7 +125,7 @@ struct OverviewView: View {
     // MARK: Баланс
 
     private var balance: some View {
-        HeroPanel {
+        HeroPanel(yellow: true) {
             HStack {
                 HeroCaption("Загальний баланс")
                 Spacer()
@@ -326,12 +326,7 @@ struct OverviewView: View {
 
     private func product<D: View>(_ title: String, _ symbol: String, _ value: Double, @ViewBuilder _ to: @escaping () -> D) -> some View {
         NavigationLink { to() } label: {
-            VStack(alignment: .leading, spacing: 10) {
-                Image(systemName: symbol)
-                    .font(.system(size: 15, weight: .semibold))
-                    .frame(width: 34, height: 34)
-                    .background(Theme.accent, in: .circle)
-                    .foregroundStyle(Theme.onAccent)
+            VStack(alignment: .leading, spacing: 6) {
                 Text(title).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
                 Text(value > 0 ? Format.money(value).replacingOccurrences(of: ",00", with: "") : "Відкрити")
                     .font(.subheadline.weight(.bold))
@@ -385,14 +380,8 @@ struct OverviewView: View {
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Image(systemName: "percent")
-                            .font(.system(size: 18, weight: .bold))
-                            .frame(width: 44, height: 44)
-                            .background(Theme.accent, in: .rect(cornerRadius: 13, style: .continuous))
-                            .foregroundStyle(Theme.onAccent)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Податки").font(.headline)
-                            Text("Зарплата, ФОП, знижка й строки").font(.footnote).foregroundStyle(.secondary)
                         }
                         Spacer()
                         Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
