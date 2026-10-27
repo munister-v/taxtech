@@ -38,7 +38,7 @@ struct ShopView: View {
                                 if cartCount > 0 {
                                     Text("\(cartCount)").font(.caption2.weight(.bold)).monospacedDigit()
                                         .frame(minWidth: 18, minHeight: 18)
-                                        .background(Theme.accent, in: .rect(cornerRadius: Theme.corner)).foregroundStyle(Theme.onAccent)
+                                        .background(Theme.accent, in: .circle).foregroundStyle(Theme.onAccent)
                                         .offset(x: 4, y: -4)
                                 }
                             }
@@ -148,7 +148,7 @@ struct ShopView: View {
                             Image(systemName: c.symbol)
                                 .font(.system(size: 20, weight: .medium))
                                 .frame(width: 58, height: 58)
-                                .background(category == c ? Theme.accent : Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+                                .background(category == c ? Theme.accent : Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
                                 .foregroundStyle(category == c ? Theme.onAccent : Theme.ink)
                             Text(c.title).font(.caption.weight(category == c ? .semibold : .regular))
                                 .foregroundStyle(category == c ? Theme.ink : .secondary)
@@ -164,7 +164,7 @@ struct ShopView: View {
 
         if browsing && !hits.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Хіти").font(Theme.display(17))
+                Text("Хіти").font(.title3.weight(.bold))
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(hits.prefix(10)) { p in
@@ -177,7 +177,7 @@ struct ShopView: View {
         }
 
         HStack(alignment: .firstTextBaseline) {
-            Text(category == .all ? "Усі товари" : category.title).font(Theme.display(17))
+            Text(category == .all ? "Усі товари" : category.title).font(.title3.weight(.bold))
             Text("\(total)").foregroundStyle(.secondary).monospacedDigit()
             Spacer()
             Menu {
@@ -214,7 +214,7 @@ struct ShopView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 8) {
                     HeroCaption("Магазин TaxTech")
-                    Text("Справжні товари,\nвіртуальні гроші").font(Theme.display(19)).tracking(-0.3)
+                    Text("Справжні товари,\nвіртуальні гроші").font(.system(size: 22, weight: .bold)).tracking(-0.3)
                 }
                 Spacer(minLength: 8)
                 MarkView(height: 44).colorInvert().opacity(0.9)
@@ -242,7 +242,7 @@ struct ShopView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
             .foregroundStyle(Theme.onAccent)
-            .background(Theme.accent, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+            .background(Theme.accent, in: .rect(cornerRadius: 20, style: .continuous))
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 8)
         }
@@ -373,14 +373,14 @@ struct ProductArt: View {
                 .font(.system(size: size))
                 .grayscale(1)
                 .frame(maxWidth: .infinity, minHeight: height)
-                .background(Theme.bg, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                .background(Theme.bg, in: .rect(cornerRadius: 14, style: .continuous))
             if let b = product.badge, !b.isEmpty {
                 Text(b)
                     .font(.caption2.weight(.bold))
                     .tracking(0.8)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 4)
-                    .background(Theme.ink, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                    .background(Theme.ink, in: .rect(cornerRadius: 6, style: .continuous))
                     .foregroundStyle(Theme.onInk)
                     .padding(8)
             }
@@ -418,21 +418,21 @@ struct ProductTile: View {
                 }
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(Theme.onAccent)
-                .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                .background(Theme.accent, in: .rect(cornerRadius: 11, style: .continuous))
                 .buttonStyle(.plain)
             } else {
                 Button(action: add) {
                     Label("У кошик", systemImage: "plus")
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity, minHeight: 34)
-                        .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous).strokeBorder(Theme.ink, lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Theme.ink, lineWidth: 1))
                         .foregroundStyle(Theme.ink)
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(12)
-        .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+        .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
         .animation(.snappy(duration: 0.2), value: inCart)
     }
 }
@@ -461,13 +461,13 @@ struct HitCard: View {
                 Group { if inCart > 0 { Text("\(inCart)").monospacedDigit() } else { Image(systemName: "plus") } }
                     .font(.subheadline.weight(.bold))
                     .frame(width: 36, height: 36)
-                    .background(Theme.accent, in: .rect(cornerRadius: Theme.corner))
+                    .background(Theme.accent, in: .circle)
                     .foregroundStyle(Theme.onAccent)
             }
             .buttonStyle(PressScale())
         }
         .padding(10)
-        .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+        .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
     }
 }
 
@@ -485,7 +485,7 @@ struct ProductView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     ProductArt(product: product, size: 110, height: 260)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(product.title).font(Theme.display(19)).tracking(-0.3)
+                        Text(product.title).font(.system(size: 22, weight: .bold)).tracking(-0.3)
                         if let d = product.description { Text(d).foregroundStyle(.secondary) }
                     }
                     BigAmount(value: product.price, size: 30)

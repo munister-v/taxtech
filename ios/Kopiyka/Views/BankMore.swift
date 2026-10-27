@@ -607,7 +607,7 @@ struct PinPad: View {
             Spacer(minLength: 24)
             MarkView(height: 40)
             Text(title)
-                .font(Theme.display(22))
+                .font(.system(size: 28, weight: .semibold))
                 .tracking(-0.4)
                 .padding(.top, 20)
             HStack(spacing: 14) {

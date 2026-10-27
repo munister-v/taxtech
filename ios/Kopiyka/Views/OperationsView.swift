@@ -135,7 +135,7 @@ struct OperationsView: View {
                             Button(p.rawValue) { period = p }
                                 .font(.caption.weight(.semibold))
                                 .frame(width: 28, height: 24)
-                                .background(period == p ? Theme.accent : .clear, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                                .background(period == p ? Theme.accent : .clear, in: .rect(cornerRadius: 7, style: .continuous))
                                 .foregroundStyle(period == p ? Theme.onAccent : .secondary)
                         }
                     }

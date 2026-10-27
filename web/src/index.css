@@ -99,9 +99,3 @@
   }
 }
 
-@font-face {
-  font-family: 'Unbounded';
-  src: url('/fonts/Unbounded.ttf') format('truetype');
-  font-weight: 200 900;
-  font-display: swap;
-}

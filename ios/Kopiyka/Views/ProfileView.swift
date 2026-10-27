@@ -143,7 +143,7 @@ struct ProfileView: View {
                               message: Text("Навчальний банк TaxTech: картки, депозити й перекази на токенах TAX")) {
                         Text("Поділитися").font(.subheadline.weight(.semibold))
                             .padding(.horizontal, 14).padding(.vertical, 9)
-                            .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                            .background(Theme.accent, in: .rect(cornerRadius: 12, style: .continuous))
                             .foregroundStyle(Theme.onAccent)
                     }
                     .buttonStyle(.plain)

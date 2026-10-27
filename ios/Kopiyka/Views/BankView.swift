@@ -89,7 +89,7 @@ struct CardDesignPicker: View {
                                 VStack(spacing: 8) {
                                     VirtualCardView(number: "", expiry: nil, holder: nil, design: d, compact: true)
                                         .overlay {
-                                            RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
+                                            RoundedRectangle(cornerRadius: 11, style: .continuous)
                                                 .strokeBorder(Theme.ink, lineWidth: selected == d ? 2 : 0)
                                                 .padding(-5)
                                         }

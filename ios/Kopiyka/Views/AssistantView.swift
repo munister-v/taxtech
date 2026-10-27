@@ -70,7 +70,7 @@ struct AssistantView: View {
                 .padding(.leading, 16)
                 .padding(.trailing, 8)
                 .padding(.vertical, 8)
-                .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+                .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
                 .padding(.horizontal)
                 .padding(.bottom, 6)
             }
@@ -107,7 +107,7 @@ struct AssistantView: View {
                 .foregroundStyle(Theme.onInk)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 11)
-                .background(Theme.ink, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+                .background(Theme.ink, in: .rect(cornerRadius: 18, style: .continuous))
         }
     }
 
@@ -121,7 +121,7 @@ struct AssistantView: View {
                 }
             }
             .padding(16)
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+            .background(Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
             Spacer(minLength: 32)
         }
     }

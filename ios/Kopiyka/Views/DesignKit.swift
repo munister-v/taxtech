@@ -13,7 +13,7 @@ struct ScreenTitle<Trailing: View>: View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
                 if let subtitle { Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary) }
-                Text(title).font(Theme.display(26)).tracking(-0.5)
+                Text(title).font(.system(size: 28, weight: .bold)).tracking(-0.5)
             }
             Spacer()
             trailing
@@ -39,7 +39,7 @@ struct HeroPanel<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(22)
             .foregroundStyle(Theme.onAccent)
-            .background(Theme.accent, in: .rect(cornerRadius: Theme.cornerLarge, style: .continuous))
+            .background(Theme.accent, in: .rect(cornerRadius: 26, style: .continuous))
     }
 }
 
@@ -51,8 +51,8 @@ struct HeroCaption: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .semibold, design: .monospaced))
-            .tracking(0.8)
+            .font(.caption.weight(.semibold))
+            .tracking(1)
             .textCase(.uppercase)
             .foregroundStyle(Theme.onAccent.opacity(0.6))
     }
@@ -67,7 +67,7 @@ struct Stat: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(value)
-                .font(Theme.display(15, .medium))
+                .font(.system(size: 19, weight: .semibold))
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -100,7 +100,7 @@ struct SegmentBar<Value: Hashable>: View {
                             .foregroundStyle(selection == value ? Theme.onAccent : .secondary)
                             .background {
                                 if selection == value {
-                                    RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
+                                    RoundedRectangle(cornerRadius: 11, style: .continuous)
                                         .fill(Theme.accent)
                                         .matchedGeometryEffect(id: "seg", in: ns)
                                 }
@@ -112,7 +112,7 @@ struct SegmentBar<Value: Hashable>: View {
             }
             .padding(4)
         }
-        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+        .background(Theme.surface, in: .rect(cornerRadius: 15, style: .continuous))
         .sensoryFeedback(.selection, trigger: selection)
     }
 }
@@ -129,7 +129,7 @@ struct CircleAction: View {
                 Image(systemName: symbol)
                     .font(.system(size: 20, weight: .semibold))
                     .frame(width: 58, height: 58)
-                    .background(Theme.accent, in: .rect(cornerRadius: Theme.corner))
+                    .background(Theme.accent, in: .circle)
                     .foregroundStyle(Theme.onAccent)
                 Text(title)
                     .font(.caption.weight(.medium))
@@ -172,7 +172,7 @@ struct SplitBar: View {
                 }
             }
             .frame(height: 10)
-            .clipShape(.rect(cornerRadius: Theme.corner))
+            .clipShape(.rect(cornerRadius: 3))
             HStack(spacing: 14) {
                 ForEach(Array(parts.enumerated()), id: \.offset) { i, p in
                     HStack(spacing: 5) {
@@ -198,7 +198,7 @@ struct MoneyField: View {
             HStack {
                 TextField("0", value: $value, format: .number.precision(.fractionLength(0...2)))
                     .keyboardType(.decimalPad)
-                    .font(Theme.display(24))
+                    .font(.system(size: 28, weight: .semibold))
                     .monospacedDigit()
                 Text("TAX").font(.title3.weight(.semibold)).foregroundStyle(.secondary)
             }

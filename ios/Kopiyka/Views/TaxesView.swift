@@ -408,7 +408,7 @@ private struct CalendarPart: View {
                             if i > 0 { Rule() }
                             HStack(alignment: .top, spacing: 14) {
                                 VStack(spacing: 0) {
-                                    Text(d.date.formatted(.dateTime.day())).font(Theme.display(17)).monospacedDigit()
+                                    Text(d.date.formatted(.dateTime.day())).font(.title3.weight(.bold)).monospacedDigit()
                                     Text(d.date.formatted(.dateTime.weekday(.abbreviated).locale(Locale(identifier: "uk_UA"))))
                                         .font(.caption2).foregroundStyle(.secondary)
                                 }

@@ -84,7 +84,7 @@ struct CardsTab: View {
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                    .background(Theme.accent, in: .rect(cornerRadius: 13, style: .continuous))
                     .foregroundStyle(Theme.onAccent)
             }
             .buttonStyle(PressScale())
@@ -223,7 +223,7 @@ struct TileLabel: View {
             Image(systemName: symbol)
                 .font(.system(size: 17, weight: .medium))
                 .frame(width: 42, height: 42)
-                .background(Theme.ink, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                .background(Theme.ink, in: .rect(cornerRadius: 12, style: .continuous))
                 .foregroundStyle(Theme.onInk)
             Spacer(minLength: 18)
             Text(title).font(.subheadline.weight(.semibold))

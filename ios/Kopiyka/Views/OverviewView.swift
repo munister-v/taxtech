@@ -78,7 +78,7 @@ struct OverviewView: View {
                         Text(Self.greeting).font(.footnote).foregroundStyle(.secondary)
                         HStack(spacing: 4) {
                             Text(me.map { $0.fullName.split(separator: " ").first.map(String.init) ?? $0.fullName } ?? " ")
-                                .font(Theme.display(17))
+                                .font(.title3.weight(.bold))
                             Image(systemName: "chevron.right").font(.caption.weight(.bold)).foregroundStyle(.tertiary)
                         }
                     }
@@ -159,7 +159,7 @@ struct OverviewView: View {
     private var cards: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Мої картки").font(Theme.display(17))
+                Text("Мої картки").font(.title3.weight(.bold))
                 Text("\(bank.cards.count)").foregroundStyle(.secondary)
                 Spacer()
                 Button("Усі") { open(.cards) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
@@ -199,7 +199,7 @@ struct OverviewView: View {
                         Image(systemName: "percent")
                             .font(.system(size: 18, weight: .bold))
                             .frame(width: 44, height: 44)
-                            .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+                            .background(Theme.accent, in: .rect(cornerRadius: 13, style: .continuous))
                             .foregroundStyle(Theme.onAccent)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Податки").font(.headline)
@@ -231,7 +231,7 @@ struct OverviewView: View {
         let low = points.map(\.balance).min() ?? 0
         return VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Динаміка балансу").font(Theme.display(17))
+                Text("Динаміка балансу").font(.title3.weight(.bold))
                 Spacer()
                 Text("\(last >= first ? "+" : "−")\(Format.money(abs(last - first)))")
                     .font(.subheadline.weight(.semibold)).monospacedDigit()
@@ -264,7 +264,7 @@ struct OverviewView: View {
 
     private var frequent: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Часті отримувачі").font(Theme.display(17))
+            Text("Часті отримувачі").font(.title3.weight(.bold))
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(recipients.prefix(8)) { r in
@@ -290,7 +290,7 @@ struct OverviewView: View {
     private var recent: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Останні операції").font(Theme.display(17))
+                Text("Останні операції").font(.title3.weight(.bold))
                 Spacer()
                 Button("Усі") { open(.operations) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
             }
@@ -323,12 +323,12 @@ struct BigAmount: View {
             if hidden {
                 Text("••••••").font(.system(size: size, weight: .semibold))
             } else {
-                Text(parts.first ?? s).font(Theme.display(size * 0.86)).tracking(-0.5)
+                Text(parts.first ?? s).font(.system(size: size, weight: .semibold)).tracking(-1)
                 if parts.count > 1 {
-                    Text(",\(parts[1])").font(Theme.display(size * 0.42, .regular)).foregroundStyle(.secondary)
+                    Text(",\(parts[1])").font(.system(size: size * 0.5, weight: .regular)).foregroundStyle(.secondary)
                 }
             }
-            Text(" TAX").font(.system(size: size * 0.34, weight: .bold, design: .monospaced)).foregroundStyle(.secondary)
+            Text(" TAX").font(.system(size: size * 0.42, weight: .bold)).tracking(0.5).foregroundStyle(.secondary)
         }
         .monospacedDigit()
         .lineLimit(1)
@@ -345,10 +345,10 @@ struct Initials: View {
     var body: some View {
         let letters = name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
         Text(letters.isEmpty ? "TT" : letters)
-            .font(Theme.display(size * 0.32))
+            .font(.system(size: size * 0.36, weight: .semibold))
             .frame(width: size, height: size)
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.corner))
-            .overlay(RoundedRectangle(cornerRadius: Theme.corner).strokeBorder(Theme.line, lineWidth: 1))
+            .background(Theme.surface, in: .circle)
+            .overlay(Circle().strokeBorder(Theme.line, lineWidth: 1))
     }
 }
 
@@ -359,7 +359,7 @@ struct RoundGlyph: View {
         Image(systemName: symbol)
             .font(.system(size: 16, weight: .medium))
             .frame(width: 40, height: 40)
-            .background(Theme.surface, in: .rect(cornerRadius: Theme.corner))
+            .background(Theme.surface, in: .circle)
             .foregroundStyle(Theme.ink)
     }
 }
