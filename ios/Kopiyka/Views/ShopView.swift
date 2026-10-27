@@ -14,6 +14,7 @@ struct ShopView: View {
     @State private var pages = 1
     @State private var total = 0
     @State private var hits: [API.Product] = []
+    @State private var categoryCounts: [String: Int] = [:]
     @State private var orders: [API.Order] = []
     @State private var invoices: [API.Invoice] = []
     @State private var cart: [API.Product: Int] = [:]
@@ -95,6 +96,7 @@ struct ShopView: View {
         defer { loading = false }
         guard let c = try? await model.api.catalog(search: search, page: 1, category: category.key, sort: sort.key) else { return }
         items = c.items
+        if let counts = c.categories, category == .all, search.isEmpty { categoryCounts = counts }
         page = 1
         pages = c.pages
         total = c.total
@@ -140,7 +142,7 @@ struct ShopView: View {
 
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                ForEach(ShopCategory.allCases) { c in
+                ForEach(ShopCategory.allCases.filter { $0 == .all || categoryCounts.isEmpty || categoryCounts[$0.rawValue] != nil }) { c in
                     Button { withAnimation(.snappy) { category = c } } label: {
                         VStack(spacing: 8) {
                             Image(systemName: c.symbol)
@@ -383,8 +385,8 @@ struct ProductArt: View {
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 9)
                     .padding(.vertical, 4)
-                    .background(Theme.ink, in: .capsule)
-                    .foregroundStyle(Theme.onInk)
+                    .background(Color.black.opacity(0.82), in: .capsule)
+                    .foregroundStyle(.white)
                     .padding(8)
             }
         }

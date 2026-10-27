@@ -22,6 +22,8 @@ extension API {
         let page: Int
         let pages: Int
         let total: Int
+        /// Скільки товарів у кожній категорії (порожні не повертаються).
+        let categories: [String: Int]?
     }
 
     struct Order: Decodable, Sendable, Identifiable {
