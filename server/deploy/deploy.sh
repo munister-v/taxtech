@@ -11,6 +11,11 @@ HERE=$(cd "$(dirname "$0")/.." && pwd)
 SSH=(ssh -o BatchMode=yes ${KEY:+-i "$KEY"})
 SUDO=$([ "${TARGET%%@*}" = root ] && echo "" || echo "sudo")
 
+# мобільний веб-застосунок: збираємо з web/ у server/frontend, сервер віддає його з кореня домену
+if [ -f "$HERE/../web/package.json" ]; then
+  (cd "$HERE/../web" && npm ci --no-audit --no-fund --silent && npm run build --silent)
+fi
+
 "${SSH[@]}" "$TARGET" "$SUDO id kopiyka >/dev/null 2>&1 || $SUDO useradd --system --home /opt/kopiyka --shell /usr/sbin/nologin kopiyka; $SUDO mkdir -p /opt/kopiyka/server && $SUDO chown -R \$(id -un) /opt/kopiyka"
 rsync -az --no-owner --no-group --delete -e "ssh ${KEY:+-i $KEY}" \
   --exclude '.env' --exclude 'database/*.db' --exclude '__pycache__' --exclude '.pytest_cache' --exclude 'tests' \

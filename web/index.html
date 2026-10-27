@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>TaxTech — навчальний банк</title>
+    <meta name="description" content="Навчальний банк віртуальної лабораторії цифрових фінансів TaxTech. Гроші віртуальні." />
+    <!-- Color scheme: always dark — prevents browser chrome from flashing white -->
+    <meta name="color-scheme" content="dark" />
+    <!-- theme-color: Android Chrome status bar + address bar color -->
+    <meta name="theme-color" content="#121212" />
+    <!-- OG -->
+    <meta property="og:title" content="TaxTech" />
+    <meta property="og:description" content="Картки, депозити, кредити й перекази на віртуальних гривнях." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bank.munister.com.ua/" />
+    <meta property="og:image" content="https://bank.munister.com.ua/icons/icon-512.png" />
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TaxTech" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+    <!-- Android PWA manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <!-- Fonts -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+      }
+      :root {
+        color-scheme: dark;
+        --sat: env(safe-area-inset-top, 0px);
+        --sar: env(safe-area-inset-right, 0px);
+        --sab: env(safe-area-inset-bottom, 0px);
+        --sal: env(safe-area-inset-left, 0px);
+        /* Type scale */
+        --text-xs: 10px; --text-sm: 12px; --text-base: 14px;
+        --text-md: 15px; --text-lg: 17px; --text-xl: 20px;
+        --text-2xl: 24px; --text-3xl: 30px; --text-4xl: 36px;
+        /* Spacing */
+        --sp-1: 4px; --sp-2: 8px; --sp-3: 12px;
+        --sp-4: 16px; --sp-5: 20px; --sp-6: 24px;
+        --sp-8: 32px; --sp-10: 40px;
+        /* Radii */
+        --r-sm: 10px; --r-md: 14px; --r-lg: 18px;
+        --r-xl: 22px; --r-2xl: 28px;
+      }
+      /* dvh = dynamic viewport height — on Android Chrome excludes the
+         collapsible address bar, preventing layout jumps */
+      html {
+        /* -webkit-fill-available = exact iOS PWA viewport (excl. status bar).
+           100dvh is the modern fallback for all other browsers. */
+        height: -webkit-fill-available;
+        height: 100dvh;
+        overscroll-behavior: none;
+        background: #121212;
+      }
+      body {
+        margin: 0;
+        /* Inherit exact height from html (-webkit-fill-available). */
+        height: 100%;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-feature-settings: 'kern' 1, 'liga' 1;
+        overscroll-behavior: none;
+        overflow: hidden;
+        /* Exact match with html and gradient bottom stop */
+        background: #121212;
+        /* Prevent text size adjustment on orientation change */
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      #root {
+        /* Inherit the exact PWA height from body → html.
+           Combined with the in-flow flex TabBar this eliminates the dead zone. */
+        height: 100%;
+        isolation: isolate;
+        position: relative;
+      }
+      /* Tab bar safe-area filler — separate element so env() is CSS-native */
+      .tab-safe-area {
+        height: constant(safe-area-inset-bottom); /* iOS 11.0 */
+        height: env(safe-area-inset-bottom);       /* iOS 11.2+ */
+        background: rgba(18,18,18, 0.97);
+      }
+      /* Custom scrollbar (Chrome/Android WebView) */
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(172,172,172, 0.18); border-radius: 100px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(172,172,172, 0.32); }
+      /* Input / button reset */
+      input, button, select, textarea {
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        /* Prevent iOS/Android from styling these with system defaults */
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      input[type="number"]  { -moz-appearance: textfield; }
+      input[type="search"]  { -webkit-appearance: none; }
+      input::-webkit-outer-spin-button,
+      input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      /* Autofill — dark background for Chrome/Android */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #1b1b1b inset !important;
+        -webkit-text-fill-color: #ececec !important;
+        caret-color: #b0b0b0;
+      }
+      /* Selection */
+      ::selection { background: rgba(171,171,171, 0.25); color: #ebebeb; }
+    </style>
+    <script>
+      (function () {
+        function isStandaloneMode() {
+          try {
+            var iosStandalone = window.navigator && window.navigator.standalone === true;
+            var mediaStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+            return !!(iosStandalone || mediaStandalone);
+          } catch (_) {
+            return false;
+          }
+        }
+        var root = document.documentElement;
+        function setAppVh() {
+          var ih = window.innerHeight || 0;
+          var ch = document.documentElement.clientHeight || 0;
+          var vv = (window.visualViewport && window.visualViewport.height) ? Math.round(window.visualViewport.height) : 0;
+          var h = 0;
+          if (isStandaloneMode()) {
+            // In iOS PWA visualViewport can be shorter than the real app canvas.
+            // Recover missing bottom area when the mismatch is small (safe-area range).
+            // In PWA standalone use innerHeight — screen.height overshoots
+            // and pushes position:fixed elements below the visible viewport.
+            h = vv || ih || ch;
+          } else {
+            // Browser mode: prefer visualViewport to track dynamic toolbars.
+            h = vv || ih || ch;
+          }
+          if (h > 0) root.style.setProperty('--app-vh', h + 'px');
+        }
+        setAppVh();
+        requestAnimationFrame(setAppVh);
+        setTimeout(setAppVh, 120);
+        setTimeout(setAppVh, 600);
+        setTimeout(setAppVh, 1200);
+        window.addEventListener('resize', setAppVh, { passive: true });
+        if (window.visualViewport && window.visualViewport.addEventListener) {
+          window.visualViewport.addEventListener('resize', setAppVh, { passive: true });
+          window.visualViewport.addEventListener('scroll', setAppVh, { passive: true });
+        }
+        window.addEventListener('orientationchange', setAppVh);
+        window.addEventListener('pageshow', setAppVh);
+      })();
+    </script>
+    <script>
+      (function () {
+        var buildId = '2026-04-26-08';
+        var buildKey = 'army_bank_build_id';
+        try {
+          var prev = localStorage.getItem(buildKey);
+          localStorage.setItem(buildKey, buildId);
+          var isUpgrade = !!prev && prev !== buildId;
+          if (!isUpgrade) return;
+
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              regs.forEach(function (reg) {
+                try { reg.update(); } catch (_) {}
+              });
+            }).catch(function () {});
+          }
+
+          var url = new URL(window.location.href);
+          if (url.searchParams.get('v') !== buildId) {
+            url.searchParams.set('v', buildId);
+            window.history.replaceState(null, '', url.toString());
+          }
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -32,7 +32,8 @@ def test_public_registration_creates_plain_user_not_admin(client):
 
 
 def test_removed_admin_and_crm_routes_are_absent(client):
-    """Адмінка, CRM, месенджер, маркетплейс, 3DS тощо прибрані — 404 навіть для admin."""
+    """Адмінка, CRM, месенджер, push тощо прибрані — 404 навіть для admin.
+    Магазин, 3-D Secure і passkey повернулися разом із мобільним застосунком."""
     uid, token = _register(client)
     UserRepository().update_role(uid, 'admin')
     h = {'Authorization': f'Bearer {token}'}
@@ -42,7 +43,6 @@ def test_removed_admin_and_crm_routes_are_absent(client):
                  '/api/admin/deposits', '/api/admin/credits', '/api/operator/queue',
                  '/api/platform/users', '/api/push/vapid-key', '/api/webhooks'):
         assert client.get(path, headers=h).status_code == 404, path
-    assert client.post('/api/3ds/challenge', headers=h, json={}).status_code == 404
 
 
 def test_api_catalog_lists_only_sandbox_routes(client):
@@ -52,5 +52,5 @@ def test_api_catalog_lists_only_sandbox_routes(client):
     paths = {r['path'] for r in data['routes']}
     assert '/api/research/ping' in paths
     assert '/api/transactions/transfer' in paths
-    assert not any(p.startswith(('/api/admin', '/api/leads', '/api/messenger', '/api/3ds'))
+    assert not any(p.startswith(('/api/admin', '/api/leads', '/api/messenger'))
                    for p in paths)

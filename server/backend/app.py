@@ -10,11 +10,12 @@ import os
 import re
 import uuid
 
-from flask import Flask, g, jsonify, request
+from flask import Flask, abort, g, jsonify, request, send_from_directory
 from flask_compress import Compress
 
 from .config import (
     ALLOW_DEMO_PAYOUT_ACCRUAL,
+    BASE_DIR,
     BASE_PATH,
     CURRENCY_CODE,
     CURRENCY_LABEL,
@@ -31,6 +32,9 @@ from .routes.credit_routes import credit_bp
 from .routes.deposit_routes import deposit_bp
 from .routes.feature_routes import feature_bp
 from .routes.research_routes import research_bp
+from .routes.marketplace_routes import marketplace_bp
+from .routes.three_ds_routes import three_ds_bp
+from .routes.passkey_routes import passkey_bp
 
 API_VERSION = '1.0.0'
 SERVICE_NAME = 'Kopiyka Sandbox Bank'
@@ -161,6 +165,9 @@ def create_app() -> Flask:
     app.register_blueprint(deposit_bp,  url_prefix=prefix + '/api')
     app.register_blueprint(credit_bp,   url_prefix=prefix + '/api')
     app.register_blueprint(research_bp, url_prefix=prefix + '/api/research')
+    app.register_blueprint(marketplace_bp, url_prefix=prefix + '/api/marketplace')
+    app.register_blueprint(three_ds_bp, url_prefix=prefix + '/api/3ds')
+    app.register_blueprint(passkey_bp, url_prefix=prefix + '/api/auth/passkey')
 
     @app.get(prefix + '/api')
     @app.get(prefix + '/api/')
@@ -199,6 +206,26 @@ def create_app() -> Flask:
             'service': SERVICE_NAME,
             'db_boot_ok': bool(app.config.get('DB_BOOT_OK', True)),
         }
+
+    # ── Мобільний веб-застосунок банку (збірка web/ → server/frontend) ──────────
+    # Файли збірки віддаємо як є, решту шляхів (не /api) - index.html: маршрути вирішує застосунок.
+    frontend = BASE_DIR / 'frontend'
+
+    @app.get(prefix + '/' if prefix else '/')
+    @app.get(prefix + '/<path:path>')
+    def web_app(path: str = ''):
+        if path.startswith(('api/', 'health')) or not (frontend / 'index.html').is_file():
+            abort(404)
+        target = (frontend / path).resolve() if path else None
+        if target and target.is_file() and frontend.resolve() in target.parents:
+            resp = send_from_directory(frontend, path)
+            # файли з хешем у назві не змінюються - кешуємо надовго
+            if path.startswith('assets/'):
+                resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+            return resp
+        resp = send_from_directory(frontend, 'index.html')
+        resp.headers['Cache-Control'] = 'no-cache'
+        return resp
 
     return app
 
