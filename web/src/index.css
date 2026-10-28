@@ -834,3 +834,6 @@
 @media (max-width: 900px) { .ap-stack-grid { grid-template-columns: 1fr 1fr; } .ap-std { grid-template-columns: 1fr; } }
 @media (max-width: 520px) { .ap-stack-grid { grid-template-columns: 1fr; } .ap-std div { grid-template-columns: 1fr; gap: 4px; } }
 .ap-amp { font-weight: 300; color: #ffd400; margin: 0 2px; }
+.ap-lang { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: rgba(255,255,255,.08); }
+.ap-lang button { border: 0; background: none; color: #a1a1a6; font: 600 11px Onest, system-ui, sans-serif; letter-spacing: .04em; padding: 4px 9px; border-radius: 999px; cursor: pointer; }
+.ap-lang button.on { background: #f5f5f7; color: #111; }

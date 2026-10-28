@@ -1,5 +1,6 @@
 import markSvg from './assets/mark.svg?raw';
 import ResearchLab from './ResearchLab';
+import { LandingLangContext, initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
@@ -8973,32 +8974,23 @@ function WowSplash() {
 // ─── Login screen ─────────────────────────────────────────────
 
 // ─── Promo landing (logged-out visitors) ─────────────────────────
-type PromoProduct = { id: number; title: string; description?: string; price: number; image_url?: string; slug?: string };
 
 function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const manifestoRef = useRef<HTMLParagraphElement | null>(null);
-  const tiltRef = useRef<HTMLDivElement | null>(null);
-  const [items, setItems] = useState<PromoProduct[]>([]);
   const [lit, setLit] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [section, setSection] = useState('top');
-  const [depTerm, setDepTerm] = useState(3);
-  const [depAmount, setDepAmount] = useState(10000);
+  const [lang, setLang] = useState<LandingLang>(initialLandingLang);
+  const t = (uk: string, en: string) => (lang === 'en' ? en : uk);
 
   useEffect(() => {
-    // Hand-picked autumn pieces from Saint Agnes, in this order (coat, teddy jacket, tweed cardigan, check jacket).
-    const picks = ['munister-81921', 'munister-83171', 'munister-81907', 'munister-83168'];
-    fetch(`/api/marketplace/catalog?per_page=12&slugs=${picks.join(',')}`)
-      .then(r => r.json())
-      .then(j => {
-        if (!j?.ok) return;
-        const got: (PromoProduct & { slug?: string })[] = j.data?.items || [];
-        const ordered = picks.map(sl => got.find(p => p.slug === sl)).filter((p): p is PromoProduct & { slug?: string } => Boolean(p && p.image_url));
-        setItems(ordered.slice(0, 4));
-      })
-      .catch(() => {});
-  }, []);
+    // The app root sets <html lang> in its own effect, which runs after this one; apply ours afterwards.
+    const id = window.setTimeout(() => { document.documentElement.lang = lang; }, 0);
+    saveLandingLang(lang);
+    document.title = lang === 'en' ? 'TaxTech · research platform' : 'TaxTech · дослідницька платформа';
+    return () => { window.clearTimeout(id); document.documentElement.lang = 'uk'; };
+  }, [lang]);
 
   // Scroll reveal + manifesto words lighting up as the reader scrolls (Apple-style).
   useEffect(() => {
@@ -9016,7 +9008,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       const vh = root.clientHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
       setLit(p);
-      const ids = ['faq', 'stack', 'security', 'shop', 'grow', 'cards', 'app', 'lab', 'top'];
+      const ids = ['faq', 'stack', 'security', 'lab', 'top'];
       const cur = ids.find(id => { const el = root.querySelector('#' + id); return el && el.getBoundingClientRect().top < 140; });
       setSection(cur || 'top');
     };
@@ -9025,103 +9017,89 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
     return () => { io.disconnect(); root.removeEventListener('scroll', onScroll); };
   }, []);
 
-  function onTilt(e: React.PointerEvent<HTMLDivElement>) {
-    const el = tiltRef.current;
-    if (!el || e.pointerType !== 'mouse') return;
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.setProperty('--ry', `${(x * 16).toFixed(2)}deg`);
-    el.style.setProperty('--rx', `${(10 - y * 10).toFixed(2)}deg`);
-    el.style.setProperty('--gx', `${((x + 0.5) * 100).toFixed(1)}%`);
-    el.style.setProperty('--gy', `${((y + 0.5) * 100).toFixed(1)}%`);
-  }
-  function resetTilt() {
-    const el = tiltRef.current;
-    if (!el) return;
-    el.style.removeProperty('--ry'); el.style.removeProperty('--rx');
-    el.style.removeProperty('--gx'); el.style.removeProperty('--gy');
-  }
-
-  const manifesto = 'TaxTech вивчає, де мобільному застосунку вигідніше виконувати ІІ: на телефоні чи на сервері. Полігон для цього: навчальний банк на віртуальних токенах TAX з переказами, чеками, антифродом і помічником. Кожне рішення методу потрапляє в журнал.'.split(' ');
+  const manifesto = t(
+    'На телефоні дані лишаються приватними, а застосунок працює без мережі. У хмарі моделі більші й точніші. TaxTech навчає застосунок робити цей вибір для кожного запиту і перевіряє його в робочому продукті.',
+    'On the phone, data stays private and the app works offline. In the cloud, models are larger and more accurate. TaxTech teaches an app to make that call for every request, and tests it inside a working product.',
+  ).split(' ');
   const litWords = Math.round(lit * manifesto.length);
-  const gallery: { v: CardVariant; t: string }[] = [
-    { v: 'roma_colosseum', t: 'Колізей' }, { v: 'roma_pantheon', t: 'Пантеон' }, { v: 'roma_forum', t: 'Форум' },
-    { v: 'roma_marmor', t: 'Мармур' }, { v: 'roma_colosseum_night', t: 'Колізей уночі' }, { v: 'roma_aqueduct', t: 'Акведук' },
-    { v: 'roma_aureus', t: 'Ауреус' }, { v: 'obsidian', t: 'Чорний' },
-  ];
-  const spend = [
-    { t: 'Їжа', v: 3240, c: '#ff9f0a' }, { t: 'Шопінг', v: 2610, c: '#ff375f' }, { t: 'Транспорт', v: 1180, c: '#0a84ff' },
-    { t: 'Розваги', v: 940, c: '#bf5af2' }, { t: 'Здоров’я', v: 520, c: '#30d158' },
-  ];
-  const spendTotal = spend.reduce((a, x) => a + x.v, 0);
-  // Same terms and formula as the bank server (deposit_service.RATES; interest = amount * rate / 100 * days / 365).
-  const depTerms = [{ m: 1, r: 8 }, { m: 3, r: 10 }, { m: 6, r: 12 }, { m: 12, r: 14 }];
-  const dep = depTerms[depTerm];
-  const depDays = Math.round(dep.m * 30.44);
-  const depInterest = Math.round(depAmount * dep.r / 100 * depDays / 365 * 100) / 100;
-  const depCurve = Array.from({ length: 25 }, (_, i) => {
-    const t = i / 24;
-    return { x: 8 + t * 384, y: 150 - (t * depInterest / Math.max(1, depAmount * 0.14)) * 120 };
-  });
-  const depPath = depCurve.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-  const fmtTax = (n: number) => n.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const faq = [
-    ['Що саме досліджується?', 'Наукова робота «Метод інтелектуального вибору між локальними та хмарними обчисленнями в мобільних застосунках». Об’єкт дослідження: мобільні ІІ-задачі з даними різної чутливості. Предмет: правило, що для кожного запиту обирає виконавця (телефон, сервер, сервер після маскування або каскад) з огляду на час, енергію, якість і приватність. Гіпотеза: адаптивна політика досягає кращого балансу, ніж будь-яка фіксована стратегія.'],
-    ['На чому ґрунтується метод?', 'Оптимізація Ляпунова (drift-plus-penalty, M. Neely, 2010): віртуальна черга енергії Z ← max(Z + E − Ē, 0) і ціль V·штраф + Z·E. Каскад з адаптивним конформним порогом (Gibbs & Candès, 2021): λ ← λ + η(α − err) утримує довгострокову частку помилок прийнятих відповідей телефона на рівні α навіть після зсуву розподілу. Модель енергії враховує «хвіст» радіо і спирається на підхід MAUI (Cuervo et al., 2010). Час оцінюється експоненційним ковзним середнім, якість через апостеріорне середнє Beta-розподілу.'],
-    ['Як поставлено експеримент?', 'Порівнюються п’ять стратегій: «завжди телефон», «завжди сервер», прості правила, каскад і EdgeRouter. Усі працюють з тими самими задачами й станом пристрою. Метрики: затримка (p50, p95), енергія (Дж), якість відносно розмітки, частка особистих даних, що пішли на сервер без маски, і стабільність черги енергії. Кожне рішення разом з усіма кандидатами записується в decisions.jsonl.'],
-    ['Звідки правильні відповіді для оцінки якості?', 'Для антифроду є розмічений набір: 27 425 транзакцій 50 рахунків за шість місяців, серед них 252 шахрайські за п’ятьма сценаріями (дроп-рахунок, серія швидких переказів, дроблення суми, нічна пачка, велика сума новому отримувачу). Набір синтетичний і відтворюваний, реальних клієнтів у ньому немає. Для чеків і помічника джерелом істини є відгук користувача в журналі.'],
-    ['Як забезпечено відтворюваність?', 'Версії мовних моделей на сервері зафіксовано. Перший шар антифроду перенесено з Python у Swift без змін і звірено на 454 еталонних векторах. Політика є чистою функцією без побічних ефектів і покрита тестами. Журнал рішень можна експортувати, а стратегію й параметри (α, V, бюджет енергії) змінити в розділі «Лабораторія».'],
-    ['Які обмеження має робота?', 'Коефіцієнти моделі енергії поки взято з літератури, а не виміряно Power Profiler на власних iPhone. Невпевненість антифроду на телефоні поки оцінює евристика, модель для неї ще не навчена. Foundation Models не підтримує українську, тож помічнику на телефоні потрібна своя модель. Маскування не розпізнає імена. Результати стратегій на реальних пристроях ще не зібрано.'],
-    ['Що далі?', 'Калібрування енергії, навчання моделі невпевненості на розміченому наборі, власна локальна мовна модель, аналітика фроду на графі переказів, оракули розподіленого реєстру для зовнішніх даних (графіки відключень, курси, сигнали ризику) та інтеграція з банківськими системами, зокрема на Oracle Database. Усе це в планах, а не в продукті.'],
-    ['Які дані про мене збираються?', 'Тільки журнал рішень: задача, стан пристрою (мережа, заряд, перегрів), кандидати, обраний шлях, час і енергія. Тексти запитів, фото й відповіді туди не потрапляють. Фото чека розпізнається лише на телефоні, а особисті дані маскуються до відправки на сервер.'],
-    ['Що таке TAX і чи є ризик?', 'TAX є віртуальним токеном навчального банку. Він не є грошима, не обмінюється на гривню, справжні картки й рахунки не прив’язуються. Ризику втратити гроші немає.'],
+    [t('Що саме досліджується?', 'What is being studied?'),
+      t('Наукова робота «Метод інтелектуального вибору між локальними та хмарними обчисленнями в мобільних застосунках». Об’єкт дослідження: мобільні ІІ-задачі з даними різної чутливості. Предмет: правило, що для кожного запиту обирає виконавця (телефон, сервер, сервер після маскування або каскад) з огляду на час, енергію, якість і приватність. Гіпотеза: адаптивна політика досягає кращого балансу, ніж будь-яка фіксована стратегія.',
+        'The research project “A method for intelligent selection between on-device and cloud computing in mobile applications”. The object of study is mobile AI tasks whose data differ in sensitivity. The subject is a rule that picks an executor for every request (phone, server, server after redaction, or a cascade) by weighing latency, energy, quality and privacy. The hypothesis: an adaptive policy strikes a better balance than any fixed strategy.')],
+    [t('На чому ґрунтується метод?', 'What is the method built on?'),
+      t('Оптимізація Ляпунова (drift-plus-penalty, M. Neely, 2010): віртуальна черга енергії Z ← max(Z + E − Ē, 0) і ціль V·штраф + Z·E. Каскад з адаптивним конформним порогом (Gibbs & Candès, 2021): λ ← λ + η(α − err) утримує довгострокову частку помилок прийнятих відповідей телефона на рівні α навіть після зсуву розподілу. Модель енергії враховує «хвіст» радіо і спирається на підхід MAUI (Cuervo et al., 2010). Час оцінюється експоненційним ковзним середнім, якість через апостеріорне середнє Beta-розподілу.',
+        'Lyapunov optimisation (drift-plus-penalty, M. Neely, 2010): a virtual energy queue Z ← max(Z + E − Ē, 0) and the objective V·penalty + Z·E. A cascade with an adaptive conformal threshold (Gibbs & Candès, 2021): λ ← λ + η(α − err) holds the long-run error rate of accepted on-device answers at α, even after a distribution shift. The energy model accounts for the radio tail and follows the MAUI approach (Cuervo et al., 2010). Latency is tracked with an exponential moving average, quality with the posterior mean of a Beta distribution.')],
+    [t('Як поставлено експеримент?', 'How is the experiment designed?'),
+      t('Порівнюються п’ять стратегій: «завжди телефон», «завжди сервер», прості правила, каскад і EdgeRouter. Усі працюють з тими самими задачами й станом пристрою. Метрики: затримка (p50, p95), енергія (Дж), якість відносно розмітки, частка особистих даних, що пішли на сервер без маски, і стабільність черги енергії. Кожне рішення разом з усіма кандидатами записується в decisions.jsonl.',
+        'Five strategies are compared: always on device, always in the cloud, simple rules, a cascade, and EdgeRouter. All of them face the same tasks and the same device state. Metrics: latency (p50, p95), energy (J), quality against ground-truth labels, the share of personal data sent to the server unredacted, and the stability of the energy queue. Every decision is logged to decisions.jsonl together with all candidates.')],
+    [t('Звідки правильні відповіді для оцінки якості?', 'Where does the ground truth come from?'),
+      t('Для антифроду є розмічений набір: 27 425 транзакцій 50 рахунків за шість місяців, серед них 252 шахрайські за п’ятьма сценаріями (дроп-рахунок, серія швидких переказів, дроблення суми, нічна пачка, велика сума новому отримувачу). Набір синтетичний і відтворюваний, реальних клієнтів у ньому немає. Для чеків і помічника джерелом істини є відгук користувача в журналі.',
+        'For fraud detection there is a labelled set of 27,425 transactions from 50 accounts over six months, 252 of them fraudulent across five attack patterns (money mule, rapid succession, structuring, night batch, large amount to a new recipient). The set is synthetic and reproducible; it contains no real customers. For receipts and the assistant, the ground truth is user feedback recorded in the log.')],
+    [t('Як забезпечено відтворюваність?', 'How is reproducibility ensured?'),
+      t('Версії мовних моделей на сервері зафіксовано. Перший шар антифроду перенесено з Python у Swift без змін і звірено на 454 еталонних векторах. Політика є чистою функцією без побічних ефектів і покрита тестами. Журнал рішень можна експортувати, а стратегію й параметри (α, V, бюджет енергії) змінити в розділі «Лабораторія».',
+        'Server language models are pinned to fixed versions. The first fraud layer was ported from Python to Swift line for line and checked against 454 reference vectors. The policy is a pure function with no side effects and is covered by tests. The decision log can be exported, and the strategy and parameters (α, V, energy budget) can be changed in the Lab screen.')],
+    [t('Які обмеження має робота?', 'What are the limitations?'),
+      t('Коефіцієнти моделі енергії поки взято з літератури, а не виміряно Power Profiler на власних iPhone. Невпевненість антифроду на телефоні поки оцінює евристика, модель для неї ще не навчена. Foundation Models не підтримує українську, тож помічнику на телефоні потрібна своя модель. Маскування не розпізнає імена. Результати стратегій на реальних пристроях ще не зібрано.',
+        'Energy coefficients still come from the literature rather than Power Profiler measurements on our own iPhones. On-device fraud uncertainty is a heuristic; the model for it has not been trained yet. Foundation Models does not support Ukrainian, so the on-device assistant needs its own model. Redaction does not detect names. Strategy results on real devices have not been collected yet.')],
+    [t('Що далі?', 'What comes next?'),
+      t('Калібрування енергії, навчання моделі невпевненості на розміченому наборі, власна локальна мовна модель, аналітика фроду на графі переказів, оракули розподіленого реєстру для зовнішніх даних (графіки відключень, курси, сигнали ризику) та інтеграція з банківськими системами, зокрема на Oracle Database. Усе це в планах, а не в продукті.',
+        'Energy calibration, an uncertainty model trained on the labelled set, our own on-device language model, fraud analytics on the transfer graph, distributed-ledger oracles for external data (outage schedules, exchange rates, risk signals), and integration with banking systems, including those built on Oracle Database. All of this is planned, not shipped.')],
+    [t('Які дані про мене збираються?', 'What data is collected about me?'),
+      t('Тільки журнал рішень: задача, стан пристрою (мережа, заряд, перегрів), кандидати, обраний шлях, час і енергія. Тексти запитів, фото й відповіді туди не потрапляють. Фото чека розпізнається лише на телефоні, а особисті дані маскуються до відправки на сервер.',
+        'Only the decision log: the task, device state (network, battery, thermal), candidates, the chosen path, latency and energy. Request text, photos and answers never enter it. Receipt photos are recognised on the phone only, and personal data is redacted before anything reaches the server.')],
+    [t('Що таке TAX і чи є ризик?', 'What is TAX, and is there any risk?'),
+      t('TAX є віртуальним токеном навчального банку. Він не є грошима, не обмінюється на гривню, справжні картки й рахунки не прив’язуються. Ризику втратити гроші немає.',
+        'TAX is the virtual token of the training bank. It is not money, cannot be exchanged for hryvnia, and no real cards or accounts are linked. There is no way to lose real money.')],
   ];
+  const langSwitch = (
+    <div className="ap-lang" role="group" aria-label={t('Мова', 'Language')}>
+      <button type="button" className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
+      <button type="button" className={lang === 'uk' ? 'on' : ''} aria-pressed={lang === 'uk'} onClick={() => setLang('uk')}>UA</button>
+    </div>
+  );
 
   return (
+    <LandingLangContext.Provider value={lang}>
     <div className="ap" ref={rootRef}>
       <div className="ap-gbar">
         <div className="ap-wrap ap-gbar-in">
           <a href="#top" className="ap-g-logo" aria-label="TaxTech"><BrandMark size={18} radiusValue={5} /></a>
           <nav className="ap-g-links" aria-label="TaxTech">
-            <a href="#app">Рахунок</a>
-            <a href="#cards">Картки</a>
-            <a href="#grow">Депозити</a>
-            <a href="#spend">Аналітика</a>
-            <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Saint Agnes</a>
-            <a href="#lab">Дослідження</a>
-            <a href="#security">Безпека</a>
-            <a href="#faq">Підтримка</a>
+            <a href="#lab">{t('Дослідження', 'Research')}</a>
+            <a href="#security">{t('Безпека', 'Security')}</a>
+            <a href="#stack">{t('Стек', 'Stack')}</a>
+            <a href="#faq">{t('Питання', 'FAQ')}</a>
           </nav>
-          <button type="button" className="ap-g-icon" aria-label="Увійти" onClick={() => onAuth('login')}>
+          {langSwitch}
+          <button type="button" className="ap-g-icon" aria-label={t('Увійти', 'Sign in')} onClick={() => onAuth('login')}>
             <svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
           </button>
-          <button type="button" className="ap-g-icon ap-g-menu" aria-label="Меню" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+          <button type="button" className="ap-g-icon ap-g-menu" aria-label={t('Меню', 'Menu')} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
             <svg viewBox="0 0 24 24" aria-hidden>{menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 9h16M4 15h16" />}</svg>
           </button>
         </div>
       </div>
       {menuOpen && (
         <div className="ap-sheet" onClick={() => setMenuOpen(false)}>
-          <button type="button" className="ap-sheet-x" aria-label="Закрити меню"><svg viewBox="0 0 24 24" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg></button>
-          <nav className="ap-wrap" aria-label="Меню">
-            {[['#app', 'Рахунок'], ['#cards', 'Картки'], ['#grow', 'Депозити'], ['#spend', 'Аналітика'], ['#shop', 'Saint Agnes'], ['#lab', 'Дослідження'], ['#security', 'Безпека'], ['#faq', 'Підтримка']].map(([h, t], i) => (
-              <a key={h} href={h} style={{ ['--i' as string]: i }}>{t}</a>
+          <button type="button" className="ap-sheet-x" aria-label={t('Закрити меню', 'Close menu')}><svg viewBox="0 0 24 24" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+          <nav className="ap-wrap" aria-label={t('Меню', 'Menu')}>
+            {[['#lab', t('Дослідження', 'Research')], ['#security', t('Безпека', 'Security')], ['#stack', t('Стек', 'Stack')], ['#faq', t('Питання', 'FAQ')]].map(([h, x], i) => (
+              <a key={h} href={h} style={{ ['--i' as string]: i }}>{x}</a>
             ))}
-            <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-            <button type="button" className="ap-link" onClick={() => onAuth('login')}>Увійти <span aria-hidden>›</span></button>
+            <button type="button" className="ap-pill" onClick={() => onAuth('register')}>{t('Спробувати', 'Try it')}</button>
+            <button type="button" className="ap-link" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')} <span aria-hidden>›</span></button>
           </nav>
         </div>
       )}
       <header className="ap-nav">
         <div className="ap-wrap ap-nav-in">
           <a href="#top" className="ap-brand">TaxTech</a>
-          <nav className="ap-links" aria-label="Розділи">
-            {[['top', 'Огляд'], ['lab', 'Дослідження'], ['app', 'Застосунок'], ['cards', 'Картки'], ['grow', 'Депозити'], ['faq', 'Питання']].map(([id, t]) => (
-              <a key={id} href={'#' + id} className={section === id ? 'on' : ''} aria-current={section === id ? 'true' : undefined}>{t}</a>
+          <nav className="ap-links" aria-label={t('Розділи', 'Sections')}>
+            {[['top', t('Огляд', 'Overview')], ['lab', t('Дослідження', 'Research')], ['security', t('Безпека', 'Security')], ['stack', t('Стек', 'Stack')], ['faq', t('Питання', 'FAQ')]].map(([id, x]) => (
+              <a key={id} href={'#' + id} className={section === id ? 'on' : ''} aria-current={section === id ? 'true' : undefined}>{x}</a>
             ))}
           </nav>
-          <button type="button" className="ap-pill ap-pill-sm" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+          <button type="button" className="ap-pill ap-pill-sm" onClick={() => onAuth('register')}>{t('Спробувати', 'Try it')}</button>
         </div>
       </header>
 
@@ -9129,25 +9107,18 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-hero-glow" aria-hidden />
         <div className="ap-wrap">
           <div className="ap-eyebrow"><BrandMark size={22} radiusValue={6} /> TaxTech <span className="ap-amp">&amp;</span> Munister</div>
-          <h1>Телефон чи хмара.<br />Рішення <span className="ap-gold">за методом</span>.</h1>
-          <p className="ap-hero-sub">Дослідницька платформа мобільного ІІ та антифроду.</p>
+          <h1>{t('Телефон чи хмара.', 'Phone or cloud.')}<br />{t('Рішення ', 'The method ')}<span className="ap-gold">{t('за методом', 'decides')}</span>.</h1>
+          <p className="ap-hero-sub">{t('Дослідницька платформа мобільного ІІ та антифроду.', 'A research platform for mobile AI and fraud detection.')}</p>
           <div className="ap-cta">
-            <a className="ap-pill ap-pill-lg" href="#lab">Дослідження</a>
-            <button type="button" className="ap-link" onClick={() => onAuth('register')}>Спробувати <span aria-hidden>›</span></button>
-          </div>
-        </div>
-        <div className="ap-stage" onPointerMove={onTilt} onPointerLeave={resetTilt} aria-hidden>
-          <div className="ap-tilt" ref={tiltRef}>
-            <div className="ap-st ap-st-l"><PremiumCard variant="roma_marmor" number="8820" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
-            <div className="ap-st ap-st-r"><PremiumCard variant="obsidian" number="5531" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
-            <div className="ap-st ap-st-f"><PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /><div className="ap-sheen" /></div>
+            <a className="ap-pill ap-pill-lg" href="#lab">{t('Дослідження', 'See the research')}</a>
+            <button type="button" className="ap-link" onClick={() => onAuth('register')}>{t('Спробувати', 'Try it')} <span aria-hidden>›</span></button>
           </div>
         </div>
         <div className="ap-wrap">
           <dl className="ap-facts">
-            <div><dt>27 425</dt><dd>розмічених транзакцій</dd></div>
-            <div><dt>28</dt><dd>правил антифроду у трьох шарах</dd></div>
-            <div><dt>454 / 454</dt><dd>збіг антифроду телефона й сервера</dd></div>
+            <div><dt>{t('27 425', '27,425')}</dt><dd>{t('розмічених транзакцій', 'labelled transactions')}</dd></div>
+            <div><dt>28</dt><dd>{t('правил антифроду у трьох шарах', 'fraud rules across three layers')}</dd></div>
+            <div><dt>454 / 454</dt><dd>{t('збіг антифроду телефона й сервера', 'on-device and server fraud checks agree')}</dd></div>
           </dl>
         </div>
       </section>
@@ -9160,178 +9131,21 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
 
       <ResearchLab />
 
-      <section id="app" className="ap-wrap ap-split ap-reveal">
-        <div className="ap-split-copy">
-          <h2 className="ap-grad">Увесь банк.<br />У кишені.</h2>
-          <p>Баланс, картки й усі операції на одному екрані. Квитанції в PDF, виписки за будь-який період, сповіщення про кожне списання.</p>
-          <ul className="ap-ticks">
-            <li>Поповнення й перекази за секунди</li>
-            <li>Сповіщення про кожну операцію</li>
-            <li>Виписки й квитанції в PDF</li>
-          </ul>
-        </div>
-        <div className="ap-phone" aria-hidden>
-          <div className="ap-phone-screen">
-            <div className="ap-ph-status"><span>9:41</span><span className="ap-ph-island" /><span>●●● ▮</span></div>
-            <div className="ap-ph-hello">Добрий день, Олено</div>
-            <div className="ap-ph-bal"><small>TAX</small> 24 860<span>,50</span></div>
-            <div className="ap-ph-card"><PremiumCard variant="roma_pantheon" number="4417" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
-            <div className="ap-ph-list">
-              {[
-                ['Saint Agnes', 'Покупка · 3-D Secure', '−8 610,00', '#ff375f'],
-                ['Стипендія', 'Надходження', '+2 000,00', '#30d158'],
-                ['Депозит 6 міс.', 'Відкрито · 12%', '−5 000,00', '#0a84ff'],
-                ['Кав’ярня', 'Оплата карткою', '−64,00', '#ff9f0a'],
-              ].map(([t, sub, a, c]) => (
-                <div key={t} className="ap-ph-row">
-                  <span className="ap-ph-dot" style={{ background: c }} />
-                  <div><b>{t}</b><small>{sub}</small></div>
-                  <em className={a.startsWith('+') ? 'pos' : ''}>{a}</em>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="spend" className="ap-wrap ap-spend ap-reveal">
-        <h2 className="ap-grad">Витрати.<br />Розкладені по кольорах.</h2>
-        <p>Кожна категорія має свій колір, тож одного погляду досить, щоб зрозуміти, куди йдуть гроші за місяць.</p>
-        <div className="ap-spend-bar" aria-hidden>
-          {spend.map(x => <span key={x.t} style={{ flexGrow: x.v, background: x.c }} />)}
-        </div>
-        <ul className="ap-spend-legend">
-          {spend.map(x => (
-            <li key={x.t}><i style={{ background: x.c }} /><span>{x.t}</span><b>{Math.round((x.v / spendTotal) * 100)}%</b></li>
-          ))}
-        </ul>
-      </section>
-
-      <section id="cards" className="ap-gallery ap-reveal">
-        <div className="ap-wrap">
-          <h2 className="ap-grad">Картка, яку хочеться тримати.</h2>
-          <p>Справжні фото Риму, каррарський мармур або чорний мінімал. Дизайн змінюється в один дотик.</p>
-        </div>
-        <div className="ap-rail" data-no-tab-swipe="true">
-          {gallery.map(g => (
-            <figure key={g.v}>
-              <PremiumCard variant={g.v} number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} />
-              <figcaption>{g.t}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      <section id="grow" className="ap-wrap ap-dep ap-reveal">
-        <div className="ap-dep-copy">
-          <h2 className="ap-grad">Депозити.<br />До 14% річних.</h2>
-          <p>Оберіть строк і суму, і калькулятор одразу покаже дохід. Відсотки нараховуються щодня, вклад можна закрити будь-коли.</p>
-        </div>
-        <div className="ap-dep-card">
-          <div className="ap-seg" role="tablist" aria-label="Строк депозиту">
-            {depTerms.map((d, i) => (
-              <button key={d.m} type="button" role="tab" aria-selected={depTerm === i} className={depTerm === i ? 'on' : ''} onClick={() => setDepTerm(i)}>
-                {d.m} міс.<span>{d.r}%</span>
-              </button>
-            ))}
-          </div>
-          <div className="ap-dep-row">
-            <div>
-              <small>Ви вкладаєте</small>
-              <b>{fmtTax(depAmount)} <em>TAX</em></b>
-            </div>
-            <div className="ap-dep-right">
-              <small>Нарахується за {dep.m} міс.</small>
-              <b className="ap-dep-gain">+{fmtTax(depInterest)} <em>TAX</em></b>
-            </div>
-          </div>
-          <svg className="ap-dep-chart" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden>
-            <defs><linearGradient id="apDepFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd400" stopOpacity=".35" /><stop offset="1" stopColor="#ffd400" stopOpacity="0" /></linearGradient></defs>
-            <path d={`${depPath} L392 158 L8 158 Z`} fill="url(#apDepFill)" />
-            <path d={depPath} fill="none" stroke="#ffd400" strokeWidth="3" strokeLinecap="round" />
-            <circle cx={depCurve[24].x} cy={depCurve[24].y} r="6" fill="#ffd400" />
-          </svg>
-          <label className="ap-range">
-            <span>Сума вкладу</span>
-            <input type="range" min={1000} max={100000} step={1000} value={depAmount} onChange={e => setDepAmount(Number(e.target.value))} aria-label="Сума вкладу в TAX" />
-          </label>
-          <div className="ap-dep-total">Разом після строку: <b>{fmtTax(depAmount + depInterest)} TAX</b></div>
-        </div>
-      </section>
-
-      <section id="money" className="ap-wrap ap-split ap-split-rev ap-reveal">
-        <div className="ap-notifs" aria-hidden>
-          {[
-            { t: 'Переказ отримано', m: 'Олена К. надіслала вам 2 000,00 TAX', w: 'щойно' },
-            { t: 'Оплата карткою •• 4417', m: 'Saint Agnes · −8 610,00 TAX · 3-D Secure', w: '2 хв тому' },
-            { t: 'Депозит відкрито', m: '5 000,00 TAX на 6 міс. під 12% річних', w: '1 год тому' },
-          ].map((n, i) => (
-            <div key={n.t} className="ap-notif" style={{ ['--i' as string]: i }}>
-              <span className="ap-notif-icon"><BrandMark size={34} radiusValue={9} /></span>
-              <div className="ap-notif-body">
-                <div className="ap-notif-top"><b>TaxTech</b><time>{n.w}</time></div>
-                <strong>{n.t}</strong>
-                <p>{n.m}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="ap-split-copy">
-          <h2 className="ap-grad">Перекази.<br />За секунду.</h2>
-          <p>За номером рахунку чи картки, з шаблонами й регулярними платежами. Сповіщення про кожне надходження й списання приходить миттєво.</p>
-          <ul className="ap-ticks">
-            <li>Переказ за номером картки чи рахунку</li>
-            <li>Шаблони й регулярні платежі</li>
-            <li>Підтвердження кодом 3-D Secure</li>
-          </ul>
-        </div>
-      </section>
-
-      <section id="shop" className="ap-sa ap-reveal">
-        <div className="ap-wrap">
-          <div className="ap-sa-head">
-            <div className="ap-sa-brand">Saint Agnes</div>
-            <h2 className="ap-grad">Італійський гардероб.<br />За TAX.</h2>
-            <p>2 705 речей від EA7, PINKO, MC2 Saint Barth та інших брендів прямо в банку. Оплата з рахунку в один дотик або «Pay with TaxTech» на сайті магазину.</p>
-          </div>
-          <div className="ap-sa-grid">
-            {(items.length ? items : [null, null, null, null]).map((p, i) => (
-              <figure key={p ? p.id : i} className={i === 0 ? 'big' : ''}>
-                {p && <img src={p.image_url} alt={p.title} loading="lazy" />}
-                {p && (
-                  <figcaption>
-                    <span>{String(p.description || '').split(' · ')[0]}</span>
-                    <b>{fmtInt(p.price)} TAX</b>
-                  </figcaption>
-                )}
-              </figure>
-            ))}
-          </div>
-          <div className="ap-sa-pay">
-            <button type="button" className="ap-paybtn" onClick={() => onAuth('register')}>
-              <span>Pay with</span><BrandMark size={20} radiusValue={5} /><b>TaxTech</b>
-            </button>
-            <a className="ap-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Перейти в Saint Agnes <span aria-hidden>›</span></a>
-          </div>
-        </div>
-      </section>
-
-
       <section id="security" className="ap-security ap-reveal">
         <div className="ap-wrap">
-          <h2>Безпека, вбудована<br />з самого початку.</h2>
+          <h2>{t('Безпека, вбудована', 'Security, built in')}<br />{t('з самого початку.', 'from the start.')}</h2>
           <div className="ap-cols">
             <div>
               <svg viewBox="0 0 48 48" aria-hidden><path d="M6 16V9a3 3 0 0 1 3-3h7M32 6h7a3 3 0 0 1 3 3v7M42 32v7a3 3 0 0 1-3 3h-7M16 42H9a3 3 0 0 1-3-3v-7M18 18v3M30 18v3M24 18v9h-2M19 32s2 2 5 2 5-2 5-2" /></svg>
-              <h3>Face ID і passkey</h3><p>Вхід без пароля. Ключ лишається тільки на вашому пристрої.</p>
+              <h3>{t('Face ID і passkey', 'Face ID and passkeys')}</h3><p>{t('Вхід без пароля. Ключ лишається тільки на вашому пристрої.', 'Sign in without a password. The key never leaves your device.')}</p>
             </div>
             <div>
               <svg viewBox="0 0 48 48" aria-hidden><rect x="10" y="21" width="28" height="20" rx="4" /><path d="M16 21v-6a8 8 0 0 1 16 0v6M24 29v5" /></svg>
-              <h3>3-D Secure</h3><p>Кожну оплату підтверджує одноразовий код, як у справжніх банках.</p>
+              <h3>3-D Secure</h3><p>{t('Кожну оплату підтверджує одноразовий код, як у справжніх банках.', 'Every payment is confirmed with a one-time code, as in real banks.')}</p>
             </div>
             <div>
               <svg viewBox="0 0 48 48" aria-hidden><path d="M24 5l15 6v11c0 10-6.5 17-15 21C15.5 39 9 32 9 22V11l15-6Z" /><path d="M17 24l5 5 9-10" /></svg>
-              <h3>Антифрод</h3><p>Підозрілий переказ зупиняється ще до списання.</p>
+              <h3>{t('Антифрод', 'Fraud detection')}</h3><p>{t('Підозрілий переказ зупиняється ще до списання.', 'A suspicious transfer is stopped before any money moves.')}</p>
             </div>
           </div>
         </div>
@@ -9339,38 +9153,38 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
 
       <section id="stack" className="ap-stack ap-reveal">
         <div className="ap-wrap">
-          <h2>Стек і стандарти</h2>
+          <h2>{t('Стек і стандарти', 'Stack and standards')}</h2>
           <div className="ap-stack-grid">
             {[
-              ['iPhone', ['Swift, SwiftUI, iOS 26', 'Vision: розпізнавання чеків на пристрої', 'Foundation Models: локальна мовна модель', 'Swift Charts, SwiftData, CryptoKit', 'LocalAuthentication: Face ID']],
-              ['Метод', ['EdgeRouter, Swift-пакет методу', 'Оптимізація Ляпунова, drift-plus-penalty', 'Адаптивний конформний вивід', 'FraudLite: антифрод на пристрої', 'Журнал рішень JSON Lines']],
-              ['Сервер', ['Python, Flask, Gunicorn', 'PostgreSQL або SQLite', 'Антифрод: 28 правил, 3 шари, граф переказів', 'Claude Haiku і Sonnet через Anthropic API', 'ReportLab: виписки й квитанції в PDF']],
-              ['Веб', ['React 19, TypeScript, Vite', 'Tailwind CSS, Motion', 'SimpleWebAuthn: passkey у браузері', 'PWA для iOS та Android']],
-              ['Інфраструктура', ['nginx, systemd, Let’s Encrypt', 'pytest і Swift Testing']],
+              ['iPhone', ['Swift, SwiftUI, iOS 26', t('Vision: розпізнавання чеків на пристрої', 'Vision: on-device receipt recognition'), t('Foundation Models: локальна мовна модель', 'Foundation Models: on-device language model'), 'Swift Charts, SwiftData, CryptoKit', 'LocalAuthentication: Face ID']],
+              [t('Метод', 'Method'), [t('EdgeRouter, Swift-пакет методу', 'EdgeRouter, the method as a Swift package'), t('Оптимізація Ляпунова, drift-plus-penalty', 'Lyapunov optimisation, drift-plus-penalty'), t('Адаптивний конформний вивід', 'Adaptive conformal inference'), t('FraudLite: антифрод на пристрої', 'FraudLite: on-device fraud checks'), t('Журнал рішень JSON Lines', 'Decision log in JSON Lines')]],
+              [t('Сервер', 'Server'), ['Python, Flask, Gunicorn', t('PostgreSQL або SQLite', 'PostgreSQL or SQLite'), t('Антифрод: 28 правил, 3 шари, граф переказів', 'Fraud engine: 28 rules, 3 layers, transfer graph'), t('Claude Haiku і Sonnet через Anthropic API', 'Claude Haiku and Sonnet via the Anthropic API'), t('ReportLab: виписки й квитанції в PDF', 'ReportLab: PDF statements and receipts')]],
+              [t('Веб', 'Web'), ['React 19, TypeScript, Vite', 'Tailwind CSS, Motion', t('SimpleWebAuthn: passkey у браузері', 'SimpleWebAuthn: passkeys in the browser'), t('PWA для iOS та Android', 'PWA for iOS and Android')]],
+              [t('Інфраструктура', 'Infrastructure'), ['nginx, systemd, Let’s Encrypt', t('pytest і Swift Testing', 'pytest and Swift Testing')]],
             ].map(([h, xs]) => (
               <div key={h as string}><h3>{h as string}</h3><ul>{(xs as string[]).map(x => <li key={x}>{x}</li>)}</ul></div>
             ))}
           </div>
-          <h3 className="ap-std-h">Стандарти й протоколи</h3>
+          <h3 className="ap-std-h">{t('Стандарти й протоколи', 'Standards and protocols')}</h3>
           <div className="ap-std">
             {[
-              ['W3C WebAuthn, FIDO2', 'Вхід через passkey без пароля'],
-              ['EMV 3-D Secure', 'Підтвердження оплат одноразовим кодом (модель challenge-потоку)'],
-              ['ISO/IEC 7812, алгоритм Луна', 'Генерація й перевірка номерів карток'],
-              ['ISO 13616 (IBAN)', 'Розпізнавання й маскування рахунків'],
-              ['Подвійний запис', 'Кожна операція проводиться дебетом і кредитом'],
-              ['SHA-256, хеш-ланцюг', 'Цілісність історії: підміна однієї транзакції ламає всі наступні'],
-              ['Ключі ідемпотентності', 'Повтор запиту не створює подвійного списання'],
-              ['JWT (RFC 7519), Sign in with Apple', 'Вхід через Apple'],
+              ['W3C WebAuthn, FIDO2', t('Вхід через passkey без пароля', 'Passwordless sign-in with passkeys')],
+              ['EMV 3-D Secure', t('Підтвердження оплат одноразовим кодом (модель challenge-потоку)', 'One-time code confirmation of payments (challenge-flow model)')],
+              [t('ISO/IEC 7812, алгоритм Луна', 'ISO/IEC 7812, Luhn algorithm'), t('Генерація й перевірка номерів карток', 'Card number generation and validation')],
+              ['ISO 13616 (IBAN)', t('Розпізнавання й маскування рахунків', 'Account number detection and redaction')],
+              [t('Подвійний запис', 'Double-entry bookkeeping'), t('Кожна операція проводиться дебетом і кредитом', 'Every transaction is posted as a debit and a credit')],
+              [t('SHA-256, хеш-ланцюг', 'SHA-256 hash chain'), t('Цілісність історії: підміна однієї транзакції ламає всі наступні', 'History integrity: altering one transaction breaks every later one')],
+              [t('Ключі ідемпотентності', 'Idempotency keys'), t('Повтор запиту не створює подвійного списання', 'A repeated request never charges twice')],
+              ['JWT (RFC 7519), Sign in with Apple', t('Вхід через Apple', 'Sign in with Apple')],
             ].map(([a, b]) => <div key={a}><b>{a}</b><span>{b}</span></div>)}
           </div>
-          <p className="ap-std-note">Протоколи реалізовано в навчальному контурі. Платформа не проходила сертифікацію EMVCo, PCI DSS чи FIDO і не обробляє справжніх платежів.</p>
+          <p className="ap-std-note">{t('Протоколи реалізовано в навчальному контурі. Платформа не проходила сертифікацію EMVCo, PCI DSS чи FIDO і не обробляє справжніх платежів.', 'These protocols are implemented in a training environment. The platform is not certified by EMVCo, PCI DSS or FIDO and processes no real payments.')}</p>
         </div>
       </section>
 
       <section id="faq" className="ap-faq ap-reveal">
         <div className="ap-wrap">
-          <h2>Питання й відповіді</h2>
+          <h2>{t('Питання й відповіді', 'Questions and answers')}</h2>
           {faq.map(([q, a]) => (
             <details key={q}><summary>{q}</summary><p>{a}</p></details>
           ))}
@@ -9379,56 +9193,42 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
 
       <section className="ap-final ap-reveal">
         <div className="ap-wrap">
-          <h2>Відкрийте рахунок<br />за хвилину.</h2>
-          <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+          <h2>{t('Подивіться метод', 'See the method')}<br />{t('в роботі.', 'at work.')}</h2>
+          <button type="button" className="ap-pill" onClick={() => onAuth('register')}>{t('Спробувати', 'Try it')}</button>
         </div>
       </section>
 
       <footer className="ap-foot">
         <div className="ap-wrap">
           <ol className="ap-notes">
-            <li>TAX є віртуальним токеном навчального банку TaxTech. Він не є грошима, не є електронними грошима й не обмінюється на гривню чи іншу валюту.</li>
-            <li>Ставки депозитів (8–14% річних залежно від строку) умовні й діють лише всередині навчального банку. Відсотки нараховуються щодня на віртуальний баланс.</li>
-            <li>Saint Agnes є партнерським магазином проєкту. Товари оплачуються токенами TAX з рахунку або інвойсом, виставленим банком.</li>
-            <li>Суми, операції й розподіл витрат у банківських розділах сторінки наведено як приклад. Це не дані реальних клієнтів.</li>
-            <li>Графіки розділу «Дослідження» побудовано з виводу вихідного коду EdgeRouter, розміченого синтетичного набору транзакцій і еталонних векторів FraudLite. Це не заміри на пристроях користувачів: їх буде додано після експерименту.</li>
-            <li>Face ID є торговельною маркою Apple Inc. Вхід через passkey працює на пристроях, що підтримують WebAuthn.</li>
+            <li>{t('TAX є віртуальним токеном навчального банку TaxTech. Він не є грошима, не є електронними грошима й не обмінюється на гривню чи іншу валюту.', 'TAX is the virtual token of the TaxTech training bank. It is not money or e-money and cannot be exchanged for hryvnia or any other currency.')}</li>
+            <li>{t('Графіки розділу «Дослідження» побудовано з виводу вихідного коду EdgeRouter, розміченого синтетичного набору транзакцій і еталонних векторів FraudLite. Це не заміри на пристроях користувачів: їх буде додано після експерименту.', 'Charts in the Research section are built from the output of the EdgeRouter source code, the labelled synthetic transaction set and the FraudLite reference vectors. They are not measurements from users’ devices; those will be added after the experiment.')}</li>
+            <li>{t('Face ID є торговельною маркою Apple Inc. Вхід через passkey працює на пристроях, що підтримують WebAuthn.', 'Face ID is a trademark of Apple Inc. Passkey sign-in works on devices that support WebAuthn.')}</li>
           </ol>
           <div className="ap-crumb"><BrandMark size={16} radiusValue={4} /><span aria-hidden>›</span><span>TaxTech</span></div>
           <div className="ap-dir">
             <div>
-              <h4>Банк</h4>
-              <a href="#app">Рахунок у TAX</a><a href="#cards">Картки й дизайни</a><a href="#app">Перекази</a><a href="#grow">Депозити</a><a href="#app">Виписки й квитанції</a>
+              <h4>{t('Дослідження', 'Research')}</h4>
+              <a href="#lab">{t('Метод', 'Method')}</a><a href="#stack">{t('Стек і стандарти', 'Stack and standards')}</a><a href="#faq">{t('Питання й відповіді', 'FAQ')}</a>
             </div>
             <div>
-              <h4>Гроші під контролем</h4>
-              <a href="#spend">Аналітика витрат</a><a href="#spend">Бюджет і ліміти</a><a href="#grow">Цілі накопичень</a><a href="#app">Сповіщення</a>
+              <h4>{t('Безпека', 'Security')}</h4>
+              <a href="#security">{t('Face ID і passkey', 'Face ID and passkeys')}</a><a href="#security">3-D Secure</a><a href="#security">{t('Антифрод', 'Fraud detection')}</a>
             </div>
             <div>
-              <h4>Saint Agnes</h4>
-              <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Магазин</a>
-              <a href="https://shop.munister.com.ua/catalog?gender=women" target="_blank" rel="noreferrer">Жінкам</a>
-              <a href="https://shop.munister.com.ua/catalog?gender=men" target="_blank" rel="noreferrer">Чоловікам</a>
-              <a href="https://shop.munister.com.ua/sale" target="_blank" rel="noreferrer">Розпродаж</a>
-            </div>
-            <div>
-              <h4>Безпека</h4>
-              <a href="#security">Face ID і passkey</a><a href="#security">3-D Secure</a><a href="#security">Антифрод</a><a href="#faq">Питання й відповіді</a>
-            </div>
-            <div>
-              <h4>Акаунт</h4>
-              <button type="button" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-              <button type="button" onClick={() => onAuth('login')}>Увійти</button>
-              <a href="#app">Застосунок для iPhone</a>
+              <h4>{t('Акаунт', 'Account')}</h4>
+              <button type="button" onClick={() => onAuth('register')}>{t('Створити акаунт', 'Create an account')}</button>
+              <button type="button" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
             </div>
           </div>
           <div className="ap-legal">
-            <span>© {new Date().getFullYear()} TaxTech &amp; Munister. Лабораторія цифрових фінансів.</span>
-            <span>Україна</span>
+            <span>© {new Date().getFullYear()} TaxTech &amp; Munister. {t('Лабораторія цифрових фінансів.', 'Digital finance lab.')}</span>
+            {langSwitch}
           </div>
         </div>
       </footer>
     </div>
+    </LandingLangContext.Provider>
   );
 }
 
