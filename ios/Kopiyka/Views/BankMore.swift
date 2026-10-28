@@ -429,72 +429,154 @@ struct SecurityView: View {
     @State private var changingPassword = false
     @State private var screen = Screen()
 
+    private var bioAvailable: Bool { Biometrics.kind != .none }
+
     var body: some View {
-        LabForm {
-            if let me {
-                Section("Профіль") {
-                    Line("Ім'я", me.fullName)
-                    if let e = me.email, !e.isEmpty { Line("Пошта", e) }
-                    if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") { Line("Телефон", p) }
-                    if let a = me.bankAccountNumber { Line("Рахунок", a) }
-                }
-            }
-            Section {
-                Button(hasPin ? "Змінити PIN" : "Встановити PIN") { settingPin = true }
-                if hasPin {
-                    Button("Прибрати PIN") {
-                        Task {
-                            await screen.run { try await model.api.clearPin() }
-                            await load()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                if let me {
+                    Surface {
+                        VStack(spacing: 0) {
+                            Line2("Ім'я", me.fullName)
+                            if let e = me.email, !e.isEmpty { Rule(); Line2("Пошта", e) }
+                            if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") { Rule(); Line2("Телефон", p) }
+                            if let a = me.bankAccountNumber { Rule(); Line2("Рахунок", a) }
                         }
                     }
                 }
-            } header: {
-                Text("Код доступу")
-            }
-            Section { Button("Змінити пароль") { changingPassword = true } }
-            Section {
-                ForEach(sessions) { s in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(device(s)).fontWeight(s.isCurrent ? .semibold : .regular)
-                            Text([s.isCurrent ? "цей пристрій" : nil, s.lastSeenAt.map(BankText.date), s.ipAddress]
-                                .compactMap { $0 }.joined(separator: ", "))
-                                .font(.footnote).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        if !s.isCurrent {
-                            Button("Завершити") {
-                                Task {
-                                    await screen.run { try await model.api.endSession(s.id) }
-                                    await load()
-                                }
+
+                section("Вхід у банк", footer: hasPin
+                        ? "PIN питаємо щоразу, коли застосунок повертається з фону."
+                        : "Без PIN банк відкривається одразу після запуску.") {
+                    actionRow("PIN-код", value: hasPin ? "Увімкнено" : "Вимкнено", action: hasPin ? "Змінити" : "Встановити") { settingPin = true }
+                    if bioAvailable {
+                        Rule()
+                        Toggle(isOn: Binding(get: { model.biometricsEnabled && hasPin }, set: { on in Task { await setBiometrics(on) } })) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(Biometrics.title)
+                                Text(hasPin ? "Замість PIN на замку" : "Спершу встановіть PIN").font(.footnote).foregroundStyle(.secondary)
                             }
-                            .font(.footnote.weight(.medium))
-                            .buttonStyle(.borderless)
                         }
+                        .tint(Theme.ink)
+                        .disabled(!hasPin)
+                        .padding(.horizontal, 16).padding(.vertical, 12)
+                    }
+                    if hasPin {
+                        Rule()
+                        Button {
+                            Task {
+                                if await screen.run({ try await model.api.clearPin() }) { model.biometricsEnabled = false }
+                                await load()
+                            }
+                        } label: {
+                            Text("Прибрати PIN").frame(maxWidth: .infinity, alignment: .leading).padding(16).contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                section("Пароль", footer: "Після зміни пароля інші пристрої лишаються в акаунті; завершіть їхні сесії нижче, якщо треба.") {
+                    Button { changingPassword = true } label: {
+                        HStack {
+                            Text("Змінити пароль")
+                            Spacer()
+                            Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
+                        }
+                        .padding(16).contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                section("Пристрої в акаунті", footer: nil) {
+                    ForEach(Array(sessions.enumerated()), id: \.element.id) { i, s in
+                        if i > 0 { Rule() }
+                        HStack(spacing: 12) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                HStack(spacing: 6) {
+                                    Text(device(s)).fontWeight(.semibold)
+                                    if s.isCurrent {
+                                        Text("цей").font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 8).padding(.vertical, 2)
+                                            .background(Theme.ink.opacity(0.1), in: .capsule)
+                                    }
+                                }
+                                Text([s.lastSeenAt.map(BankText.date), s.ipAddress].compactMap { $0 }.joined(separator: " · "))
+                                    .font(.footnote).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            if !s.isCurrent {
+                                Button("Завершити") {
+                                    Task {
+                                        await screen.run { try await model.api.endSession(s.id) }
+                                        await load()
+                                    }
+                                }
+                                .font(.footnote.weight(.semibold))
+                                .padding(.horizontal, 12).frame(height: 32)
+                                .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                                .foregroundStyle(Theme.ink)
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal, 16).padding(.vertical, 12)
                     }
                 }
                 if sessions.count > 1 {
-                    Button("Вийти на інших пристроях") {
+                    Button("Вийти на всіх інших пристроях") {
                         Task {
                             await screen.run { try await model.api.endOtherSessions() }
                             await load()
                         }
                     }
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 50)
+                    .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                    .foregroundStyle(Theme.ink)
+                    .buttonStyle(PressScale())
                 }
-            } header: {
-                Text("Сесії")
+                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
-            ErrorSection(error: screen.error)
+            .padding(.horizontal, Theme.gutter)
+            .padding(.bottom, 32)
         }
-        .labForm()
-        .navigationTitle("Профіль і безпека")
+        .screenBackground()
+        .navigationTitle("Безпека")
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $settingPin) { NewPinView { await load() } }
         .sheet(isPresented: $changingPassword) { PasswordView() }
+    }
+
+    private func section<C: View>(_ title: String, footer: String?, @ViewBuilder _ content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title).font(.title3.weight(.bold))
+            Surface { VStack(spacing: 0) { content() } }
+            if let footer { Text(footer).font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4) }
+        }
+    }
+
+    private func actionRow(_ title: String, value: String, action: String, perform: @escaping () -> Void) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                Text(value).font(.footnote).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button(action, action: perform)
+                .font(.footnote.weight(.semibold))
+                .padding(.horizontal, 14).frame(height: 32)
+                .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                .foregroundStyle(Theme.ink)
+                .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 12)
+    }
+
+    /// Вмикаємо лише після успішної перевірки обличчя: так людина бачить, що біометрія справді працює.
+    private func setBiometrics(_ on: Bool) async {
+        guard on else { model.biometricsEnabled = false; return }
+        model.biometricsEnabled = await Biometrics.unlock(reason: "Увімкнути \(Biometrics.title) для TaxTech")
     }
 
     private func device(_ s: API.Device) -> String {
@@ -546,26 +628,42 @@ struct PasswordView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var old = ""
     @State private var new = ""
+    @State private var done = false
     @State private var screen = Screen()
 
     var body: some View {
         NavigationStack {
-            LabForm {
-                Section {
-                    SecureField("Поточний пароль", text: $old).textContentType(.password)
-                    SecureField("Новий пароль", text: $new).textContentType(.newPassword)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    Text(done ? "Пароль змінено" : "Новий пароль").font(.system(size: 30, weight: .bold)).tracking(-0.6)
+                    if done {
+                        Text("Наступного разу входьте з новим паролем. Інші пристрої можна вивести з акаунта на екрані «Безпека».")
+                            .foregroundStyle(.secondary)
+                        Button("Готово") { dismiss() }.buttonStyle(InkButton())
+                    } else {
+                        AuthField(title: "Поточний пароль", placeholder: "Пароль", text: $old, secure: true, content: .password)
+                        VStack(alignment: .leading, spacing: 10) {
+                            AuthField(title: "Новий пароль", placeholder: "Щонайменше 8 символів", text: $new,
+                                      secure: true, content: .newPassword, submit: .done)
+                            if !new.isEmpty { PasswordStrength(password: new) }
+                            if !new.isEmpty && new == old {
+                                Text("Новий пароль збігається з поточним").font(.footnote).foregroundStyle(Theme.ink.opacity(0.75))
+                            }
+                        }
+                        if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                        Button("Змінити пароль") {
+                            Task { if await screen.run({ try await model.api.changePassword(old: old, new: new) }) { done = true } }
+                        }
+                        .buttonStyle(InkButton())
+                        .disabled(old.isEmpty || new.count < 8 || new == old || screen.busy)
+                    }
                 }
-                ErrorSection(error: screen.error)
-                FormAction(title: "Змінити", disabled: old.isEmpty || new.count < 8 || screen.busy) {
-                    Task { if await screen.run({ try await model.api.changePassword(old: old, new: new) }) { dismiss() } }
-                }
+                .padding(24)
             }
-            .labForm()
-            .navigationTitle("Пароль")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .screenBackground()
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(done ? "Закрити" : "Скасувати") { dismiss() } } }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
     }
 }
 
@@ -575,9 +673,12 @@ struct PasswordView: View {
 struct PinLockView: View {
     @Environment(AppModel.self) private var model
     @State private var error: String?
+    @State private var asked = false
+
+    private var biometrics: Bool { model.biometricsEnabled && Biometrics.kind != .none }
 
     var body: some View {
-        PinPad(title: "Введіть PIN", error: error, footer: "Вийти") { pin in
+        PinPad(title: "Введіть PIN", error: error, footer: "Вийти", submit: { pin in
             do {
                 try await model.api.verifyPin(pin)
                 model.bankUnlocked = true
@@ -585,9 +686,19 @@ struct PinLockView: View {
                 self.error = "Невірний PIN"
             }
             return true
-        } onFooter: {
+        }, onFooter: {
             model.signOut()
+        }, biometric: biometrics ? { Task { await unlock() } } : nil)
+        .task {
+            // одразу пропонуємо обличчя; скасував - лишається PIN
+            guard biometrics, !asked else { return }
+            asked = true
+            await unlock()
         }
+    }
+
+    private func unlock() async {
+        if await Biometrics.unlock(reason: "Відкрити банк TaxTech") { model.bankUnlocked = true }
     }
 }
 
@@ -599,6 +710,8 @@ struct PinPad: View {
     /// Повертає true, коли введене треба стерти.
     let submit: (String) async -> Bool
     var onFooter: (() -> Void)?
+    /// Face ID / Touch ID у лівому нижньому куті клавіатури.
+    var biometric: (() -> Void)?
     @State private var pin = ""
     @State private var busy = false
 
@@ -628,9 +741,11 @@ struct PinPad: View {
                 ForEach(rows, id: \.self) { row in
                     HStack(spacing: 8) {
                         ForEach(row, id: \.self) { key in
-                            Button { tap(key) } label: {
+                            Button { if key.isEmpty { biometric?() } else { tap(key) } } label: {
                                 Group {
-                                    if key == "⌫" { Image(systemName: "delete.left") } else { Text(key) }
+                                    if key == "⌫" { Image(systemName: "delete.left") }
+                                    else if key.isEmpty && biometric != nil { Image(systemName: Biometrics.symbol) }
+                                    else { Text(key) }
                                 }
                                 .font(.system(size: 30, weight: .regular))
                                 .frame(maxWidth: .infinity, minHeight: 68)
@@ -640,7 +755,8 @@ struct PinPad: View {
                                 .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
-                            .disabled(key.isEmpty || busy)
+                            .disabled((key.isEmpty && biometric == nil) || busy)
+                            .accessibilityLabel(key == "⌫" ? "Стерти" : key.isEmpty && biometric != nil ? Biometrics.title : key)
                         }
                     }
                 }

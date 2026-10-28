@@ -38,7 +38,7 @@ struct ProfileView: View {
                         nav("Аналітика", "chart.bar") { AnalyticsView() }
                     }
                     RowGroup(title: "Безпека") {
-                        nav("PIN, пароль і сесії", "lock") { SecurityView() }
+                        nav(Biometrics.kind == .none ? "PIN, пароль і пристрої" : "PIN, \(Biometrics.title), пароль", "lock") { SecurityView() }
                         nav("Сповіщення", "bell") { NoticesView() }
                         NavigationLink { AchievementsView() } label: {
                             IconRow(title: "Досягнення", symbol: "trophy",
@@ -170,8 +170,8 @@ struct ProfileView: View {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 17, weight: .semibold))
                     .frame(width: 48, height: 48)
-                    .background(Theme.accent, in: .circle)
-                    .foregroundStyle(Theme.onAccent)
+                    .background(Theme.ink, in: .circle)
+                    .foregroundStyle(Theme.onInk)
             }
             .buttonStyle(PressScale())
             .accessibilityLabel("Поділитися")

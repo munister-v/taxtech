@@ -168,7 +168,7 @@ struct InkButton: ButtonStyle {
             .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
-            .background(Theme.accent, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+            .background(Theme.accent, in: .capsule)
             .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.35)
     }
 }
@@ -181,8 +181,7 @@ struct LineButton: ButtonStyle {
             .foregroundStyle(Theme.ink)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
-                .strokeBorder(Theme.ink.opacity(0.9), lineWidth: 1))
+            .overlay(Capsule().strokeBorder(Theme.ink.opacity(0.2), lineWidth: 1))
             .opacity(configuration.isPressed ? 0.6 : 1)
     }
 }

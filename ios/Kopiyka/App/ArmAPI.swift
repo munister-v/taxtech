@@ -143,6 +143,26 @@ extension API {
         try await write("PUT", "auth/password", ["old_password": old, "new_password": new])
     }
 
+    /// Квиток відновлення пароля. SMS і пошти в пісочниці немає, тож код приходить тут же (demoCode).
+    struct ResetTicket: Decodable, Sendable {
+        let resetId: String
+        let sentTo: String
+        let expiresIn: Int
+        let demoCode: String?
+    }
+
+    func forgotPassword(identity: String) async throws -> ResetTicket {
+        let w: Wrapped<ResetTicket> = try await post("auth/password/forgot", json: ["identity": identity])
+        return w.data
+    }
+
+    func resetPassword(_ ticket: ResetTicket, code: String, newPassword: String) async throws -> Session {
+        let w: Wrapped<Session> = try await post("auth/password/reset", json: [
+            "reset_id": ticket.resetId, "code": code, "new_password": newPassword,
+        ])
+        return w.data
+    }
+
     // MARK: Документи
 
     /// PDF чи CSV від сервера - у тимчасовий файл, щоб віддати в «Поділитися».

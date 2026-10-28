@@ -37,6 +37,15 @@ final class AppModel {
     var cloudAIAllowed: Bool = UserDefaults.standard.bool(forKey: "cloudAIAllowed") {
         didSet { UserDefaults.standard.set(cloudAIAllowed, forKey: "cloudAIAllowed") }
     }
+    /// Відмикати банк Face ID / Touch ID замість PIN.
+    var biometricsEnabled: Bool = UserDefaults.standard.bool(forKey: "biometricsEnabled") {
+        didSet { UserDefaults.standard.set(biometricsEnabled, forKey: "biometricsEnabled") }
+    }
+    /// Останній телефон чи пошта, з якими входили: підставляємо на екрані входу.
+    var lastIdentity: String = UserDefaults.standard.string(forKey: "lastIdentity") ?? "" {
+        didSet { UserDefaults.standard.set(lastIdentity, forKey: "lastIdentity") }
+    }
+
     var consentAsked: Bool = UserDefaults.standard.bool(forKey: "consentAsked") {
         didSet { UserDefaults.standard.set(consentAsked, forKey: "consentAsked") }
     }
@@ -64,19 +73,25 @@ final class AppModel {
     }
 
     func signIn(email: String, password: String) async throws {
-        let session = try await api.login(email: email, password: password)
-        token = session.token
-        Keychain.write("sandboxToken", session.token)
+        adopt(try await api.login(email: email, password: password))
+        lastIdentity = email.trimmingCharacters(in: .whitespaces)
     }
 
     func register(name: String, phone: String, email: String, password: String) async throws {
-        let session = try await api.register(name: name, phone: phone, email: email, password: password)
-        token = session.token
-        Keychain.write("sandboxToken", session.token)
+        adopt(try await api.register(name: name, phone: phone, email: email, password: password))
+        lastIdentity = email.trimmingCharacters(in: .whitespaces)
     }
 
     func signInWithApple(identityToken: String, nonce: String, fullName: String?) async throws {
-        let session = try await api.appleLogin(identityToken: identityToken, nonce: nonce, fullName: fullName)
+        adopt(try await api.appleLogin(identityToken: identityToken, nonce: nonce, fullName: fullName))
+    }
+
+    /// Новий пароль за кодом: сервер закриває всі старі сесії й одразу відкриває нову.
+    func resetPassword(_ ticket: API.ResetTicket, code: String, newPassword: String) async throws {
+        adopt(try await api.resetPassword(ticket, code: code, newPassword: newPassword))
+    }
+
+    private func adopt(_ session: API.Session) {
         token = session.token
         Keychain.write("sandboxToken", session.token)
     }
