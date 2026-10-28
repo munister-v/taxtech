@@ -2398,23 +2398,6 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
               Tax<span style={{ fontWeight: 300 }}>Tech</span>
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-            {balance !== undefined && (
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 'max(9.5px, 2.4cqw)', fontWeight: 500, letterSpacing: 1, color: v.muted, textTransform: 'uppercase', marginBottom: 1 }}>
-                  {isPrimary ? 'БАЛАНС РАХУНКУ' : 'БАЛАНС КАРТКИ'}
-                </div>
-                <div style={{ fontSize: 'max(12px, 3.8cqw)', fontWeight: 700, color: v.text, textShadow: titleShadow, letterSpacing: 0.3 }}>
-                  {balance.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TAX
-                </div>
-              </div>
-            )}
-            <span style={{
-              fontSize: 'max(10px, 2.6cqw)', fontWeight: 600, letterSpacing: 1.6, color: v.muted, textTransform: 'uppercase',
-              padding: 0,
-              background: 'transparent',
-            }}>{type || tt.card_virtual}</span>
-          </div>
         </div>
         <div style={{
           fontFamily: '"SF Mono", monospace', fontSize: 'clamp(15px, 5.6cqw, 26px)', fontWeight: 600, letterSpacing: 1.5,
@@ -2434,12 +2417,10 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
           background: 'transparent',
         }}>
           <div>
-            <div style={{ fontSize: 'max(9.5px, 2.4cqw)', fontWeight: 500, letterSpacing: 1, color: v.muted, textTransform: 'uppercase', marginBottom: 3 }}>{tt.cardholder_label}</div>
             <div style={{ fontSize: 'max(12px, 3.6cqw)', fontWeight: 600, letterSpacing: 0.4, textShadow: titleShadow }}>{name}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 'max(9.5px, 2.4cqw)', fontWeight: 500, letterSpacing: 1, color: v.muted, textTransform: 'uppercase', marginBottom: 3 }}>{tt.valid_label}</div>
               <div style={{ fontSize: 'max(12px, 3.6cqw)', fontWeight: 600, fontFamily: '"SF Mono", monospace', textShadow: titleShadow }}>{expiry}</div>
             </div>
             <div style={{ position: 'relative', width: 34, height: 22 }}>
@@ -8998,42 +8979,25 @@ type PromoProduct = { id: number; title: string; description?: string; price: nu
 function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
   const [items, setItems] = useState<PromoProduct[]>([]);
   useEffect(() => {
-    fetch('/api/marketplace/catalog?per_page=8&sort=newest&category=women')
+    fetch('/api/marketplace/catalog?per_page=12&sort=newest&category=women')
       .then(r => r.json())
-      .then(j => { if (j?.ok) setItems((j.data?.items || []).filter((p: PromoProduct) => p.image_url).slice(0, 4)); })
+      .then(j => { if (j?.ok) setItems((j.data?.items || []).filter((p: PromoProduct) => p.image_url).slice(0, 5)); })
       .catch(() => {});
   }, []);
-  const features = [
-    { t: 'Картки', d: 'Віртуальні картки з власним дизайном, блокуванням в один дотик і окремим балансом.', i: 'M3 7h18v10H3V7Zm0 3h18' },
-    { t: 'Перекази', d: 'За номером рахунку чи картки, шаблони, регулярні платежі й часті отримувачі.', i: 'M4 9h13l-3-3M20 15H7l3 3' },
-    { t: 'Депозити й кредити', d: 'Строкові вклади з відсотками і кредити з графіком платежів — щоб побачити, як працюють гроші в часі.', i: 'M4 19V9m5 10V5m5 14v-7m5 7V8' },
-    { t: 'Аналітика', d: 'Витрати по категоріях, динаміка балансу, ліміти бюджету і фінансовий рейтинг.', i: 'M3 12a9 9 0 1 0 9-9v9H3Z' },
-    { t: 'Цілі накопичень', d: 'Відкладайте на конкретну річ і бачте прогрес до неї.', i: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z' },
-    { t: 'Магазин', d: 'Справжній каталог Saint Agnes: оплата в TAX просто з рахунку або інвойсом.', i: 'M6 8h12l1 13H5L6 8Zm3 0V6a3 3 0 0 1 6 0v2' },
-  ];
-  const security = [
-    ['Face ID і passkey', 'Вхід без пароля через ключ, що зберігається на вашому пристрої.'],
-    ['3-D Secure', 'Підтвердження операцій одноразовим кодом, як у справжніх банках.'],
-    ['Антифрод', 'Кожен переказ проходить скоринг ризику до списання.'],
-    ['Контроль сесій', 'Видно всі пристрої, з яких виконано вхід; будь-який можна вийти віддалено.'],
+  const rows = [
+    ['Картки', 'Віртуальні, з дизайном на ваш смак: від чорного мінімалу до Колізею.'],
+    ['Перекази', 'За номером рахунку чи картки, миттєво.'],
+    ['Депозити й кредити', 'Відсотки, графік платежів, дострокове погашення.'],
+    ['Аналітика', 'Куди йдуть гроші — по категоріях і днях.'],
   ];
   return (
     <div className="tt-promo">
       <header className="tt-nav">
         <div className="tt-shell tt-nav-in">
-          <a href="#top" className="tt-logo" aria-label="TaxTech">
-            <BrandMark size={34} radiusValue={10} />
-            <span>Tax<b>Tech</b></span>
-          </a>
-          <nav className="tt-links" aria-label="Розділи">
-            <a href="#features">Можливості</a>
-            <a href="#shop">Магазин</a>
-            <a href="#security">Безпека</a>
-            <a href="#how">Як почати</a>
-          </nav>
+          <a href="#top" className="tt-logo" aria-label="TaxTech"><BrandMark size={30} radiusValue={8} /><span>TaxTech</span></a>
           <div className="tt-nav-cta">
-            <button type="button" className="tt-btn tt-ghost" onClick={() => onAuth('login')}>Увійти</button>
-            <button type="button" className="tt-btn tt-primary tt-hide-sm" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+            <button type="button" className="tt-textbtn" onClick={() => onAuth('login')}>Увійти</button>
+            <button type="button" className="tt-btn tt-primary" onClick={() => onAuth('register')}>Відкрити рахунок</button>
           </div>
         </div>
       </header>
@@ -9041,102 +9005,48 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       <section id="top" className="tt-hero">
         <div className="tt-shell tt-hero-in">
           <div className="tt-hero-copy">
-            <div className="tt-eyebrow"><span className="tt-dot" />Навчальний банк · токен TAX</div>
-            <h1>Банк, у якому вчаться <em>керувати грошима</em></h1>
-            <p>Картки, перекази, депозити, кредити й покупки — усе як у справжньому банку, тільки на віртуальних токенах TAX. Помилятися можна, втратити гроші — ні.</p>
+            <h1>Банк, у якому вчаться керувати грошима</h1>
+            <p>Справжній банк на віртуальних токенах TAX.</p>
             <div className="tt-hero-cta">
               <button type="button" className="tt-btn tt-primary tt-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-              <button type="button" className="tt-btn tt-ghost tt-lg" onClick={() => onAuth('login')}>У мене вже є акаунт</button>
+              <button type="button" className="tt-textbtn tt-lg" onClick={() => onAuth('login')}>Увійти →</button>
             </div>
-            <div className="tt-hero-note">Безкоштовно · жодних реальних грошей · вебверсія й iPhone</div>
           </div>
           <div className="tt-hero-art" aria-hidden>
-            <div className="tt-glow" />
-            <div className="tt-card-a"><PremiumCard variant="obsidian" number="4417" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" balance={24860.5} isPrimary style={{ width: '100%' }} /></div>
-            <div className="tt-chip tt-chip-1"><span className="tt-chip-ic">↓</span><div><b>+2 000,00 TAX</b><small>Стипендія · щойно</small></div></div>
-            <div className="tt-chip tt-chip-2"><span className="tt-chip-ic tt-y">✓</span><div><b>Оплачено в Saint Agnes</b><small>−8 610 TAX · 3-D Secure</small></div></div>
+            <div className="tt-card-b"><PremiumCard variant="obsidian" number="4417" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
+            <div className="tt-card-a"><PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
           </div>
         </div>
+      </section>
+
+      <section className="tt-list">
         <div className="tt-shell">
-          <dl className="tt-stats">
-            <div><dt>0 ₴</dt><dd>реальних грошей під ризиком</dd></div>
-            <div><dt>TAX</dt><dd>власний токен банку</dd></div>
-            <div><dt>2 705</dt><dd>товарів у магазині Saint Agnes</dd></div>
-            <div><dt>4 мови</dt><dd>українська, англійська, італійська, іспанська</dd></div>
-          </dl>
+          {rows.map(([h, d]) => (
+            <div key={h} className="tt-row"><h2>{h}</h2><p>{d}</p></div>
+          ))}
         </div>
       </section>
 
-      <section id="features" className="tt-sec">
+      <section className="tt-shop">
+        <div className="tt-shell tt-shop-head">
+          <h2>Saint Agnes за TAX</h2>
+          <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer" className="tt-textbtn">У магазин ↗</a>
+        </div>
+        <div className="tt-strip">
+          {(items.length ? items : [null, null, null, null, null]).map((p, i) => (
+            <figure key={p ? p.id : i}>{p && <img src={p.image_url} alt={p.title} loading="lazy" />}</figure>
+          ))}
+        </div>
+      </section>
+
+      <section className="tt-final">
         <div className="tt-shell">
-          <div className="tt-sec-head">
-            <h2>Усе, що вміє сучасний банк</h2>
-            <p>Кожна функція працює по-справжньому: з балансами, історією, квитанціями й виписками в PDF.</p>
-          </div>
-          <div className="tt-feat">
-            {features.map(f => (
-              <article key={f.t}>
-                <span className="tt-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={f.i} /></svg></span>
-                <h3>{f.t}</h3>
-                <p>{f.d}</p>
-              </article>
-            ))}
-          </div>
+          <h2>Face ID, 3-D Secure, антифрод. Як у великому банку.</h2>
+          <button type="button" className="tt-btn tt-primary tt-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
         </div>
       </section>
 
-      <section id="shop" className="tt-sec tt-shop">
-        <div className="tt-shell tt-shop-in">
-          <div className="tt-shop-copy">
-            <div className="tt-eyebrow">Партнер · Saint Agnes</div>
-            <h2>Купуйте справжній одяг за TAX</h2>
-            <p>Італійський гардероб Saint Agnes вбудований у банк. Оплата списується з рахунку одразу, а на сайті магазину можна обрати «Pay with TaxTech» — інвойс з'явиться в застосунку.</p>
-            <a className="tt-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Перейти в Saint Agnes ↗</a>
-          </div>
-          <div className="tt-shop-grid">
-            {(items.length ? items : [null, null, null, null]).map((p, i) => (
-              <figure key={p ? p.id : i} className={p ? '' : 'tt-skel'}>
-                {p && <img src={p.image_url} alt={p.title} loading="lazy" />}
-                {p && <figcaption><span>{String(p.description || '').split(' · ')[0]}</span><b>{fmtInt(p.price)} TAX</b></figcaption>}
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="security" className="tt-sec">
-        <div className="tt-shell">
-          <div className="tt-sec-head">
-            <h2>Безпека як у великому банку</h2>
-            <p>Навчальний — не означає іграшковий. Захист влаштовано так само, як у банках, якими ви користуєтеся щодня.</p>
-          </div>
-          <div className="tt-sec4">
-            {security.map(([h, d]) => <div key={h}><h3>{h}</h3><p>{d}</p></div>)}
-          </div>
-        </div>
-      </section>
-
-      <section id="how" className="tt-sec">
-        <div className="tt-shell">
-          <div className="tt-sec-head"><h2>Почати за хвилину</h2></div>
-          <ol className="tt-steps">
-            <li><b>Зареєструйтеся</b><span>Ім'я, телефон і email — рахунок відкривається одразу.</span></li>
-            <li><b>Отримайте TAX</b><span>Поповніть рахунок віртуальними токенами або отримайте нарахування.</span></li>
-            <li><b>Пробуйте все</b><span>Перекази, картки, депозит, кредит, покупка в Saint Agnes — і дивіться, як змінюється баланс.</span></li>
-          </ol>
-          <div className="tt-final">
-            <h2>Ваш перший рахунок у TAX</h2>
-            <button type="button" className="tt-btn tt-primary tt-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-          </div>
-        </div>
-      </section>
-
-      <footer className="tt-foot">
-        <div className="tt-shell tt-foot-in">
-          <span>© {new Date().getFullYear()} TaxTech · навчальний банк. Токен TAX не є грошима й не обмінюється на гроші.</span>
-          <button type="button" className="tt-link" onClick={() => onAuth('login')}>Увійти</button>
-        </div>
-      </footer>
+      <footer className="tt-foot"><div className="tt-shell">© {new Date().getFullYear()} TaxTech · навчальний банк · TAX не є грошима</div></footer>
     </div>
   );
 }
