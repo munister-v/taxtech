@@ -750,6 +750,12 @@ def catalog():
         try: where.append('price <= %s'); params.append(float(max_price))
         except ValueError: pass
 
+    # Хендпікнутий набір для вітрини лендингу: ?slugs=munister-1,munister-2
+    slugs = [x.strip() for x in str(request.args.get('slugs') or '').split(',') if x.strip()][:12]
+    if slugs:
+        where.append('slug IN (' + ', '.join(['%s'] * len(slugs)) + ')')
+        params += slugs
+
     if category and category in CAT_KEYWORDS:
         kws = CAT_KEYWORDS[category]
         sub = ' OR '.join(['(LOWER(title) LIKE %s OR LOWER(description) LIKE %s)'] * len(kws))

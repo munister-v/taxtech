@@ -8972,7 +8972,7 @@ function WowSplash() {
 // ─── Login screen ─────────────────────────────────────────────
 
 // ─── Promo landing (logged-out visitors) ─────────────────────────
-type PromoProduct = { id: number; title: string; description?: string; price: number; image_url?: string };
+type PromoProduct = { id: number; title: string; description?: string; price: number; image_url?: string; slug?: string };
 
 function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -8986,9 +8986,16 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
   const [depAmount, setDepAmount] = useState(10000);
 
   useEffect(() => {
-    fetch('/api/marketplace/catalog?per_page=16&sort=newest&category=women')
+    // Hand-picked autumn pieces from Saint Agnes, in this order (coat, teddy jacket, tweed cardigan, check jacket).
+    const picks = ['munister-81921', 'munister-83171', 'munister-81907', 'munister-83168'];
+    fetch(`/api/marketplace/catalog?per_page=12&slugs=${picks.join(',')}`)
       .then(r => r.json())
-      .then(j => { if (j?.ok) setItems((j.data?.items || []).filter((p: PromoProduct) => p.image_url).slice(0, 4)); })
+      .then(j => {
+        if (!j?.ok) return;
+        const got: (PromoProduct & { slug?: string })[] = j.data?.items || [];
+        const ordered = picks.map(sl => got.find(p => p.slug === sl)).filter((p): p is PromoProduct & { slug?: string } => Boolean(p && p.image_url));
+        setItems(ordered.slice(0, 4));
+      })
       .catch(() => {});
   }, []);
 
