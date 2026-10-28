@@ -21,6 +21,8 @@ struct ShopView: View {
     @State private var showCart = false
     @State private var detail: API.Product?
     @State private var loading = false
+    @State private var detailSource = ""
+    @Namespace private var zoom
 
     enum Tab: Hashable, CaseIterable {
         case catalog, orders, invoices
@@ -41,11 +43,14 @@ struct ShopView: View {
                         Button { showCart = true } label: {
                             ZStack(alignment: .topTrailing) {
                                 RoundGlyph(symbol: "bag")
+                                    .symbolEffect(.bounce, value: cartCount)
                                 if cartCount > 0 {
                                     Text("\(cartCount)").font(.caption2.weight(.bold)).monospacedDigit()
+                                        .contentTransition(.numericText(value: Double(cartCount)))
                                         .frame(minWidth: 18, minHeight: 18)
                                         .background(Theme.accent, in: .circle).foregroundStyle(Theme.onAccent)
                                         .offset(x: 4, y: -4)
+                                        .transition(.scale.combined(with: .opacity))
                                 }
                             }
                         }
@@ -91,6 +96,7 @@ struct ShopView: View {
                     cart[p, default: 0] += qty
                     showCart = true
                 }
+                .navigationTransition(.zoom(sourceID: detailSource, in: zoom))
             }
             .sensoryFeedback(.increase, trigger: cartCount)
         }
@@ -123,7 +129,7 @@ struct ShopView: View {
         invoices = (try? await i) ?? []
     }
 
-    private func add(_ p: API.Product) { cart[p, default: 0] += 1 }
+    private func add(_ p: API.Product) { withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { cart[p, default: 0] += 1 } }
 
     private func remove(_ p: API.Product) {
         let q = (cart[p] ?? 0) - 1
@@ -172,8 +178,13 @@ struct ShopView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
                     ForEach(hits.prefix(4)) { hero in
-                        HeroProduct(product: hero, inCart: cart[hero] ?? 0, open: { detail = hero }, add: { add(hero) })
+                        HeroProduct(product: hero, inCart: cart[hero] ?? 0, open: { detailSource = "h\(hero.id)"; detail = hero }, add: { add(hero) })
+                            .matchedTransitionSource(id: "h\(hero.id)", in: zoom)
                             .containerRelativeFrame(.horizontal) { w, _ in hits.count > 1 ? w * 0.92 : w }
+                            .scrollTransition(axis: .horizontal) { v, phase in
+                                v.scaleEffect(phase.isIdentity ? 1 : 0.94)
+                                    .rotation3DEffect(.degrees(phase.value * -10), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
+                            }
                     }
                 }
                 .scrollTargetLayout()
@@ -204,7 +215,12 @@ struct ShopView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(Array(items.enumerated()).filter { $0.offset % 2 == col }, id: \.element.id) { i, p in
                         ProductTile(product: p, tall: (i / 2 + col) % 2 == 0, inCart: cart[p] ?? 0,
-                                    open: { detail = p }, add: { add(p) }, remove: { remove(p) })
+                                    open: { detailSource = "p\(p.id)"; detail = p }, add: { add(p) }, remove: { remove(p) })
+                            .matchedTransitionSource(id: "p\(p.id)", in: zoom)
+                            .rise(col)
+                            .scrollTransition(.animated(.smooth(duration: 0.3))) { v, phase in
+                                v.scaleEffect(phase.isIdentity ? 1 : 0.95).opacity(phase.isIdentity ? 1 : 0.6)
+                            }
                             .onAppear { if p.id == items.last?.id { Task { await more() } } }
                     }
                 }
@@ -704,7 +720,8 @@ struct CartView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     if let bought {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Оплачено").font(.system(size: 34, weight: .bold)).tracking(-0.6)
+                            PaidMark()
+                            Text("Оплачено").font(.system(size: 34, weight: .bold)).tracking(-0.6).rise(1)
                             Text("Замовлення #\(bought.orderId)\(bought.invoiceNumber.map { ", \($0)" } ?? "")")
                                 .foregroundStyle(.secondary)
                             if let b = bought.newBalance { Text("Залишок \(Format.money(b))").foregroundStyle(.secondary) }
@@ -875,5 +892,35 @@ struct ThreeDSView: View {
         }
         .presentationDetents([.large])
         .interactiveDismissDisabled(screen.busy)
+    }
+}
+
+/// Велика галочка після оплати: коло наливається жовтим, позначка домальовується, телефон відгукується.
+struct PaidMark: View {
+    @Environment(\.accessibilityReduceMotion) private var reduce
+    @State private var filled = false
+    @State private var drawn = false
+
+    var body: some View {
+        ZStack {
+            Circle().fill(Theme.accent)
+                .scaleEffect(filled ? 1 : 0.3)
+                .opacity(filled ? 1 : 0)
+            Path { p in
+                p.move(to: CGPoint(x: 26, y: 46))
+                p.addLine(to: CGPoint(x: 40, y: 60))
+                p.addLine(to: CGPoint(x: 66, y: 32))
+            }
+            .trim(from: 0, to: drawn ? 1 : 0)
+            .stroke(Theme.onAccent, style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+        }
+        .frame(width: 92, height: 92)
+        .sensoryFeedback(.success, trigger: drawn)
+        .task {
+            if reduce { filled = true; drawn = true; return }
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { filled = true }
+            try? await Task.sleep(for: .milliseconds(220))
+            withAnimation(.easeOut(duration: 0.35)) { drawn = true }
+        }
     }
 }

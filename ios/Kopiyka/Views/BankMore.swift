@@ -604,11 +604,12 @@ struct NewPinView: View {
     let done: () async -> Void
     @State private var first: String?
     @State private var error: String?
+    @State private var mismatches = 0
 
     var body: some View {
-        PinPad(title: first == nil ? "Новий PIN" : "Повторіть PIN", error: error) { pin in
+        PinPad(title: first == nil ? "Новий PIN" : "Повторіть PIN", error: error, shake: mismatches) { pin in
             guard let f = first else { first = pin; error = nil; return true }
-            guard f == pin else { first = nil; error = "Коди не збіглися. Ще раз."; return true }
+            guard f == pin else { first = nil; error = "Коди не збіглися. Ще раз."; mismatches += 1; return true }
             do {
                 try await model.api.setPin(pin)
                 model.bankUnlocked = true
@@ -674,16 +675,18 @@ struct PinLockView: View {
     @Environment(AppModel.self) private var model
     @State private var error: String?
     @State private var asked = false
+    @State private var failures = 0
 
     private var biometrics: Bool { model.biometricsEnabled && Biometrics.kind != .none }
 
     var body: some View {
-        PinPad(title: "Введіть PIN", error: error, footer: "Вийти", submit: { pin in
+        PinPad(title: "Введіть PIN", error: error, footer: "Вийти", shake: failures, submit: { pin in
             do {
                 try await model.api.verifyPin(pin)
                 model.bankUnlocked = true
             } catch {
                 self.error = "Невірний PIN"
+                failures += 1
             }
             return true
         }, onFooter: {
@@ -707,6 +710,8 @@ struct PinPad: View {
     let title: String
     var error: String?
     var footer: String?
+    /// Зростає з кожною невдалою спробою: риски трусяться, телефон вібрує.
+    var shake = 0
     /// Повертає true, коли введене треба стерти.
     let submit: (String) async -> Bool
     var onFooter: (() -> Void)?
@@ -714,6 +719,7 @@ struct PinPad: View {
     var biometric: (() -> Void)?
     @State private var pin = ""
     @State private var busy = false
+    @State private var shakeAmount = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -725,11 +731,15 @@ struct PinPad: View {
                 .padding(.top, 20)
             HStack(spacing: 14) {
                 ForEach(0..<4, id: \.self) { i in
-                    Rectangle()
+                    Capsule()
                         .fill(i < pin.count ? Theme.ink : Theme.line)
-                        .frame(width: 36, height: 3)
+                        .frame(width: 36, height: i < pin.count ? 6 : 3)
+                        .scaleEffect(i == pin.count - 1 ? 1.12 : 1)
                 }
             }
+            .frame(height: 8)
+            .animation(.spring(response: 0.3, dampingFraction: 0.55), value: pin.count)
+            .modifier(Shake(animatableData: CGFloat(shakeAmount)))
             .padding(.top, 28)
             Text(error ?? " ")
                 .font(.footnote)
@@ -773,6 +783,8 @@ struct PinPad: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .screenBackground()
         .sensoryFeedback(.selection, trigger: pin.count)
+        .sensoryFeedback(.error, trigger: shake)
+        .onChange(of: shake) { withAnimation(.linear(duration: 0.45)) { shakeAmount += 1 } }
     }
 
     private func tap(_ key: String) {

@@ -26,18 +26,22 @@ struct AuthView: View {
                     (Text("Tax").fontWeight(.bold) + Text("Tech").fontWeight(.light)).font(.system(size: 22)).tracking(-0.4)
                 }
                 .padding(.top, 28)
+                .rise(0)
 
                 Text(register ? "Новий акаунт" : "З поверненням")
                     .font(.system(size: 36, weight: .bold)).tracking(-0.8)
                     .padding(.top, 40)
                     .contentTransition(.opacity)
+                    .rise(1)
                 Text(register ? "Рахунок із токенами TAX, віртуальні картки, податки й магазин."
                               : "Увійдіть, щоб відкрити рахунок, картки й податки.")
                     .font(.body).foregroundStyle(.secondary)
                     .padding(.top, 6)
+                    .rise(1)
 
                 TextTabs(items: [(false, "Вхід"), (true, "Реєстрація")], selection: $register)
                     .padding(.top, 28)
+                    .rise(2)
 
                 VStack(alignment: .leading, spacing: 16) {
                     if register {
@@ -63,6 +67,7 @@ struct AuthView: View {
                     }
                 }
                 .padding(.top, 22)
+                .rise(3)
 
                 if let status {
                     Label(status, systemImage: "exclamationmark.circle")
@@ -84,6 +89,7 @@ struct AuthView: View {
                 .buttonStyle(InkButton())
                 .disabled(!valid || working)
                 .padding(.top, 22)
+                .rise(4)
 
                 HStack(spacing: 10) {
                     Rectangle().fill(Theme.line).frame(height: Theme.hairline)
@@ -144,7 +150,7 @@ struct AuthView: View {
             .padding(.bottom, 32)
         }
         .scrollDismissesKeyboard(.interactively)
-        .screenBackground()
+        .background { Aurora() }
         .animation(.smooth(duration: 0.25), value: register)
         .animation(.smooth(duration: 0.2), value: status)
         .onChange(of: register) { status = nil }

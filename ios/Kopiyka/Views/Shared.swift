@@ -7,6 +7,7 @@ struct RootView: View {
     @State private var showConsent = false
     @State private var selection = AppTab.overview
     @State private var pinRequired = false
+    @State private var splash = true
 
     enum AppTab: Hashable { case overview, operations, cards, taxes, shop }
 
@@ -26,8 +27,12 @@ struct RootView: View {
                 }
                 .tint(Theme.tint)
                 .overlay(alignment: .top) { TopFade() }
+                .transition(.opacity.combined(with: .scale(scale: 1.04)))
             }
         }
+        .animation(.smooth(duration: 0.45), value: model.signedIn)
+        .animation(.smooth(duration: 0.35), value: model.bankUnlocked)
+        .overlay { if splash { LaunchSplash { splash = false } } }
         .task(id: model.signedIn) {
             pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
         }

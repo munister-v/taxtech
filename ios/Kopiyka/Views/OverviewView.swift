@@ -29,8 +29,8 @@ struct OverviewView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    header
-                    balance
+                    header.rise(0)
+                    balance.rise(1)
                     Group {
                         actions
                         cards
@@ -42,6 +42,7 @@ struct OverviewView: View {
                         if !recipients.isEmpty { frequent }
                         recent
                     }
+                    .rise(2)
                     .scrollTransition(.animated(.smooth(duration: 0.35))) { v, phase in
                         v.opacity(phase.isIdentity ? 1 : 0.35)
                             .scaleEffect(phase.isIdentity ? 1 : 0.96, anchor: phase.value > 0 ? .top : .bottom)
@@ -93,6 +94,7 @@ struct OverviewView: View {
             Spacer()
             NavigationLink { NoticesView() } label: {
                 RoundGlyph(symbol: unread > 0 ? "bell.badge" : "bell")
+                    .symbolEffect(.wiggle, value: unread)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
@@ -145,6 +147,7 @@ struct OverviewView: View {
                 .padding(.top, 18)
             }
         }
+        .glint(trigger: bank.loaded)
     }
 
     /// Баланс за 30 днів прямо на жовтій панелі: чорна лінія, що домальовується при появі.
@@ -252,8 +255,8 @@ struct OverviewView: View {
                         ForEach(bank.cards) { c in
                             VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: c.holderName,
                                             design: CardDesign(server: c.design), frozen: c.isBlocked)
+                                .tilt()
                                 .containerRelativeFrame(.horizontal) { w, _ in bank.cards.count > 1 ? w * 0.86 : w }
-                                .shadow(color: .black.opacity(0.3), radius: 14, y: 8)
                                 .scrollTransition(axis: .horizontal) { v, phase in
                                     v.scaleEffect(phase.isIdentity ? 1 : 0.9)
                                         .opacity(phase.isIdentity ? 1 : 0.55)

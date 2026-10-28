@@ -54,6 +54,7 @@ struct HeroPanel<Content: View>: View {
             .background(alignment: .bottomTrailing) {
                 MarkView(height: 150, color: (yellow ? Theme.onAccent : Theme.ink).opacity(yellow ? 0.07 : 0.04))
                     .offset(x: 34, y: 34)
+                    .parallax(0.14)
             }
             .background(yellow ? Theme.accent : Theme.surface)
             .clipShape(.rect(cornerRadius: 26, style: .continuous))

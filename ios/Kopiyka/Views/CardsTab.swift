@@ -93,22 +93,35 @@ struct CardsTab: View {
 
     private var carousel: some View {
         VStack(spacing: 10) {
-            TabView(selection: $index) {
-                ForEach(Array(cards.enumerated()), id: \.element.id) { i, c in
-                    VirtualCardView(number: i == index ? (revealed?.cardNumber ?? c.maskedNumber) : c.maskedNumber,
-                                    expiry: c.expiryDisplay, holder: c.holderName,
-                                    design: CardDesign(server: c.design), frozen: c.isBlocked)
-                        .padding(.horizontal, 2)
-                        .tag(i)
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 14) {
+                    ForEach(Array(cards.enumerated()), id: \.element.id) { i, c in
+                        VirtualCardView(number: i == index ? (revealed?.cardNumber ?? c.maskedNumber) : c.maskedNumber,
+                                        expiry: c.expiryDisplay, holder: c.holderName,
+                                        design: CardDesign(server: c.design), frozen: c.isBlocked)
+                            .tilt()
+                            .containerRelativeFrame(.horizontal)
+                            .scrollTransition(axis: .horizontal) { v, phase in
+                                v.scaleEffect(phase.isIdentity ? 1 : 0.86)
+                                    .opacity(phase.isIdentity ? 1 : 0.5)
+                                    .rotation3DEffect(.degrees(phase.value * -28), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
+                                    .blur(radius: phase.isIdentity ? 0 : 2)
+                            }
+                            .id(i)
+                    }
                 }
+                .scrollTargetLayout()
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: (UIScreen.main.bounds.width - 2 * Theme.gutter) / 1.586 + 4)
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: Binding(get: { index }, set: { if let v = $0 { index = v } }))
+            .scrollClipDisabled()
             .animation(.smooth, value: card?.isBlocked)
+            .sensoryFeedback(.selection, trigger: index)
             if cards.count > 1 {
                 HStack(spacing: 6) {
                     ForEach(cards.indices, id: \.self) { i in
-                        Rectangle().fill(i == index ? Theme.ink : Theme.line).frame(width: 18, height: 2)
+                        Capsule().fill(i == index ? Theme.ink : Theme.line).frame(width: i == index ? 26 : 8, height: 4)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: index)
                     }
                 }
             }
