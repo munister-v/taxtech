@@ -9532,7 +9532,7 @@ export default function App() {
     try {
       if (location.hash === '#login') return 'login';
       if (location.hash === '#register') return 'register';
-      return localStorage.getItem('tt_returning') ? 'login' : 'promo';
+      return 'promo';
     } catch { return 'promo'; }
   });
   const [authed, setAuthed] = useState(() => !!getToken());
@@ -9680,6 +9680,7 @@ export default function App() {
   const logout = () => {
     clearToken();
     setAuthed(false);
+    setAuthView('promo');
     setTab('overview');
     setUser(null);
     setAccount(null);
@@ -9821,7 +9822,6 @@ export default function App() {
 
   if (!authed) {
     return <LoginScreen key={authView} initialMode={authView === 'register' ? 'register' : 'login'} onBack={() => setAuthView('promo')} onLogin={() => {
-      try { localStorage.setItem('tt_returning', '1'); } catch { /* ignore */ }
       markAppContinuation();  // prevent splash replay on next open
       setLoadingData(true);   // show spinner immediately, skip empty-screen flash
       setAuthed(true);
