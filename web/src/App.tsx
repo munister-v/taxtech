@@ -9016,7 +9016,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       const vh = root.clientHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
       setLit(p);
-      const ids = ['faq', 'security', 'lab', 'shop', 'grow', 'cards', 'app', 'top'];
+      const ids = ['faq', 'stack', 'security', 'shop', 'grow', 'cards', 'app', 'lab', 'top'];
       const cur = ids.find(id => { const el = root.querySelector('#' + id); return el && el.getBoundingClientRect().top < 140; });
       setSection(cur || 'top');
     };
@@ -9117,7 +9117,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-wrap ap-nav-in">
           <a href="#top" className="ap-brand">TaxTech</a>
           <nav className="ap-links" aria-label="Розділи">
-            {[['top', 'Огляд'], ['app', 'Застосунок'], ['cards', 'Картки'], ['grow', 'Депозити'], ['lab', 'Дослідження'], ['faq', 'Питання']].map(([id, t]) => (
+            {[['top', 'Огляд'], ['lab', 'Дослідження'], ['app', 'Застосунок'], ['cards', 'Картки'], ['grow', 'Депозити'], ['faq', 'Питання']].map(([id, t]) => (
               <a key={id} href={'#' + id} className={section === id ? 'on' : ''} aria-current={section === id ? 'true' : undefined}>{t}</a>
             ))}
           </nav>
@@ -9157,6 +9157,8 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
           <p ref={manifestoRef}>{manifesto.map((w, i) => <span key={i} className={i < litWords ? 'on' : ''}>{w} </span>)}</p>
         </div>
       </section>
+
+      <ResearchLab />
 
       <section id="app" className="ap-wrap ap-split ap-reveal">
         <div className="ap-split-copy">
@@ -9314,7 +9316,6 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         </div>
       </section>
 
-      <ResearchLab />
 
       <section id="security" className="ap-security ap-reveal">
         <div className="ap-wrap">
