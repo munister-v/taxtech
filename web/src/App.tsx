@@ -19,7 +19,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
     if (this.state.error) {
       const tt = translations[getStoredLanguage()];
       return (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#121212', color: '#d8d8d8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontFamily: 'sans-serif' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#000', color: '#d8d8d8', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontFamily: 'sans-serif' }}>
           <div style={{ fontSize: 20 }}>{tt.error_boundary_title}</div>
           <div style={{ fontSize: 13, color: 'rgba(215,215,215, 0.6)', maxWidth: 400, textAlign: 'center' }}>{this.state.error}</div>
           <button onClick={() => window.location.reload()} style={{ marginTop: 8, padding: '10px 20px', borderRadius: 10, background: gold, color: text.primary, border: 'none', cursor: 'pointer', fontWeight: 600 }}>{tt.error_boundary_refresh}</button>
@@ -1763,9 +1763,9 @@ function Toast({ msg }: { msg: string }) {
       left: '50%', transform: 'translateX(-50%)',
       zIndex: 9999, pointerEvents: 'none',
       padding: '12px 18px', borderRadius: 18,
-      background: 'rgba(26,26,26, 0.96)',
+      background: '#1c1c1e',
       backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-      border: '1px solid rgba(172,172,172, 0.18)',
+      border: '1px solid transparent',
       color: text.primary, ...T.sm, fontWeight: 500,
       boxShadow: '0 16px 40px rgba(0,0,0, 0.42)',
       maxWidth: 'min(420px, calc(100vw - 32px))', textAlign: 'center', whiteSpace: 'normal', lineHeight: 1.35,
@@ -2775,7 +2775,7 @@ function ActivityFeed({ title = true, transactions }: { title?: boolean; transac
         ) : rows.map((r, i) => (
           <Fragment key={i}>
             <ActivityRow {...r} onClick={() => goTo('operations')} />
-            {i < rows.length - 1 && <div style={{ height: 1, background: 'rgba(176,176,176, 0.06)', margin: '0 16px' }} />}
+            {i < rows.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 16px' }} />}
           </Fragment>
         ))}
       </div>
@@ -2854,7 +2854,7 @@ function ThreeDSModal({
       <div style={{
         width: '92%', maxWidth: 400,
         background: '#232323',
-        border: '1px solid rgba(172,172,172, 0.18)',
+        border: '1px solid transparent',
         borderRadius: 24, overflow: 'hidden',
         boxShadow: '0 32px 80px rgba(0,0,0, 0.7)',
       }}>
@@ -2922,7 +2922,7 @@ function ThreeDSModal({
           {/* Demo OTP hint */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            background: 'rgba(171,171,171, 0.1)', border: '1px solid rgba(171,171,171, 0.2)',
+            background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent',
             borderRadius: 10, padding: '8px 12px', marginBottom: 16,
           }}>
             <span style={{ fontSize: 14 }}>🧪</span>
@@ -2965,7 +2965,7 @@ function ThreeDSModal({
           </div>
 
           {error && (
-            <div style={{ padding: '10px 14px', background: 'rgba(90,90,90, 0.12)', borderRadius: 10, color: '#989898', fontSize: 13, marginBottom: 12 }}>
+            <div style={{ padding: '10px 14px', background: 'rgba(255,255,255, 0.1)', borderRadius: 10, color: '#989898', fontSize: 13, marginBottom: 12 }}>
               {error}
             </div>
           )}
@@ -3139,7 +3139,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(6px)' }} onClick={e => e.target === e.currentTarget && onClose()}>
       <div
         {...sheetSwipe.sheetProps}
-        style={{ width: '100%', maxWidth: 480, background: '#232323', border: '1px solid rgba(172,172,172, 0.2)', borderRadius: '24px 24px 0 0', padding: '28px 24px calc(40px + env(safe-area-inset-bottom, 0px))', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)', ...sheetSwipe.sheetStyle }}
+        style={{ width: '100%', maxWidth: 480, background: '#232323', border: '1px solid transparent', borderRadius: '24px 24px 0 0', padding: '28px 24px calc(40px + env(safe-area-inset-bottom, 0px))', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)', ...sheetSwipe.sheetStyle }}
       >
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '-8px auto 16px' }} />
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
@@ -3169,7 +3169,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
           <div>
             <input style={{ ...inp, fontSize: 13 }} value={description} onChange={e => setDescription(e.target.value)} placeholder={cfg.placeholder} />
           </div>
-          {error && <div style={{ padding: '10px 14px', background: 'rgba(90,90,90, 0.12)', border: '1px solid rgba(90,90,90, 0.25)', borderRadius: 10, color: '#989898', fontSize: 13 }}>{error}</div>}
+          {error && <div style={{ padding: '10px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 10, color: '#989898', fontSize: 13 }}>{error}</div>}
           <button type="submit" disabled={loading} style={{
             marginTop: 4, padding: '15px', borderRadius: 14,
             border: `1px solid ${bg.border}`,
@@ -3217,7 +3217,7 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2000, display: 'flex', alignItems: 'flex-end' }}>
       <div onClick={onClose} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(6px)' }} />
       <div style={{ position: 'relative', width: '100%', maxWidth: 500, margin: '0 auto', background: '#1f1f1f', borderRadius: '28px 28px 0 0', padding: '24px 24px max(env(safe-area-inset-bottom,20px),24px)', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)' }}>
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.2)', margin: '0 auto 20px' }} />
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255, 0.1)', margin: '0 auto 20px' }} />
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: text.primary }}>Обмін валюти</div>
           <div style={{ flex: 1 }} />
@@ -3239,10 +3239,10 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
         </div>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{dir === 'buy' ? `Сума в токенах TAX` : `Сума в ${currency}`}</label>
-          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
+          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
         </div>
         {amtNum > 0 && (
-          <div style={{ background: 'rgba(172,172,172, 0.05)', border: '1px solid transparent', borderRadius: 14, padding: '14px 16px', marginBottom: 20 }}>
+          <div style={{ background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 14, padding: '14px 16px', marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: text.muted }}>Ви отримаєте</span>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#a9a9a9' }}>{dir === 'buy' ? `${fxAmt.toFixed(4)} ${currency}` : `${fxAmt.toFixed(2)}\u00a0TAX`}</span>
@@ -3413,7 +3413,7 @@ function SavingsGoalsMini() {
         <div style={dk ? dkTitle : { ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>Цілі заощаджень</div>
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
-          background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.18)`,
+          background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
           borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
         }}>+ Нова</button>
       </div>
@@ -3450,7 +3450,7 @@ function SavingsGoalsMini() {
                 <button onClick={() => deleteGoal(goal.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(110,110,110, 0.6)', fontSize: 16, padding: '0 0 0 4px', lineHeight: 1 }}>×</button>
               </div>
             </div>
-            <div style={{ height: 5, background: 'rgba(172,172,172, 0.1)', borderRadius: 4, marginBottom: 6 }}>
+            <div style={{ height: 5, background: 'rgba(255,255,255, 0.1)', borderRadius: 4, marginBottom: 6 }}>
               <div style={{ width: `${pct}%`, height: '100%', background: `${goldDark}`, borderRadius: 4, transition: 'width 0.6s ease' }} />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isContributing ? 10 : 0 }}>
@@ -3460,7 +3460,7 @@ function SavingsGoalsMini() {
             {!isContributing ? (
               <button onClick={() => { setContributeId(goal.id); setContributeAmt(''); }} style={{
                 marginTop: 8, width: '100%', padding: '7px', fontSize: 12, fontWeight: 600,
-                background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.18)`,
+                background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
                 borderRadius: 8, cursor: 'pointer', color: gold, fontFamily: 'inherit',
               }}>Поповнити</button>
             ) : (
@@ -3474,7 +3474,7 @@ function SavingsGoalsMini() {
                 }}>✓</button>
                 <button onClick={() => setContributeId(null)} style={{
                   padding: '8px 10px', fontSize: 12,
-                  background: 'rgba(172,172,172, 0.08)', border: `1px solid transparent`,
+                  background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
                   borderRadius: 8, cursor: 'pointer', color: text.muted, fontFamily: 'inherit',
                 }}>✕</button>
               </div>
@@ -3551,7 +3551,7 @@ function RecurringSection() {
         <div style={{ ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>Регулярні платежі</div>
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
-          background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.18)`,
+          background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
           borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
         }}>+ Новий</button>
       </div>
@@ -3597,7 +3597,7 @@ function RecurringSection() {
               <button onClick={() => toggle(rec.id, rec.is_active)} style={{ flex: 1, padding: '7px', fontSize: 12, fontWeight: 600, background: rec.is_active ? 'rgba(172,172,172, 0.08)' : 'rgba(180,180,180, 0.12)', border: `1px solid ${rec.is_active ? 'rgba(172,172,172, 0.18)' : 'rgba(180,180,180, 0.3)'}`, borderRadius: 8, cursor: 'pointer', color: rec.is_active ? text.muted : '#a9a9a9', fontFamily: 'inherit' }}>
                 {rec.is_active ? 'Призупинити' : 'Активувати'}
               </button>
-              <button onClick={() => remove(rec.id)} style={{ padding: '7px 12px', fontSize: 12, background: 'rgba(110,110,110, 0.08)', border: `1px solid rgba(110,110,110, 0.2)`, borderRadius: 8, cursor: 'pointer', color: 'rgba(110,110,110, 0.8)', fontFamily: 'inherit' }}>Видалити</button>
+              <button onClick={() => remove(rec.id)} style={{ padding: '7px 12px', fontSize: 12, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 8, cursor: 'pointer', color: 'rgba(110,110,110, 0.8)', fontFamily: 'inherit' }}>Видалити</button>
             </div>
           </div>
         ))}
@@ -3902,9 +3902,9 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
   }
 
   return (
-    <div style={{ margin: '0 18px 20px', background: `rgba(171,171,171, 0.1)`, border: `1px solid rgba(171,171,171, 0.25)`, borderRadius: 22, padding: '18px 20px', boxShadow: '0 18px 34px rgba(0,0,0, 0.14)' }}>
+    <div style={{ margin: '0 18px 20px', background: `rgba(255,255,255, 0.1)`, border: `1px solid transparent`, borderRadius: 22, padding: '18px 20px', boxShadow: '0 18px 34px rgba(0,0,0, 0.14)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <div style={{ width: 42, height: 42, borderRadius: 13, background: 'rgba(171,171,171, 0.2)', border: `1px solid rgba(171,171,171, 0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 42, height: 42, borderRadius: 13, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.6-4.9-2.6-4.9 2.6.9-5.6-4-3.9 5.5-.8L12 3z" stroke={gold} strokeWidth="1.6" strokeLinejoin="round" />
           </svg>
@@ -3919,7 +3919,7 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
           <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, marginBottom: 2 }}>ВАШ КОД</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: gold, letterSpacing: 2 }}>{code}</div>
         </div>
-        <button onClick={copyLink} style={{ padding: '7px 14px', borderRadius: 10, border: `1px solid rgba(171,171,171, 0.3)`, background: copied ? 'rgba(169,169,169, 0.15)' : 'rgba(171,171,171, 0.1)', color: copied ? '#a9a9a9' : gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+        <button onClick={copyLink} style={{ padding: '7px 14px', borderRadius: 10, border: `1px solid transparent`, background: copied ? 'rgba(169,169,169, 0.15)' : 'rgba(171,171,171, 0.1)', color: copied ? '#a9a9a9' : gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
           {copied ? '✓ Скопійовано' : 'Копіювати'}
         </button>
       </div>
@@ -4114,7 +4114,7 @@ function OverviewScreen() {
         <button onClick={() => goTo('cards')} style={{
           fontSize: 12,
           color: goldLight,
-          background: 'rgba(176,176,176, 0.08)',
+          background: 'rgba(255,255,255, 0.1)',
           border: '1px solid transparent',
           borderRadius: 999,
           padding: '7px 11px',
@@ -4206,7 +4206,7 @@ function OverviewScreen() {
                             </div>
                             <div style={{ position: 'absolute', top: '62%', left: '5%', right: '5%' }}>
                               <div style={{ fontSize: 8, color: 'rgba(255,255,255, 0.45)', letterSpacing: 1, marginBottom: 5 }}>НОМЕР КАРТКИ</div>
-                              <button onClick={e => { e.stopPropagation(); if (ovRevealed) navigator.clipboard.writeText(ovRevealed.card_number.replace(/\s/g, '')).then(() => toast('Номер скопійовано ✓')).catch(() => {}); }} style={{ width: '100%', background: 'rgba(255,255,255, 0.1)', border: '1px solid rgba(255,255,255, 0.2)', borderRadius: 8, padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                              <button onClick={e => { e.stopPropagation(); if (ovRevealed) navigator.clipboard.writeText(ovRevealed.card_number.replace(/\s/g, '')).then(() => toast('Номер скопійовано ✓')).catch(() => {}); }} style={{ width: '100%', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 8, padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                                 <span style={{ fontFamily: '"SF Mono", monospace', fontSize: 13, fontWeight: 700, color: '#ffffff', letterSpacing: 2 }}>
                                   {ovRevealed ? ovRevealed.card_number.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() : `•••• •••• •••• ${c.number}`}
                                 </span>
@@ -4357,13 +4357,13 @@ function OverviewScreen() {
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
+        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: '#1c1c1e' }) }}>
           {cardSection}
         </div>
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: 'rgba(28,28,28, 0.7)' }) }}>
+        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: '#1c1c1e' }) }}>
           {quickActionsSection}
         </div>
       </div>
@@ -4393,7 +4393,7 @@ function OverviewScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
         <div onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
-          background: 'rgba(35,35,35, 0.98)',
+          background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0',
           padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
@@ -4409,7 +4409,7 @@ function OverviewScreen() {
                 </span>
               )}
             </div>
-            <button onClick={() => setShowNotifications(false)} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            <button onClick={() => setShowNotifications(false)} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           </div>
           {apiNotifications.length === 0 ? (
             <div style={{ padding: '28px 0', textAlign: 'center', color: text.muted, fontSize: 14 }}>
@@ -4432,7 +4432,7 @@ function OverviewScreen() {
                       <div style={{ fontSize: 10, color: text.dim, marginTop: 3 }}>{fmtTime(notif.created_at, lang)}</div>
                     </div>
                   </div>
-                  {i < apiNotifications.length - 1 && <div style={{ height: 1, background: 'rgba(172,172,172, 0.07)', margin: '0 16px 0 64px' }} />}
+                  {i < apiNotifications.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 16px 0 64px' }} />}
                 </Fragment>
               ))}
             </div>
@@ -4687,13 +4687,12 @@ function CardsScreen() {
           ...glassCard({
             padding: '18px 18px 16px',
             borderRadius: 26,
-            background: 'rgba(29,29,29, 0.92)',
+            background: '#1c1c1e',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.22)',
           }),
           position: 'relative',
           overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'rgba(185,185,185, 0.1)' }} />
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 11, color: text.muted, letterSpacing: 0.6, marginBottom: 4 }}>{t('cards_title')}</div>
@@ -4702,7 +4701,7 @@ function CardsScreen() {
                 <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
                   {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
                 </div>
-                <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(169,169,169, 0.12)', border: '1px solid rgba(169,169,169, 0.22)', fontSize: 11, color: '#c5c5c5', fontWeight: 600 }}>
+                <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: '#c5c5c5', fontWeight: 600 }}>
                   {activeCardsCount} активних
                 </div>
               </div>
@@ -4778,7 +4777,7 @@ function CardsScreen() {
                       {/* Card number — 62% from top */}
                       <div style={{ position: 'absolute', top: '62%', left: '5%', right: '5%' }}>
                         <div style={{ fontSize: 8, color: 'rgba(255,255,255, 0.45)', letterSpacing: 1, marginBottom: 5 }}>НОМЕР КАРТКИ</div>
-                        <button onClick={e => { e.stopPropagation(); if (revealed) navigator.clipboard.writeText(revealed.card_number.replace(/\s/g, '')).then(() => toast('Номер скопійовано ✓')).catch(() => {}); }} style={{ width: '100%', background: 'rgba(255,255,255, 0.1)', border: '1px solid rgba(255,255,255, 0.2)', borderRadius: 8, padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <button onClick={e => { e.stopPropagation(); if (revealed) navigator.clipboard.writeText(revealed.card_number.replace(/\s/g, '')).then(() => toast('Номер скопійовано ✓')).catch(() => {}); }} style={{ width: '100%', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 8, padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                           <span style={{ fontFamily: '"SF Mono", monospace', fontSize: 13, fontWeight: 700, color: '#ffffff', letterSpacing: 2 }}>
                             {revealed ? revealed.card_number.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() : `•••• •••• •••• ${c.number}`}
                           </span>
@@ -4843,7 +4842,7 @@ function CardsScreen() {
             <button
               onClick={() => openDesignModal('current')}
               style={{
-                padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.24)',
+                padding: '7px 12px', borderRadius: 10, border: '1px solid transparent',
                 background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >{t('change_label')}</button>
@@ -4863,13 +4862,13 @@ function CardsScreen() {
               <div style={{ display: 'flex', gap: 8 }}>
                 {!card?.isPrimary && card?.statusRaw === 'active' && (
                   <button onClick={() => setTopupModal(true)} style={{
-                    padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.22)',
-                    background: 'rgba(172,172,172, 0.08)', color: goldLight, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                    padding: '8px 14px', borderRadius: 10, border: '1px solid transparent',
+                    background: 'rgba(255,255,255, 0.1)', color: goldLight, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                   }}>Поповнити</button>
                 )}
                 {!card?.isPrimary && card?.statusRaw !== 'closed' && (
                   <button onClick={setPrimaryCard} style={{
-                    padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.22)',
+                    padding: '8px 14px', borderRadius: 10, border: '1px solid transparent',
                     background: 'rgba(255,255,255, 0.1)', color: text.muted, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
                   }}>Зробити головною</button>
                 )}
@@ -4928,8 +4927,8 @@ function CardsScreen() {
               {isFrozen ? t('unfreeze_card') : t('freeze_card')}
             </button>
             <button onClick={closeCard} style={{
-              flex: 1, padding: '12px', background: 'rgba(126,126,126, 0.06)',
-              border: '1px solid rgba(126,126,126, 0.2)', borderRadius: 12,
+              flex: 1, padding: '12px', background: 'rgba(255,255,255, 0.1)',
+              border: '1px solid transparent', borderRadius: 12,
               color: '#7e7e7e', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               opacity: busyCardId === card.id || card.statusRaw === 'closed' ? 0.6 : 1,
@@ -4973,7 +4972,7 @@ function CardsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(4px)' }} />
         <div onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 480,
-          background: 'rgba(35,35,35, 0.98)',
+          background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -4988,7 +4987,7 @@ function CardsScreen() {
                 type="password" inputMode="numeric" maxLength={4}
                 value={pinValue} onChange={e => setPinValue(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder="••••"
-                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
               />
             </div>
             <div>
@@ -5023,7 +5022,7 @@ function CardsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.62)', backdropFilter: 'blur(4px)' }} />
         <div onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 620,
-          background: 'rgba(35,35,35, 0.98)',
+          background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '24px 20px calc(22px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -5082,7 +5081,7 @@ function CardsScreen() {
               onClick={() => setDesignModal(false)}
               disabled={designLoading}
               style={{
-                flex: 1, padding: '13px 12px', borderRadius: 14, border: '1px solid rgba(172,172,172, 0.22)',
+                flex: 1, padding: '13px 12px', borderRadius: 14, border: '1px solid transparent',
                 background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 14, fontWeight: 600, cursor: designLoading ? 'default' : 'pointer',
               }}
             >{t('cancel_label')}</button>
@@ -5106,7 +5105,7 @@ function CardsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(4px)' }} />
         <div onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 480,
-          background: 'rgba(35,35,35, 0.98)',
+          background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -5121,7 +5120,7 @@ function CardsScreen() {
             type="text" inputMode="decimal"
             value={topupAmount} onChange={e => setTopupAmount(e.target.value)}
             placeholder="0.00"
-            style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
+            style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
           />
           <div style={{ fontSize: 11, color: text.dim, marginBottom: 20 }}>
             Баланс рахунку: {formatUah(Number(account?.balance || 0))}
@@ -5241,7 +5240,7 @@ function DepositsSection() {
   };
 
   const panelStyle: React.CSSProperties = {
-    background: 'rgba(32,32,32, 0.72)',
+    background: '#1c1c1e',
     border: '1px solid transparent',
     borderRadius: 26,
     overflow: 'hidden',
@@ -5251,7 +5250,7 @@ function DepositsSection() {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     gap: 1,
-    background: 'rgba(183,183,183, 0.08)',
+    background: 'rgba(255,255,255, 0.1)',
     borderRadius: 18,
     overflow: 'hidden',
     marginBottom: 14,
@@ -5274,7 +5273,7 @@ function DepositsSection() {
     height: 42,
     borderRadius: 14,
     background: 'rgba(157,157,157, 0.24)',
-    border: '1px solid rgba(171,171,171, 0.22)',
+    border: '1px solid transparent',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -5357,7 +5356,7 @@ function DepositsSection() {
             </div>
 
             {/* Projected return */}
-            <div style={{ background: 'rgba(171,171,171, 0.07)', border: `1px solid transparent`, borderRadius: 16, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 16, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8 }}>{t('dep_accrued')}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: gold }}>+{projectedInterest()}{'\u00a0TAX'}</div>
@@ -5451,7 +5450,7 @@ function DepositsSection() {
 
                   {isActive && (
                     <>
-                      <div style={{ height: 6, background: 'rgba(172,172,172, 0.1)', borderRadius: 999, overflow: 'hidden', marginBottom: 8 }}>
+                      <div style={{ height: 6, background: 'rgba(255,255,255, 0.1)', borderRadius: 999, overflow: 'hidden', marginBottom: 8 }}>
                         <div style={{ height: '100%', width: `${progressPct}%`, background: `${goldDark}`, borderRadius: 999, boxShadow: '0 0 18px rgba(171,171,171, 0.18)' }} />
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: text.muted, marginBottom: 14 }}>
@@ -5476,7 +5475,7 @@ function DepositsSection() {
                           disabled={closing === dep.id}
                           style={{
                             ...actionBtnBase,
-                            background: 'rgba(126,126,126, 0.06)', border: '1px solid rgba(126,126,126, 0.18)',
+                            background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent',
                             color: '#989898', fontSize: 12, fontWeight: 600,
                             cursor: closing === dep.id ? 'default' : 'pointer',
                             opacity: closing === dep.id ? 0.5 : 1,
@@ -5648,7 +5647,7 @@ function CreditsSection() {
 
   const activeCredits = credits.filter(c => c.status === 'active').length;
   const panelStyle: React.CSSProperties = {
-    background: 'rgba(32,32,32, 0.72)',
+    background: '#1c1c1e',
     border: '1px solid transparent',
     borderRadius: 26,
     overflow: 'hidden',
@@ -5659,7 +5658,7 @@ function CreditsSection() {
     height: 42,
     borderRadius: 14,
     background: 'rgba(102,102,102, 0.28)',
-    border: '1px solid rgba(128,128,128, 0.2)',
+    border: '1px solid transparent',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -5671,7 +5670,7 @@ function CreditsSection() {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     gap: 1,
-    background: 'rgba(183,183,183, 0.08)',
+    background: 'rgba(255,255,255, 0.1)',
     borderRadius: 18,
     overflow: 'hidden',
   };
@@ -5784,7 +5783,7 @@ function CreditsSection() {
               </div>
             </div>
             {amtNum > 0 && (
-              <div style={{ background: 'rgba(120,120,120, 0.08)', border: '1px solid rgba(120,120,120, 0.18)', borderRadius: 16, padding: 14, display: 'flex', gap: 16 }}>
+              <div style={{ background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 16, padding: 14, display: 'flex', gap: 16 }}>
                 <div style={{ flex: 1, textAlign: 'center' }}>
                   <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, marginBottom: 4 }}>{tt.monthlyPayment}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: '#cacaca' }}>{formatUah(monthlyPayment, lang)}</div>
@@ -5836,11 +5835,11 @@ function CreditsSection() {
                     </div>
                   ))}
                 </div>
-                {overdue && <div style={{ padding: '10px 16px', background: 'rgba(93,93,93, 0.12)', borderTop: `1px solid rgba(93,93,93, 0.22)` }}><div style={{ fontSize: 12, color: '#adadad', fontWeight: 600 }}>⚠️ {tt.overdue.replace('{days}', String(Math.abs(cr.days_to_payment ?? 0)))}</div></div>}
+                {overdue && <div style={{ padding: '10px 16px', background: 'rgba(255,255,255, 0.1)', borderTop: `1px solid rgba(93,93,93, 0.22)` }}><div style={{ fontSize: 12, color: '#adadad', fontWeight: 600 }}>⚠️ {tt.overdue.replace('{days}', String(Math.abs(cr.days_to_payment ?? 0)))}</div></div>}
                 {isActive && (
                   <div style={{ padding: '14px 16px 16px', display: 'flex', gap: 8 }}>
                     <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id)} style={{ flex: 1, padding: '14px', borderRadius: 16, border: 'none', cursor: 'pointer', background: repaying === cr.id ? 'rgba(51,51,51, 0.4)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', boxShadow: repaying === cr.id ? 'none' : '0 14px 30px rgba(47,47,47, 0.18)' }}>{repaying === cr.id ? '…' : tt.payInstallment}</button>
-                    <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id, true)} style={{ padding: '14px 16px', borderRadius: 16, border: `1px solid rgba(120,120,120, 0.28)`, background: 'rgba(255,255,255, 0.02)', color: '#cacaca', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{tt.repayFull}</button>
+                    <button disabled={repaying === cr.id} onClick={() => handleRepay(cr.id, true)} style={{ padding: '14px 16px', borderRadius: 16, border: `1px solid transparent`, background: 'rgba(255,255,255, 0.02)', color: '#cacaca', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{tt.repayFull}</button>
                   </div>
                 )}
               </div>
@@ -5853,6 +5852,7 @@ function CreditsSection() {
 }
 
 function OperationsScreen() {
+  const opsWide = useWindowWidth() >= 1180;
   const layout = useLayout();
   const { t, lang } = usePreferences();
   const topPad = useTopPad();
@@ -6000,13 +6000,12 @@ function OperationsScreen() {
           ...glassCard({
             padding: '18px 18px 16px',
             borderRadius: 26,
-            background: 'rgba(29,29,29, 0.9)',
+            background: '#1c1c1e',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.2)',
           }),
           position: 'relative',
           overflow: 'hidden',
         }}>
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'rgba(166,166,166, 0.08)' }} />
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, gap: 12 }}>
           <div>
             <div style={{ fontSize: 11, color: text.muted, letterSpacing: 0.6, marginBottom: 4 }}>{t('operations_title')}</div>
@@ -6090,7 +6089,7 @@ function OperationsScreen() {
     const opsChart = (
     <>
       <div style={{ padding: '0 18px 18px' }}>
-        <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
+        <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: '#1c1c1e' }) }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
             <div>
               <div style={{ ...sectionLabel, padding: 0, marginBottom: 4 }}>{t('spending_this_month')}</div>
@@ -6156,7 +6155,7 @@ function OperationsScreen() {
         const SPEND_LABELS: Record<string, string> = { transfer: t('spend_transfer'), food: t('spend_food'), transport: t('spend_transport'), utility: t('spend_utility'), shopping: t('spend_shopping'), subscription: t('spend_subscription'), income: t('filter_income') };
         return (
           <div style={{ padding: '0 18px 18px' }}>
-            <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: 'rgba(29,29,29, 0.72)' }) }}>
+            <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: '#1c1c1e' }) }}>
               <div style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>{t('filter_outcome')}</div>
               {rows.map(({ cat, pct, amt }) => {
                 const s = CAT_STYLES[cat];
@@ -6172,7 +6171,7 @@ function OperationsScreen() {
                         <span style={{ fontSize: 10, color: text.muted }}>{pct}%</span>
                       </div>
                     </div>
-                    <div style={{ height: 4, background: 'rgba(172,172,172, 0.1)', borderRadius: 4 }}>
+                    <div style={{ height: 4, background: 'rgba(255,255,255, 0.1)', borderRadius: 4 }}>
                       <div style={{ width: `${pct}%`, height: '100%', background: s.color, borderRadius: 4, opacity: 0.75, transition: 'width 0.4s ease' }} />
                     </div>
                   </div>
@@ -6209,7 +6208,7 @@ function OperationsScreen() {
       {txGroups.map((g, gi) => (
         <div key={gi} style={{ padding: '4px 18px 12px' }}>
           <div style={{ ...sectionLabel }}>{g.group}</div>
-          <div style={{ background: 'rgba(31,31,31, 0.82)', border: `1px solid ${bg.border}`, borderRadius: 20, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12)' }}>
+          <div style={{ background: '#1c1c1e', border: `1px solid ${bg.border}`, borderRadius: 20, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12)' }}>
             {g.items.map((item, i) => {
               const s = CAT_STYLES[item.cat];
               return (
@@ -6229,13 +6228,13 @@ function OperationsScreen() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ ...T.body, fontWeight: 600, color: item.positive ? '#a9a9a9' : text.secondary, ...T.num }}>{item.amount} TAX</div>
                       {item.txId ? (
-                        <button onClick={e => { e.stopPropagation(); downloadReceipt(item.txId!); }} disabled={dlReceipt === item.txId} title={t('download_receipt')} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.08)', border: `1px solid transparent`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: goldLight }}>{dlReceipt === item.txId ? '…' : <ReceiptIcon size={14} color={goldLight} />}</button>
+                        <button onClick={e => { e.stopPropagation(); downloadReceipt(item.txId!); }} disabled={dlReceipt === item.txId} title={t('download_receipt')} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: goldLight }}>{dlReceipt === item.txId ? '…' : <ReceiptIcon size={14} color={goldLight} />}</button>
                       ) : (
                         <Chevron size={12} color="rgba(215,215,215, 0.3)" />
                       )}
                     </div>
                   </div>
-                  {i < g.items.length - 1 && <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 16px 0 64px' }} />}
+                  {i < g.items.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 16px 0 64px' }} />}
                 </Fragment>
               );
             })}
@@ -6252,7 +6251,7 @@ function OperationsScreen() {
     <ContentWrap maxW={layout === 'desktop' ? 1560 : 720}>
     <div style={{ paddingBottom: layout === 'desktop' ? 80 : 24 }}>
       {layout === 'desktop' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(400px, 460px)', gap: 24, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: opsWide ? 'minmax(0, 1fr) minmax(400px, 460px)' : 'minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
           <div className="kp-rise" style={{ minWidth: 0, margin: '0 -18px' }}>
             {opsHeader}
             {opsTxList}
@@ -6284,7 +6283,7 @@ function OperationsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
         <div onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
-          background: 'rgba(35,35,35, 0.98)',
+          background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -6306,10 +6305,10 @@ function OperationsScreen() {
             onChange={e => setTxNote(e.target.value)}
             placeholder={t('tx_note_placeholder')}
             rows={3}
-            style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 14, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 14, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }}
           />
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <button onClick={() => setSelectedTxId(null)} style={{ flex: 1, padding: '12px', background: 'rgba(172,172,172, 0.07)', border: '1px solid transparent', borderRadius: 14, color: text.muted, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
+            <button onClick={() => setSelectedTxId(null)} style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 14, color: text.muted, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
               {t('cancel_label')}
             </button>
             <button onClick={saveNote} disabled={savingNote} style={{ flex: 2, padding: '12px', background: `${gold}`, border: 'none', borderRadius: 14, color: '#161616', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', opacity: savingNote ? 0.7 : 1 }}>
@@ -6342,8 +6341,8 @@ function ProfileRow({ label, value, mono, copyable, last }: { label: string; val
           }}>{value}</span>
           {copyable && (
             <button onClick={copy} style={{
-              width: 26, height: 26, borderRadius: 7, background: `rgba(172,172,172, 0.1)`,
-              border: `1px solid rgba(172,172,172, 0.2)`,
+              width: 26, height: 26, borderRadius: 7, background: `rgba(255,255,255, 0.1)`,
+              border: `1px solid transparent`,
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, flexShrink: 0,
             }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke={gold} strokeWidth="2" /><path d="M5 15V5a2 2 0 012-2h10" stroke={gold} strokeWidth="2" /></svg>
@@ -6351,7 +6350,7 @@ function ProfileRow({ label, value, mono, copyable, last }: { label: string; val
           )}
         </div>
       </div>
-      {!last && <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />}
+      {!last && <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />}
     </>
   );
 }
@@ -6360,8 +6359,8 @@ function ProfileToggle({ label, sub, on, onChange, icon }: { label: string; sub?
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px' }}>
       <div style={{
-        width: 36, height: 36, borderRadius: 10, background: 'rgba(172,172,172, 0.1)',
-        border: `1px solid rgba(172,172,172, 0.18)`,
+        width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255, 0.1)',
+        border: `1px solid transparent`,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
       }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -6616,7 +6615,7 @@ function ProfileScreen() {
   ];
 
   const section = (children: React.ReactNode) => (
-    <div style={{ breakInside: 'avoid', background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14)' }}>
+    <div style={{ breakInside: 'avoid', background: '#1c1c1e', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14)' }}>
       {children}
     </div>
   );
@@ -6630,13 +6629,12 @@ function ProfileScreen() {
           ...glassCard({
             padding: '22px 18px 18px',
             borderRadius: 28,
-            background: 'rgba(29,29,29, 0.92)',
+            background: '#1c1c1e',
             boxShadow: '0 22px 44px rgba(0,0,0, 0.22)',
           }),
           position: 'relative',
           overflow: 'hidden',
         }}>
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'rgba(185,185,185, 0.12)' }} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <input
           ref={photoInputRef}
@@ -6664,7 +6662,7 @@ function ProfileScreen() {
           <button
             onClick={() => photoInputRef.current?.click()}
             style={{
-              padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.24)',
+              padding: '6px 12px', borderRadius: 10, border: '1px solid transparent',
               background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}
           >
@@ -6674,8 +6672,8 @@ function ProfileScreen() {
             <button
               onClick={removeProfilePhoto}
               style={{
-                padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(126,126,126, 0.25)',
-                background: 'rgba(126,126,126, 0.08)', color: '#c3c3c3', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                padding: '6px 12px', borderRadius: 10, border: '1px solid transparent',
+                background: 'rgba(255,255,255, 0.1)', color: '#c3c3c3', fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >
               {t('profile_remove_photo')}
@@ -6684,7 +6682,7 @@ function ProfileScreen() {
         </div>
         <div style={{ ...T.h2, color: text.primary, marginBottom: 4 }}>{displayName}</div>
         <div style={{ fontSize: 12, color: text.muted, marginBottom: 12 }}>{account?.account_number ?? '—'}</div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: 'rgba(169,169,169, 0.12)', border: '1px solid rgba(169,169,169, 0.25)', borderRadius: 100 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 100 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#a9a9a9' }} />
           <span style={{ fontSize: 11.5, color: '#a9a9a9', fontWeight: 500 }}>{t('profile_verified')}</span>
         </div>
@@ -6771,11 +6769,11 @@ function ProfileScreen() {
             icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(172,172,172, 0.35)" strokeWidth="1.5" strokeLinecap="round"><path d="M2 9V5a2 2 0 012-2h3M2 15v4a2 2 0 002 2h3M22 9V5a2 2 0 00-2-2h-3M22 15v4a2 2 0 01-2 2h-3"/></svg>}
           />
         )}
-        <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
         <ProfileToggle label={t('push_notifications')} on={push} onChange={setPush}
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke={gold} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>}
         />
-        <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
         <ProfileToggle label="2FA" sub={t('twofa_sms')} on={twofa} onChange={setTwofa}
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="11" width="16" height="10" rx="2" stroke={gold} strokeWidth="1.6" /><path d="M8 11V8a4 4 0 018 0v3" stroke={gold} strokeWidth="1.6" /></svg>}
         />
@@ -6791,7 +6789,7 @@ function ProfileScreen() {
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', cursor: 'pointer' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="11" width="16" height="10" rx="2" stroke={gold} strokeWidth="1.6" /><path d="M8 11V8a4 4 0 018 0v3" stroke={gold} strokeWidth="1.6" /></svg>
             </div>
             <span style={{ fontSize: 14, color: text.secondary, fontWeight: 500 }}>{t('profile_change_password')}</span>
@@ -6802,7 +6800,7 @@ function ProfileScreen() {
         </div>
         {changingPwd && (
           <>
-            <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+            <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
             <form onSubmit={changePassword} style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <input
                 type="password" placeholder={t('profile_current_password')} value={oldPwd} onChange={e => setOldPwd(e.target.value)} required
@@ -6829,11 +6827,11 @@ function ProfileScreen() {
         <ProfileToggle label={t('settings_notif_tx')} on={notifTx} onChange={setNotifTx}
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill={gold} fillOpacity={0.7}/></svg>}
         />
-        <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
         <ProfileToggle label={t('settings_notif_security')} on={notifSec} onChange={setNotifSec}
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="11" width="16" height="10" rx="2" stroke={gold} strokeWidth="1.6"/><path d="M8 11V8a4 4 0 018 0v3" stroke={gold} strokeWidth="1.6"/></svg>}
         />
-        <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
         <ProfileToggle label={t('settings_notif_promo')} on={notifPromo} onChange={setNotifPromo}
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 12V6H4v6M4 6l8 7 8-7" stroke="rgba(172,172,172, 0.5)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>}
         />
@@ -6860,7 +6858,7 @@ function ProfileScreen() {
                     <button onClick={() => deleteLimit(lim.tx_type)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#989898', fontSize: 12, padding: 0 }}>✕</button>
                   </div>
                 </div>
-                <div style={{ height: 4, background: 'rgba(172,172,172, 0.1)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: 4, background: 'rgba(255,255,255, 0.1)', borderRadius: 2, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${pct}%`, background: over ? '#989898' : `${goldDark}`, borderRadius: 2 }} />
                 </div>
               </div>
@@ -6896,9 +6894,9 @@ function ProfileScreen() {
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               {pinStatus && (
-                <button onClick={clearPin} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(126,126,126, 0.08)', border: '1px solid rgba(126,126,126, 0.2)', color: '#989898', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>{t('settings_pin_clear')}</button>
+                <button onClick={clearPin} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', color: '#989898', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>{t('settings_pin_clear')}</button>
               )}
-              <button onClick={() => setShowPinForm(v => !v)} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(171,171,171, 0.1)', border: `1px solid rgba(171,171,171, 0.25)`, color: gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowPinForm(v => !v)} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, color: gold, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 {pinStatus ? t('settings_pin_change') : t('settings_pin_set')}
               </button>
             </div>
@@ -6925,13 +6923,13 @@ function ProfileScreen() {
       </div>
       {section(<>
         <ProfileRow label={t('settings_version')} value="2026.04 · build 06" />
-        <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
         <div style={{ padding: '13px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
           onClick={() => window.open('/api-status', '_blank')} className="clickable">
           <span style={{ fontSize: 14, color: text.secondary, fontWeight: 500 }}>{t('settings_api_status')}</span>
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke={text.muted} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </div>
-        <div style={{ height: 1, background: 'rgba(172,172,172, 0.08)', margin: '0 18px' }} />
+        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
         <ProfileRow label={t('settings_support')} value="bank.munister.com.ua" copyable last />
       </>)}
 
@@ -6942,7 +6940,7 @@ function ProfileScreen() {
             <span style={{ ...T.h3, color: text.secondary }}>{t('achievements_title')}</span>
             <span style={{ fontSize: 12, color: text.muted }}>{achievements.done}/{achievements.total} {t('achievements_progress')}</span>
           </div>
-          <div style={{ height: 3, background: 'rgba(172,172,172, 0.1)', borderRadius: 3, marginBottom: 14, overflow: 'hidden' }}>
+          <div style={{ height: 3, background: 'rgba(255,255,255, 0.1)', borderRadius: 3, marginBottom: 14, overflow: 'hidden' }}>
             <div style={{ height: '100%', width: `${(achievements.done / achievements.total) * 100}%`, background: `${gold}`, borderRadius: 3, transition: 'width 0.6s ease' }} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: layout === 'mobile' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, 1fr)', gap: 10 }}>
@@ -6972,7 +6970,7 @@ function ProfileScreen() {
       <div style={{ padding: '8px 18px', breakInside: 'avoid' }}>
         <button onClick={logout} style={{
           width: '100%', padding: '14px', borderRadius: 16,
-          background: 'rgba(126,126,126, 0.06)', border: '1px solid rgba(126,126,126, 0.18)',
+          background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent',
           color: '#7e7e7e', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         }}>
@@ -7101,7 +7099,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
       <div style={{ display: 'flex', gap: 4, marginBottom: 12, flexWrap: 'wrap' }}>
         {product.badge && <BadgePill badge={product.badge} />}
         {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
-          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 6, background: 'rgba(123,123,123, 0.15)', color: '#8c8c8c', letterSpacing: 0.5 }}>{t('last_items_badge')} {product.stock}</span>
+          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 6, background: 'rgba(255,255,255, 0.1)', color: '#8c8c8c', letterSpacing: 0.5 }}>{t('last_items_badge')} {product.stock}</span>
         )}
       </div>
       {brand && <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.6, textTransform: 'uppercase', color: text.muted, marginBottom: 8 }}>{brand}</div>}
@@ -7153,7 +7151,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
           boxShadow: '0 30px 80px rgba(0,0,0,0.6)', padding: 24,
           display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 28,
         }}>
-          <button onClick={onClose} aria-label="Close" style={{ position: 'absolute', top: 14, right: 14, width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(172,172,172,0.2)', background: 'rgba(255,255,255, 0.1)', color: text.secondary, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
+          <button onClick={onClose} aria-label="Close" style={{ position: 'absolute', top: 14, right: 14, width: 36, height: 36, borderRadius: 10, border: '1px solid transparent', background: 'rgba(255,255,255, 0.1)', color: text.secondary, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
           {photo}
           <div style={{ display: 'flex', flexDirection: 'column', paddingTop: 28 }}>{info}</div>
         </div>
@@ -7204,7 +7202,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
 
   const fieldStyle: React.CSSProperties = {
     width: '100%', padding: '11px 14px', background: 'rgba(255,255,255, 0.1)',
-    border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 12,
+    border: '1px solid transparent', borderRadius: 12,
     color: text.primary, fontSize: 14, outline: 'none', fontFamily: fontFamily,
     boxSizing: 'border-box',
   };
@@ -7218,7 +7216,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
         onClick={e => e.stopPropagation()}
         style={{
         position: 'relative',
-        background: 'rgba(35,35,35, 0.98)',
+        background: '#1c1c1e',
         backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '28px 28px 0 0',
         padding: '18px 18px env(safe-area-inset-bottom, 0px)',
@@ -7235,7 +7233,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 16px', flexShrink: 0 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
           {step === 'shipping' && (
-            <button onClick={() => setStep('cart')} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(172,172,172, 0.1)', border: '1px solid rgba(172,172,172, 0.18)', color: gold, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <button onClick={() => setStep('cart')} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', color: gold, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke={gold} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           )}
@@ -7269,10 +7267,10 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
                       <div style={{ fontSize: 13, fontWeight: 700, color: gold }}>{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}{'\u00a0TAX'}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                      <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                       <span style={{ fontSize: 14, fontWeight: 600, color: text.primary, minWidth: 20, textAlign: 'center' }}>{item.qty}</span>
-                      <button onClick={() => onQtyChange(item.product.id, 1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                      <button onClick={() => onRemove(item.product.id)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(110,110,110, 0.08)', border: '1px solid transparent', color: '#888888', fontSize: 14, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                      <button onClick={() => onQtyChange(item.product.id, 1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                      <button onClick={() => onRemove(item.product.id)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', color: '#888888', fontSize: 14, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                     </div>
                   </div>
                 ))}
@@ -7280,7 +7278,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
               <div style={{
                 margin: '0 -18px',
                 padding: '16px 18px calc(18px + env(safe-area-inset-bottom, 0px))',
-                background: 'rgba(25,25,25, 0.98)',
+                background: '#1c1c1e',
                 borderTop: '1px solid transparent',
                 boxShadow: '0 -20px 38px rgba(0,0,0, 0.22)',
               }}>
@@ -7590,7 +7588,7 @@ function MarketplaceScreen() {
           right: 16,
           bottom: 'calc(112px + env(safe-area-inset-bottom, 0px))',
           zIndex: 160,
-          border: '1px solid rgba(172,172,172, 0.3)',
+          border: '1px solid transparent',
           borderRadius: 14,
           background: 'rgba(50,50,50, 0.92)',
           backdropFilter: 'blur(16px)',
@@ -7650,9 +7648,9 @@ function MarketplaceScreen() {
             {SHOP_CATEGORIES.map(c => (
               <button key={c.k || 'all'} onClick={() => setCategory(c.k)} style={{
                 flexShrink: 0, padding: '8px 14px', borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
-                border: `1px solid ${category === c.k ? gold : 'rgba(172,172,172, 0.18)'}`,
-                background: category === c.k ? 'rgba(255,212,0, 0.1)' : 'transparent',
-                color: category === c.k ? gold : text.secondary,
+                border: '1px solid transparent',
+                background: category === c.k ? gold : 'rgba(255,255,255, 0.1)',
+                color: category === c.k ? '#000' : text.secondary,
               }}>{lang === 'uk' ? c.uk : c.en}</button>
             ))}
           </div>
@@ -7700,7 +7698,7 @@ function MarketplaceScreen() {
               </div>
               {hasMore && (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 22px 8px' }}>
-                  <button onClick={loadMoreProducts} disabled={loadingMore} style={{ padding: '12px 28px', borderRadius: 12, border: `1px solid rgba(172,172,172, 0.25)`, background: 'rgba(255,255,255, 0.1)', color: text.primary, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button onClick={loadMoreProducts} disabled={loadingMore} style={{ padding: '12px 28px', borderRadius: 12, border: `1px solid transparent`, background: 'rgba(255,255,255, 0.1)', color: text.primary, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {loadingMore ? t('loading') : (lang === 'uk' ? 'Показати ще' : 'Show more')}
                   </button>
                 </div>
@@ -7763,8 +7761,8 @@ function MarketplaceScreen() {
                 const tone = toneOf(o.status);
                 return (
                 <div key={o.id} style={{
-                  background: 'rgba(35,35,35, 0.72)',
-                  border: `1px solid rgba(172,172,172, 0.24)`,
+                  background: '#1c1c1e',
+                  border: `1px solid transparent`,
                   borderRadius: 18,
                   padding: '14px 16px',
                   display: 'flex',
@@ -7786,7 +7784,7 @@ function MarketplaceScreen() {
                       marginTop: 7,
                       padding: '5px 11px',
                       borderRadius: 10,
-                      border: `1px solid rgba(176,176,176, 0.38)`,
+                      border: `1px solid transparent`,
                       background: 'rgba(176,176,176, 0.25)',
                       color: text.primary,
                       fontSize: 11,
@@ -7817,8 +7815,8 @@ function MarketplaceScreen() {
                 const tone = toneOf(inv.status);
                 return (
                 <div key={inv.invoice_number} style={{
-                  background: 'rgba(35,35,35, 0.78)',
-                  border: `1px solid rgba(172,172,172, 0.22)`,
+                  background: '#1c1c1e',
+                  border: `1px solid transparent`,
                   borderRadius: 16,
                   padding: '14px 16px',
                   display: 'flex',
@@ -7843,7 +7841,7 @@ function MarketplaceScreen() {
                         marginTop: 7,
                         padding: '5px 11px',
                         borderRadius: 10,
-                        border: `1px solid rgba(176,176,176, 0.38)`,
+                        border: `1px solid transparent`,
                         background: 'rgba(176,176,176, 0.25)',
                         color: text.primary,
                         fontSize: 11,
@@ -7900,7 +7898,7 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
       <div style={{
         position: 'relative',
         pointerEvents: 'auto',
-        background: 'rgba(29,29,29, 0.92)',
+        background: '#1c1c1e',
         borderTop: '1px solid transparent',
         boxShadow: '0 -8px 32px rgba(0,0,0, 0.28)',
         backdropFilter: 'blur(28px) saturate(190%)',
@@ -7919,7 +7917,7 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
             height: tabButtonHeight,
             left: `calc(${activeIdx * 20}% + 6px)`,
             width: 'calc(20% - 12px)',
-            background: 'rgba(176,176,176, 0.12)',
+            background: 'rgba(255,255,255, 0.1)',
             border: '1px solid transparent',
             borderRadius: 14,
             transition: 'left 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -7990,7 +7988,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
 
   const fieldSt: React.CSSProperties = {
     width: '100%', padding: '9px 12px',
-    background: 'rgba(255,255,255, 0.1)', border: '1px solid rgba(172,172,172, 0.18)',
+    background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent',
     borderRadius: 10, color: text.primary, fontSize: 13, outline: 'none',
     fontFamily, boxSizing: 'border-box',
   };
@@ -8043,9 +8041,9 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
                   <div style={{ fontSize: 12, color: gold, fontWeight: 700, marginTop: 2 }}>{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}{'\u00a0TAX'}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                  <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(172,172,172, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                  <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                   <span style={{ minWidth: 20, textAlign: 'center', fontSize: 13, fontWeight: 600, color: text.primary }}>{item.qty}</span>
-                  <button onClick={() => onQtyChange(item.product.id, 1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(172,172,172, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                  <button onClick={() => onQtyChange(item.product.id, 1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                   <button onClick={() => onRemove(item.product.id)} style={{ width: 26, height: 26, borderRadius: 7, background: 'transparent', border: 'none', color: 'rgba(126,126,126, 0.55)', cursor: 'pointer', fontFamily, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
               </div>
@@ -8853,7 +8851,7 @@ function LuxuryAmbientFx() {
         top: -240,
         right: -200,
         borderRadius: '50%',
-        background: 'rgba(199,199,199, 0.16)',
+        background: 'rgba(255,255,255, 0.1)',
         filter: 'blur(24px)',
       }} />
       <div style={{
@@ -8863,7 +8861,7 @@ function LuxuryAmbientFx() {
         bottom: -270,
         left: -180,
         borderRadius: '50%',
-        background: 'rgba(179,179,179, 0.18)',
+        background: 'rgba(255,255,255, 0.1)',
         filter: 'blur(26px)',
       }} />
       <div style={{
@@ -8874,7 +8872,7 @@ function LuxuryAmbientFx() {
         left: '50%',
         transform: 'translateX(-50%)',
         borderRadius: '50%',
-        background: 'rgba(176,176,176, 0.06)',
+        background: 'rgba(255,255,255, 0.1)',
         filter: 'blur(30px)',
       }} />
       <div style={{
@@ -8900,7 +8898,7 @@ function PremiumStatusStrip() {
         <div key={chip.label} style={{
           padding: '5px 9px',
           borderRadius: 999,
-          border: '1px solid rgba(215,215,215, 0.18)',
+          border: '1px solid transparent',
           background: chip.tone,
           color: chip.color,
           fontSize: 10.5,
@@ -8918,7 +8916,7 @@ function PremiumStatusStrip() {
 
 function WowSplash() {
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', zIndex: 9999, overflow: 'hidden', background: '#121212' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', zIndex: 9999, overflow: 'hidden', background: '#000' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(64,64,64, 0.64)' }} />
       <div style={{
         position: 'absolute',
@@ -9355,7 +9353,7 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
             )}
 
             {error && (
-              <div style={{ marginBottom: 14, padding: '10px 14px', background: 'rgba(90,90,90, 0.1)', border: '1px solid rgba(90,90,90, 0.22)', borderRadius: radius.sm, color: '#a4a4a4', ...T.sm }}>{error}</div>
+              <div style={{ marginBottom: 14, padding: '10px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: radius.sm, color: '#a4a4a4', ...T.sm }}>{error}</div>
             )}
 
             <button type="submit" disabled={loading} style={{
@@ -9751,7 +9749,7 @@ export default function App() {
                 }}
               >
               {dataError && (
-                <div style={{ margin: '10px 12px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid rgba(126,126,126, 0.25)', background: 'rgba(126,126,126, 0.08)', color: '#c6c6c6', fontSize: 13 }}>
+                <div style={{ margin: '10px 12px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid transparent', background: 'rgba(255,255,255, 0.1)', color: '#c6c6c6', fontSize: 13 }}>
                   {dataError}
                 </div>
               )}
