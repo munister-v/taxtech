@@ -636,7 +636,7 @@ struct PasswordView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Text(done ? "Пароль змінено" : "Новий пароль").font(.system(size: 30, weight: .bold)).tracking(-0.6)
+                    Text(done ? "Пароль змінено" : "Новий пароль").font(.display(30)).tracking(-0.8)
                     if done {
                         Text("Наступного разу входьте з новим паролем. Інші пристрої можна вивести з акаунта на екрані «Безпека».")
                             .foregroundStyle(.secondary)

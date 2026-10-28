@@ -2,104 +2,54 @@ import AuthenticationServices
 import CryptoKit
 import SwiftUI
 
-/// Вхід і реєстрація: великий заголовок, текстові вкладки, поля з підказками, «Забули пароль?», Apple.
+/// Вітальний екран: живий стос карток, сильний заголовок і три шляхи - Apple, вхід, новий акаунт.
+/// Форми не тут: вхід відкривається аркушем, реєстрація - кроками по одному питанню.
 struct AuthView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var scheme
-    @State private var register = false
-    @State private var name = ""
-    @State private var phone = "+380"
-    @State private var email = ""
-    @State private var password = ""
-    @State private var server = ""
-    @State private var showServer = false
     @State private var status: String?
     @State private var working = false
     @State private var nonce = ""
-    @State private var forgot = false
+    @State private var signingIn = false
+    @State private var signingUp = false
+    @State private var server = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 10) {
-                    MarkView(height: 30)
-                    (Text("Tax").fontWeight(.bold) + Text("Tech").fontWeight(.light)).font(.system(size: 22)).tracking(-0.4)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Spacer()
+                Button { server = true } label: {
+                    Image(systemName: "network").font(.system(size: 17, weight: .medium)).foregroundStyle(.secondary)
+                        .frame(width: 40, height: 40)
                 }
-                .padding(.top, 28)
-                .rise(0)
+                .buttonStyle(.plain)
+                .accessibilityLabel("Адреса сервера")
+            }
+            .padding(.top, 4)
 
-                Text(register ? "Новий акаунт" : "З поверненням")
-                    .font(.system(size: 36, weight: .bold)).tracking(-0.8)
-                    .padding(.top, 40)
-                    .contentTransition(.opacity)
-                    .rise(1)
-                Text(register ? "Рахунок із токенами TAX, віртуальні картки, податки й магазин."
-                              : "Увійдіть, щоб відкрити рахунок, картки й податки.")
-                    .font(.body).foregroundStyle(.secondary)
-                    .padding(.top, 6)
-                    .rise(1)
+            Spacer(minLength: 0)
+            CardFan()
+                .frame(maxWidth: .infinity)
+                .frame(height: 250)
+                .rise(1)
+            BrandLockup(height: 70)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 44)
+                .rise(2)
+            Spacer(minLength: 24)
 
-                TextTabs(items: [(false, "Вхід"), (true, "Реєстрація")], selection: $register)
-                    .padding(.top, 28)
-                    .rise(2)
+            if let status {
+                Label(status, systemImage: "exclamationmark.circle")
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
+                    .padding(.top, 14)
+                    .transition(.opacity)
+            }
 
-                VStack(alignment: .leading, spacing: 16) {
-                    if register {
-                        AuthField(title: "Ім'я та прізвище", placeholder: "Олена Коваленко", text: $name,
-                                  hint: name.isEmpty || name.count >= 2 ? nil : "Щонайменше дві літери", content: .name)
-                        AuthField(title: "Телефон", placeholder: "+380 …", text: $phone,
-                                  hint: phoneHint, content: .telephoneNumber, keyboard: .phonePad)
-                    }
-                    AuthField(title: register ? "Пошта" : "Телефон або пошта",
-                              placeholder: register ? "you@example.com" : "+380… або you@example.com", text: $email,
-                              hint: register && !email.isEmpty && !emailValid ? "Перевірте адресу пошти" : nil,
-                              content: register ? .emailAddress : .username, keyboard: .emailAddress, plain: true)
-                    VStack(alignment: .leading, spacing: 10) {
-                        AuthField(title: "Пароль", placeholder: register ? "Щонайменше 8 символів" : "Пароль", text: $password,
-                                  secure: true, content: register ? .newPassword : .password,
-                                  submit: register ? .join : .go) { Task { await submit() } }
-                        if register && !password.isEmpty { PasswordStrength(password: password) }
-                        if !register {
-                            Button("Забули пароль?") { forgot = true }
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(Theme.ink)
-                        }
-                    }
-                }
-                .padding(.top, 22)
-                .rise(3)
-
-                if let status {
-                    Label(status, systemImage: "exclamationmark.circle")
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.ink)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(14)
-                        .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
-                        .padding(.top, 18)
-                        .transition(.opacity)
-                }
-
-                Button { Task { await submit() } } label: {
-                    HStack(spacing: 8) {
-                        if working { ProgressView().tint(Theme.onAccent) }
-                        Text(register ? "Створити акаунт" : "Увійти")
-                    }
-                }
-                .buttonStyle(InkButton())
-                .disabled(!valid || working)
-                .padding(.top, 22)
-                .rise(4)
-
-                HStack(spacing: 10) {
-                    Rectangle().fill(Theme.line).frame(height: Theme.hairline)
-                    Text("або").font(.footnote).foregroundStyle(.secondary)
-                    Rectangle().fill(Theme.line).frame(height: Theme.hairline)
-                }
-                .padding(.vertical, 18)
-
+            VStack(spacing: 10) {
                 SignInWithAppleButton(.continue) { request in
-                    applyServer()
                     nonce = Self.randomNonce()
                     request.requestedScopes = [.fullName, .email]
                     request.nonce = Self.sha256(nonce)
@@ -107,102 +57,36 @@ struct AuthView: View {
                     Task { await finishApple(result) }
                 }
                 .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
-                .frame(height: 52)
+                .frame(height: 54)
                 .clipShape(.capsule)
                 .disabled(working)
 
-                if register {
-                    Text("Створюючи акаунт, ви погоджуєтеся, що це навчальний банк: гроші віртуальні, токени TAX не мають цінності.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                        .padding(.top, 14)
-                }
+                Button("Увійти телефоном або поштою") { signingIn = true }
+                    .buttonStyle(InkButton())
 
-                VStack(alignment: .leading, spacing: 10) {
-                    Button { withAnimation(.snappy) { showServer.toggle() } } label: {
-                        HStack(spacing: 6) {
-                            Text("Сервер").font(.footnote.weight(.medium))
-                            Text(model.serverURL.host() ?? "").font(.footnote.monospaced()).foregroundStyle(.tertiary)
-                            Image(systemName: showServer ? "chevron.up" : "chevron.down").font(.caption2.weight(.bold))
-                        }
-                        .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    if showServer {
-                        TextField("https://…", text: $server)
-                            .keyboardType(.URL)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .font(.footnote.monospaced())
-                            .padding(.horizontal, 14)
-                            .frame(minHeight: 44)
-                            .overlay(Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1))
-                            .onSubmit { applyServer() }
-                    }
+                Button { signingUp = true } label: {
+                    (Text("Немає акаунта? ").foregroundStyle(.secondary) + Text("Створити").fontWeight(.semibold))
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity, minHeight: 40)
                 }
-                .padding(.top, 30)
-
-                Text(Brand.lab)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .padding(.top, 18)
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 32)
+            .padding(.top, 24)
+            .rise(4)
         }
-        .scrollDismissesKeyboard(.interactively)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 12)
         .background { Aurora() }
-        .animation(.smooth(duration: 0.25), value: register)
         .animation(.smooth(duration: 0.2), value: status)
-        .onChange(of: register) { status = nil }
-        .onChange(of: email) { status = nil }
-        .onChange(of: password) { status = nil }
-        .sheet(isPresented: $forgot) { ForgotPasswordView(identity: email) }
+        .sheet(isPresented: $signingIn) { SignInSheet() }
+        .sheet(isPresented: $signingUp) { SignUpFlow() }
+        .sheet(isPresented: $server) { ServerSheet() }
         .onAppear {
-            server = model.serverURL.absoluteString
-            if email.isEmpty { email = model.lastIdentity }
             #if DEBUG
-            // демо-вхід для симулятора: simctl launch з SIMCTL_CHILD_KOPIYKA_DEMO_* (значення з server/.env.example)
-            let env = ProcessInfo.processInfo.environment
-            if email.isEmpty, let id = env["KOPIYKA_DEMO_IDENTITY"] { email = id }
-            if password.isEmpty, let pw = env["KOPIYKA_DEMO_PASSWORD"] { password = pw }
+            // демо-вхід для симулятора: simctl launch з SIMCTL_CHILD_KOPIYKA_DEMO_* одразу відкриває аркуш входу
+            if ProcessInfo.processInfo.environment["KOPIYKA_DEMO_IDENTITY"] != nil { signingIn = true }
             #endif
         }
-    }
-
-    private var emailValid: Bool {
-        let parts = email.split(separator: "@")
-        return parts.count == 2 && parts[1].contains(".") && !email.contains(" ")
-    }
-
-    private var phoneHint: String? {
-        let digits = phone.filter(\.isNumber).count
-        return phone.count <= 4 || digits >= 12 ? nil : "Номер у форматі +380 і 9 цифр"
-    }
-
-    private var valid: Bool {
-        register ? name.count >= 2 && phone.filter(\.isNumber).count >= 12 && emailValid && password.count >= 8
-            : !email.trimmingCharacters(in: .whitespaces).isEmpty && !password.isEmpty
-    }
-
-    private func submit() async {
-        guard valid, !working else { return }
-        applyServer()
-        working = true
-        defer { working = false }
-        do {
-            if register {
-                try await model.register(name: name, phone: phone, email: email, password: password)
-            } else {
-                try await model.signIn(email: email, password: password)
-            }
-        } catch {
-            status = Self.friendly(error.localizedDescription)
-        }
-    }
-
-    /// Серверне «Невірні облікові дані» - людською мовою.
-    private static func friendly(_ message: String) -> String {
-        message.contains("Невірні облікові дані") ? "Пароль або логін не підходять. Перевірте їх чи відновіть пароль." : message
     }
 
     private func finishApple(_ result: Result<ASAuthorization, Error>) async {
@@ -250,10 +134,293 @@ struct AuthView: View {
     private static func sha256(_ s: String) -> String {
         SHA256.hash(data: Data(s.utf8)).map { String(format: "%02x", $0) }.joined()
     }
+}
 
-    private func applyServer() {
+/// Три картки віялом, що повільно дихають і нахиляються за телефоном.
+struct CardFan: View {
+    @Environment(\.accessibilityReduceMotion) private var reduce
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
+            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
+            ZStack {
+                card(.forest, number: "•••• 2048", angle: -16, x: -58, y: 22, t: t, phase: 0)
+                card(.dark, number: "•••• 6897", angle: -3, x: 0, y: -2, t: t, phase: 1.3)
+                card(.gold, number: "•••• 1755", angle: 12, x: 58, y: 26, t: t, phase: 2.6)
+            }
+        }
+        .tilt()
+    }
+
+    private func card(_ design: CardDesign, number: String, angle: Double, x: CGFloat, y: CGFloat, t: Double, phase: Double) -> some View {
+        VirtualCardView(number: number, expiry: "09/29", holder: nil, design: design)
+            .frame(width: 236)
+            .shadow(color: .black.opacity(0.22), radius: 18, y: 12)
+            .rotationEffect(.degrees(angle + sin(t * 0.6 + phase) * 1.6))
+            .offset(x: x, y: y + CGFloat(sin(t * 0.8 + phase) * 6))
+    }
+}
+
+/// Вхід: телефон чи пошта й пароль на окремому аркуші.
+struct SignInSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var identity = ""
+    @State private var password = ""
+    @State private var status: String?
+    @State private var working = false
+    @State private var forgot = false
+    @State private var shakes = 0
+
+    private var valid: Bool { !identity.trimmingCharacters(in: .whitespaces).isEmpty && !password.isEmpty }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    Text("Вхід").font(.system(size: 34, weight: .bold)).tracking(-1)
+                    AuthField(title: "Телефон або пошта", placeholder: "+380… або you@example.com", text: $identity,
+                              content: .username, keyboard: .emailAddress, plain: true)
+                    VStack(alignment: .leading, spacing: 12) {
+                        AuthField(title: "Пароль", placeholder: "Пароль", text: $password, secure: true,
+                                  content: .password, submit: .go) { Task { await submit() } }
+                        Button("Забули пароль?") { forgot = true }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Theme.ink)
+                    }
+                    if let status {
+                        Label(status, systemImage: "exclamationmark.circle")
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
+                            .modifier(Shake(animatableData: CGFloat(shakes)))
+                    }
+                    Button { Task { await submit() } } label: {
+                        HStack(spacing: 8) {
+                            if working { ProgressView().tint(Theme.onAccent) }
+                            Text("Увійти")
+                        }
+                    }
+                    .buttonStyle(InkButton())
+                    .disabled(!valid || working)
+                }
+                .padding(24)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .screenBackground()
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Закрити") { dismiss() } } }
+            .sensoryFeedback(.error, trigger: shakes)
+            .sheet(isPresented: $forgot) { ForgotPasswordView(identity: identity) }
+            .onAppear {
+                if identity.isEmpty { identity = model.lastIdentity }
+                #if DEBUG
+                let env = ProcessInfo.processInfo.environment
+                if identity.isEmpty, let id = env["KOPIYKA_DEMO_IDENTITY"] { identity = id }
+                if password.isEmpty, let pw = env["KOPIYKA_DEMO_PASSWORD"] { password = pw }
+                #endif
+            }
+        }
+        .presentationDetents([.large])
+    }
+
+    private func submit() async {
+        guard valid, !working else { return }
+        working = true
+        defer { working = false }
+        do {
+            try await model.signIn(email: identity, password: password)
+        } catch {
+            let m = error.localizedDescription
+            status = m.contains("Невірні облікові дані") ? "Пароль або логін не підходять. Перевірте або відновіть пароль." : m
+            withAnimation(.linear(duration: 0.4)) { shakes += 1 }
+        }
+    }
+}
+
+/// Реєстрація кроками: одне питання на екран, велике поле, «Далі».
+struct SignUpFlow: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var step = 0
+    @State private var name = ""
+    @State private var phone = "+380"
+    @State private var email = ""
+    @State private var password = ""
+    @State private var status: String?
+    @State private var working = false
+    @FocusState private var focused: Bool
+
+    private let steps = 4
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 6) {
+                    ForEach(0..<steps, id: \.self) { i in
+                        Capsule().fill(i <= step ? Theme.ink : Theme.line).frame(height: 4)
+                    }
+                }
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: step)
+                .padding(.top, 4)
+
+                Text(question).font(.system(size: 32, weight: .bold)).tracking(-1)
+                    .padding(.top, 28)
+                    .id("q\(step)")
+                    .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
+                                            removal: .move(edge: .leading).combined(with: .opacity)))
+                Text(hint).font(.subheadline).foregroundStyle(.secondary).padding(.top, 6)
+
+                Group {
+                    switch step {
+                    case 0: bigField("Олена Коваленко", $name, .name)
+                    case 1: bigField("+380 …", $phone, .telephoneNumber, keyboard: .phonePad)
+                    case 2: bigField("you@example.com", $email, .emailAddress, keyboard: .emailAddress, plain: true)
+                    default:
+                        VStack(alignment: .leading, spacing: 14) {
+                            SecureField("Щонайменше 8 символів", text: $password)
+                                .textContentType(.newPassword)
+                                .font(.system(size: 24, weight: .semibold))
+                                .focused($focused)
+                                .padding(.vertical, 10)
+                                .overlay(alignment: .bottom) { Rectangle().fill(focused ? Theme.ink : Theme.line).frame(height: 2) }
+                            if !password.isEmpty { PasswordStrength(password: password) }
+                        }
+                    }
+                }
+                .padding(.top, 26)
+
+                if let status {
+                    Label(status, systemImage: "exclamationmark.circle").font(.subheadline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
+                        .padding(.top, 16)
+                }
+
+                Spacer()
+
+                if step == steps - 1 {
+                    Text("Створюючи акаунт, ви погоджуєтеся, що це навчальний банк: токени TAX не мають грошової цінності.")
+                        .font(.footnote).foregroundStyle(.secondary).padding(.bottom, 12)
+                }
+                Button { Task { await next() } } label: {
+                    HStack(spacing: 8) {
+                        if working { ProgressView().tint(Theme.onAccent) }
+                        Text(step == steps - 1 ? "Створити акаунт" : "Далі")
+                    }
+                }
+                .buttonStyle(InkButton())
+                .disabled(!stepValid || working)
+            }
+            .padding(24)
+            .screenBackground()
+            .animation(.smooth(duration: 0.3), value: step)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button { if step > 0 { step -= 1; status = nil } else { dismiss() } } label: {
+                        Image(systemName: step > 0 ? "chevron.left" : "xmark")
+                    }
+                    .accessibilityLabel(step > 0 ? "Назад" : "Закрити")
+                }
+            }
+            .onAppear { focused = true }
+            .onChange(of: step) { focused = true }
+            .sensoryFeedback(.selection, trigger: step)
+        }
+        .presentationDetents([.large])
+        .interactiveDismissDisabled(working)
+    }
+
+    private var question: String {
+        ["Як вас звати?", "Ваш номер телефону", "Пошта для входу", "Придумайте пароль"][step]
+    }
+
+    private var hint: String {
+        ["Так звертатимемося в застосунку й підписуватимемо картки.",
+         "Ним теж можна входити. SMS не надсилаємо.",
+         "Нею входитимете й відновлюватимете пароль.",
+         "Довгий пароль із цифрами й символами - найкращий."][step]
+    }
+
+    private var stepValid: Bool {
+        switch step {
+        case 0: name.trimmingCharacters(in: .whitespaces).count >= 2
+        case 1: phone.filter(\.isNumber).count >= 12
+        case 2:
+            email.split(separator: "@").count == 2 && (email.split(separator: "@").last?.contains(".") ?? false) && !email.contains(" ")
+        default: password.count >= 8
+        }
+    }
+
+    private func bigField(_ placeholder: String, _ text: Binding<String>, _ content: UITextContentType,
+                          keyboard: UIKeyboardType = .default, plain: Bool = false) -> some View {
+        TextField(placeholder, text: text)
+            .textContentType(content)
+            .keyboardType(keyboard)
+            .textInputAutocapitalization(plain ? .never : .words)
+            .autocorrectionDisabled(plain)
+            .font(.system(size: 24, weight: .semibold))
+            .focused($focused)
+            .submitLabel(.next)
+            .onSubmit { Task { await next() } }
+            .padding(.vertical, 10)
+            .overlay(alignment: .bottom) { Rectangle().fill(focused ? Theme.ink : Theme.line).frame(height: 2) }
+    }
+
+    private func next() async {
+        guard stepValid, !working else { return }
+        status = nil
+        if step < steps - 1 { step += 1; return }
+        working = true
+        defer { working = false }
+        do {
+            try await model.register(name: name.trimmingCharacters(in: .whitespaces), phone: phone, email: email, password: password)
+        } catch {
+            status = error.localizedDescription
+        }
+    }
+}
+
+/// Адреса навчального сервера: окремий аркуш замість поля на головному екрані.
+struct ServerSheet: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    @State private var server = ""
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Сервер").font(.system(size: 30, weight: .bold)).tracking(-0.8)
+                Text("Застосунок працює з навчальним банком. За замовчуванням - публічний сервер; для занять у класі вкажіть адресу локального.")
+                    .font(.subheadline).foregroundStyle(.secondary)
+                TextField("https://…", text: $server)
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .font(.body.monospaced())
+                    .padding(.horizontal, 16)
+                    .frame(minHeight: 54)
+                    .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
+                    .onSubmit(save)
+                Button("Зберегти", action: save).buttonStyle(InkButton())
+                Button("Повернути стандартний") { server = AppModel.defaultServer.absoluteString; save() }
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                    .frame(maxWidth: .infinity)
+                Spacer()
+            }
+            .padding(24)
+            .screenBackground()
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Закрити") { dismiss() } } }
+            .onAppear { server = model.serverURL.absoluteString }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func save() {
         if let url = URL(string: server.trimmingCharacters(in: .whitespaces)), url.scheme != nil, AppModel.reachable(url) {
             model.serverURL = url
+            dismiss()
         }
     }
 }
@@ -379,7 +546,7 @@ struct ForgotPasswordView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     Text(ticket == nil ? "Відновлення пароля" : "Новий пароль")
-                        .font(.system(size: 30, weight: .bold)).tracking(-0.6)
+                        .font(.display(30)).tracking(-0.8)
                     if let ticket {
                         Text(ticket.demoCode == nil ? "Код надіслано на \(ticket.sentTo). Він діє \(ticket.expiresIn / 60) хвилин."
                                                     : "Код для \(ticket.sentTo) діє \(ticket.expiresIn / 60) хвилин.")

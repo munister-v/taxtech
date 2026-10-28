@@ -108,7 +108,7 @@ struct ProfileView: View {
         HeroPanel {
             HStack(alignment: .center, spacing: 14) {
                 Text(initials)
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.display(26)).tracking(-0.8)
                     .frame(width: 64, height: 64)
                     .background(Theme.ink, in: .circle)
                     .foregroundStyle(Theme.onInk)

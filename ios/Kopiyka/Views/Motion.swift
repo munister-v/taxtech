@@ -181,7 +181,7 @@ struct LaunchSplash: View {
                 .frame(width: 120, height: 120)
                 .scaleEffect(open ? 16 : (markIn ? 1 : 0.2))
                 .opacity(open ? 0 : 1)
-            MarkView(height: 54, color: Theme.onAccent)
+            BrandSeal(size: 86, color: Theme.onAccent)
                 .scaleEffect(markIn ? 1 : 0.4)
                 .rotationEffect(.degrees(markIn || reduce ? 0 : -90))
                 .opacity(open ? 0 : (markIn ? 1 : 0))

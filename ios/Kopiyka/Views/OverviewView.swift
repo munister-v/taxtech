@@ -28,31 +28,32 @@ struct OverviewView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    header.rise(0)
-                    balance.rise(1)
-                    Group {
-                        actions
-                        cards
-                        if let s = summary, s.currentMonth.totalOut > 0 { month(s) }
-                        products
-                        taxes
-                        if !hits.isEmpty { shop }
-                        if Set(points.map(\.balance)).count > 1 { dynamics }
-                        if !recipients.isEmpty { frequent }
-                        recent
+                VStack(spacing: 0) {
+                    hero
+                    VStack(spacing: 12) {
+                        activity.rise(2)
+                        spending.rise(3)
+                        cardsRow.rise(4)
+                        HStack(spacing: 12) {
+                            taxesCard
+                            if let hit = hits.first { shopCard(hit) }
+                        }
+                        .frame(height: 176)
+                        .rise(5)
                     }
-                    .rise(2)
-                    .scrollTransition(.animated(.smooth(duration: 0.35))) { v, phase in
-                        v.opacity(phase.isIdentity ? 1 : 0.35)
-                            .scaleEffect(phase.isIdentity ? 1 : 0.96, anchor: phase.value > 0 ? .top : .bottom)
-                            .offset(y: phase.value > 0 ? 18 : 0)
-                    }
+                    .padding(.horizontal, Theme.gutter)
+                    .padding(.top, 16)
+                    .padding(.bottom, 32)
                 }
-                .padding(.horizontal, Theme.gutter)
-                .padding(.bottom, 32)
             }
-            .screenBackground()
+            .scrollIndicators(.hidden)
+            .background {
+                ZStack(alignment: .top) {
+                    Theme.bg
+                    HeroGradient().frame(height: 560)
+                }
+                .ignoresSafeArea()
+            }
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
             .refreshable { await load() }
@@ -85,410 +86,344 @@ struct OverviewView: View {
         }
     }
 
-    // MARK: Шапка
+    // MARK: Шапка з балансом
 
-    private var header: some View {
-        HStack(spacing: 8) {
-            MarkView(height: 22, color: Theme.accent)
-            Text("TaxTech").font(.system(size: 20, weight: .bold)).tracking(-0.3)
-            Spacer()
-            NavigationLink { NoticesView() } label: {
-                RoundGlyph(symbol: unread > 0 ? "bell.badge" : "bell")
-                    .symbolEffect(.wiggle, value: unread)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
-            Button { showProfile = true } label: { Initials(name: me?.fullName ?? "", size: 34) }
+    /// Темна сцена: аватар і сповіщення, баланс по центру, рахунок і скляні дії.
+    private var hero: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Button { showProfile = true } label: {
+                    Text(initials).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                        .frame(width: 40, height: 40)
+                        .glassEffect(.regular, in: .circle)
+                }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Профіль")
-        }
-        .padding(.top, 8)
-    }
-
-    // MARK: Баланс
-
-    private var balance: some View {
-        HeroPanel(yellow: true) {
-            HStack {
-                HeroCaption("Загальний баланс")
                 Spacer()
+                BrandLockup(height: 26, color: .white)
+                Spacer()
+                NavigationLink { NoticesView() } label: {
+                    Image(systemName: unread > 0 ? "bell.badge" : "bell").font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
+                        .symbolEffect(.wiggle, value: unread)
+                        .frame(width: 40, height: 40)
+                        .glassEffect(.regular, in: .circle)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
+            }
+            .padding(.top, 8)
+            .rise(0)
+
+            VStack(spacing: 6) {
+                Text("Основний рахунок · TAX").font(.footnote.weight(.medium)).foregroundStyle(.white.opacity(0.7))
                 Button { withAnimation(.snappy) { hidden.toggle() } } label: {
-                    Image(systemName: hidden ? "eye.slash" : "eye")
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.onAccent.opacity(0.7))
+                    HeroAmount(value: shown, hidden: hidden)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(hidden ? "Показати баланс" : "Сховати баланс")
-            }
-            BigAmount(value: shown, hidden: hidden, size: 54)
-                .foregroundStyle(Theme.onAccent)
-                .padding(.top, 8)
                 .redacted(reason: bank.loaded ? [] : .placeholder)
                 .onChange(of: bank.account?.balance) { _, v in
                     guard let v else { return }
                     withAnimation(.smooth(duration: 1.1)) { shown = v }
                 }
                 .sensoryFeedback(.success, trigger: shown > 0)
-            if let n = bank.account?.accountNumber {
-                Button { UIPasteboard.general.string = n } label: {
-                    Label(n, systemImage: "doc.on.doc").labelStyle(TrailingIcon())
-                }
-                .buttonStyle(.plain)
-                .font(.footnote.monospaced())
-                .foregroundStyle(Theme.onAccent.opacity(0.6))
-                .padding(.top, 4)
             }
-            if Set(points.map(\.balance)).count > 1 { spark.padding(.top, 14) }
-            if let s = summary, s.currentMonth.totalIn > 0 || s.currentMonth.totalOut > 0 {
-                HStack(spacing: 10) {
-                    flow("arrow.down.left", "+" + Format.money(s.currentMonth.totalIn), "Надійшло")
-                    flow("arrow.up.right", "−" + Format.money(s.currentMonth.totalOut), "Витрачено")
+            .padding(.vertical, 56)
+            .frame(maxWidth: .infinity)
+            .background {
+                // захисний друк за сумою: гільйош і мікродрук, як на банкноті
+                ZStack {
+                    Guilloche().frame(width: 410, height: 410)
+                    MicroprintRing(diameter: 236, color: .white.opacity(0.3))
                 }
-                .padding(.top, 18)
             }
+            .padding(.top, 10)
+            .rise(1)
+
+            HStack(alignment: .top, spacing: 0) {
+                heroAction("Поповнити", "plus") { sheet = .topUp }
+                heroAction("Переказ", "arrow.right") { prefill = ""; sheet = .byAccount }
+                heroAction("На картку", "creditcard") { sheet = .byCard }
+                heroAction("Податки", "percent") { open(.taxes) }
+            }
+            .padding(.top, 14)
+            .padding(.bottom, 28)
+            .rise(2)
         }
-        .glint(trigger: bank.loaded)
+        .padding(.horizontal, Theme.gutter)
     }
 
-    /// Баланс за 30 днів прямо на жовтій панелі: чорна лінія, що домальовується при появі.
-    private var spark: some View {
-        let values = points.map(\.balance)
-        let lo = values.min() ?? 0, hi = max(values.max() ?? 1, lo + 1)
-        return GeometryReader { g in
-            let step = g.size.width / CGFloat(max(values.count - 1, 1))
-            let pts = values.enumerated().map { i, v in
-                CGPoint(x: CGFloat(i) * step, y: g.size.height * (1 - CGFloat((v - lo) / (hi - lo))))
-            }
-            ZStack(alignment: .topLeading) {
-                Path { p in
-                    guard let f = pts.first else { return }
-                    p.move(to: CGPoint(x: f.x, y: g.size.height))
-                    pts.forEach { p.addLine(to: $0) }
-                    p.addLine(to: CGPoint(x: pts.last?.x ?? 0, y: g.size.height))
-                }
-                .fill(Theme.onAccent.opacity(0.07))
-                .opacity(drawn)
-                Path { p in
-                    guard let f = pts.first else { return }
-                    p.move(to: f)
-                    pts.dropFirst().forEach { p.addLine(to: $0) }
-                }
-                .trim(from: 0, to: drawn)
-                .stroke(Theme.onAccent, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
-                if let last = pts.last, drawn >= 1 {
-                    Circle().fill(Theme.onAccent).frame(width: 9, height: 9)
-                        .position(last)
-                        .transition(.scale)
-                }
-            }
-        }
-        .frame(height: 54)
-        .onAppear { withAnimation(.easeInOut(duration: 1.2).delay(0.2)) { drawn = 1 } }
-        .accessibilityLabel("Баланс за 30 днів")
+    private var initials: String {
+        let l = (me?.fullName ?? "").split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
+        return l.isEmpty ? "TT" : l
     }
 
-    /// Рух за місяць: чорне коло зі стрілкою, сума й підпис.
-    private func flow(_ symbol: String, _ value: String, _ label: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: symbol)
-                .font(.system(size: 13, weight: .bold))
-                .frame(width: 30, height: 30)
-                .background(Theme.onAccent, in: .circle)
-                .foregroundStyle(Theme.accent)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value).font(.subheadline.weight(.bold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-                Text(label).font(.caption.weight(.medium)).foregroundStyle(Theme.onAccent.opacity(0.7))
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Theme.onAccent.opacity(0.08), in: .rect(cornerRadius: 14, style: .continuous))
-    }
-
-    private var actions: some View {
-        VStack(spacing: 10) {
-            Button { sheet = .topUp } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus").font(.system(size: 16, weight: .bold))
-                    Text("Поповнити баланс").font(.body.weight(.semibold))
-                }
-                .frame(maxWidth: .infinity, minHeight: 54)
-                .background(Theme.ink, in: .capsule)
-                .foregroundStyle(Theme.onInk)
-            }
-            .buttonStyle(PressScale())
-            HStack(spacing: 8) {
-                pill("На картку") { sheet = .byCard }
-                pill("За рахунком") { prefill = ""; sheet = .byAccount }
-                pill("Податки") { open(.taxes) }
-            }
-        }
-    }
-
-    private func pill(_ title: String, action: @escaping () -> Void) -> some View {
+    private func heroAction(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title).font(.subheadline.weight(.semibold))
-                .lineLimit(1).minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
-                .foregroundStyle(Theme.ink)
+            VStack(spacing: 8) {
+                Image(systemName: symbol).font(.system(size: 19, weight: .semibold))
+                    .frame(width: 54, height: 54)
+                    .glassEffect(.regular.interactive(), in: .circle)
+                Text(title).font(.caption.weight(.semibold))
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(PressScale())
+        .buttonStyle(.plain)
     }
 
-    // MARK: Картки
+    // MARK: Картки під шапкою
 
-    private var cards: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Мої картки").font(.title3.weight(.bold))
-                Text("\(bank.cards.count)").foregroundStyle(.secondary)
-                Spacer()
-                Button("Усі") { open(.cards) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
-            }
-            if bank.cards.isEmpty {
-                VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil, design: .rose)
-                    .redacted(reason: bank.loaded ? [] : .placeholder)
+    /// Останні операції: значок виду в колі, назва, час і сума.
+    private var activity: some View {
+        Card {
+            if bank.loaded && bank.history.isEmpty {
+                Text("Операцій ще немає").foregroundStyle(.secondary).padding(18)
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 12) {
-                        ForEach(bank.cards) { c in
-                            VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: c.holderName,
-                                            design: CardDesign(server: c.design), frozen: c.isBlocked)
-                                .tilt()
-                                .containerRelativeFrame(.horizontal) { w, _ in bank.cards.count > 1 ? w * 0.86 : w }
-                                .scrollTransition(axis: .horizontal) { v, phase in
-                                    v.scaleEffect(phase.isIdentity ? 1 : 0.9)
-                                        .opacity(phase.isIdentity ? 1 : 0.55)
-                                        .rotation3DEffect(.degrees(phase.value * -18), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
-                                }
-                                .onTapGesture { open(.cards) }
-                        }
-                    }
-                    .scrollTargetLayout()
+                ForEach(Array(bank.history.prefix(4).enumerated()), id: \.element.id) { i, tx in
+                    ActivityRow(tx: tx)
+                    if i < min(bank.history.count, 4) - 1 { Rule().padding(.leading, 68) }
                 }
-                .scrollTargetBehavior(.viewAligned)
-                .scrollClipDisabled()
             }
+            Button { open(.operations) } label: {
+                Text("Усі операції").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                    .frame(maxWidth: .infinity, minHeight: 46)
+            }
+            .buttonStyle(.plain)
+            .overlay(alignment: .top) { Rule() }
         }
     }
 
-    // MARK: Цей місяць
-
-    /// Куди пішли гроші цього місяця: кільце за видами, найбільший - жовтий.
-    private func month(_ s: API.Analytics) -> some View {
-        let out = s.byType.filter { $0.direction == "out" && $0.total > 0 }.sorted { $0.total > $1.total }
-        let total = max(out.reduce(0) { $0 + $1.total }, 1)
-        return VStack(alignment: .leading, spacing: 12) {
-            Text("Цей місяць").font(.title3.weight(.bold))
-            Surface {
-                HStack(spacing: 18) {
-                    ZStack {
-                        Chart(Array(out.enumerated()), id: \.element.id) { i, t in
-                            SectorMark(angle: .value("Сума", ringIn ? t.total : total / 1000), innerRadius: .ratio(0.68), angularInset: 1.5)
-                                .foregroundStyle(i == 0 ? Theme.accent : Theme.ink.opacity(max(0.15, 0.7 - Double(i) * 0.15)))
-                                .cornerRadius(3)
-                        }
-                        VStack(spacing: 0) {
-                            Text("\(out.count)").font(.title3.weight(.bold))
-                            Text("видів").font(.caption2).foregroundStyle(.secondary)
+    /// Витрати місяця: сума, порівняння з минулим і стовпчики днів.
+    private var spending: some View {
+        let out = summary?.currentMonth.totalOut ?? 0, prev = summary?.prevMonth.totalOut ?? 0
+        let days = dailySpend
+        let top = max(days.max() ?? 1, 1)
+        return Button { open(.operations) } label: {
+            Card {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Витрати цього місяця").font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(Self.compact(out)).font(.system(size: 28, weight: .bold)).monospacedDigit()
+                        if prev > 0 {
+                            let d = (out - prev) / prev * 100
+                            Text("\(d >= 0 ? "+" : "−")\(Int(abs(d).rounded()))% до минулого")
+                                .font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                         }
                     }
-                    .frame(width: 112, height: 112)
-                    .onAppear { withAnimation(.smooth(duration: 0.9).delay(0.1)) { ringIn = true } }
-                    VStack(alignment: .leading, spacing: 9) {
-                        ForEach(Array(out.prefix(4).enumerated()), id: \.element.id) { i, t in
-                            HStack(spacing: 8) {
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(i == 0 ? Theme.accent : Theme.ink.opacity(max(0.15, 0.7 - Double(i) * 0.15)))
-                                    .frame(width: 10, height: 10)
-                                Text(BankText.type(t.txType)).font(.subheadline).lineLimit(1)
-                                Spacer(minLength: 4)
-                                Text("\(Int((t.total / total * 100).rounded()))%").font(.subheadline.weight(.semibold)).monospacedDigit()
-                            }
+                    HStack(alignment: .bottom, spacing: 3) {
+                        ForEach(Array(days.enumerated()), id: \.offset) { i, v in
+                            Capsule()
+                                .fill(i == days.count - 1 ? Theme.accent : Theme.ink.opacity(v > 0 ? 0.85 : 0.1))
+                                .frame(height: max(4, 70 * CGFloat(ringIn ? v / top : 0.05)))
+                                .frame(maxWidth: .infinity)
                         }
                     }
+                    .frame(height: 72, alignment: .bottom)
+                    .padding(.top, 14)
+                    .onAppear { withAnimation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.2)) { ringIn = true } }
                 }
-                .padding(16)
+                .padding(18)
             }
-        }
-    }
-
-    // MARK: Мої продукти
-
-    private var products: some View {
-        let dep = bank.deposits.reduce(0) { $0 + $1.amount }
-        let debt = bank.credits.reduce(0) { $0 + $1.balanceRemaining }
-        let saved = bank.goals.reduce(0) { $0 + $1.currentAmount }
-        return VStack(alignment: .leading, spacing: 12) {
-            Text("Мої продукти").font(.title3.weight(.bold))
-            HStack(spacing: 10) {
-                product("Депозити", "banknote", dep) { DepositsView() }
-                product("Кредити", "percent", debt) { CreditsView() }
-                product("Цілі", "target", saved) { GoalsView() }
-            }
-        }
-    }
-
-    private func product<D: View>(_ title: String, _ symbol: String, _ value: Double, @ViewBuilder _ to: @escaping () -> D) -> some View {
-        NavigationLink { to() } label: {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
-                Text(value > 0 ? Format.money(value).replacingOccurrences(of: ",00", with: "") : "Відкрити")
-                    .font(.subheadline.weight(.bold))
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(14)
-            .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
         }
         .buttonStyle(PressScale())
     }
 
-    // MARK: Магазин
+    /// Витрати по днях поточного місяця з історії операцій.
+    private var dailySpend: [Double] {
+        let cal = Calendar.current
+        let today = cal.component(.day, from: .now)
+        var days = Array(repeating: 0.0, count: max(today, 1))
+        let start = cal.date(from: cal.dateComponents([.year, .month], from: .now)) ?? .now
+        for tx in bank.history where !tx.isIncome && tx.date >= start {
+            let d = cal.component(.day, from: tx.date) - 1
+            if days.indices.contains(d) { days[d] += tx.amount }
+        }
+        return days
+    }
 
-    private var shop: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Магазин TaxTech").font(.title3.weight(.bold))
+    /// Картки горизонтально: справжні мініатюри, торкання веде у «Картки».
+    private var cardsRow: some View {
+        Card {
+            HStack {
+                Text("Картки").font(.headline)
                 Spacer()
-                Button("Усі") { open(.shop) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                Text("\(bank.cards.count)").font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
             }
+            .padding([.horizontal, .top], 18)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(hits.prefix(8)) { p in
-                        Button { open(.shop) } label: {
-                            VStack(alignment: .leading, spacing: 8) {
-                                ProductArt(product: p, size: 40, height: 96)
-                                Text(p.title).font(.footnote.weight(.semibold)).lineLimit(2, reservesSpace: true)
-                                    .multilineTextAlignment(.leading)
-                                Text(Format.money(p.price)).font(.subheadline.weight(.bold)).monospacedDigit()
-                            }
-                            .frame(width: 136)
-                            .padding(10)
-                            .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
+                    ForEach(bank.cards) { c in
+                        VStack(alignment: .leading, spacing: 8) {
+                            VirtualCardView(number: c.maskedNumber, expiry: nil, holder: nil, design: CardDesign(server: c.design),
+                                            frozen: c.isBlocked, compact: true)
+                                .frame(width: 128)
+                            Text("•• " + String(c.maskedNumber.suffix(4))).font(.footnote.weight(.semibold).monospacedDigit())
                         }
-                        .buttonStyle(PressScale())
+                        .onTapGesture { open(.cards) }
                     }
+                    Button { open(.cards) } label: {
+                        VStack(spacing: 8) {
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(Theme.ink.opacity(0.2), style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
+                                .frame(width: 128, height: 81)
+                                .overlay(Image(systemName: "plus").font(.headline))
+                            Text("Нова").font(.footnote.weight(.semibold))
+                        }
+                    }
+                    .buttonStyle(.plain)
                 }
+                .padding(.horizontal, 18)
+                .padding(.vertical, 14)
             }
-            .scrollClipDisabled()
         }
     }
 
-    // MARK: Податки
-
-    private var taxes: some View {
+    private var taxesCard: some View {
         let next = TaxDeadline.upcoming(group: nil).first
+        let left = next.map { max(0, Calendar.current.dateComponents([.day], from: .now, to: $0.date).day ?? 0) } ?? 0
         return Button { open(.taxes) } label: {
-            Surface {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Податки").font(.headline)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
-                    }
-                    if let next {
-                        Rule().padding(.leading, -16)
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(next.title).font(.subheadline.weight(.semibold))
-                            Spacer()
-                            Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA"))))
-                                .font(.subheadline).foregroundStyle(.secondary)
-                        }
-                    }
+            Card {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Податки").font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    Text("\(left) дн.").font(.system(size: 28, weight: .bold)).monospacedDigit()
+                    Text(next?.title ?? "Строків немає").font(.footnote).foregroundStyle(.secondary).lineLimit(2)
                 }
-                .padding(16)
+                .padding(18)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             }
         }
         .buttonStyle(PressScale())
     }
 
-    // MARK: Динаміка
+    private func shopCard(_ p: API.Product) -> some View {
+        Button { open(.shop) } label: {
+            Card {
+                ZStack(alignment: .bottomLeading) {
+                    ProductArt(product: p, size: 50, height: 176, showsLabel: false)
+                    Text(Self.compact(p.price)).font(.footnote.weight(.bold)).monospacedDigit()
+                        .padding(.horizontal, 10).frame(height: 28)
+                        .background(.ultraThinMaterial, in: .capsule)
+                        .padding(10)
+                }
+            }
+        }
+        .buttonStyle(PressScale())
+    }
 
-    private var dynamics: some View {
-        let first = points.first?.balance ?? 0, last = points.last?.balance ?? 0
-        let low = points.map(\.balance).min() ?? 0
-        return VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Динаміка балансу").font(.title3.weight(.bold))
-                Spacer()
-                Text("\(last >= first ? "+" : "−")\(Format.money(abs(last - first)))")
-                    .font(.subheadline.weight(.semibold)).monospacedDigit()
-            }
-            Surface {
-                Chart(points) { p in
-                    let day = BankText.day(p.day) ?? .now
-                    AreaMark(x: .value("День", day, unit: .day), yStart: .value("Мін", low), yEnd: .value("Баланс", p.balance))
-                        .foregroundStyle(Theme.ink.opacity(0.08))
-                        .interpolationMethod(.monotone)
-                    LineMark(x: .value("День", day, unit: .day), y: .value("Баланс", p.balance))
-                        .foregroundStyle(Theme.ink)
-                        .lineStyle(StrokeStyle(lineWidth: 2.5))
-                        .interpolationMethod(.monotone)
-                }
-                .chartYScale(domain: .automatic(includesZero: false))
-                .chartYAxis(.hidden)
-                .chartXScale(range: .plotDimension(padding: 14))
-                .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 3)) {
-                        AxisValueLabel(format: .dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA")))
-                    }
-                }
-                .frame(height: 150)
-                .padding(16)
-            }
+    /// Сума без копійок для вузьких місць.
+    static func compact(_ v: Double) -> String {
+        v.formatted(.number.precision(.fractionLength(0)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+    }
+}
+
+/// Біла картка на сірому тлі, як у Revolut: великий радіус, без рамок і тіней.
+struct Card<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) { content }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
+            .clipShape(.rect(cornerRadius: 24, style: .continuous))
+            .contentShape(.rect(cornerRadius: 24, style: .continuous))
+    }
+}
+
+/// Рядок операції: вид у сірому колі, назва, час, сума праворуч.
+struct ActivityRow: View {
+    let tx: API.Transaction
+
+    private var symbol: String {
+        switch tx.txType {
+        case "payment": "bag"
+        case "topup": "plus"
+        case "transfer": tx.isIncome ? "arrow.down.left" : "arrow.up.right"
+        default: tx.isIncome ? "arrow.down" : "arrow.up"
         }
     }
 
-    // MARK: Часті отримувачі
-
-    private var frequent: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Часті отримувачі").font(.title3.weight(.bold))
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 14) {
-                    ForEach(recipients.prefix(8)) { r in
-                        let name = BankText.recipient(r.relatedAccount)
-                        Button { prefill = r.relatedAccount; sheet = .byAccount } label: {
-                            VStack(spacing: 8) {
-                                Initials(name: name == r.relatedAccount ? String(r.relatedAccount.suffix(2)) : name, size: 56)
-                                Text(name).font(.caption.weight(.medium)).lineLimit(1)
-                                Text("\(r.txCount) перек.").font(.caption2).foregroundStyle(.secondary)
-                            }
-                            .frame(width: 80)
-                        }
-                        .buttonStyle(PressScale())
-                    }
-                }
+    var body: some View {
+        let row = TransactionRow(tx: tx)
+        HStack(spacing: 12) {
+            Image(systemName: symbol).font(.system(size: 16, weight: .semibold))
+                .frame(width: 42, height: 42)
+                .background(Theme.ink.opacity(0.06), in: .circle)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(row.title).font(.body.weight(.medium)).lineLimit(1)
+                Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Locale(identifier: "uk_UA"))))
+                    .font(.footnote).foregroundStyle(.secondary)
             }
-            .scrollClipDisabled()
+            Spacer(minLength: 8)
+            Text((tx.isIncome ? "+" : "−") + OverviewView.compactCents(tx.amount))
+                .font(.body.weight(tx.isIncome ? .bold : .semibold)).monospacedDigit()
+                .foregroundStyle(tx.isIncome ? Theme.ink : Theme.ink.opacity(0.85))
         }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
     }
+}
 
-    // MARK: Останні операції
+extension OverviewView {
+    /// Сума з копійками лише коли вони є.
+    static func compactCents(_ v: Double) -> String {
+        v.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+    }
+}
 
-    private var recent: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Останні операції").font(.title3.weight(.bold))
-                Spacer()
-                Button("Усі") { open(.operations) }.font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
-            }
-            if bank.loaded && bank.history.isEmpty {
-                Text("Операцій ще немає").foregroundStyle(.secondary)
+/// Баланс у шапці: цілі великим білим, копійки й TAX дрібніше.
+struct HeroAmount: View {
+    let value: Double
+    var hidden = false
+
+    var body: some View {
+        let s = value.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "uk_UA")))
+        let parts = s.split(separator: ",", maxSplits: 1).map(String.init)
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            if hidden {
+                Text("••••••").font(.system(size: 52, weight: .bold))
             } else {
-                Surface {
-                    ForEach(Array(bank.history.prefix(5).enumerated()), id: \.element.id) { i, tx in
-                        if i > 0 { Rule() }
-                        TransactionRow(tx: tx)
-                    }
+                Text(parts.first ?? s).font(.system(size: 56, weight: .bold)).tracking(-1.5)
+                if parts.count > 1, parts[1] != "00" {
+                    Text(",\(parts[1])").font(.system(size: 28, weight: .semibold)).opacity(0.75)
                 }
             }
+            Text(" TAX").font(.system(size: 20, weight: .semibold)).opacity(0.75)
+        }
+        .monospacedDigit()
+        .foregroundStyle(.white)
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
+        .contentTransition(.numericText(value: value))
+    }
+}
+
+/// Фон шапки: темна синя сцена, що повільно переливається й тане донизу; тепло дає золотий гільйош.
+struct HeroGradient: View {
+    @Environment(\.accessibilityReduceMotion) private var reduce
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
+            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
+            let navy = Color(red: 0.07, green: 0.11, blue: 0.24)
+            let deep = Color(red: 0.03, green: 0.04, blue: 0.09)
+            let blue = Color(red: 0.13, green: 0.22, blue: 0.48)
+            MeshGradient(
+                width: 3, height: 3,
+                points: [
+                    [0, 0], [Float(0.5 + 0.15 * sin(t * 0.25)), 0], [1, 0],
+                    [0, Float(0.45 + 0.1 * cos(t * 0.2))], [Float(0.5 + 0.18 * cos(t * 0.3)), Float(0.5 + 0.12 * sin(t * 0.22))], [1, Float(0.5 + 0.1 * sin(t * 0.27))],
+                    [0, 1], [Float(0.5 + 0.12 * sin(t * 0.18)), 1], [1, 1],
+                ],
+                colors: [
+                    deep, navy, blue,
+                    navy, blue, navy,
+                    deep, navy, deep,
+                ]
+            )
+            .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.78),
+                                         .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
         }
     }
 }
@@ -508,12 +443,12 @@ struct BigAmount: View {
             if hidden {
                 Text("••••••").font(.system(size: size, weight: .semibold))
             } else {
-                Text(parts.first ?? s).font(.system(size: size, weight: .semibold)).tracking(-1)
-                if parts.count > 1 {
+                Text(parts.first ?? s).font(.display(size)).tracking(-size * 0.025)
+                if parts.count > 1, parts[1] != "00" {
                     Text(",\(parts[1])").font(.system(size: size * 0.5, weight: .regular)).foregroundStyle(.secondary)
                 }
             }
-            Text(" TAX").font(.system(size: size * 0.42, weight: .bold)).tracking(0.5).foregroundStyle(.secondary)
+            Text(" TAX").font(.system(size: size * 0.36, weight: .semibold)).foregroundStyle(.secondary)
         }
         .monospacedDigit()
         .lineLimit(1)

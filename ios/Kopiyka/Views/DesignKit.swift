@@ -13,7 +13,7 @@ struct ScreenTitle<Trailing: View>: View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
                 if let subtitle { Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary) }
-                Text(title).font(.system(size: 28, weight: .bold)).tracking(-0.5)
+                Text(title).font(.display(30)).tracking(-0.6)
             }
             Spacer()
             trailing
@@ -52,9 +52,11 @@ struct HeroPanel<Content: View>: View {
             .foregroundStyle(yellow ? Theme.onAccent : Theme.ink)
             .environment(\.onYellow, yellow)
             .background(alignment: .bottomTrailing) {
-                MarkView(height: 150, color: (yellow ? Theme.onAccent : Theme.ink).opacity(yellow ? 0.07 : 0.04))
-                    .offset(x: 34, y: 34)
-                    .parallax(0.14)
+                if !yellow {
+                    MarkView(height: 150, color: Theme.ink.opacity(0.04))
+                        .offset(x: 34, y: 34)
+                        .parallax(0.14)
+                }
             }
             .background(yellow ? Theme.accent : Theme.surface)
             .clipShape(.rect(cornerRadius: 26, style: .continuous))
@@ -106,31 +108,32 @@ struct SegmentBar<Value: Hashable>: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 ForEach(items, id: \.0) { value, title in
+                    let on = selection == value
                     Button {
                         withAnimation(.snappy(duration: 0.25)) { selection = value }
                     } label: {
                         Text(title)
-                            .font(.subheadline.weight(.semibold))
-                            .padding(.horizontal, 14)
+                            .font(.subheadline.weight(on ? .semibold : .medium))
+                            .padding(.horizontal, 15)
                             .padding(.vertical, 9)
-                            .foregroundStyle(selection == value ? AnyShapeStyle(Theme.onInk) : AnyShapeStyle(.secondary))
+                            .foregroundStyle(on ? Theme.onInk : Theme.ink)
                             .background {
-                                if selection == value {
-                                    RoundedRectangle(cornerRadius: 11, style: .continuous)
-                                        .fill(Theme.ink)
-                                        .matchedGeometryEffect(id: "seg", in: ns)
+                                if on {
+                                    Capsule().fill(Theme.ink).matchedGeometryEffect(id: "seg", in: ns)
+                                } else {
+                                    Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1)
                                 }
                             }
-                            .contentShape(.rect)
+                            .contentShape(.capsule)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(4)
+            .padding(.vertical, 1)
         }
-        .background(Theme.surface, in: .rect(cornerRadius: 15, style: .continuous))
+        .scrollClipDisabled()
         .sensoryFeedback(.selection, trigger: selection)
     }
 }

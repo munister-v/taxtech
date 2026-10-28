@@ -26,7 +26,9 @@ struct RootView: View {
                     Tab("Магазин", systemImage: "bag", value: AppTab.shop) { ShopView() }
                 }
                 .tint(Theme.tint)
-                .overlay(alignment: .top) { TopFade() }
+                .tabBarMinimizeBehavior(.onScrollDown)
+                // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
+                .overlay(alignment: .top) { if selection != .overview { TopFade() } }
                 .transition(.opacity.combined(with: .scale(scale: 1.04)))
             }
         }
@@ -66,6 +68,11 @@ enum Format {
     static func money(_ v: Double) -> String {
         // валюта застосунку - навчальний токен TAX, не гривня
         v.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+    }
+
+    /// Сума без «,00»: копійки лише якщо вони є.
+    static func short(_ v: Double) -> String {
+        v.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
     }
 
     static func ms(_ v: Double) -> String {

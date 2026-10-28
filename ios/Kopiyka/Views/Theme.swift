@@ -17,12 +17,12 @@ enum Theme {
         Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: dark) : UIColor(hex: light) })
     }
 
-    static let bg = dynamic(light: 0xF4F1EA, dark: 0x0E0E0C)
-    static let surface = dynamic(light: 0xFFFFFF, dark: 0x1A1A17)
-    static let line = dynamic(light: 0xDDD8CC, dark: 0x2F2E29)
-    static let ink = dynamic(light: 0x0E0E0C, dark: 0xF4F1EA)
+    static let bg = dynamic(light: 0xF2F2F5, dark: 0x000000)
+    static let surface = dynamic(light: 0xFFFFFF, dark: 0x1C1C1F)
+    static let line = dynamic(light: 0xE3E3E8, dark: 0x2C2C30)
+    static let ink = dynamic(light: 0x111114, dark: 0xF2F2F5)
     /// Текст на заливці кольору тексту.
-    static let onInk = dynamic(light: 0xF4F1EA, dark: 0x0E0E0C)
+    static let onInk = dynamic(light: 0xFFFFFF, dark: 0x111114)
     /// Сигнальний жовтий - колір токена TAX: головні панелі, кнопки, вибране.
     static let accent = Color(UIColor(hex: 0xFFD400))
     /// Текст на жовтому - завжди чорний.

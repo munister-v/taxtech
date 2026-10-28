@@ -439,7 +439,9 @@ struct ProductArt: View {
 
 /// Колір «паперу»: фото на білому тлі зливаються з карткою через multiply.
 enum Paper {
-    static let card = Color(red: 244 / 255, green: 241 / 255, blue: 234 / 255)
+    /// У світлій темі тло застосунку саме кремове, тож картка біла; у темній - кремовий «папір».
+    static let card = Color(UIColor { $0.userInterfaceStyle == .dark
+        ? UIColor(red: 244 / 255, green: 241 / 255, blue: 234 / 255, alpha: 1) : .white })
     static let ink = Color(red: 14 / 255, green: 14 / 255, blue: 12 / 255)
 }
 
@@ -584,7 +586,7 @@ struct ProductView: View {
                         }
                     }
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(product.title).font(.system(size: 28, weight: .bold)).tracking(-0.5)
+                        Text(product.title).font(.display(26)).tracking(-0.7)
                         if let d = product.description { Text(d).font(.body).foregroundStyle(.secondary) }
                     }
                     HStack(alignment: .firstTextBaseline) {
@@ -721,7 +723,7 @@ struct CartView: View {
                     if let bought {
                         VStack(alignment: .leading, spacing: 10) {
                             PaidMark()
-                            Text("Оплачено").font(.system(size: 34, weight: .bold)).tracking(-0.6).rise(1)
+                            Text("Оплачено").font(.display(34)).tracking(-0.8).rise(1)
                             Text("Замовлення #\(bought.orderId)\(bought.invoiceNumber.map { ", \($0)" } ?? "")")
                                 .foregroundStyle(.secondary)
                             if let b = bought.newBalance { Text("Залишок \(Format.money(b))").foregroundStyle(.secondary) }
@@ -730,7 +732,7 @@ struct CartView: View {
                     } else if cart.isEmpty {
                         BrandEmpty(title: "Кошик порожній")
                     } else {
-                        Text("Кошик").font(.system(size: 28, weight: .bold)).tracking(-0.5)
+                        Text("Кошик").font(.display(28)).tracking(-0.8)
                         VStack(spacing: 10) {
                             ForEach(lines, id: \.product.id) { line in cartLine(line.product, line.qty) }
                         }
