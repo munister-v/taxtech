@@ -8977,6 +8977,8 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
   const tiltRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<PromoProduct[]>([]);
   const [lit, setLit] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [section, setSection] = useState('top');
 
   useEffect(() => {
     fetch('/api/marketplace/catalog?per_page=16&sort=newest&category=women')
@@ -9001,6 +9003,9 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       const vh = root.clientHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
       setLit(p);
+      const ids = ['faq', 'security', 'shop', 'grow', 'cards', 'app', 'top'];
+      const cur = ids.find(id => { const el = root.querySelector('#' + id); return el && el.getBoundingClientRect().top < 140; });
+      setSection(cur || 'top');
     };
     root.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
@@ -9047,13 +9052,46 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
 
   return (
     <div className="ap" ref={rootRef}>
+      <div className="ap-gbar">
+        <div className="ap-wrap ap-gbar-in">
+          <a href="#top" className="ap-g-logo" aria-label="TaxTech"><BrandMark size={18} radiusValue={5} /></a>
+          <nav className="ap-g-links" aria-label="TaxTech">
+            <a href="#app">Рахунок</a>
+            <a href="#cards">Картки</a>
+            <a href="#grow">Депозити</a>
+            <a href="#spend">Аналітика</a>
+            <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Saint Agnes</a>
+            <a href="#security">Безпека</a>
+            <a href="#faq">Підтримка</a>
+          </nav>
+          <button type="button" className="ap-g-icon" aria-label="Увійти" onClick={() => onAuth('login')}>
+            <svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>
+          </button>
+          <button type="button" className="ap-g-icon ap-g-menu" aria-label="Меню" aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)}>
+            <svg viewBox="0 0 24 24" aria-hidden>{menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 9h16M4 15h16" />}</svg>
+          </button>
+        </div>
+      </div>
+      {menuOpen && (
+        <div className="ap-sheet" onClick={() => setMenuOpen(false)}>
+          <button type="button" className="ap-sheet-x" aria-label="Закрити меню"><svg viewBox="0 0 24 24" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+          <nav className="ap-wrap" aria-label="Меню">
+            {[['#app', 'Рахунок'], ['#cards', 'Картки'], ['#grow', 'Депозити'], ['#spend', 'Аналітика'], ['#shop', 'Saint Agnes'], ['#security', 'Безпека'], ['#faq', 'Підтримка']].map(([h, t], i) => (
+              <a key={h} href={h} style={{ ['--i' as string]: i }}>{t}</a>
+            ))}
+            <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+            <button type="button" className="ap-link" onClick={() => onAuth('login')}>Увійти <span aria-hidden>›</span></button>
+          </nav>
+        </div>
+      )}
       <header className="ap-nav">
         <div className="ap-wrap ap-nav-in">
-          <a href="#top" className="ap-brand"><BrandMark size={26} radiusValue={7} /><span>TaxTech</span></a>
+          <a href="#top" className="ap-brand">TaxTech</a>
           <nav className="ap-links" aria-label="Розділи">
-            <a href="#app">Застосунок</a><a href="#cards">Картки</a><a href="#grow">Депозити</a><a href="#shop">Магазин</a><a href="#security">Безпека</a>
+            {[['top', 'Огляд'], ['app', 'Застосунок'], ['cards', 'Картки'], ['grow', 'Депозити'], ['faq', 'Питання']].map(([id, t]) => (
+              <a key={id} href={'#' + id} className={section === id ? 'on' : ''} aria-current={section === id ? 'true' : undefined}>{t}</a>
+            ))}
           </nav>
-          <button type="button" className="ap-link ap-signin" onClick={() => onAuth('login')}>Увійти</button>
           <button type="button" className="ap-pill ap-pill-sm" onClick={() => onAuth('register')}>Відкрити рахунок</button>
         </div>
       </header>
@@ -9117,7 +9155,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         </div>
       </section>
 
-      <section className="ap-wrap ap-spend ap-reveal">
+      <section id="spend" className="ap-wrap ap-spend ap-reveal">
         <h2 className="ap-grad">Витрати.<br />Розкладені по кольорах.</h2>
         <p>Кожна категорія має свій колір, тож одного погляду досить, щоб зрозуміти, куди йдуть гроші за місяць.</p>
         <div className="ap-spend-bar" aria-hidden>
@@ -9209,7 +9247,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         </div>
       </section>
 
-      <section className="ap-faq ap-reveal">
+      <section id="faq" className="ap-faq ap-reveal">
         <div className="ap-wrap">
           <h2>Питання й відповіді</h2>
           {faq.map(([q, a]) => (
@@ -9226,13 +9264,46 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       </section>
 
       <footer className="ap-foot">
-        <div className="ap-wrap ap-foot-in">
-          <div className="ap-foot-links">
-            <button type="button" className="ap-foot-a" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-            <button type="button" className="ap-foot-a" onClick={() => onAuth('login')}>Увійти</button>
-            <a className="ap-foot-a" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Saint Agnes</a>
+        <div className="ap-wrap">
+          <ol className="ap-notes">
+            <li>TAX — віртуальний токен навчального банку TaxTech. Він не є грошима, не є електронними грошима й не обмінюється на гривню чи іншу валюту.</li>
+            <li>Ставки депозитів (8–14% річних залежно від строку) умовні й діють лише всередині навчального банку. Відсотки нараховуються щодня на віртуальний баланс.</li>
+            <li>Saint Agnes — партнерський магазин проєкту. Товари оплачуються токенами TAX з рахунку або інвойсом, виставленим банком.</li>
+            <li>Суми, операції й розподіл витрат на цій сторінці — приклади для показу, а не дані реальних клієнтів.</li>
+            <li>Face ID — торговельна марка Apple Inc. Вхід через passkey працює на пристроях, що підтримують WebAuthn.</li>
+          </ol>
+          <div className="ap-crumb"><BrandMark size={16} radiusValue={4} /><span aria-hidden>›</span><span>TaxTech</span></div>
+          <div className="ap-dir">
+            <div>
+              <h4>Банк</h4>
+              <a href="#app">Рахунок у TAX</a><a href="#cards">Картки й дизайни</a><a href="#app">Перекази</a><a href="#grow">Депозити</a><a href="#app">Виписки й квитанції</a>
+            </div>
+            <div>
+              <h4>Гроші під контролем</h4>
+              <a href="#spend">Аналітика витрат</a><a href="#spend">Бюджет і ліміти</a><a href="#grow">Цілі накопичень</a><a href="#app">Сповіщення</a>
+            </div>
+            <div>
+              <h4>Saint Agnes</h4>
+              <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Магазин</a>
+              <a href="https://shop.munister.com.ua/catalog?gender=women" target="_blank" rel="noreferrer">Жінкам</a>
+              <a href="https://shop.munister.com.ua/catalog?gender=men" target="_blank" rel="noreferrer">Чоловікам</a>
+              <a href="https://shop.munister.com.ua/sale" target="_blank" rel="noreferrer">Розпродаж</a>
+            </div>
+            <div>
+              <h4>Безпека</h4>
+              <a href="#security">Face ID і passkey</a><a href="#security">3-D Secure</a><a href="#security">Антифрод</a><a href="#faq">Питання й відповіді</a>
+            </div>
+            <div>
+              <h4>Акаунт</h4>
+              <button type="button" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+              <button type="button" onClick={() => onAuth('login')}>Увійти</button>
+              <a href="#app">Застосунок для iPhone</a>
+            </div>
           </div>
-          <p>TaxTech — навчальний банк. TAX не є грошима й не обмінюється на гроші. Ставки депозитів — умовні, для навчання. © {new Date().getFullYear()}</p>
+          <div className="ap-legal">
+            <span>© {new Date().getFullYear()} TaxTech. Навчальний банк віртуальної лабораторії цифрових фінансів.</span>
+            <span>Україна</span>
+          </div>
         </div>
       </footer>
     </div>
