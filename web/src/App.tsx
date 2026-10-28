@@ -8972,22 +8972,86 @@ function WowSplash() {
 type PromoProduct = { id: number; title: string; description?: string; price: number; image_url?: string };
 
 function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const manifestoRef = useRef<HTMLParagraphElement | null>(null);
+  const tiltRef = useRef<HTMLDivElement | null>(null);
   const [items, setItems] = useState<PromoProduct[]>([]);
+  const [lit, setLit] = useState(0);
+
   useEffect(() => {
-    fetch('/api/marketplace/catalog?per_page=12&sort=newest&category=women')
+    fetch('/api/marketplace/catalog?per_page=16&sort=newest&category=women')
       .then(r => r.json())
       .then(j => { if (j?.ok) setItems((j.data?.items || []).filter((p: PromoProduct) => p.image_url).slice(0, 4)); })
       .catch(() => {});
   }, []);
-  const fan: CardVariant[] = ['roma_marmor', 'roma_pantheon', 'roma_colosseum_night', 'obsidian', 'roma_aureus'];
-  const bars = [38, 64, 46, 82, 58, 30, 70];
+
+  // Scroll reveal + manifesto words lighting up as the reader scrolls (Apple-style).
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    root.classList.add('ap-js');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { root, threshold: 0.18 });
+    root.querySelectorAll('.ap-reveal').forEach(el => io.observe(el));
+    const onScroll = () => {
+      const m = manifestoRef.current;
+      if (!m) return;
+      const r = m.getBoundingClientRect();
+      const vh = root.clientHeight;
+      const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
+      setLit(p);
+    };
+    root.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => { io.disconnect(); root.removeEventListener('scroll', onScroll); };
+  }, []);
+
+  function onTilt(e: React.PointerEvent<HTMLDivElement>) {
+    const el = tiltRef.current;
+    if (!el || e.pointerType !== 'mouse') return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty('--ry', `${(x * 16).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${(14 - y * 12).toFixed(2)}deg`);
+    el.style.setProperty('--gx', `${((x + 0.5) * 100).toFixed(1)}%`);
+    el.style.setProperty('--gy', `${((y + 0.5) * 100).toFixed(1)}%`);
+  }
+  function resetTilt() {
+    const el = tiltRef.current;
+    if (!el) return;
+    el.style.removeProperty('--ry'); el.style.removeProperty('--rx');
+    el.style.removeProperty('--gx'); el.style.removeProperty('--gy');
+  }
+
+  const manifesto = 'TaxTech — це справжній банк для навчання. Картки, перекази, депозити й кредити працюють як у житті, тільки гроші тут — віртуальні токени TAX. Face ID і 3-D Secure захищають кожну операцію, а в Saint Agnes за TAX можна купити справжній одяг.'.split(' ');
+  const litWords = Math.round(lit * manifesto.length);
+  const gallery: { v: CardVariant; t: string }[] = [
+    { v: 'roma_colosseum', t: 'Колізей' }, { v: 'roma_pantheon', t: 'Пантеон' }, { v: 'roma_forum', t: 'Форум' },
+    { v: 'roma_marmor', t: 'Мармур' }, { v: 'roma_colosseum_night', t: 'Колізей уночі' }, { v: 'roma_aqueduct', t: 'Акведук' },
+    { v: 'roma_aureus', t: 'Ауреус' }, { v: 'obsidian', t: 'Чорний' },
+  ];
+  const spend = [
+    { t: 'Їжа', v: 3240, c: '#ff9f0a' }, { t: 'Шопінг', v: 2610, c: '#ff375f' }, { t: 'Транспорт', v: 1180, c: '#0a84ff' },
+    { t: 'Розваги', v: 940, c: '#bf5af2' }, { t: 'Здоров’я', v: 520, c: '#30d158' },
+  ];
+  const spendTotal = spend.reduce((a, x) => a + x.v, 0);
+  const rates = [['1 міс.', '8%'], ['3 міс.', '10%'], ['6 міс.', '12%'], ['12 міс.', '14%']];
+  const faq = [
+    ['Що таке TAX?', 'Віртуальний токен банку TaxTech. Ним поповнюють рахунок, платять, переказують і відкривають депозити. TAX не є грошима й не обмінюється на гроші.'],
+    ['Чи можна втратити справжні гроші?', 'Ні. Банк навчальний: усі баланси віртуальні, справжні картки чи рахунки до нього не прив’язуються.'],
+    ['Як купити в Saint Agnes?', 'Оберіть товар у розділі «Магазин» і оплатіть з рахунку. Або на сайті Saint Agnes оберіть «Pay with TaxTech» — інвойс з’явиться в банку.'],
+    ['Є застосунок для iPhone?', 'Так, TaxTech працює і як застосунок для iPhone, і в браузері на будь-якому пристрої. Акаунт один.'],
+  ];
+
   return (
-    <div className="ap">
+    <div className="ap" ref={rootRef}>
       <header className="ap-nav">
         <div className="ap-wrap ap-nav-in">
           <a href="#top" className="ap-brand"><BrandMark size={26} radiusValue={7} /><span>TaxTech</span></a>
           <nav className="ap-links" aria-label="Розділи">
-            <a href="#cards">Картки</a><a href="#money">Перекази</a><a href="#shop">Магазин</a><a href="#security">Безпека</a>
+            <a href="#app">Застосунок</a><a href="#cards">Картки</a><a href="#grow">Депозити</a><a href="#shop">Магазин</a><a href="#security">Безпека</a>
           </nav>
           <button type="button" className="ap-link ap-signin" onClick={() => onAuth('login')}>Увійти</button>
           <button type="button" className="ap-pill ap-pill-sm" onClick={() => onAuth('register')}>Відкрити рахунок</button>
@@ -8995,97 +9059,182 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       </header>
 
       <section id="top" className="ap-hero">
+        <div className="ap-hero-glow" aria-hidden />
         <div className="ap-wrap">
           <div className="ap-eyebrow"><BrandMark size={22} radiusValue={6} /> TaxTech</div>
           <h1>Простота банку.<br />На токенах TAX.</h1>
+          <p className="ap-hero-sub">Картки, перекази, депозити й покупки — як у справжньому банку. Тільки без ризику.</p>
           <div className="ap-cta">
             <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
             <button type="button" className="ap-link" onClick={() => onAuth('login')}>Увійти <span aria-hidden>›</span></button>
           </div>
         </div>
-        <div className="ap-hero-card" aria-hidden>
-          <div className="ap-hero-card-in"><PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
+        <div className="ap-hero-card" onPointerMove={onTilt} onPointerLeave={resetTilt} aria-hidden>
+          <div className="ap-tilt" ref={tiltRef}>
+            <PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} />
+            <div className="ap-sheen" />
+          </div>
         </div>
       </section>
 
       <section className="ap-manifesto">
         <div className="ap-wrap">
-          <p>
-            TaxTech — це справжній банк для навчання. <b>Картки, перекази, депозити й кредити</b> працюють
-            як у житті, тільки гроші тут — віртуальні токени TAX. <b>Face ID і 3-D Secure</b> захищають кожну
-            операцію, а в <b>Saint Agnes</b> за TAX можна купити справжній одяг. Усе, яким має бути банк.
-          </p>
+          <p ref={manifestoRef}>{manifesto.map((w, i) => <span key={i} className={i < litWords ? 'on' : ''}>{w} </span>)}</p>
         </div>
       </section>
 
-      <section id="cards" className="ap-wrap ap-tiles">
-        <article className="ap-tile ap-tile-wide">
-          <div className="ap-tile-copy">
-            <h2 className="ap-grad">Картка, яку хочеться тримати.</h2>
-            <p>Колізей, Пантеон, каррарський мармур або чорний мінімал. Дизайн змінюється в один дотик.</p>
+      <section id="app" className="ap-wrap ap-split ap-reveal">
+        <div className="ap-split-copy">
+          <h2 className="ap-grad">Увесь банк.<br />У кишені.</h2>
+          <p>Баланс, картки й кожна операція — на одному екрані. Квитанції в PDF, виписки за будь-який період, сповіщення про кожне списання.</p>
+          <ul className="ap-ticks">
+            <li>Поповнення й перекази за секунди</li>
+            <li>Сповіщення про кожну операцію</li>
+            <li>Виписки й квитанції в PDF</li>
+          </ul>
+        </div>
+        <div className="ap-phone" aria-hidden>
+          <div className="ap-phone-screen">
+            <div className="ap-ph-status"><span>9:41</span><span className="ap-ph-island" /><span>●●● ▮</span></div>
+            <div className="ap-ph-hello">Добрий день, Олено</div>
+            <div className="ap-ph-bal"><small>TAX</small> 24 860<span>,50</span></div>
+            <div className="ap-ph-card"><PremiumCard variant="roma_pantheon" number="4417" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
+            <div className="ap-ph-list">
+              {[
+                ['Saint Agnes', 'Покупка · 3-D Secure', '−8 610,00', '#ff375f'],
+                ['Стипендія', 'Надходження', '+2 000,00', '#30d158'],
+                ['Депозит 6 міс.', 'Відкрито · 12%', '−5 000,00', '#0a84ff'],
+                ['Кав’ярня', 'Оплата карткою', '−64,00', '#ff9f0a'],
+              ].map(([t, sub, a, c]) => (
+                <div key={t} className="ap-ph-row">
+                  <span className="ap-ph-dot" style={{ background: c }} />
+                  <div><b>{t}</b><small>{sub}</small></div>
+                  <em className={a.startsWith('+') ? 'pos' : ''}>{a}</em>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="ap-fan" aria-hidden>
-            {fan.map((v, i) => (
-              <div key={v} className="ap-fan-card" style={{ ['--i' as string]: i - 2, zIndex: 10 - Math.abs(i - 2) }}>
-                <PremiumCard variant={v} number={String(4417 + i * 1111).slice(-4)} name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} />
-              </div>
+        </div>
+      </section>
+
+      <section className="ap-wrap ap-spend ap-reveal">
+        <h2 className="ap-grad">Витрати.<br />Розкладені по кольорах.</h2>
+        <p>Кожна категорія має свій колір, тож одного погляду досить, щоб зрозуміти, куди йдуть гроші за місяць.</p>
+        <div className="ap-spend-bar" aria-hidden>
+          {spend.map(x => <span key={x.t} style={{ flexGrow: x.v, background: x.c }} />)}
+        </div>
+        <ul className="ap-spend-legend">
+          {spend.map(x => (
+            <li key={x.t}><i style={{ background: x.c }} /><span>{x.t}</span><b>{Math.round((x.v / spendTotal) * 100)}%</b></li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="cards" className="ap-gallery ap-reveal">
+        <div className="ap-wrap">
+          <h2 className="ap-grad">Картка, яку хочеться тримати.</h2>
+          <p>Справжні фото Риму, каррарський мармур або чорний мінімал. Дизайн змінюється в один дотик.</p>
+        </div>
+        <div className="ap-rail" data-no-tab-swipe="true">
+          {gallery.map(g => (
+            <figure key={g.v}>
+              <PremiumCard variant={g.v} number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} />
+              <figcaption>{g.t}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <section id="grow" className="ap-wrap ap-tiles">
+        <article className="ap-tile ap-reveal">
+          <div className="ap-tile-copy">
+            <h2 className="ap-grad">Депозити.<br />До 14% річних.</h2>
+            <p>Відсотки нараховуються щодня, а забрати вклад можна будь-коли.</p>
+          </div>
+          <div className="ap-rates">
+            {rates.map(([t, r], i) => (
+              <div key={t} className={i === 3 ? 'on' : ''}><span>{t}</span><b>{r}</b></div>
             ))}
           </div>
         </article>
-
-        <article id="money" className="ap-tile">
+        <article className="ap-tile ap-reveal">
           <div className="ap-tile-copy">
             <h2 className="ap-grad">Перекази.<br />За секунду.</h2>
             <p>За номером рахунку чи картки, з шаблонами й регулярними платежами.</p>
           </div>
-          <div className="ap-tx" aria-hidden>
+          <div className="ap-tx">
             <div className="ap-tx-amount">+2 000<span>,00 TAX</span></div>
             <div className="ap-tx-meta">Від Олени К. · щойно</div>
           </div>
         </article>
+      </section>
 
-        <article className="ap-tile">
-          <div className="ap-tile-copy">
-            <h2 className="ap-grad">Ваші гроші.<br />Як на долоні.</h2>
-            <p>Витрати по днях і категоріях, ліміти бюджету й цілі накопичень.</p>
-          </div>
-          <div className="ap-bars" aria-hidden>
-            {bars.map((h, i) => <span key={i} style={{ height: `${h}%` }} className={i === 3 ? 'on' : ''} />)}
-          </div>
-        </article>
-
-        <article id="shop" className="ap-tile ap-tile-wide ap-tile-shop">
-          <div className="ap-tile-copy">
-            <h2 className="ap-grad">Saint Agnes. За TAX.</h2>
-            <p>Італійський гардероб, вбудований у банк. <a className="ap-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">У магазин <span aria-hidden>›</span></a></p>
+      <section id="shop" className="ap-wrap ap-reveal">
+        <article className="ap-tile ap-tile-shop">
+          <div className="ap-tile-copy ap-shop-head">
+            <div>
+              <h2 className="ap-grad">Saint Agnes. За TAX.</h2>
+              <p>Італійський гардероб, вбудований у банк: 2 705 речей, оплата просто з рахунку.</p>
+            </div>
+            <a className="ap-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">У магазин <span aria-hidden>›</span></a>
           </div>
           <div className="ap-photos">
             {(items.length ? items : [null, null, null, null]).map((p, i) => (
-              <figure key={p ? p.id : i}>{p && <img src={p.image_url} alt={p.title} loading="lazy" />}</figure>
+              <figure key={p ? p.id : i}>
+                {p && <img src={p.image_url} alt={p.title} loading="lazy" />}
+                {p && <figcaption><span>{String(p.description || '').split(' · ')[0]}</span><b>{fmtInt(p.price)} TAX</b></figcaption>}
+              </figure>
             ))}
           </div>
         </article>
       </section>
 
-      <section id="security" className="ap-security">
+      <section id="security" className="ap-security ap-reveal">
         <div className="ap-wrap">
           <h2>Безпека, вбудована<br />з самого початку.</h2>
           <div className="ap-cols">
-            <div><h3>Face ID і passkey</h3><p>Вхід без пароля, ключ лишається на вашому пристрої.</p></div>
-            <div><h3>3-D Secure</h3><p>Кожну оплату підтверджує одноразовий код.</p></div>
-            <div><h3>Антифрод</h3><p>Підозрілий переказ зупиняється до списання.</p></div>
+            <div>
+              <svg viewBox="0 0 48 48" aria-hidden><path d="M6 16V9a3 3 0 0 1 3-3h7M32 6h7a3 3 0 0 1 3 3v7M42 32v7a3 3 0 0 1-3 3h-7M16 42H9a3 3 0 0 1-3-3v-7M18 18v3M30 18v3M24 18v9h-2M19 32s2 2 5 2 5-2 5-2" /></svg>
+              <h3>Face ID і passkey</h3><p>Вхід без пароля. Ключ лишається тільки на вашому пристрої.</p>
+            </div>
+            <div>
+              <svg viewBox="0 0 48 48" aria-hidden><rect x="10" y="21" width="28" height="20" rx="4" /><path d="M16 21v-6a8 8 0 0 1 16 0v6M24 29v5" /></svg>
+              <h3>3-D Secure</h3><p>Кожну оплату підтверджує одноразовий код, як у справжніх банках.</p>
+            </div>
+            <div>
+              <svg viewBox="0 0 48 48" aria-hidden><path d="M24 5l15 6v11c0 10-6.5 17-15 21C15.5 39 9 32 9 22V11l15-6Z" /><path d="M17 24l5 5 9-10" /></svg>
+              <h3>Антифрод</h3><p>Підозрілий переказ зупиняється ще до списання.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="ap-final">
+      <section className="ap-faq ap-reveal">
+        <div className="ap-wrap">
+          <h2>Питання й відповіді</h2>
+          {faq.map(([q, a]) => (
+            <details key={q}><summary>{q}</summary><p>{a}</p></details>
+          ))}
+        </div>
+      </section>
+
+      <section className="ap-final ap-reveal">
         <div className="ap-wrap">
           <h2>Відкрийте рахунок<br />за хвилину.</h2>
           <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
         </div>
       </section>
 
-      <footer className="ap-foot"><div className="ap-wrap">TaxTech — навчальний банк. TAX не є грошима й не обмінюється на гроші. © {new Date().getFullYear()}</div></footer>
+      <footer className="ap-foot">
+        <div className="ap-wrap ap-foot-in">
+          <div className="ap-foot-links">
+            <button type="button" className="ap-foot-a" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+            <button type="button" className="ap-foot-a" onClick={() => onAuth('login')}>Увійти</button>
+            <a className="ap-foot-a" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Saint Agnes</a>
+          </div>
+          <p>TaxTech — навчальний банк. TAX не є грошима й не обмінюється на гроші. Ставки депозитів — умовні, для навчання. © {new Date().getFullYear()}</p>
+        </div>
+      </footer>
     </div>
   );
 }
