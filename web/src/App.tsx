@@ -1,4 +1,5 @@
 import markSvg from './assets/mark.svg?raw';
+import ResearchLab from './ResearchLab';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
@@ -9065,15 +9066,6 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
   });
   const depPath = depCurve.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
   const fmtTax = (n: number) => n.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  // Research heatmaps: values from the EdgeRouter cost model (latency, energy, privacy), not from logged users.
-  const hmTasks = ['Перевірка переказу', 'Розбір чека', 'Помічник'];
-  const hmStrats = ['Завжди телефон', 'Завжди сервер', 'Прості правила', 'Каскад', 'EdgeRouter'];
-  const hmShare = [[100, 100, 100], [0, 0, 0], [82, 55, 30], [71, 64, 41], [88, 72, 46]];
-  const hmBatt = [90, 70, 50, 30, 15];
-  const hmNet = ['Wi-Fi', '5G', 'LTE', '3G', 'Офлайн'];
-  // 0 phone (FraudLite), 1 server (all fraud layers): weak or no network keeps it on the phone, a low battery pushes it to the server.
-  const hmRoute = (b: number, n: number) => (n >= 3 ? 0 : b <= 30 ? 1 : n === 2 ? 0 : b >= 70 && n === 1 ? 0 : 1);
-  const hmHeat = (v: number) => `hsl(${48 - v * 0.42}, ${60 + v * 0.4}%, ${24 + v * 0.3}%)`;
   const faq = [
     ['Що таке TAX?', 'Віртуальний токен банку TaxTech. Ним поповнюють рахунок, платять, переказують і відкривають депозити. TAX не є грошима й не обмінюється на гроші.'],
     ['Чи можна втратити справжні гроші?', 'Ні. Банк навчальний: усі баланси віртуальні, справжні картки чи рахунки до нього не прив’язуються.'],
@@ -9319,60 +9311,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         </div>
       </section>
 
-      <section id="lab" className="ap-lab ap-reveal">
-        <div className="ap-wrap">
-          <div className="ap-eyebrow">Наукова лабораторія</div>
-          <h2>Банк, який є<br /><span className="ap-gold">експериментом</span>.</h2>
-          <p className="ap-lab-lead">TaxTech — не комерційний банк, а віртуальна лабораторія цифрових фінансів. Тут проходить наукова робота «Метод інтелектуального вибору між локальними та хмарними обчисленнями в мобільних застосунках». Кожна дія в банку — переказ, чек, запитання помічнику — стає вимірюванням.</p>
-          <div className="ap-lab-steps">
-            <div><b>01</b><h3>Гіпотеза</h3><p>Якщо для кожної ІІ-задачі обирати місце виконання з урахуванням заряду, мережі й чутливості даних, можна зберегти якість, витрачаючи менше енергії й не віддаючи особисте на сервер.</p></div>
-            <div><b>02</b><h3>Метод</h3><p>EdgeRouter: оцінки часу й якості, модель енергії, політика drift-plus-penalty з чергою Ляпунова і каскад з адаптивним конформним порогом.</p></div>
-            <div><b>03</b><h3>Вимірювання</h3><p>Кожне рішення пишеться в журнал: задача, стан пристрою, обраний шлях, затримка, якість. Порівнюємо п’ять стратегій на однакових сценаріях.</p></div>
-            <div><b>04</b><h3>Приватність</h3><p>Фото чека розпізнається тільки на телефоні. На сервер іде текст після маскування імен, номерів карток і телефонів.</p></div>
-          </div>
-
-          <div className="ap-hm">
-            <div className="ap-hm-head">
-              <h3>Де виконується задача</h3>
-              <p>Частка рішень на телефоні, % — за стратегіями й типами задач.<sup>5</sup></p>
-            </div>
-            <div className="ap-hm-grid" style={{ gridTemplateColumns: `minmax(110px, 1.3fr) repeat(${hmTasks.length}, 1fr)` }}>
-              <span />
-              {hmTasks.map(t => <span key={t} className="ap-hm-col">{t}</span>)}
-              {hmStrats.map((st, i) => (
-                <Fragment key={st}>
-                  <span className={'ap-hm-row' + (i === 4 ? ' on' : '')}>{st}</span>
-                  {hmShare[i].map((v, j) => (
-                    <span key={j} className="ap-hm-cell" style={{ background: hmHeat(v), color: v > 60 ? '#111' : '#f5f5f7' }} title={`${st} · ${hmTasks[j]}: ${v}%`}>{v}</span>
-                  ))}
-                </Fragment>
-              ))}
-            </div>
-            <div className="ap-hm-scale"><span>0% · сервер</span><i style={{ background: `linear-gradient(90deg, ${hmHeat(0)}, ${hmHeat(50)}, ${hmHeat(100)})` }} /><span>100% · телефон</span></div>
-          </div>
-
-          <div className="ap-hm">
-            <div className="ap-hm-head">
-              <h3>Як EdgeRouter обирає шлях для перевірки переказу</h3>
-              <p>Слабка мережа — рахуємо на телефоні (FraudLite); мало заряду — віддаємо серверу з усіма шарами антифроду.<sup>5</sup></p>
-            </div>
-            <div className="ap-hm-grid" style={{ gridTemplateColumns: `minmax(64px, .8fr) repeat(${hmNet.length}, 1fr)` }}>
-              <span />
-              {hmNet.map(n => <span key={n} className="ap-hm-col">{n}</span>)}
-              {hmBatt.map((b, i) => (
-                <Fragment key={b}>
-                  <span className="ap-hm-row">{b}%</span>
-                  {hmNet.map((n, j) => {
-                    const r = hmRoute(b, j);
-                    return <span key={n} className={'ap-hm-cell ap-hm-r' + r} title={`${b}% · ${n}`}>{['Телефон', 'Сервер'][r]}</span>;
-                  })}
-                </Fragment>
-              ))}
-            </div>
-            <div className="ap-hm-legend"><span><i className="ap-hm-r0" />на телефоні</span><span><i className="ap-hm-r1" />на сервері</span></div>
-          </div>
-        </div>
-      </section>
+      <ResearchLab />
 
       <section id="security" className="ap-security ap-reveal">
         <div className="ap-wrap">
@@ -9417,7 +9356,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
             <li>Ставки депозитів (8–14% річних залежно від строку) умовні й діють лише всередині навчального банку. Відсотки нараховуються щодня на віртуальний баланс.</li>
             <li>Saint Agnes — партнерський магазин проєкту. Товари оплачуються токенами TAX з рахунку або інвойсом, виставленим банком.</li>
             <li>Суми, операції й розподіл витрат на цій сторінці — приклади для показу, а не дані реальних клієнтів.</li>
-            <li>Теплові карти в розділі «Дослідження» обчислені з моделі методу EdgeRouter (затримка, енергія, приватність) для типового iPhone; це очікувані значення, а не результати експерименту — їх буде замінено виміряними даними з журналу.</li>
+            <li>Схеми, теплові карти й симуляції в розділі «Дослідження» обчислені з ілюстративної моделі методу EdgeRouter (затримка, енергія, якість, приватність) для типового iPhone. Це очікувані значення, а не результати експерименту — їх буде замінено виміряними даними з журналу рішень.</li>
             <li>Face ID — торговельна марка Apple Inc. Вхід через passkey працює на пристроях, що підтримують WebAuthn.</li>
           </ol>
           <div className="ap-crumb"><BrandMark size={16} radiusValue={4} /><span aria-hidden>›</span><span>TaxTech</span></div>
