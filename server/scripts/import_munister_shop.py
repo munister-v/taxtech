@@ -85,6 +85,12 @@ def main() -> None:
         if args.replace_demo:
             conn.execute("UPDATE marketplace_products SET is_active = FALSE WHERE slug NOT LIKE 'munister-%'")
     print(f'імпортовано {len(items)} товарів')
+    try:  # заодно доставити в магазин замовлення, що не дійшли раніше
+        from backend.services import shop_sync
+        with get_connection() as conn:
+            print('shop sync:', shop_sync.sync_pending(conn))
+    except Exception as exc:
+        print('shop sync skipped:', exc)
 
 
 if __name__ == '__main__':

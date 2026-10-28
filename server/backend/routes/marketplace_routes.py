@@ -11,6 +11,7 @@ from flask import Blueprint, Response, g, jsonify, make_response, request, send_
 from urllib.parse import quote
 
 from ..database import get_connection, get_returning_id_suffix, insert_last_id
+from ..services import shop_sync
 from ..services.idempotency_service import IdempotencyService
 from .helpers import api_error, auth_required, require_idempotency_key
 
@@ -256,6 +257,8 @@ def _ensure_schema() -> None:
 
         # Backward-compatible migrations for old DBs
         _safe_add_column(conn, 'marketplace_orders', "payment_mode VARCHAR(20) NOT NULL DEFAULT 'pay_now'")
+        _safe_add_column(conn, 'marketplace_orders', 'shop_ref VARCHAR(40)')
+        _safe_add_column(conn, 'marketplace_orders', 'shop_synced INTEGER NOT NULL DEFAULT 0')
         _safe_add_column(conn, 'marketplace_orders', 'invoice_number VARCHAR(40)')
         _safe_add_column(conn, 'marketplace_orders', "invoice_status VARCHAR(20) NOT NULL DEFAULT 'paid'")
         _safe_add_column(conn, 'marketplace_orders', 'invoice_due_at TIMESTAMP')
@@ -1101,6 +1104,13 @@ def pay_invoice(invoice_number: str):
             (payment_tx_id, auth_id, int(inv['order_id'])),
         )
 
+    try:
+        with get_connection() as sconn:
+            if not shop_sync.push_paid(sconn, int(inv['order_id']), int(payment_tx_id or 0)):
+                shop_sync.push_order(sconn, int(inv['order_id']))
+    except Exception:
+        pass
+
     response_payload = {'ok': True, 'data': {
         'invoice_number': inv.get('invoice_number'),
         'order_id': int(inv.get('order_id') or 0),
@@ -1351,6 +1361,13 @@ def _checkout_impl():
                 (invoice_id,),
             ).fetchone()
             invoice_due_at = (row_due or {}).get('due_at')
+
+    if order_status == 'paid':
+        try:
+            with get_connection() as sconn:
+                shop_sync.push_order(sconn, int(order_id))
+        except Exception:
+            pass
 
     response_payload = {
         'ok': True,
@@ -3050,3 +3067,69 @@ def admin_seed_products():
                 )
                 inserted += 1
     return jsonify({'ok': True, 'data': {'inserted': inserted, 'updated': updated}})
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  MERCHANT API: магазин SAINT AGNES виставляє інвойс клієнту TaxTech
+# ═══════════════════════════════════════════════════════════════════
+
+@marketplace_bp.post('/merchant/invoices')
+def merchant_create_invoice():
+    """Server-to-server (HMAC): магазин просить виставити інвойс на оплату замовлення.
+
+    Клієнт бачить його в додатку (розділ інвойсів) і платить існуючим /invoice/<n>/pay;
+    після оплати банк сам викликає вебхук магазину (shop_sync.push_paid).
+    """
+    raw = request.get_data()
+    if not shop_sync.verify(raw, request.headers.get('X-TaxTech-Timestamp', ''), request.headers.get('X-TaxTech-Signature', '')):
+        return api_error('Підпис недійсний.', 401)
+    _ensure_schema()
+    data = json.loads(raw or b'{}')
+    ref = str(data.get('order_ref') or '').strip()[:40]
+    ident = str(data.get('customer') or '').strip().lower()
+    try:
+        amount = round(float(data.get('amount') or 0), 2)
+    except Exception:
+        amount = 0
+    if not ref or not ident or amount <= 0:
+        return api_error('Потрібні order_ref, customer і amount.')
+    suffix = get_returning_id_suffix()
+    with get_connection() as conn:
+        dup = conn.execute('SELECT invoice_number FROM marketplace_orders WHERE shop_ref = %s LIMIT 1', (ref,)).fetchone()
+        if dup:
+            return jsonify({'ok': True, 'invoice_number': dup['invoice_number'], 'duplicate': True})
+        user = conn.execute(
+            'SELECT id FROM users WHERE LOWER(email) = %s OR phone = %s LIMIT 1', (ident, ident),
+        ).fetchone()
+        if not user:
+            return api_error('Клієнта TaxTech не знайдено.', 404)
+        account = conn.execute(
+            'SELECT id, currency FROM accounts WHERE user_id = %s', (int(user['id']),),
+        ).fetchone()
+        if not account:
+            return api_error('Рахунок клієнта не знайдено.', 404)
+        invoice_number = _generate_unique_invoice_number(conn)
+        cur = conn.execute(
+            """
+            INSERT INTO marketplace_orders
+            (user_id, account_id, total_amount, currency, status, payment_mode, invoice_number, invoice_status,
+             invoice_due_at, shipping_name, shipping_phone, shipping_address, note, shop_ref)
+            VALUES (%s, %s, %s, %s, 'awaiting_payment', 'invoice', %s, 'issued', """ + _due_at_sql(24) + """, %s, %s, %s, %s, %s)"""
+            + suffix,
+            (int(user['id']), account['id'], amount, str(account.get('currency') or 'TAX'), invoice_number,
+             str(data.get('shipping_name') or ''), str(data.get('shipping_phone') or ''),
+             str(data.get('shipping_address') or ''), f'Saint Agnes {ref}', ref),
+        )
+        order_id = insert_last_id(cur)
+        conn.execute(
+            'INSERT INTO marketplace_order_items(order_id, product_id, title, price, qty, line_total) VALUES (%s, NULL, %s, %s, 1, %s)',
+            (order_id, f'Saint Agnes order {ref}', amount, amount),
+        )
+        conn.execute(
+            """
+            INSERT INTO marketplace_invoices
+            (invoice_number, order_id, user_id, account_id, amount, currency, status, due_at)
+            VALUES (%s, %s, %s, %s, %s, %s, 'issued', """ + _due_at_sql(24) + ")",
+            (invoice_number, order_id, int(user['id']), account['id'], amount, str(account.get('currency') or 'TAX')),
+        )
+    return jsonify({'ok': True, 'invoice_number': invoice_number, 'order_id': int(order_id or 0)})
