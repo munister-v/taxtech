@@ -9128,10 +9128,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       <section id="top" className="ap-hero">
         <div className="ap-hero-glow" aria-hidden />
         <div className="ap-wrap">
-          <div className="ap-mark" aria-label="TaxTech, лабораторія цифрових фінансів">
-            <span className="ap-mark-big" aria-hidden>TaxTech</span>
-            <span className="ap-mark-side" aria-hidden><span>Лабораторія</span><span>цифрових</span><span>фінансів</span></span>
-          </div>
+          <div className="ap-eyebrow"><BrandMark size={22} radiusValue={6} /> TaxTech</div>
           <div className="ap-affil">
             <img src="/stu-logo.png" alt="State Tax University" />
             <span>Науковий проєкт<br />Державного податкового університету</span>
