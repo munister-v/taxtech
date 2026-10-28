@@ -338,3 +338,125 @@ struct CardEmblemView: View {
         }
     }
 }
+
+// MARK: Колекції - готові вигляди одним дотиком
+
+struct CardPreset: Identifiable {
+    let title: String
+    let look: CardLook
+    var id: String { title }
+
+    static let all: [CardPreset] = [
+        CardPreset(title: "Обсидіан", look: CardLook(material: .metal, color: .black, pattern: .guilloche, emblem: .seal)),
+        CardPreset(title: "Шампань", look: CardLook(material: .metal, color: .gold, pattern: .microprint, emblem: .seal)),
+        CardPreset(title: "Аврора", look: CardLook(material: .gradient, color: .violet, pattern: .waves, emblem: .mark)),
+        CardPreset(title: "Океан", look: CardLook(material: .glass, color: .sky, pattern: .waves)),
+        CardPreset(title: "Смарагд", look: CardLook(material: .gradient, color: .emerald, pattern: .guilloche, emblem: .seal)),
+        CardPreset(title: "Бордо", look: CardLook(material: .solid, color: .burgundy, pattern: .lines, emblem: .mark)),
+        CardPreset(title: "Нічне місто", look: CardLook(material: .glass, color: .navy, pattern: .microprint)),
+        CardPreset(title: "Пісок", look: CardLook(material: .solid, color: .sand, pattern: .none, emblem: .mark)),
+        CardPreset(title: "Полярна", look: CardLook(material: .metal, color: .white, pattern: .lines)),
+    ]
+}
+
+// MARK: Голограма й зворот
+
+/// Райдужний перелив, що їде за нахилом телефона: метал і скло виглядають як справжні.
+struct HoloSheen: View {
+    let look: CardLook
+    @State private var tilt = DeviceTilt.shared
+    @Environment(\.accessibilityReduceMotion) private var reduce
+
+    var body: some View {
+        let x = reduce ? 0 : tilt.x, y = reduce ? 0 : tilt.y
+        let strength: Double = switch look.material {
+        case .metal: 0.32
+        case .glass: 0.26
+        case .gradient: 0.14
+        case .solid: 0.06
+        }
+        AngularGradient(colors: [.pink, .orange, .yellow, .green, .cyan, .blue, .purple, .pink],
+                        center: UnitPoint(x: 0.5 + x * 0.6, y: 0.5 + y * 0.6),
+                        angle: .degrees(x * 120 + y * 60))
+            .blur(radius: 18)
+            .opacity(strength)
+            .blendMode(look.color.isLight ? .multiply : .overlay)
+            .allowsHitTesting(false)
+            .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.85), value: x)
+    }
+}
+
+/// Зворот картки: магнітна смуга, підпис із CVV, повний номер.
+struct CardBack: View {
+    let look: CardLook
+    let number: String
+    let cvv: String
+    let expiry: String?
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            CardSurface(look: CardLook(material: look.material, color: look.color, pattern: .none))
+            VStack(alignment: .leading, spacing: 14) {
+                Rectangle().fill(.black.opacity(0.85)).frame(height: 40).padding(.top, 22)
+                HStack(spacing: 10) {
+                    // смуга підпису з дрібним візерунком
+                    ZStack(alignment: .leading) {
+                        Rectangle().fill(.white.opacity(0.9))
+                        CardPatternLayer(pattern: .lines, ink: .black).opacity(0.6)
+                    }
+                    .frame(height: 34)
+                    Text(cvv)
+                        .font(.system(.body, design: .monospaced, weight: .bold))
+                        .padding(.horizontal, 10)
+                        .frame(height: 34)
+                        .background(.white, in: .rect(cornerRadius: 4))
+                        .foregroundStyle(.black)
+                }
+                .padding(.horizontal, 20)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(number)
+                        .font(.system(.title3, design: .monospaced, weight: .medium))
+                        .minimumScaleFactor(0.6).lineLimit(1)
+                        .textSelection(.enabled)
+                    HStack {
+                        Text("CVV · дійсна до \(expiry ?? "—")")
+                        Spacer()
+                        Text("Тільки для навчання").opacity(0.7)
+                    }
+                    .font(.caption2.weight(.semibold))
+                }
+                .padding(.horizontal, 20)
+                .foregroundStyle(look.text)
+            }
+        }
+        .aspectRatio(1.586, contentMode: .fit)
+        .clipShape(.rect(cornerRadius: 18, style: .continuous))
+    }
+}
+
+/// Перевертає вміст навколо вертикальної осі: лице до 90°, далі зворот (кут анімується, тож заміна - рівно на ребрі).
+struct FlipCard<Front: View, Back: View>: View, @preconcurrency Animatable {
+    var angle: Double
+    let front: Front
+    let back: Back
+
+    init(flipped: Bool, @ViewBuilder front: () -> Front, @ViewBuilder back: () -> Back) {
+        angle = flipped ? 180 : 0
+        self.front = front()
+        self.back = back()
+    }
+
+    var animatableData: Double {
+        get { angle }
+        set { angle = newValue }
+    }
+
+    var body: some View {
+        ZStack {
+            front.opacity(angle < 90 ? 1 : 0)
+            back.opacity(angle < 90 ? 0 : 1)
+                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+        }
+        .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0), perspective: 0.45)
+    }
+}

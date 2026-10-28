@@ -24,13 +24,7 @@ struct CardsTab: View {
                 VStack(alignment: .leading, spacing: 22) {
                     header
                     if loaded && cards.isEmpty {
-                        VStack(spacing: 14) {
-                            VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil,
-                                            look: CardLook(material: .glass, color: .graphite, pattern: .waves))
-                                .opacity(0.6)
-                            Text("Карток ще немає.")
-                                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
-                        }
+                        empty
                     } else {
                         carousel
                         if let card { details(card) }
@@ -38,8 +32,9 @@ struct CardsTab: View {
                     ErrorSection(error: screen.error)
                 }
                 .padding(.horizontal, Theme.gutter)
-                .padding(.bottom, 32)
+                .padding(.bottom, 110)
             }
+            .background(alignment: .top) { glow }
             .screenBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
@@ -78,7 +73,23 @@ struct CardsTab: View {
         }
     }
 
-    // MARK: Шапка і стрічка
+    // MARK: Тло, шапка, стрічка
+
+    /// Сяйво кольору вибраної картки за верхом екрана: зміна картки перефарбовує сцену.
+    private var glow: some View {
+        let look = card?.look ?? CardLook()
+        return ZStack {
+            RadialGradient(colors: [look.color.partner.opacity(0.55), .clear], center: UnitPoint(x: 0.25, y: 0.2),
+                           startRadius: 10, endRadius: 320)
+            RadialGradient(colors: [look.color.base.opacity(0.5), .clear], center: UnitPoint(x: 0.85, y: 0.35),
+                           startRadius: 10, endRadius: 280)
+        }
+        .frame(height: 620)
+        .blur(radius: 30)
+        .ignoresSafeArea()
+        .animation(.smooth(duration: 0.6), value: look)
+        .allowsHitTesting(false)
+    }
 
     private var header: some View {
         ScreenTitle(title: "Картки") {
@@ -87,30 +98,49 @@ struct CardsTab: View {
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
+                    .glassEffect(.regular.interactive(), in: .capsule)
                     .foregroundStyle(Theme.ink)
             }
             .buttonStyle(PressScale())
         }
     }
 
+    private var empty: some View {
+        VStack(spacing: 18) {
+            VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil,
+                            look: CardLook(material: .glass, color: .graphite, pattern: .waves))
+                .opacity(0.6)
+            Text("Карток ще немає").font(.title3.weight(.semibold))
+            Text("Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.")
+                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            Button("Випустити картку") { issuing = true }.buttonStyle(InkButton())
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private var carousel: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 14) {
                     ForEach(Array(cards.enumerated()), id: \.element.id) { i, c in
-                        VirtualCardView(number: i == index ? (revealed?.cardNumber ?? c.maskedNumber) : c.maskedNumber,
-                                        expiry: c.expiryDisplay, holder: c.holderName,
-                                        look: c.look, frozen: c.isBlocked)
-                            .tilt()
-                            .containerRelativeFrame(.horizontal)
-                            .scrollTransition(axis: .horizontal) { v, phase in
-                                v.scaleEffect(phase.isIdentity ? 1 : 0.86)
-                                    .opacity(phase.isIdentity ? 1 : 0.5)
-                                    .rotation3DEffect(.degrees(phase.value * -28), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
-                                    .blur(radius: phase.isIdentity ? 0 : 2)
-                            }
-                            .id(i)
+                        FlipCard(flipped: i == index && revealed != nil) {
+                            VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: c.holderName,
+                                            look: c.look, frozen: c.isBlocked)
+                        } back: {
+                            CardBack(look: c.look, number: revealed?.cardNumber ?? c.maskedNumber,
+                                     cvv: revealed?.cvv ?? "•••", expiry: c.expiryDisplay)
+                        }
+                        .animation(.spring(response: 0.6, dampingFraction: 0.78), value: revealed?.cardNumber)
+                        .tilt()
+                        .onTapGesture { if i == index { toggleReveal(c) } }
+                        .containerRelativeFrame(.horizontal)
+                        .scrollTransition(axis: .horizontal) { v, phase in
+                            v.scaleEffect(phase.isIdentity ? 1 : 0.86)
+                                .opacity(phase.isIdentity ? 1 : 0.5)
+                                .rotation3DEffect(.degrees(phase.value * -28), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
+                                .blur(radius: phase.isIdentity ? 0 : 2)
+                        }
+                        .id(i)
                     }
                 }
                 .scrollTargetLayout()
@@ -120,6 +150,21 @@ struct CardsTab: View {
             .scrollClipDisabled()
             .animation(.smooth, value: card?.isBlocked)
             .sensoryFeedback(.selection, trigger: index)
+            if let card {
+                VStack(spacing: 4) {
+                    Text(card.look.name.isEmpty ? "Картка •• \(card.maskedNumber.suffix(4))" : card.look.name)
+                        .font(.headline)
+                        .contentTransition(.opacity)
+                    HStack(spacing: 6) {
+                        Circle().fill(card.isBlocked ? Color.cyan : Color.green).frame(width: 6, height: 6)
+                        Text(card.isBlocked ? "Заморожена" : (card.isPrimary ? "Головна · активна" : "Активна"))
+                        if let e = card.expiryDisplay { Text("· до \(e)") }
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                }
+                .animation(.smooth, value: index)
+            }
             if cards.count > 1 {
                 HStack(spacing: 6) {
                     ForEach(cards.indices, id: \.self) { i in
@@ -132,33 +177,25 @@ struct CardsTab: View {
         .frame(maxWidth: .infinity)
     }
 
+    private func toggleReveal(_ c: API.Card) {
+        if revealed != nil { revealed = nil } else { act { revealed = try await model.api.reveal(c.id) } }
+    }
+
     // MARK: Вибрана картка
 
     private func details(_ c: API.Card) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Surface {
-                VStack(alignment: .leading, spacing: 0) {
-                    Line2("Статус", c.isBlocked ? "Заморожена" : "Активна")
-                    Rule()
-                    Line2("Тип", "Віртуальна\(c.expiryDisplay.map { ", до \($0)" } ?? "")")
-                    Rule()
-                    Button { designing = c } label: {
-                        HStack {
-                            Text("Вигляд").foregroundStyle(.secondary)
-                            Spacer()
-                            Text(c.look.name.isEmpty ? "\(c.look.material.title), \(c.look.color.title.lowercased())" : c.look.name)
-                                .lineLimit(1)
-                            Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
-                        }
-                        .padding(16)
-                        .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
-                    if let r = revealed {
-                        Rule()
-                        Line2("CVV", r.cvv)
-                    }
+            HStack(spacing: 0) {
+                RoundAction(title: revealed == nil ? "Реквізити" : "Сховати", symbol: revealed == nil ? "eye" : "eye.slash") {
+                    toggleReveal(c)
                 }
+                RoundAction(title: c.isBlocked ? "Розморозити" : "Заморозити", symbol: c.isBlocked ? "sun.max" : "snowflake",
+                            on: c.isBlocked) {
+                    act { try await model.api.toggleCardBlock(c.id) }
+                }
+                RoundAction(title: "Вигляд", symbol: "paintpalette") { revealed = nil; designing = c }
+                NavigationLink { SecurityView() } label: { RoundActionLabel(title: "PIN", symbol: "lock") }
+                    .buttonStyle(PressScale())
             }
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
@@ -178,63 +215,100 @@ struct CardsTab: View {
                         // головна картка не має окремих грошей - вона платить з рахунку
                         Text("Головна картка списує з основного рахунку.").font(.footnote).foregroundStyle(.secondary)
                     }
-                    VStack(spacing: 10) {
-                        Button { topping = c } label: {
-                            Label("Поповнити картку", systemImage: "plus")
-                                .font(.body.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 50)
-                                .background(Theme.ink, in: .capsule)
-                                .foregroundStyle(Theme.onInk)
-                        }
-                        .buttonStyle(PressScale())
-                        if !c.isPrimary {
-                            Button("Зробити головною") { act { try await model.api.setPrimary(c.id) } }
-                                .font(.subheadline.weight(.semibold))
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                                .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
-                                .foregroundStyle(Theme.ink)
-                                .buttonStyle(PressScale())
+                    if let monthOut {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text("За місяць витрачено").font(.footnote).foregroundStyle(.secondary)
+                            Spacer()
+                            BigAmount(value: monthOut, size: 17)
                         }
                     }
+                    Button { topping = c } label: {
+                        Label("Поповнити картку", systemImage: "plus")
+                            .font(.body.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(Theme.ink, in: .capsule)
+                            .foregroundStyle(Theme.onInk)
+                    }
+                    .buttonStyle(PressScale())
                 }
                 .padding(16)
             }
-            if let monthOut {
-                Surface {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Активність рахунку за місяць").caption()
-                        HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            BigAmount(value: monthOut, size: 24)
-                            Text("витрат").font(.footnote).foregroundStyle(.secondary)
-                        }
+            Surface {
+                VStack(alignment: .leading, spacing: 0) {
+                    row(copied ? "Номер рахунку скопійовано" : "Скопіювати номер рахунку",
+                        symbol: copied ? "checkmark.circle.fill" : "doc.on.doc") { copyAccount() }
+                    if !c.isPrimary {
+                        Rule()
+                        row("Зробити головною", symbol: "star") { act { try await model.api.setPrimary(c.id) } }
                     }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    Rule()
+                    row("Закрити картку", symbol: "xmark.circle", destructive: true) { confirmClose = true }
                 }
             }
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
-                QuickTile(title: revealed == nil ? "Реквізити" : "Сховати", symbol: "creditcard") {
-                    if revealed != nil { revealed = nil } else { act { revealed = try await model.api.reveal(c.id) } }
-                }
-                NavigationLink { SecurityView() } label: { TileLabel(title: "PIN", symbol: "lock") }.buttonStyle(.plain)
-                QuickTile(title: copied ? "Скопійовано" : "Рахунок", symbol: copied ? "checkmark" : "number") {
-                    guard let n = account?.accountNumber else { return }
-                    UIPasteboard.general.string = n
-                    withAnimation(.snappy) { copied = true }
-                    Task {
-                        try? await Task.sleep(for: .seconds(1.6))
-                        withAnimation(.snappy) { copied = false }
-                    }
-                }
-                .sensoryFeedback(.success, trigger: copied) { _, v in v }
-            }
-            HStack(spacing: 10) {
-                Button(c.isBlocked ? "Розморозити" : "Заморозити") { act { try await model.api.toggleCardBlock(c.id) } }
-                    .buttonStyle(LineButton())
-                Button("Закрити") { confirmClose = true }.buttonStyle(LineButton())
-            }
+            .sensoryFeedback(.success, trigger: copied) { _, v in v }
         }
         .disabled(screen.busy)
+    }
+
+    private func copyAccount() {
+        guard let n = account?.accountNumber else { return }
+        UIPasteboard.general.string = n
+        withAnimation(.snappy) { copied = true }
+        Task {
+            try? await Task.sleep(for: .seconds(1.6))
+            withAnimation(.snappy) { copied = false }
+        }
+    }
+
+    private func row(_ title: String, symbol: String, destructive: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: symbol).frame(width: 22).contentTransition(.symbolEffect(.replace))
+                Text(title).contentTransition(.opacity)
+                Spacer()
+                if !destructive { Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary) }
+            }
+            .foregroundStyle(destructive ? Color.red : Theme.ink)
+            .padding(16)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Кругла скляна дія під карткою, як у гаманці.
+struct RoundAction: View {
+    let title: String
+    let symbol: String
+    var on = false
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) { RoundActionLabel(title: title, symbol: symbol, on: on) }
+            .buttonStyle(PressScale())
+            .sensoryFeedback(.impact(weight: .light), trigger: on)
+    }
+}
+
+struct RoundActionLabel: View {
+    let title: String
+    let symbol: String
+    var on = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: symbol)
+                .font(.system(size: 19, weight: .semibold))
+                .contentTransition(.symbolEffect(.replace))
+                .frame(width: 56, height: 56)
+                .background(on ? Theme.ink : .clear, in: .circle)
+                .glassEffect(.regular.interactive(), in: .circle)
+                .foregroundStyle(on ? Theme.onInk : Theme.ink)
+            Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
+                .contentTransition(.opacity)
+        }
+        .frame(maxWidth: .infinity)
+        .foregroundStyle(Theme.ink)
     }
 }
 

@@ -318,6 +318,7 @@ struct VirtualCardView: View {
         let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
         ZStack {
             CardSurface(look: resolved, corner: corner)
+            if !compact { HoloSheen(look: resolved).clipShape(shape) }
             if !compact { face }
             if frozen {
                 shape.fill(.black.opacity(0.62))

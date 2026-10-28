@@ -85,6 +85,33 @@ struct CardDesignPicker: View {
                         .rotation3DEffect(.degrees(spin), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
                         .padding(.horizontal, 8)
                         .animation(.smooth(duration: 0.35), value: look)
+                    section("Колекції") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(CardPreset.all) { p in
+                                    let on = look.with(name: "") == p.look
+                                    Button {
+                                        withAnimation(.spring(response: 0.6, dampingFraction: 0.75)) { spin += 360 }
+                                        look = p.look.with(name: look.name)
+                                    } label: {
+                                        VStack(spacing: 6) {
+                                            VirtualCardView(number: "", expiry: nil, holder: nil, look: p.look, compact: true)
+                                                .frame(width: 112)
+                                                .padding(3)
+                                                .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                                    .strokeBorder(Theme.ink, lineWidth: on ? 2 : 0))
+                                            Text(p.title).font(.caption.weight(on ? .semibold : .regular))
+                                                .foregroundStyle(on ? .primary : .secondary)
+                                        }
+                                    }
+                                    .buttonStyle(PressScale())
+                                }
+                            }
+                            .padding(.horizontal, Theme.gutter)
+                            .padding(.vertical, 4)
+                        }
+                        .padding(.horizontal, -Theme.gutter)
+                    }
                     nameField
                     section("Матеріал") {
                         HStack(spacing: 8) {
