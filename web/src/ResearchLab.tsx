@@ -66,11 +66,11 @@ function Intro() {
     <section className="rl-intro ap-reveal">
       <div className="ap-wrap">
         <p className="rl-kicker">Наукова лабораторія</p>
-        <h2 className="rl-display">Цей банк —<br /><span className="ap-gold">експеримент</span>.</h2>
+        <h2 className="rl-display">Метод<br /><span className="ap-gold">у дії</span>.</h2>
         <p className="rl-lead">
-          TaxTech — віртуальна лабораторія цифрових фінансів. На ній іде наукова робота «Метод інтелектуального вибору
-          між локальними та хмарними обчисленнями в мобільних застосунках». Нижче — не ілюстрації, а вивід самого коду
-          методу й дані, на яких його перевіряють.
+          TaxTech є віртуальною лабораторією цифрових фінансів, де виконується наукова робота «Метод інтелектуального
+          вибору між локальними та хмарними обчисленнями в мобільних застосунках». Усе нижче згенеровано вихідним кодом
+          методу та даними, на яких його перевіряють.
         </p>
         <dl className="rl-stats">
           <div><dt>{nf(ds.total)}</dt><dd>розмічених транзакцій у дослідницькому наборі</dd></div>
@@ -89,11 +89,11 @@ function Question() {
       <div className="ap-wrap rl-split">
         <div>
           <p className="rl-kicker">Питання дослідження</p>
-          <h3 className="rl-h">Де думати:<br />у кишені чи в хмарі?</h3>
+          <h3 className="rl-h">Де виконувати<br />ІІ-задачу?</h3>
           <p className="rl-p">
             Сервер точніший, але кожен запит будить радіо й передає дані назовні. Телефон приватний і працює без мережі,
             але поступається якістю. Метод EdgeRouter для кожної задачі зважує час, енергію й якість, враховуючи заряд,
-            мережу, перегрів і навіть графік відключень світла — і пише кожне рішення в журнал.
+            мережу, перегрів і графік відключень світла. Кожне рішення потрапляє в журнал.
           </p>
         </div>
         <div className="rl-tasks">
@@ -125,10 +125,10 @@ function Decision() {
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
         <p className="rl-kicker">Як ухвалюється рішення</p>
-        <h3 className="rl-h">Кожен варіант<br />отримує ціну.</h3>
+        <h3 className="rl-h">Кожен варіант<br />має ціну.</h3>
         <p className="rl-p rl-narrow">
           Для кожного дозволеного варіанта метод рахує ціль drift-plus-penalty:
-          <code> V·(t/1000 − 4·q) + Z·E</code>, де t — час, q — якість, E — енергія, Z — черга перевитрати.
+          <code> V·(t/1000 − 4·q) + Z·E</code>. Тут t означає час, q якість, E енергію, Z чергу перевитрати.
           Перемагає найменша. Це точні значення з <code>Policy.decide</code> для спокійного стану (Z = 0).
         </p>
         <div className="rl-panel">
@@ -148,7 +148,7 @@ function Decision() {
               </div>
             ))}
           </div>
-          {net === 'cellular' && <p className="rl-cap">На стільниковій мережі сервер без замірів вважається у 1,8 раза повільнішим, а радіо після обміну ще 5 с тримає «хвіст» 0,9 Вт — звідси ціна енергії.</p>}
+          {net === 'cellular' && <p className="rl-cap">На стільниковій мережі сервер без замірів вважається у 1,8 раза повільнішим, а радіо після обміну ще 5 с тримає «хвіст» 0,9 Вт. Звідси висока ціна енергії.</p>}
         </div>
       </div>
     </section>
@@ -168,11 +168,11 @@ function Field() {
     <section className="rl-sec ap-reveal">
       <div className="ap-wrap">
         <p className="rl-kicker">Теплова карта рішень</p>
-        <h3 className="rl-h">Межа, яку<br />проводить метод.</h3>
+        <h3 className="rl-h">Де метод<br />змінює рішення.</h3>
         <p className="rl-p rl-narrow">
-          {f.z.length * f.outage.length} викликів <code>Policy.decide</code> на кожну карту. По горизонталі — черга енергії Z:
-          скільки джоулів телефон уже перевитратив понад бюджет. По вертикалі — імовірність відключення світла з графіка:
-          тоді сервер може не відповісти. Колір — що обрав метод.
+          {f.z.length * f.outage.length} викликів <code>Policy.decide</code> на кожну карту. Горизонтальна вісь показує чергу енергії Z,
+          тобто скільки джоулів телефон уже витратив понад бюджет. Вертикальна вісь показує імовірність відключення світла
+          за графіком, коли сервер може не відповісти. Колір позначає вибір методу.
         </p>
         <div className="rl-ctl rl-ctl-c">
           <div className="rl-seg">{TASKS.map(t => <button key={t.id} type="button" className={t.id === task ? 'on' : ''} onClick={() => setTask(t.id)}>{t.name}</button>)}</div>
@@ -206,7 +206,7 @@ function Strategies() {
         <h3 className="rl-h">П’ять стратегій.<br />48 однакових ситуацій.</h3>
         <p className="rl-p rl-narrow">
           Wi-Fi, стільникова й офлайн × заряд 10, 30, 60, 90% × з відключенням і без × з перевитратою енергії і без.
-          Кожна смуга — частка рішень стратегії для задачі. Фіксовані стратегії відповідають однаково на все; EdgeRouter — по-різному.
+          Кожна смуга показує, як стратегія розподілила рішення для задачі. Фіксовані стратегії реагують однаково на будь-яку ситуацію, EdgeRouter змінює вибір.
         </p>
         <figure className="rl-fig">
           <div className="rl-st">
@@ -230,7 +230,7 @@ function Strategies() {
           </div>
           <figcaption className="rl-legend">{(Object.keys(PLAN_NAME) as PlanCode[]).map(p => <span key={p}><i style={{ background: PLAN_COLOR[p] }} />{PLAN_NAME[p]}</span>)}</figcaption>
         </figure>
-        <p className="rl-cap rl-narrow">Офлайн усі стратегії змушені рахувати на телефоні. Яка з них краща за якістю й енергією, покаже журнал на справжніх iPhone — це наступний етап.</p>
+        <p className="rl-cap rl-narrow">Офлайн усі стратегії змушені рахувати на телефоні. Яка з них краща за якістю й енергією, покаже журнал зі справжніх iPhone на наступному етапі.</p>
       </div>
     </section>
   );
@@ -258,7 +258,7 @@ function Energy() {
           <p className="rl-p">
             iOS не дає застосунку миттєвої потужності, тож енергію метод рахує з часу й коефіцієнтів. Після відповіді
             стільниковий модем ще {e.tailS.cellular} с не засинає й тягне {e.tailW.cellular} Вт. Тому навіть крихітний запит
-            коштує близько {(e.tailS.cellular * e.tailW.cellular).toFixed(1)} Дж — у сотні разів більше, ніж правило антифроду на телефоні.
+            коштує близько {(e.tailS.cellular * e.tailW.cellular).toFixed(1)} Дж, у сотні разів більше за правило антифроду на телефоні.
           </p>
           <div className="rl-kv">
             <div><span>Обчислення на телефоні</span><b>{e.computeW} Вт</b></div>
@@ -266,7 +266,7 @@ function Energy() {
             <div><span>«Хвіст» Wi-Fi</span><b>{e.tailS.wifi} с × {e.tailW.wifi} Вт</b></div>
             <div><span>«Хвіст» стільникового</span><b>{e.tailS.cellular} с × {e.tailW.cellular} Вт</b></div>
           </div>
-          <p className="rl-cap">Стартові коефіцієнти з літератури (MAUI, заміри «хвоста» LTE). Наступний етап — калібрування Power Profiler на власних iPhone.</p>
+          <p className="rl-cap">Стартові коефіцієнти з літератури (MAUI, заміри «хвоста» LTE). Наступний крок: калібрування Power Profiler на власних iPhone.</p>
         </div>
         <figure className="rl-fig rl-fig-flat">
           <svg viewBox={`-40 -14 ${W + 50} ${H + 54}`} className="rl-chart" role="img" aria-label="Потужність радіо після запиту">
@@ -298,7 +298,7 @@ function Conformal() {
         <p className="rl-p rl-narrow">
           У каскаді телефон відповідає першим, і відповідь приймається, якщо невпевненість нижча за поріг λ.
           Поріг оновлюється після кожного зворотного зв’язку за правилом адаптивного конформного виводу
-          (Gibbs &amp; Candès, 2021): <code>λ ← λ + η(α − err)</code>, α = 5%, η = 0,05. Помилка звужує поріг, правильна відповідь — розширює.
+          (Gibbs &amp; Candès, 2021): <code>λ ← λ + η(α − err)</code>, α = 5%, η = 0,05. Помилка звужує поріг, правильна відповідь розширює.
         </p>
         <figure className="rl-fig">
           <svg viewBox={`-40 -10 ${W + 50} ${H + 50}`} className="rl-chart" role="img" aria-label="Траєкторія порогу λ">
@@ -312,7 +312,7 @@ function Conformal() {
             <text x="0" y={H + 22} className="rl-svg-s">відповідь 1</text>
             <text x={W} y={H + 22} textAnchor="end" className="rl-svg-s">відповідь {p.length}</text>
           </svg>
-          <figcaption className="rl-cap">Справжнє правило <code>PolicyState.updateThreshold</code> на тестовому потоці: 200 відповідей з 3% помилок, далі 200 з 15%. Після зсуву поріг сам стискається — більше задач іде на сервер.</figcaption>
+          <figcaption className="rl-cap">Справжнє правило <code>PolicyState.updateThreshold</code> на тестовому потоці: 200 відповідей з 3% помилок, далі 200 з 15%. Після зсуву поріг стискається сам, і більше задач іде на сервер.</figcaption>
         </figure>
       </div>
     </section>
@@ -329,8 +329,8 @@ function Masking() {
         <h3 className="rl-h">Що бачить сервер.</h3>
         <p className="rl-p rl-narrow">
           Чек і помічник працюють з особистими даними, тож на сервер вони йдуть лише через <code>Redactor</code>.
-          Він замінює IBAN, номери карток, телефони, пошту, ІПН і номери паспортів. Суми й назви магазинів лишаються —
-          без них сервер не розбере чек. Фото чека з телефона не виходить ніколи: розпізнається Vision локально.
+          Він замінює IBAN, номери карток, телефони, пошту, ІПН і номери паспортів. Суми й назви магазинів лишаються,
+          бо без них сервер не розбере чек. Фото чека з телефона не виходить ніколи: розпізнається Vision локально.
         </p>
         <div className="rl-mask">
           <div className="rl-mask-col"><span className="rl-mask-t">На iPhone</span><p>{r.input}</p></div>
@@ -340,7 +340,7 @@ function Masking() {
             <p>{parts.map((s, i) => (/^\[.+\]$/.test(s) ? <mark key={i} className="rl-tok">{s}</mark> : <span key={i}>{s}</span>))}</p>
           </div>
         </div>
-        <p className="rl-cap">Вивід справжньої функції <code>Redactor.redact</code> на цьому реченні. Імена вона не маскує — це відоме обмеження поточної версії.</p>
+        <p className="rl-cap">Вивід справжньої функції <code>Redactor.redact</code> на цьому реченні. Імена поточна версія не маскує, це відоме обмеження.</p>
       </div>
     </section>
   );
@@ -364,11 +364,11 @@ function Dataset() {
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
         <p className="rl-kicker">Дані для антифроду</p>
-        <h3 className="rl-h">{nf(ds.total)} транзакцій.<br />Кожна з відповіддю.</h3>
+        <h3 className="rl-h">{nf(ds.total)} транзакцій.<br />Усі розмічені.</h3>
         <p className="rl-p rl-narrow">
           Щоб виміряти якість, потрібна правильна відповідь. Тому в банку є розмічений набір: {ds.accounts} рахунків,
-          шість місяців операцій ({ds.from_.slice(0, 10)} — {ds.to.slice(0, 10)}), серед них {fraudTotal} шахрайських
-          за п’ятьма сценаріями атак. Набір синтетичний і генерується сервером — реальних клієнтів у ньому немає.
+          шість місяців операцій (з {ds.from_.slice(0, 10)} по {ds.to.slice(0, 10)}), серед них {fraudTotal} шахрайських
+          за п’ятьма сценаріями атак. Набір синтетичний, його генерує сервер, реальних клієнтів у ньому немає.
         </p>
 
         <div className="rl-pats">
@@ -379,13 +379,13 @@ function Dataset() {
 
         <figure className="rl-fig">
           <figcaption className="rl-fig-h"><h4>Коли відбуваються операції</h4><span>кількість за днем тижня й годиною</span></figcaption>
-          <Week rows={week} color={v => yel(v / maxW)} title={(d, h, v) => `${DAYS[d]} ${h}:00 — ${nf(v)} операцій`} />
+          <Week rows={week} color={v => yel(v / maxW)} title={(d, h, v) => `${DAYS[d]} ${h}:00, операцій: ${nf(v)}`} />
           <div className="rl-scale"><span>0</span><i style={{ background: `linear-gradient(90deg, ${yel(0)}, ${yel(1)})` }} /><span>{nf(maxW)}</span></div>
         </figure>
 
         <figure className="rl-fig">
           <figcaption className="rl-fig-h"><h4>Де ховається шахрайство</h4><span>частка шахрайських операцій у кожній клітинці</span></figcaption>
-          <Week rows={rate} color={v => red(v / maxR)} title={(d, h, v) => `${DAYS[d]} ${h}:00 — ${(v * 100).toFixed(2)}% шахрайських`} />
+          <Week rows={rate} color={v => red(v / maxR)} title={(d, h, v) => `${DAYS[d]} ${h}:00, шахрайських: ${(v * 100).toFixed(2)}%`} />
           <div className="rl-scale"><span>0%</span><i style={{ background: `linear-gradient(90deg, ${red(0)}, ${red(1)})` }} /><span>{(maxR * 100).toFixed(1)}%</span></div>
         </figure>
 
@@ -396,7 +396,7 @@ function Dataset() {
             {Array.from({ length: 24 }, (_, h) => <span key={h} className="rl-wk-h">{h % 3 === 0 ? h : ''}</span>)}
             {pats.map(p => (
               <Row key={p} label={PATTERN_NAME[p] || p}>
-                {ph[p].map((v, h) => <span key={h} className="rl-wk-c rl-wk-flat" style={{ background: red(v / maxP) }} title={`${PATTERN_NAME[p]} · ${h}:00 — ${v}`} />)}
+                {ph[p].map((v, h) => <span key={h} className="rl-wk-c rl-wk-flat" style={{ background: red(v / maxP) }} title={`${PATTERN_NAME[p]} · ${h}:00, операцій: ${v}`} />)}
               </Row>
             ))}
           </div>
@@ -453,7 +453,7 @@ function Parity() {
         <h3 className="rl-h">{p.n} з {p.n}.<br />Збіг до бала.</h3>
         <p className="rl-p rl-narrow">
           Щоб чесно порівнювати телефон і сервер, перший шар антифроду перенесено з Python у Swift (<code>FraudLite</code>)
-          один до одного. Сервер згенерував {p.n} еталонних векторів — суми, баланси, описи — з бальною оцінкою, рівнем
+          один до одного. Сервер згенерував {p.n} еталонних векторів (суми, баланси, описи) з бальною оцінкою, рівнем
           ризику й прапорами. Тест вимагає точного збігу кожного.
         </p>
         <div className="rl-par">
@@ -483,13 +483,13 @@ function Status() {
     ['Навчальний банк і набір даних', `Цей банк і ${nf(ds.total)} розмічених транзакцій.`, true],
     ['Калібрування енергії', 'Коефіцієнти поки з літератури. Потрібні заміри Power Profiler на кількох iPhone.', false],
     ['Невпевненість антифроду', 'На телефоні поки евристика. Її треба навчити на розміченому наборі.', false],
-    ['Локальна мовна модель', 'Foundation Models не підтримує українську — для помічника на телефоні потрібна своя модель.', false],
+    ['Локальна мовна модель', 'Foundation Models не підтримує українську, тож помічнику на телефоні потрібна власна модель.', false],
   ];
   return (
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
         <p className="rl-kicker">Стан роботи</p>
-        <h3 className="rl-h">Що готово.<br />Що ще ні.</h3>
+        <h3 className="rl-h">Зроблено<br />й заплановано.</h3>
         <ol className="rl-tl">
           {steps.map(([h, p, done]) => <li key={h} className={done ? 'done' : ''}><span>{done ? 'Готово' : 'Попереду'}</span><h4>{h}</h4><p>{p}</p></li>)}
         </ol>
@@ -511,11 +511,11 @@ function Logged() {
     <section className="rl-sec rl-ethics ap-reveal">
       <div className="ap-wrap">
         <p className="rl-kicker">Журнал рішень</p>
-        <h3 className="rl-h">Що записується.<br />І що ні.</h3>
+        <h3 className="rl-h">Що потрапляє<br />в журнал.</h3>
         <div className="rl-table">{fields.map(([a, b]) => <div key={a}><b>{a}</b><span>{b}</span></div>)}</div>
         <p className="rl-p rl-narrow rl-mt">
           Тексти запитів, фото й відповіді в журнал <code>decisions.jsonl</code> не потрапляють. Стратегії, параметри α, V,
-          бюджет енергії й експорт журналу — у розділі «Лабораторія» застосунку для iPhone.
+          бюджет енергії й експорт журналу доступні в розділі «Лабораторія» застосунку для iPhone.
         </p>
       </div>
     </section>
