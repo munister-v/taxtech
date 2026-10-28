@@ -9015,7 +9015,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       const vh = root.clientHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
       setLit(p);
-      const ids = ['faq', 'security', 'shop', 'grow', 'cards', 'app', 'top'];
+      const ids = ['faq', 'security', 'lab', 'shop', 'grow', 'cards', 'app', 'top'];
       const cur = ids.find(id => { const el = root.querySelector('#' + id); return el && el.getBoundingClientRect().top < 140; });
       setSection(cur || 'top');
     };
@@ -9042,7 +9042,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
     el.style.removeProperty('--gx'); el.style.removeProperty('--gy');
   }
 
-  const manifesto = 'TaxTech — це справжній банк для навчання. Картки, перекази, депозити й кредити працюють як у житті, тільки гроші тут — віртуальні токени TAX. Face ID і 3-D Secure захищають кожну операцію, а в Saint Agnes за TAX можна купити справжній одяг.'.split(' ');
+  const manifesto = 'TaxTech — це справжній банк для навчання й наукового експерименту. Картки, перекази, депозити й кредити працюють як у житті, тільки гроші тут — віртуальні токени TAX. Face ID і 3-D Secure захищають кожну операцію, а в Saint Agnes за TAX можна купити справжній одяг.'.split(' ');
   const litWords = Math.round(lit * manifesto.length);
   const gallery: { v: CardVariant; t: string }[] = [
     { v: 'roma_colosseum', t: 'Колізей' }, { v: 'roma_pantheon', t: 'Пантеон' }, { v: 'roma_forum', t: 'Форум' },
@@ -9065,10 +9065,21 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
   });
   const depPath = depCurve.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
   const fmtTax = (n: number) => n.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Research heatmaps: values from the EdgeRouter cost model (latency, energy, privacy), not from logged users.
+  const hmTasks = ['Перевірка переказу', 'Розбір чека', 'Помічник'];
+  const hmStrats = ['Завжди телефон', 'Завжди сервер', 'Прості правила', 'Каскад', 'EdgeRouter'];
+  const hmShare = [[100, 100, 100], [0, 0, 0], [82, 55, 30], [71, 64, 41], [88, 72, 46]];
+  const hmBatt = [90, 70, 50, 30, 15];
+  const hmNet = ['Wi-Fi', '5G', 'LTE', '3G', 'Офлайн'];
+  // 0 phone (FraudLite), 1 server (all fraud layers): weak or no network keeps it on the phone, a low battery pushes it to the server.
+  const hmRoute = (b: number, n: number) => (n >= 3 ? 0 : b <= 30 ? 1 : n === 2 ? 0 : b >= 70 && n === 1 ? 0 : 1);
+  const hmHeat = (v: number) => `hsl(${48 - v * 0.42}, ${60 + v * 0.4}%, ${24 + v * 0.3}%)`;
   const faq = [
     ['Що таке TAX?', 'Віртуальний токен банку TaxTech. Ним поповнюють рахунок, платять, переказують і відкривають депозити. TAX не є грошима й не обмінюється на гроші.'],
     ['Чи можна втратити справжні гроші?', 'Ні. Банк навчальний: усі баланси віртуальні, справжні картки чи рахунки до нього не прив’язуються.'],
     ['Як купити в Saint Agnes?', 'Оберіть товар у розділі «Магазин» і оплатіть з рахунку. Або на сайті Saint Agnes оберіть «Pay with TaxTech» — інвойс з’явиться в банку.'],
+    ['Навіщо цей банк?', 'Це полігон наукового експерименту: на справжніх сценаріях — перекази, чеки, запитання до помічника — ми перевіряємо, де вигідніше виконувати ІІ-задачу: на телефоні чи на сервері.'],
+    ['Які дані збираються?', 'Лише журнал рішень маршрутизатора: тип задачі, стан пристрою (заряд, мережа), обраний шлях, час і якість відповіді. Особисті дані перед сервером маскуються, фото чека не покидає телефон.'],
     ['Є застосунок для iPhone?', 'Так, TaxTech працює і як застосунок для iPhone, і в браузері на будь-якому пристрої. Акаунт один.'],
   ];
 
@@ -9083,6 +9094,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
             <a href="#grow">Депозити</a>
             <a href="#spend">Аналітика</a>
             <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Saint Agnes</a>
+            <a href="#lab">Дослідження</a>
             <a href="#security">Безпека</a>
             <a href="#faq">Підтримка</a>
           </nav>
@@ -9098,7 +9110,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-sheet" onClick={() => setMenuOpen(false)}>
           <button type="button" className="ap-sheet-x" aria-label="Закрити меню"><svg viewBox="0 0 24 24" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg></button>
           <nav className="ap-wrap" aria-label="Меню">
-            {[['#app', 'Рахунок'], ['#cards', 'Картки'], ['#grow', 'Депозити'], ['#spend', 'Аналітика'], ['#shop', 'Saint Agnes'], ['#security', 'Безпека'], ['#faq', 'Підтримка']].map(([h, t], i) => (
+            {[['#app', 'Рахунок'], ['#cards', 'Картки'], ['#grow', 'Депозити'], ['#spend', 'Аналітика'], ['#shop', 'Saint Agnes'], ['#lab', 'Дослідження'], ['#security', 'Безпека'], ['#faq', 'Підтримка']].map(([h, t], i) => (
               <a key={h} href={h} style={{ ['--i' as string]: i }}>{t}</a>
             ))}
             <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
@@ -9110,7 +9122,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-wrap ap-nav-in">
           <a href="#top" className="ap-brand">TaxTech</a>
           <nav className="ap-links" aria-label="Розділи">
-            {[['top', 'Огляд'], ['app', 'Застосунок'], ['cards', 'Картки'], ['grow', 'Депозити'], ['faq', 'Питання']].map(([id, t]) => (
+            {[['top', 'Огляд'], ['app', 'Застосунок'], ['cards', 'Картки'], ['grow', 'Депозити'], ['lab', 'Дослідження'], ['faq', 'Питання']].map(([id, t]) => (
               <a key={id} href={'#' + id} className={section === id ? 'on' : ''} aria-current={section === id ? 'true' : undefined}>{t}</a>
             ))}
           </nav>
@@ -9123,7 +9135,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-wrap">
           <div className="ap-eyebrow"><BrandMark size={22} radiusValue={6} /> TaxTech</div>
           <h1>Простота банку.<br />На токенах <span className="ap-gold">TAX</span>.</h1>
-          <p className="ap-hero-sub">Картки, перекази, депозити й покупки — як у справжньому банку. Тільки без ризику.</p>
+          <p className="ap-hero-sub">Картки, перекази, депозити й покупки — як у справжньому банку. Тільки без ризику. І кожна операція — внесок у наукове дослідження мобільного ІІ.</p>
           <div className="ap-cta">
             <button type="button" className="ap-pill ap-pill-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
             <button type="button" className="ap-link" onClick={() => onAuth('login')}>Увійти <span aria-hidden>›</span></button>
@@ -9140,7 +9152,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
           <dl className="ap-facts">
             <div><dt>0 ₴</dt><dd>справжніх грошей під ризиком</dd></div>
             <div><dt>до 14%</dt><dd>річних на депозитах у TAX</dd></div>
-            <div><dt>2 705</dt><dd>речей у Saint Agnes за TAX</dd></div>
+            <div><dt>5</dt><dd>стратегій ІІ порівнюються в експерименті</dd></div>
           </dl>
         </div>
       </section>
@@ -9307,6 +9319,61 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         </div>
       </section>
 
+      <section id="lab" className="ap-lab ap-reveal">
+        <div className="ap-wrap">
+          <div className="ap-eyebrow">Наукова лабораторія</div>
+          <h2>Банк, який є<br /><span className="ap-gold">експериментом</span>.</h2>
+          <p className="ap-lab-lead">TaxTech — не комерційний банк, а віртуальна лабораторія цифрових фінансів. Тут проходить наукова робота «Метод інтелектуального вибору між локальними та хмарними обчисленнями в мобільних застосунках». Кожна дія в банку — переказ, чек, запитання помічнику — стає вимірюванням.</p>
+          <div className="ap-lab-steps">
+            <div><b>01</b><h3>Гіпотеза</h3><p>Якщо для кожної ІІ-задачі обирати місце виконання з урахуванням заряду, мережі й чутливості даних, можна зберегти якість, витрачаючи менше енергії й не віддаючи особисте на сервер.</p></div>
+            <div><b>02</b><h3>Метод</h3><p>EdgeRouter: оцінки часу й якості, модель енергії, політика drift-plus-penalty з чергою Ляпунова і каскад з адаптивним конформним порогом.</p></div>
+            <div><b>03</b><h3>Вимірювання</h3><p>Кожне рішення пишеться в журнал: задача, стан пристрою, обраний шлях, затримка, якість. Порівнюємо п’ять стратегій на однакових сценаріях.</p></div>
+            <div><b>04</b><h3>Приватність</h3><p>Фото чека розпізнається тільки на телефоні. На сервер іде текст після маскування імен, номерів карток і телефонів.</p></div>
+          </div>
+
+          <div className="ap-hm">
+            <div className="ap-hm-head">
+              <h3>Де виконується задача</h3>
+              <p>Частка рішень на телефоні, % — за стратегіями й типами задач.<sup>5</sup></p>
+            </div>
+            <div className="ap-hm-grid" style={{ gridTemplateColumns: `minmax(110px, 1.3fr) repeat(${hmTasks.length}, 1fr)` }}>
+              <span />
+              {hmTasks.map(t => <span key={t} className="ap-hm-col">{t}</span>)}
+              {hmStrats.map((st, i) => (
+                <Fragment key={st}>
+                  <span className={'ap-hm-row' + (i === 4 ? ' on' : '')}>{st}</span>
+                  {hmShare[i].map((v, j) => (
+                    <span key={j} className="ap-hm-cell" style={{ background: hmHeat(v), color: v > 60 ? '#111' : '#f5f5f7' }} title={`${st} · ${hmTasks[j]}: ${v}%`}>{v}</span>
+                  ))}
+                </Fragment>
+              ))}
+            </div>
+            <div className="ap-hm-scale"><span>0% · сервер</span><i style={{ background: `linear-gradient(90deg, ${hmHeat(0)}, ${hmHeat(50)}, ${hmHeat(100)})` }} /><span>100% · телефон</span></div>
+          </div>
+
+          <div className="ap-hm">
+            <div className="ap-hm-head">
+              <h3>Як EdgeRouter обирає шлях для перевірки переказу</h3>
+              <p>Слабка мережа — рахуємо на телефоні (FraudLite); мало заряду — віддаємо серверу з усіма шарами антифроду.<sup>5</sup></p>
+            </div>
+            <div className="ap-hm-grid" style={{ gridTemplateColumns: `minmax(64px, .8fr) repeat(${hmNet.length}, 1fr)` }}>
+              <span />
+              {hmNet.map(n => <span key={n} className="ap-hm-col">{n}</span>)}
+              {hmBatt.map((b, i) => (
+                <Fragment key={b}>
+                  <span className="ap-hm-row">{b}%</span>
+                  {hmNet.map((n, j) => {
+                    const r = hmRoute(b, j);
+                    return <span key={n} className={'ap-hm-cell ap-hm-r' + r} title={`${b}% · ${n}`}>{['Телефон', 'Сервер'][r]}</span>;
+                  })}
+                </Fragment>
+              ))}
+            </div>
+            <div className="ap-hm-legend"><span><i className="ap-hm-r0" />на телефоні</span><span><i className="ap-hm-r1" />на сервері</span></div>
+          </div>
+        </div>
+      </section>
+
       <section id="security" className="ap-security ap-reveal">
         <div className="ap-wrap">
           <h2>Безпека, вбудована<br />з самого початку.</h2>
@@ -9350,6 +9417,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
             <li>Ставки депозитів (8–14% річних залежно від строку) умовні й діють лише всередині навчального банку. Відсотки нараховуються щодня на віртуальний баланс.</li>
             <li>Saint Agnes — партнерський магазин проєкту. Товари оплачуються токенами TAX з рахунку або інвойсом, виставленим банком.</li>
             <li>Суми, операції й розподіл витрат на цій сторінці — приклади для показу, а не дані реальних клієнтів.</li>
+            <li>Теплові карти в розділі «Дослідження» обчислені з моделі методу EdgeRouter (затримка, енергія, приватність) для типового iPhone; це очікувані значення, а не результати експерименту — їх буде замінено виміряними даними з журналу.</li>
             <li>Face ID — торговельна марка Apple Inc. Вхід через passkey працює на пристроях, що підтримують WebAuthn.</li>
           </ol>
           <div className="ap-crumb"><BrandMark size={16} radiusValue={4} /><span aria-hidden>›</span><span>TaxTech</span></div>

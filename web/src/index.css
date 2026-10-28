@@ -640,3 +640,34 @@
   .ap-dep-row { flex-direction: column; align-items: flex-start; }
   .ap-dep-right { text-align: left; }
 }
+
+/* ── Landing: research lab, heatmaps ───────────────────────────── */
+.ap-lab { padding: clamp(80px, 12vw, 160px) 0; background: radial-gradient(900px 500px at 50% 0%, rgba(255,212,0,.07), transparent 70%); }
+.ap-lab h2 { font-size: clamp(36px, 6vw, 72px); line-height: 1.04; letter-spacing: -.035em; margin: 12px 0 24px; }
+.ap-lab-lead { max-width: 760px; font-size: clamp(17px, 2vw, 21px); line-height: 1.5; color: #a1a1a6; margin: 0 0 56px; }
+.ap-lab-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 64px; }
+.ap-lab-steps > div { background: #161617; border-radius: 22px; padding: 26px 24px; }
+.ap-lab-steps b { color: #ffd400; font-size: 13px; letter-spacing: .08em; }
+.ap-lab-steps h3 { font-size: 21px; margin: 10px 0 8px; }
+.ap-lab-steps p { margin: 0; color: #a1a1a6; font-size: 15px; line-height: 1.5; }
+.ap-hm { background: #101011; border: 1px solid rgba(255,255,255,.08); border-radius: 28px; padding: clamp(20px, 3vw, 36px); margin-bottom: 20px; }
+.ap-hm-head h3 { font-size: clamp(20px, 2.4vw, 26px); margin: 0 0 6px; letter-spacing: -.02em; }
+.ap-hm-head p { margin: 0 0 22px; color: #86868b; font-size: 14px; }
+.ap-hm-grid { display: grid; gap: 4px; }
+.ap-hm-col { font-size: 12px; color: #86868b; text-align: center; padding: 0 2px 6px; align-self: end; }
+.ap-hm-row { font-size: 13px; color: #a1a1a6; display: flex; align-items: center; padding-right: 8px; }
+.ap-hm-row.on { color: #ffd400; font-weight: 600; }
+.ap-hm-cell { border-radius: 8px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; transition: transform .2s; }
+.ap-hm-cell:hover { transform: scale(1.06); }
+.ap-hm-r0 { background: #ffd400; color: #111; }
+.ap-hm-r1 { background: #0a84ff; color: #fff; }
+.ap-hm-r2 { background: #5e5ce6; color: #fff; }
+.ap-hm-scale { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 12px; color: #86868b; }
+.ap-hm-scale i { flex: 1; max-width: 240px; height: 8px; border-radius: 4px; }
+.ap-hm-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; font-size: 12px; color: #a1a1a6; }
+.ap-hm-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+@media (max-width: 600px) {
+  .ap-hm-cell { min-height: 38px; font-size: 11px; border-radius: 6px; }
+  .ap-hm-col { font-size: 10px; }
+  .ap-hm-row { font-size: 11px; }
+}
