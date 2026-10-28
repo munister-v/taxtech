@@ -124,6 +124,7 @@ class CardService:
     _VALID_DESIGNS = {
         'gold', 'navy', 'forest', 'rose', 'slate', 'camo', 'dark',
         'florence', 'tuscany_hills', 'venice', 'tuscany_villa',
+        'roma_aureus', 'roma_purpura', 'roma_marmor', 'roma_colosseum', 'roma_spqr', 'roma_pantheon', 'roma_aqueduct',
     }
 
     def issue_card(self, user_id: int, card_type: str = 'virtual', design: str = 'gold') -> dict:

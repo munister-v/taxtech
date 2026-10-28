@@ -1959,7 +1959,14 @@ type CardVariant =
   | 'florence'
   | 'tuscany_hills'
   | 'venice'
-  | 'tuscany_villa';
+  | 'tuscany_villa'
+  | 'roma_aureus'
+  | 'roma_purpura'
+  | 'roma_marmor'
+  | 'roma_colosseum'
+  | 'roma_spqr'
+  | 'roma_pantheon'
+  | 'roma_aqueduct';
 
 interface CardData {
   variant: CardVariant;
@@ -1985,6 +1992,13 @@ const DESIGN_TO_VARIANT: Record<string, CardVariant> = {
   tuscany_hills: 'tuscany_hills',
   venice: 'venice',
   tuscany_villa: 'tuscany_villa',
+  roma_aureus: 'roma_aureus',
+  roma_purpura: 'roma_purpura',
+  roma_marmor: 'roma_marmor',
+  roma_colosseum: 'roma_colosseum',
+  roma_spqr: 'roma_spqr',
+  roma_pantheon: 'roma_pantheon',
+  roma_aqueduct: 'roma_aqueduct',
 };
 
 function cardVariantFromDesign(design?: string | null): CardVariant {
@@ -2003,6 +2017,69 @@ function toUiCard(card: ApiCard, holderName: string): CardData {
     status: card.status || 'active',
   };
 }
+
+
+// ─── Roman card art (inline SVG, 400×252 = card ratio) ───────────
+const svgUri = (body: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 252" preserveAspectRatio="xMidYMid slice">${body}</svg>`).replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/'/g, '%27')}`;
+const laurel = (cx: number, cy: number, r: number, color: string) => {
+  let leaves = '';
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 9; i++) {
+      const a = (Math.PI / 2) + side * (0.35 + i * 0.27);
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      const rot = (a * 180) / Math.PI + (side > 0 ? -35 : 35);
+      leaves += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="14" ry="5.5" transform="rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="${color}"/>`;
+    }
+  }
+  return leaves;
+};
+const meander = (y: number, color: string) => {
+  let d = '';
+  for (let x = -10; x < 410; x += 24) d += `M${x} ${y + 12}V${y}H${x + 18}V${y + 9}H${x + 6}V${y + 4}H${x + 12}`;
+  return `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"/>`;
+};
+const arches = (color: string) => {
+  let a = '';
+  for (let row = 0; row < 3; row++) for (let i = 0; i < 9; i++) {
+    const x = i * 46 + (row % 2) * 0 - 6, y = 70 + row * 62;
+    a += `<path d="M${x} ${y + 52}V${y + 18}a19 19 0 0 1 38 0V${y + 52}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  }
+  return a + `<path d="M0 64H400M0 126H400M0 188H400" stroke="${color}" stroke-width="3"/>`;
+};
+const pantheon = () => {
+  let cols = '';
+  for (let i = 0; i < 8; i++) {
+    const x = 196 + i * 24;
+    cols += `<rect x="${x}" y="118" width="13" height="104" fill="#f3e6cc" fill-opacity=".9"/><path d="M${x + 3} 122v96M${x + 6.5} 122v96M${x + 10} 122v96" stroke="#c9b68e" stroke-width=".6"/><rect x="${x - 3}" y="112" width="19" height="7" fill="#f3e6cc"/><rect x="${x - 3}" y="220" width="19" height="6" fill="#f3e6cc"/>`;
+  }
+  return `<path d="M184 108L291 62L398 108Z" fill="#f3e6cc" fill-opacity=".92"/><path d="M200 104L291 68L382 104Z" fill="none" stroke="#c9b68e" stroke-width="1"/><rect x="182" y="106" width="218" height="8" fill="#e8d7b4"/>${cols}<rect x="176" y="226" width="230" height="10" fill="#e8d7b4"/><rect x="168" y="236" width="246" height="16" fill="#d9c49b"/>`;
+};
+const aqueduct = () => {
+  let a = '';
+  for (let i = 0; i < 7; i++) {
+    const x = i * 62 - 10;
+    a += `<path d="M${x} 252V150a26 26 0 0 1 52 0V252" fill="#2a1b14"/>`;
+    a += `<path d="M${x + 6} 112a12 12 0 0 1 24 0v20h-24Z" fill="#f2b679" fill-opacity=".9"/><path d="M${x + 36} 112a12 12 0 0 1 24 0v20h-24Z" fill="#f2b679" fill-opacity=".9"/>`;
+  }
+  return `<path d="M0 252V96H400V252Z" fill="#3a251a"/>${a}<rect x="0" y="88" width="400" height="10" fill="#4a2f20"/><rect x="0" y="136" width="400" height="6" fill="#4a2f20"/>`;
+};
+const ROMAN_ART = {
+  pantheon: svgUri(`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa3c2"/><stop offset=".7" stop-color="#e7c9a0"/><stop offset="1" stop-color="#d9a875"/></linearGradient></defs><rect width="400" height="252" fill="url(#g)"/>${pantheon()}<text x="291" y="104" text-anchor="middle" font-family="Georgia,serif" font-size="9" letter-spacing="2" fill="#8a7550">M·AGRIPPA·L·F·COS·TERTIVM·FECIT</text>`),
+  aqueduct: svgUri(`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b1d3a"/><stop offset=".55" stop-color="#c2603a"/><stop offset="1" stop-color="#f2b679"/></linearGradient></defs><rect width="400" height="252" fill="url(#g)"/><circle cx="320" cy="70" r="26" fill="#ffd9a0" fill-opacity=".8"/>${aqueduct()}`),
+  aureus: svgUri(`<defs><radialGradient id="g" cx="70%" cy="40%" r="80%"><stop offset="0" stop-color="#f6dc8b"/><stop offset=".55" stop-color="#c99a2e"/><stop offset="1" stop-color="#7a5a14"/></radialGradient></defs><rect width="400" height="252" fill="url(#g)"/><g opacity=".38">${laurel(300, 128, 92, '#5b4310')}</g><circle cx="300" cy="128" r="64" fill="none" stroke="#5b4310" stroke-opacity=".35" stroke-width="2"/><text x="300" y="142" text-anchor="middle" font-family="Georgia,serif" font-size="40" letter-spacing="4" fill="#5b4310" fill-opacity=".45">AVG</text>`),
+  purpura: svgUri(`<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b1a49"/><stop offset="1" stop-color="#220616"/></linearGradient></defs><rect width="400" height="252" fill="url(#g)"/>${meander(14, '#d4ae52')}${meander(226, '#d4ae52')}<g opacity=".22">${laurel(310, 130, 70, '#d4ae52')}</g>`),
+  marmor: svgUri(`<rect width="400" height="252" fill="#f1eee8"/><g fill="none" stroke-linecap="round"><path d="M-20 60C60 40 110 120 180 90S300 20 420 70" stroke="#b9b2a6" stroke-width="2.2" opacity=".7"/><path d="M-10 190C70 150 140 210 220 170S330 120 410 150" stroke="#9d958a" stroke-width="1.4" opacity=".6"/><path d="M120 -10C140 60 100 120 160 180S180 240 170 270" stroke="#c8c1b5" stroke-width="3" opacity=".55"/><path d="M260 -10C240 50 300 90 280 150S320 230 300 270" stroke="#aaa294" stroke-width="1" opacity=".7"/><path d="M40 110C90 120 120 100 150 130" stroke="#8e8679" stroke-width=".8" opacity=".7"/></g><rect x="10" y="10" width="380" height="232" rx="14" fill="none" stroke="#c6a85a" stroke-opacity=".55" stroke-width="1.2"/>`),
+  colosseum: svgUri(`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c46a3c"/><stop offset="1" stop-color="#6e3018"/></linearGradient></defs><rect width="400" height="252" fill="url(#g)"/><g opacity=".3">${arches('#f6d9b8')}</g>`),
+  spqr: svgUri(`<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9e1b1f"/><stop offset="1" stop-color="#4c0a0d"/></linearGradient></defs><rect width="400" height="252" fill="url(#g)"/><text x="392" y="232" text-anchor="end" font-family="Georgia,'Times New Roman',serif" font-size="118" font-weight="700" letter-spacing="2" fill="#e8c46a" fill-opacity=".2">SPQR</text><path d="M24 30h52M24 36h52" stroke="#e8c46a" stroke-opacity=".5" stroke-width="1.4"/>`),
+};
+const romanVariant = (image: string, dark: boolean) => ({
+  bg: dark ? '#2a1a12' : '#efe8da', image,
+  text: dark ? '#fbf3e4' : '#20180c', muted: dark ? 'rgba(251,243,228,0.7)' : 'rgba(32,24,12,0.6)',
+  shimmer: 'transparent', overlay: 'transparent',
+  numberPlate: dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)',
+  bottomPlate: dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)',
+  badgePlate: dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)',
+});
 
 const CARD_VARIANTS: Record<CardVariant, {
   bg: string;
@@ -2078,6 +2155,13 @@ const CARD_VARIANTS: Record<CardVariant, {
     bottomPlate: 'rgba(255,255,255, 0.06)',
     badgePlate: 'rgba(255,255,255, 0.06)',
   },
+  roma_aureus: romanVariant(ROMAN_ART.aureus, false),
+  roma_purpura: romanVariant(ROMAN_ART.purpura, true),
+  roma_marmor: romanVariant(ROMAN_ART.marmor, false),
+  roma_colosseum: romanVariant(ROMAN_ART.colosseum, true),
+  roma_spqr: romanVariant(ROMAN_ART.spqr, true),
+  roma_pantheon: { ...romanVariant(ROMAN_ART.pantheon, false), text: '#1d1a14' },
+  roma_aqueduct: romanVariant(ROMAN_ART.aqueduct, true),
   tuscany_villa: {
     bg: '#bdbdbd',
     text: '#000000', muted: 'rgba(0,0,0, 0.55)',
@@ -2093,7 +2177,8 @@ type CardDesignOption = {
   design: string;
   variant: CardVariant;
   title: string;
-  subtitleKey: TranslationKey;
+  subtitleKey?: TranslationKey;
+  subtitle?: string;
 };
 
 const CARD_DESIGN_OPTIONS: CardDesignOption[] = [
@@ -2105,6 +2190,13 @@ const CARD_DESIGN_OPTIONS: CardDesignOption[] = [
   { design: 'venice', variant: 'venice', title: 'Туман', subtitleKey: 'design_subtitle_venice' },
   { design: 'tuscany_hills', variant: 'tuscany_hills', title: 'Вугілля', subtitleKey: 'design_subtitle_tuscany_hills' },
   { design: 'tuscany_villa', variant: 'tuscany_villa', title: 'Срібло', subtitleKey: 'design_subtitle_tuscany_villa' },
+  { design: 'roma_pantheon', variant: 'roma_pantheon', title: 'Пантеон', subtitle: 'Рим · портик Агріппи' },
+  { design: 'roma_aqueduct', variant: 'roma_aqueduct', title: 'Акведук', subtitle: 'Кампанія · захід сонця' },
+  { design: 'roma_aureus', variant: 'roma_aureus', title: 'Ауреус', subtitle: 'Рим · золота монета' },
+  { design: 'roma_purpura', variant: 'roma_purpura', title: 'Пурпур', subtitle: 'Рим · імператорський' },
+  { design: 'roma_marmor', variant: 'roma_marmor', title: 'Мармур', subtitle: 'Рим · Каррара' },
+  { design: 'roma_colosseum', variant: 'roma_colosseum', title: 'Колізей', subtitle: 'Рим · травертин' },
+  { design: 'roma_spqr', variant: 'roma_spqr', title: 'SPQR', subtitle: 'Рим · сенат і народ' },
 ];
 
 // ─── Data helpers ─────────────────────────────────────────────
@@ -4895,7 +4987,7 @@ function CardsScreen() {
                 />
                 <div>
                   <div style={{ fontSize: 12.5, fontWeight: 700, color: text.primary }}>{opt.title}</div>
-                  <div style={{ fontSize: 11, color: text.muted }}>{t(opt.subtitleKey)}</div>
+                  <div style={{ fontSize: 11, color: text.muted }}>{opt.subtitleKey ? t(opt.subtitleKey) : opt.subtitle}</div>
                 </div>
               </button>
             ))}
