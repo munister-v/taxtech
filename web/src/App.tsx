@@ -9114,13 +9114,6 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
             <button type="button" className="ap-link" onClick={() => onAuth('register')}>{t('Спробувати', 'Try it')} <span aria-hidden>›</span></button>
           </div>
         </div>
-        <div className="ap-wrap">
-          <dl className="ap-facts">
-            <div><dt>{t('27 425', '27,425')}</dt><dd>{t('розмічених транзакцій', 'labelled transactions')}</dd></div>
-            <div><dt>28</dt><dd>{t('правил антифроду у трьох шарах', 'fraud rules across three layers')}</dd></div>
-            <div><dt>454 / 454</dt><dd>{t('збіг антифроду телефона й сервера', 'on-device and server fraud checks agree')}</dd></div>
-          </dl>
-        </div>
       </section>
 
       <section className="ap-manifesto">

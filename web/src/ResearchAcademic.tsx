@@ -89,7 +89,6 @@ export function Problem() {
   return (
     <section id="problem" className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Постановка проблеми', 'Problem statement')}</p>
         <h3 className="rl-h">{t('Що досліджуємо', 'What we study')}<br />{t('і навіщо.', 'and why.')}</h3>
         <dl className="ra-prob">
           {blocks.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
@@ -104,7 +103,6 @@ export function Sources() {
   return (
     <section id="sources" className="rl-sec ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Джерела й документи', 'Sources and documents')}</p>
         <h3 className="rl-h">{t('Література,', 'Literature,')}<br />{t('стандарти, код.', 'standards, code.')}</h3>
 
         <h4 className="ra-h">{t('Список літератури', 'References')}</h4>

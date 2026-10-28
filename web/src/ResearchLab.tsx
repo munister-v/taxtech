@@ -89,7 +89,6 @@ function Intro() {
   return (
     <section className="rl-intro ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Наукова лабораторія', 'Research lab')}</p>
         <h2 className="rl-display">{t('Метод', 'The method,')}<br /><span className="ap-gold">{t('у дії', 'at work')}</span>.</h2>
         <p className="rl-lead">
           {t('TaxTech є віртуальною лабораторією цифрових фінансів, де виконується наукова робота «Метод інтелектуального вибору між локальними та хмарними обчисленнями в мобільних застосунках». Усе нижче згенеровано вихідним кодом методу та даними, на яких його перевіряють.',
@@ -112,7 +111,6 @@ function Question() {
     <section className="rl-sec ap-reveal">
       <div className="ap-wrap rl-split">
         <div>
-          <p className="rl-kicker">{t('Питання дослідження', 'Research question')}</p>
           <h3 className="rl-h">{t('Де виконувати', 'Where should')}<br />{t('ІІ-задачу?', 'an AI task run?')}</h3>
           <p className="rl-p">
             {t('Сервер точніший, але кожен запит будить радіо й передає дані назовні. Телефон приватний і працює без мережі, але поступається якістю. Метод EdgeRouter для кожної задачі зважує час, енергію й якість, враховуючи заряд, мережу, перегрів і графік відключень світла. Кожне рішення потрапляє в журнал.',
@@ -148,7 +146,6 @@ function Decision() {
   return (
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Як ухвалюється рішення', 'How a decision is made')}</p>
         <h3 className="rl-h">{t('Кожен варіант', 'Every option')}<br />{t('має ціну.', 'has a price.')}</h3>
         <p className="rl-p rl-narrow">
           {t('Для кожного дозволеного варіанта метод рахує ціль drift-plus-penalty: ', 'For every allowed option the method computes the drift-plus-penalty objective: ')}
@@ -197,7 +194,6 @@ function Field() {
   return (
     <section className="rl-sec ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Теплова карта рішень', 'Decision heatmap')}</p>
         <h3 className="rl-h">{t('Де метод', 'Where the method')}<br />{t('змінює рішення.', 'changes its mind.')}</h3>
         <p className="rl-p rl-narrow">
           {f.z.length * f.outage.length}{t(' викликів ', ' calls to ')}<code>Policy.decide</code>{t(' на кожну карту. Горизонтальна вісь показує чергу енергії Z, тобто скільки джоулів телефон уже витратив понад бюджет. Вертикальна вісь показує імовірність відключення світла за графіком, коли сервер може не відповісти. Колір позначає вибір методу.',
@@ -236,7 +232,6 @@ function Strategies() {
   return (
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Порівняння', 'Comparison')}</p>
         <h3 className="rl-h">{t('П’ять стратегій.', 'Five strategies.')}<br />{t('48 однакових ситуацій.', '48 identical situations.')}</h3>
         <p className="rl-p rl-narrow">
           {t('Wi-Fi, стільникова й офлайн × заряд 10, 30, 60, 90% × з відключенням і без × з перевитратою енергії і без. Кожна смуга показує, як стратегія розподілила рішення для задачі. Фіксовані стратегії реагують однаково на будь-яку ситуацію, EdgeRouter змінює вибір.',
@@ -293,7 +288,6 @@ function Energy() {
     <section className="rl-sec ap-reveal">
       <div className="ap-wrap rl-split rl-split-wide">
         <div>
-          <p className="rl-kicker">{t('Модель енергії', 'Energy model')}</p>
           <h3 className="rl-h">{t('Дорогий не запит.', 'The request is cheap.')}<br />{t('Дорогий «хвіст».', 'The tail is not.')}</h3>
           <p className="rl-p">
             {t(`iOS не дає застосунку миттєвої потужності, тож енергію метод рахує з часу й коефіцієнтів. Після відповіді стільниковий модем ще ${e.tailS.cellular} с не засинає й тягне ${e.tailW.cellular} Вт. Тому навіть крихітний запит коштує близько ${(e.tailS.cellular * e.tailW.cellular).toFixed(1)} Дж, у сотні разів більше за правило антифроду на телефоні.`,
@@ -337,7 +331,6 @@ function Conformal() {
   return (
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Каскад', 'Cascade')}</p>
         <h3 className="rl-h">{t('Поріг, який', 'A threshold that')}<br />{t('вчиться на помилках.', 'learns from mistakes.')}</h3>
         <p className="rl-p rl-narrow">
           {t('У каскаді телефон відповідає першим, і відповідь приймається, якщо невпевненість нижча за поріг λ. Поріг оновлюється після кожного зворотного зв’язку за правилом адаптивного конформного виводу (Gibbs & Candès, 2021): ',
@@ -375,8 +368,7 @@ function Masking() {
   return (
     <section className="rl-sec ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Приватність', 'Privacy')}</p>
-        <h3 className="rl-h">{t('Що бачить сервер.', 'What the server sees.')}</h3>
+        <h3 className="rl-h">{t('Що бачить сервер?', 'What does the server see?')}</h3>
         <p className="rl-p rl-narrow">
           {t('Чек і помічник працюють з особистими даними, тож на сервер вони йдуть лише через ', 'Receipts and the assistant handle personal data, so they reach the server only through ')}
           <code>Redactor</code>
@@ -420,7 +412,6 @@ function Dataset() {
   return (
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Дані для антифроду', 'Fraud data')}</p>
         <h3 className="rl-h">{nf(ds.total)} {t('транзакцій.', 'transactions.')}<br />{t('Усі розмічені.', 'All labelled.')}</h3>
         <p className="rl-p rl-narrow">
           {t(`Щоб виміряти якість, потрібна правильна відповідь. Тому в банку є розмічений набір: ${ds.accounts} рахунків, шість місяців операцій (з ${ds.from_.slice(0, 10)} по ${ds.to.slice(0, 10)}), серед них ${fraudTotal} шахрайських за п’ятьма сценаріями атак. Набір синтетичний, його генерує сервер, реальних клієнтів у ньому немає.`,
@@ -506,7 +497,6 @@ function Parity() {
   return (
     <section className="rl-sec ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Перенесення антифроду', 'Porting fraud detection')}</p>
         <h3 className="rl-h">{p.n} {t('з', 'of')} {p.n}.<br />{t('Збіг до бала.', 'Identical to the point.')}</h3>
         <p className="rl-p rl-narrow">
           {t('Щоб чесно порівнювати телефон і сервер, перший шар антифроду перенесено з Python у Swift (', 'To compare phone and server fairly, the first fraud layer was ported from Python to Swift (')}
@@ -551,7 +541,6 @@ function Status() {
   return (
     <section className="rl-sec rl-dark ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Стан роботи', 'Progress')}</p>
         <h3 className="rl-h">{t('Зроблено', 'Done')}<br />{t('й заплановано.', 'and planned.')}</h3>
         <ol className="rl-tl">
           {steps.map(([h, p, done]) => <li key={h} className={done ? 'done' : ''}><span>{done ? t('Готово', 'Done') : t('Попереду', 'Next')}</span><h4>{h}</h4><p>{p}</p></li>)}
@@ -574,7 +563,6 @@ function Logged() {
   return (
     <section className="rl-sec rl-ethics ap-reveal">
       <div className="ap-wrap">
-        <p className="rl-kicker">{t('Журнал рішень', 'Decision log')}</p>
         <h3 className="rl-h">{t('Що потрапляє', 'What goes')}<br />{t('в журнал.', 'into the log.')}</h3>
         <div className="rl-table">{fields.map(([a, b]) => <div key={a}><b>{a}</b><span>{b}</span></div>)}</div>
         <p className="rl-p rl-narrow rl-mt">
