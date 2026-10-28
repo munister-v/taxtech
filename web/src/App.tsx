@@ -35,21 +35,22 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
 const gold        = '#FFD400';   // сигнальний жовтий - колір токена TAX
 const goldDark    = '#C9A800';
 const goldLight   = '#FFE566';
+// Apple dark system palette: black canvas, #1c1c1e tiles, no hairlines on tiles.
 const bg = {
-  card:   'rgba(255,255,255, 0.042)',
-  card2:  'rgba(255,255,255, 0.026)',
-  border: 'rgba(172,172,172, 0.08)',
-  hover:  'rgba(255,255,255, 0.06)',
+  card:   '#1c1c1e',
+  card2:  '#161617',
+  border: 'transparent',
+  hover:  '#2c2c2e',
 };
 const text = {
-  primary:   '#ececec',
-  secondary: '#d8d8d8',
-  muted:     'rgba(194,194,194, 0.62)',
-  dim:       'rgba(194,194,194, 0.38)',
+  primary:   '#f5f5f7',
+  secondary: '#e8e8ed',
+  muted:     '#8e8e93',
+  dim:       '#5c5c61',
   gold:      gold,
 };
-const radius = { sm: 10, md: 14, lg: 18, xl: 22, '2xl': 28 };
-const fontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
+const radius = { sm: 10, md: 12, lg: 18, xl: 22, '2xl': 28 };
+const fontFamily = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Onest', 'Segoe UI', Roboto, sans-serif";
 const mobileTabBarOffset = 'calc(74px + env(safe-area-inset-bottom, 0px))';
 const mobileDockInset = `calc(${mobileTabBarOffset} + 8px)`;
 const mobileDockInsetCompact = `calc(${mobileTabBarOffset} - 6px)`;
@@ -57,17 +58,17 @@ const mobileDockInsetCompact = `calc(${mobileTabBarOffset} - 6px)`;
 // ─── Type scale helpers ───────────────────────────────────────
 const T = {
   /** 36px display — balance hero */
-  hero:    { fontSize: 36, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.1 } as React.CSSProperties,
+  hero:    { fontSize: 40, fontWeight: 600, letterSpacing: -1.4, lineHeight: 1.08 } as React.CSSProperties,
   /** 28px screen title */
-  h1:      { fontSize: 28, fontWeight: 700, letterSpacing: -0.7, lineHeight: 1.2 } as React.CSSProperties,
+  h1:      { fontSize: 34, fontWeight: 700, letterSpacing: -0.9, lineHeight: 1.12 } as React.CSSProperties,
   /** 22px section heading */
-  h2:      { fontSize: 22, fontWeight: 600, letterSpacing: -0.4, lineHeight: 1.25 } as React.CSSProperties,
+  h2:      { fontSize: 24, fontWeight: 600, letterSpacing: -0.5, lineHeight: 1.2 } as React.CSSProperties,
   /** 17px card/panel title */
-  h3:      { fontSize: 17, fontWeight: 600, letterSpacing: -0.2, lineHeight: 1.3 } as React.CSSProperties,
+  h3:      { fontSize: 19, fontWeight: 600, letterSpacing: -0.35, lineHeight: 1.25 } as React.CSSProperties,
   /** 15px body large */
-  bodyLg:  { fontSize: 15, fontWeight: 400, lineHeight: 1.5 } as React.CSSProperties,
+  bodyLg:  { fontSize: 17, fontWeight: 400, lineHeight: 1.45, letterSpacing: -0.2 } as React.CSSProperties,
   /** 14px body default */
-  body:    { fontSize: 14, fontWeight: 400, lineHeight: 1.5 } as React.CSSProperties,
+  body:    { fontSize: 15, fontWeight: 400, lineHeight: 1.45, letterSpacing: -0.1 } as React.CSSProperties,
   /** 13px small */
   sm:      { fontSize: 13, fontWeight: 400, lineHeight: 1.45 } as React.CSSProperties,
   /** 11px caption — uppercase labels */
@@ -82,23 +83,23 @@ const glassCard = (extra?: React.CSSProperties): React.CSSProperties => {
     // Десктоп: та сама плоска поверхня, що й `.kp-card`; фон і тінь із виклику ігноруються
     const { background: _bg, boxShadow: _sh, backdropFilter: _bf, WebkitBackdropFilter: _wbf, ...rest } = extra || {};
     return {
-      background: 'linear-gradient(180deg, rgba(255,255,255, 0.052), rgba(255,255,255, 0.022))',
-      border: '1px solid rgba(255,255,255, 0.075)',
+      background: '#1c1c1e',
+      border: '1px solid transparent',
       borderRadius: radius.xl,
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.05), 0 28px 56px -32px rgba(0,0,0, 0.75)',
+      boxShadow: 'none',
       ...rest,
     };
   }
   return glassCardMobile(extra);
 };
 const glassCardMobile = (extra?: React.CSSProperties): React.CSSProperties => ({
-  background: 'rgba(255,255,255, 0.055)',
-  backdropFilter: 'blur(24px)',
-  WebkitBackdropFilter: 'blur(24px)',
-  border: `1px solid rgba(176,176,176, 0.10)`,
-  borderRadius: radius.xl,
-  boxShadow: '0 2px 12px rgba(0,0,0, 0.08), inset 0 1px 0 rgba(255,255,255, 0.04)',
   ...extra,
+  background: '#1c1c1e',
+  backdropFilter: 'none',
+  WebkitBackdropFilter: 'none',
+  border: '1px solid transparent',
+  borderRadius: radius.xl,
+  boxShadow: 'none',
 });
 
 function BrandMark({
@@ -117,7 +118,7 @@ function BrandMark({
       borderRadius: radiusValue,
       flexShrink: 0,
       background: '#000000',
-      border: '1px solid rgba(255,255,255, 0.16)',
+      border: '1px solid transparent',
       display: 'grid',
       placeItems: 'center',
       color: '#ffffff',
@@ -585,7 +586,7 @@ const translations = {
     freeze_card: 'Заморозити',
     unfreeze_card: 'Розморозити',
     close_card: 'Закрити',
-    error_boundary_title: '⚠️ Щось пішло не так',
+    error_boundary_title: 'Щось пішло не так',
     error_boundary_refresh: 'Оновити сторінку',
     analytics_prev_month_suffix: 'до минулого місяця',
     api_health_temporarily_unavailable: 'API тимчасово недоступне. Спробуйте через кілька секунд.',
@@ -880,7 +881,7 @@ const translations = {
     freeze_card: 'Freeze',
     unfreeze_card: 'Unfreeze',
     close_card: 'Close',
-    error_boundary_title: '⚠️ Something went wrong',
+    error_boundary_title: 'Something went wrong',
     error_boundary_refresh: 'Reload page',
     analytics_prev_month_suffix: 'vs previous month',
     api_health_temporarily_unavailable: 'API is temporarily unavailable. Please try again in a few seconds.',
@@ -1175,7 +1176,7 @@ const translations = {
     freeze_card: 'Blocca',
     unfreeze_card: 'Sblocca',
     close_card: 'Chiudi',
-    error_boundary_title: '⚠️ Qualcosa è andato storto',
+    error_boundary_title: 'Qualcosa è andato storto',
     error_boundary_refresh: 'Ricarica pagina',
     analytics_prev_month_suffix: 'rispetto al mese scorso',
     api_health_temporarily_unavailable: 'API temporaneamente non disponibile. Riprova tra qualche secondo.',
@@ -1470,7 +1471,7 @@ const translations = {
     freeze_card: 'Congelar',
     unfreeze_card: 'Descongelar',
     close_card: 'Cerrar',
-    error_boundary_title: '⚠️ Algo salió mal',
+    error_boundary_title: 'Algo salió mal',
     error_boundary_refresh: 'Recargar página',
     analytics_prev_month_suffix: 'vs. mes anterior',
     api_health_temporarily_unavailable: 'La API está temporalmente no disponible. Inténtalo de nuevo en unos segundos.',
@@ -1766,7 +1767,7 @@ function Toast({ msg }: { msg: string }) {
       backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
       border: '1px solid rgba(172,172,172, 0.18)',
       color: text.primary, ...T.sm, fontWeight: 500,
-      boxShadow: '0 16px 40px rgba(0,0,0, 0.42), inset 0 1px 0 rgba(255,255,255, 0.06)',
+      boxShadow: '0 16px 40px rgba(0,0,0, 0.42)',
       maxWidth: 'min(420px, calc(100vw - 32px))', textAlign: 'center', whiteSpace: 'normal', lineHeight: 1.35,
     }}>{msg}</div>
   );
@@ -2210,18 +2211,18 @@ const CARD_VARIANTS: Record<CardVariant, {
     text: '#ffffff', muted: 'rgba(255,255,255, 0.55)',
     shimmer: 'transparent',
     overlay: 'transparent',
-    numberPlate: 'rgba(255,255,255, 0.06)',
-    bottomPlate: 'rgba(255,255,255, 0.06)',
-    badgePlate: 'rgba(255,255,255, 0.06)',
+    numberPlate: 'rgba(255,255,255, 0.1)',
+    bottomPlate: 'rgba(255,255,255, 0.1)',
+    badgePlate: 'rgba(255,255,255, 0.1)',
   },
   obsidian: {
-    bg: '#000000',
+    bg: 'linear-gradient(135deg, #2a2a2c 0%, #111112 55%, #050505 100%)',
     text: '#ffffff', muted: 'rgba(255,255,255, 0.55)',
     shimmer: 'transparent',
     overlay: 'transparent',
-    numberPlate: 'rgba(255,255,255, 0.06)',
-    bottomPlate: 'rgba(255,255,255, 0.06)',
-    badgePlate: 'rgba(255,255,255, 0.06)',
+    numberPlate: 'rgba(255,255,255, 0.1)',
+    bottomPlate: 'rgba(255,255,255, 0.1)',
+    badgePlate: 'rgba(255,255,255, 0.1)',
   },
   florence: {
     bg: '#8f8f8f',
@@ -2237,18 +2238,18 @@ const CARD_VARIANTS: Record<CardVariant, {
     text: '#ffffff', muted: 'rgba(255,255,255, 0.55)',
     shimmer: 'transparent',
     overlay: 'transparent',
-    numberPlate: 'rgba(255,255,255, 0.06)',
-    bottomPlate: 'rgba(255,255,255, 0.06)',
-    badgePlate: 'rgba(255,255,255, 0.06)',
+    numberPlate: 'rgba(255,255,255, 0.1)',
+    bottomPlate: 'rgba(255,255,255, 0.1)',
+    badgePlate: 'rgba(255,255,255, 0.1)',
   },
   venice: {
     bg: '#5c5c5c',
     text: '#ffffff', muted: 'rgba(255,255,255, 0.55)',
     shimmer: 'transparent',
     overlay: 'transparent',
-    numberPlate: 'rgba(255,255,255, 0.06)',
-    bottomPlate: 'rgba(255,255,255, 0.06)',
-    badgePlate: 'rgba(255,255,255, 0.06)',
+    numberPlate: 'rgba(255,255,255, 0.1)',
+    bottomPlate: 'rgba(255,255,255, 0.1)',
+    badgePlate: 'rgba(255,255,255, 0.1)',
   },
   roma_aureus: romanVariant(ROMAN_ART.aureus, false),
   roma_purpura: romanVariant(ROMAN_ART.purpura, true),
@@ -2358,7 +2359,7 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
     <div style={{
       position: 'relative', aspectRatio: '1.586 / 1', borderRadius: 22, containerType: 'inline-size',
       background: v.bg,
-      boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55), 0 6px 16px -8px rgba(0,0,0, 0.4), inset 0 1px 0 rgba(255,255,255, 0.18)',
+      boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55), 0 6px 16px -8px rgba(0,0,0, 0.4), inset 0 0 0 1px rgba(255,255,255, 0.12)',
       color: v.text, overflow: 'hidden',
       fontFamily: '"SF Pro Display", -apple-system, system-ui',
       ...style,
@@ -2561,7 +2562,7 @@ function InsightsStrip() {
       <div style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>{t('insights_title')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {insights.map((ins, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.1)', borderRadius: 14 }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 14 }}>
             <span aria-hidden style={{ width: 6, height: 6, borderRadius: '50%', background: i === 0 ? gold : 'rgba(255,255,255,0.35)', flexShrink: 0, marginTop: 7 }} />
             <span style={{ fontSize: 12, color: text.secondary, lineHeight: 1.5 }}>{ins.text}</span>
           </div>
@@ -2597,10 +2598,10 @@ function TopRecipientsMini({ onTransfer }: { onTransfer: (account: string) => vo
         {recipients.map((r, i) => (
           <button key={i} onClick={() => onTransfer(r.related_account)} style={{
             flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
-            padding: '10px 12px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.12)',
+            padding: '10px 12px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent',
             borderRadius: 16, cursor: 'pointer', minWidth: 80,
           }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255, 0.08)', border: '1px solid rgba(255,255,255, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: text.primary, fontFamily: 'monospace' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255, 0.08)', border: '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: text.primary, fontFamily: 'monospace' }}>
               {r.related_account.slice(-2)}
             </div>
             <span style={{ fontSize: 10, color: text.muted, fontFamily: 'monospace', letterSpacing: 0.5 }}>••{r.related_account.slice(-4)}</span>
@@ -2626,8 +2627,8 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
       gap: isMobile ? 8 : 9,
       padding: isMobile ? '12px 4px 10px' : '16px 6px 14px',
       background: isMobile
-        ? 'rgba(255,255,255, 0.06)'
-        : 'rgba(255,255,255, 0.055)',
+        ? 'rgba(255,255,255, 0.1)'
+        : 'rgba(255,255,255, 0.1)',
       border: `1px solid rgba(176,176,176, ${isMobile ? '0.16' : '0.12'})`,
       borderRadius: isMobile ? 16 : radius.lg,
       color: text.secondary,
@@ -2636,7 +2637,7 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
       transition: 'background 0.15s, border-color 0.15s, transform 0.15s',
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
-      boxShadow: isMobile ? '0 10px 24px rgba(0,0,0, 0.18), inset 0 1px 0 rgba(255,255,255, 0.05)' : '0 2px 8px rgba(0,0,0, 0.12), inset 0 1px 0 rgba(255,255,255, 0.06)',
+      boxShadow: isMobile ? '0 10px 24px rgba(0,0,0, 0.18)' : '0 2px 8px rgba(0,0,0, 0.12)',
       textAlign: 'center',
       minWidth: 0,
     }}>
@@ -2646,7 +2647,7 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
         borderRadius: isMobile ? 12 : 13,
         background: `${goldLight}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: `0 8px 18px -8px rgba(172,172,172, 0.58), inset 0 1px 0 rgba(240,240,240, 0.52)`,
+        boxShadow: `0 8px 18px -8px rgba(172,172,172, 0.58)`,
       }}>{icon}</div>
       <span style={{
         fontSize: isMobile ? 11.5 : 10.5,
@@ -2668,8 +2669,8 @@ function ActivityRow({ iconBg, iconEl, title, subtitle, amount, positive, onClic
       <div style={{
         width: 40, height: 40, borderRadius: 12, background: iconBg,
         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        border: `1px solid rgba(176,176,176, 0.10)`,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)',
+        border: `1px solid transparent`,
+        boxShadow: 'none',
       }}>{iconEl}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ ...T.body, fontWeight: 500, color: text.secondary, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
@@ -2720,7 +2721,7 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <span style={{ ...T.caption, color: text.muted }}>{t('balance_total')}</span>
-        <button onClick={onToggle} style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(176,176,176, 0.1)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button onClick={onToggle} style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {visible
             ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" stroke={text.muted} strokeWidth="1.6" /><circle cx="12" cy="12" r="3" stroke={text.muted} strokeWidth="1.6" /></svg>
             : <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.4 5.1A10.9 10.9 0 0112 5c6 0 10 7 10 7a18 18 0 01-3.2 3.9M6.6 6.6A18 18 0 002 12s4 7 10 7a11 11 0 003.4-.5" stroke={text.muted} strokeWidth="1.6" strokeLinecap="round" /></svg>
@@ -2736,7 +2737,7 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
         {accountNumber && accountNumber !== '—' && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(176,176,176, 0.12)`, borderRadius: 100, fontSize: 11, color: 'rgba(215,215,215, 0.65)', fontWeight: 500, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 100, fontSize: 11, color: 'rgba(215,215,215, 0.65)', fontWeight: 500, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
             {accountNumber}
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" strokeWidth="2" /></svg>
           </div>
@@ -2765,7 +2766,7 @@ function ActivityFeed({ title = true, transactions }: { title?: boolean; transac
           </button>
         </div>
       )}
-      <div style={{ background: 'rgba(255,255,255, 0.048)', border: `1px solid rgba(176,176,176, 0.10)`, borderRadius: 20, overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 2px 12px rgba(0,0,0, 0.08)' }}>
+      <div style={{ background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 20, overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 2px 12px rgba(0,0,0, 0.08)' }}>
         {rows.length === 0 ? (
           <div style={{ padding: '28px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: 13, color: text.muted, marginBottom: 4 }}>{t('no_transactions_yet')}</div>
@@ -2898,8 +2899,8 @@ function ThreeDSModal({
         <div style={{ padding: '24px 20px 28px' }}>
           {/* Payment summary */}
           <div style={{
-            background: 'rgba(255,255,255, 0.04)', borderRadius: 14,
-            border: '1px solid rgba(172,172,172, 0.12)',
+            background: 'rgba(255,255,255, 0.1)', borderRadius: 14,
+            border: '1px solid transparent',
             padding: '14px 16px', marginBottom: 20,
           }}>
             <div style={{ fontSize: 11, color: 'rgba(215,215,215, 0.5)', letterSpacing: 1, marginBottom: 4 }}>СУМА ПЕРЕКАЗУ</div>
@@ -2949,7 +2950,7 @@ function ThreeDSModal({
                 width: '100%', padding: '16px', textAlign: 'center',
                 fontSize: 28, fontWeight: 700, letterSpacing: 10,
                 fontFamily: '"SF Mono", monospace',
-                background: 'rgba(255,255,255, 0.06)',
+                background: 'rgba(255,255,255, 0.1)',
                 border: `1px solid ${error ? 'rgba(110,110,110, 0.5)' : 'rgba(172,172,172, 0.2)'}`,
                 borderRadius: 14, color: '#ebebeb', outline: 'none',
                 boxSizing: 'border-box',
@@ -2974,8 +2975,8 @@ function ThreeDSModal({
               onClick={onCancel}
               style={{
                 flex: 1, padding: '13px', borderRadius: 12,
-                background: 'rgba(255,255,255, 0.05)',
-                border: '1px solid rgba(172,172,172, 0.15)',
+                background: 'rgba(255,255,255, 0.1)',
+                border: '1px solid transparent',
                 color: 'rgba(215,215,215, 0.7)', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
@@ -3115,7 +3116,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
 
   const inp: React.CSSProperties = {
     width: '100%', padding: '12px 14px', boxSizing: 'border-box',
-    background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`,
+    background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
     borderRadius: 12, color: '#ebebeb', fontSize: 15, outline: 'none', fontFamily: 'inherit',
   };
 
@@ -3175,7 +3176,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
             background: loading ? 'rgba(51,51,51, 0.4)' : 'rgba(53,53,53, 0.95)',
             color: loading ? text.dim : text.primary, fontSize: 15, fontWeight: 600,
             cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit',
-            boxShadow: loading ? 'none' : '0 1px 0 rgba(255,255,255, 0.05) inset',
+            boxShadow: loading ? 'none' : '0 1px 0 rgba(255,255,255, 0.1) inset',
             letterSpacing: 0.3,
           }}>{loading ? '…' : cfg.title}</button>
         </form>
@@ -3220,16 +3221,16 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: text.primary }}>Обмін валюти</div>
           <div style={{ flex: 1 }} />
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255, 0.06)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
         <div style={{ display: 'flex', background: 'rgba(36,36,36, 0.6)', borderRadius: 14, padding: 4, marginBottom: 20 }}>
-          {([['buy', '🛒 Купити'] as const, ['sell', '💵 Продати'] as const]).map(([d, label]) => (
+          {([['buy', 'Купити'] as const, ['sell', 'Продати'] as const]).map(([d, label]) => (
             <button key={d} onClick={() => setDir(d)} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: dir === d ? `${goldDark}` : 'transparent', color: dir === d ? '#242424' : text.muted, fontWeight: dir === d ? 700 : 500, fontSize: 13 }}>{label}</button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
           {rates.map(r => (
-            <button key={r.code} onClick={() => setCurrency(r.code)} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, border: `1.5px solid ${currency === r.code ? gold : 'rgba(172,172,172, 0.15)'}`, background: currency === r.code ? 'rgba(171,171,171, 0.1)' : 'rgba(255,255,255, 0.03)', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+            <button key={r.code} onClick={() => setCurrency(r.code)} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, border: `1.5px solid ${currency === r.code ? gold : 'rgba(172,172,172, 0.15)'}`, background: currency === r.code ? 'rgba(171,171,171, 0.1)' : 'rgba(255,255,255, 0.1)', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span style={{ fontSize: 18 }}>{CURRENCY_FLAGS[r.code] ?? '🌐'}</span>
               <span style={{ fontSize: 11, fontWeight: 700, color: currency === r.code ? gold : text.secondary }}>{r.code}</span>
               <span style={{ fontSize: 10, color: text.muted }}>{(dir === 'buy' ? r.rate * (1 + SPREAD) : r.rate * (1 - SPREAD)).toFixed(2)}</span>
@@ -3238,10 +3239,10 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
         </div>
         <div style={{ marginBottom: 16 }}>
           <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{dir === 'buy' ? `Сума в токенах TAX` : `Сума в ${currency}`}</label>
-          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.2)`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
+          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
         </div>
         {amtNum > 0 && (
-          <div style={{ background: 'rgba(172,172,172, 0.05)', border: '1px solid rgba(172,172,172, 0.12)', borderRadius: 14, padding: '14px 16px', marginBottom: 20 }}>
+          <div style={{ background: 'rgba(172,172,172, 0.05)', border: '1px solid transparent', borderRadius: 14, padding: '14px 16px', marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: text.muted }}>Ви отримаєте</span>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#a9a9a9' }}>{dir === 'buy' ? `${fxAmt.toFixed(4)} ${currency}` : `${fxAmt.toFixed(2)}\u00a0TAX`}</span>
@@ -3420,9 +3421,9 @@ function SavingsGoalsMini() {
       {showCreate && (
         <div style={{ ...glassCard(), padding: '14px 16px', marginBottom: 10 }}>
           <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Назва цілі"
-            style={{ width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           <input value={newTarget} onChange={e => setNewTarget(e.target.value)} placeholder="Сума, TAX" type="text" inputMode="decimal"
-            style={{ width: '100%', padding: '9px 12px', marginBottom: 10, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '9px 12px', marginBottom: 10, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           <button onClick={createGoal} disabled={creating} style={{
             width: '100%', padding: '10px', fontSize: 13, fontWeight: 600,
             background: `${gold}`, color: '#161616',
@@ -3465,7 +3466,7 @@ function SavingsGoalsMini() {
             ) : (
               <div style={{ display: 'flex', gap: 8 }}>
                 <input value={contributeAmt} onChange={e => setContributeAmt(e.target.value)} placeholder="Сума" type="text" inputMode="decimal"
-                  style={{ flex: 1, padding: '8px 10px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
+                  style={{ flex: 1, padding: '8px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
                 <button onClick={() => contribute(goal.id)} style={{
                   padding: '8px 14px', fontSize: 12, fontWeight: 600,
                   background: `${gold}`, color: '#161616',
@@ -3473,7 +3474,7 @@ function SavingsGoalsMini() {
                 }}>✓</button>
                 <button onClick={() => setContributeId(null)} style={{
                   padding: '8px 10px', fontSize: 12,
-                  background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.14)`,
+                  background: 'rgba(172,172,172, 0.08)', border: `1px solid transparent`,
                   borderRadius: 8, cursor: 'pointer', color: text.muted, fontFamily: 'inherit',
                 }}>✕</button>
               </div>
@@ -3542,7 +3543,7 @@ function RecurringSection() {
     finally { setCreating(false); }
   };
 
-  const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
+  const inputStyle: React.CSSProperties = { width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
   return (
     <div style={{ padding: '24px 22px 0' }}>
@@ -3651,7 +3652,7 @@ function DesktopHealth({ transactions, account }: { transactions: TxItem[]; acco
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <div style={{ position: 'relative', width: 128, height: 128, flexShrink: 0 }}>
           <svg viewBox="0 0 128 128" width="128" height="128" role="img" aria-label={`${score} / 100`} style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="64" cy="64" r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+            <circle cx="64" cy="64" r={R} fill="none" stroke="rgba(255,255,255, 0.1)" strokeWidth="10" />
             <circle cx="64" cy="64" r={R} fill="none" stroke="#f4f4f5" strokeWidth="10" strokeLinecap="round"
               strokeDasharray={`${on ? (score / 100) * C : 0} ${C}`} style={{ transition: 'stroke-dasharray 1.1s var(--kp-ease)' }} />
           </svg>
@@ -3715,7 +3716,7 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
         </div>
       </div>
       {/* Score bar */}
-      <div style={{ background: 'rgba(255,255,255, 0.06)', borderRadius: 4, height: 6, marginBottom: tips.length ? 14 : 0, overflow: 'hidden' }}>
+      <div style={{ background: 'rgba(255,255,255, 0.1)', borderRadius: 4, height: 6, marginBottom: tips.length ? 14 : 0, overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${score}%`, borderRadius: 4, background: `${level.color}`, transition: 'width 1s ease' }} />
       </div>
       {/* Components */}
@@ -3725,7 +3726,7 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
           { label: 'Баланс', val: Math.round(balanceScore) },
           { label: 'Активність', val: Math.round(activityScore) },
         ].map(({ label, val }) => (
-          <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255, 0.03)', borderRadius: 10, padding: '8px 4px' }}>
+          <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255, 0.1)', borderRadius: 10, padding: '8px 4px' }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: text.primary }}>{val}</div>
             <div style={{ fontSize: 9, color: text.muted, marginTop: 2 }}>{label}</div>
           </div>
@@ -3735,7 +3736,7 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
       {tips.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {tips.map((tip, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 11, color: text.muted, background: 'rgba(255,255,255, 0.03)', borderRadius: 8, padding: '7px 10px' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 11, color: text.muted, background: 'rgba(255,255,255, 0.1)', borderRadius: 8, padding: '7px 10px' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, color: gold, flexShrink: 0, marginTop: 1 }}>
                 <TipIcon color={gold} />
               </span>
@@ -3804,7 +3805,7 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
   return (
     <div style={{ margin: '0 22px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: text.secondary }}>📋 Бюджет на місяць</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: text.secondary }}>Бюджет на місяць</div>
         <div style={{ fontSize: 11, color: text.muted }}>{dayOfMonth}/{daysInMonth} дн.</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -3819,7 +3820,7 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
           return (
             <div key={cat.key} style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 16, padding: '12px 14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: limit > 0 ? 10 : 0 }}>
-                <span aria-hidden style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(172,172,172,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span aria-hidden style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={BUDGET_ICON_PATHS[cat.key] ?? BUDGET_ICON_PATHS.other} /></svg>
                 </span>
                 <div style={{ flex: 1 }}>
@@ -3835,14 +3836,14 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
                 </div>
                 <button onClick={() => { setEditing(isEditing ? null : cat.key); setEditVal(limit > 0 ? String(limit) : ''); }}
                   style={{ background: 'none', border: 'none', color: gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: '2px 6px' }}>
-                  {isEditing ? '✕' : limit > 0 ? '✏️' : '+ Ліміт'}
+                  {isEditing ? '✕' : limit > 0 ? 'Змінити' : '+ Ліміт'}
                 </button>
               </div>
               {isEditing && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                   <input type="text" inputMode="decimal" value={editVal} onChange={e => setEditVal(e.target.value)}
                     placeholder="Ліміт TAX"
-                    style={{ flex: 1, padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255, 0.05)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none' }} />
+                    style={{ flex: 1, padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none' }} />
                   <button onClick={() => { const v = parseFloat(editVal.replace(',', '.')); if (v > 0) saveBudget(cat.key, v); }}
                     style={{ padding: '8px 14px', borderRadius: 10, border: 'none', background: '#a9a9a9', color: '#ffffff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                     ОК
@@ -3851,11 +3852,11 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
               )}
               {limit > 0 && (
                 <>
-                  <div style={{ background: 'rgba(255,255,255, 0.06)', borderRadius: 4, height: 5, overflow: 'hidden' }}>
+                  <div style={{ background: 'rgba(255,255,255, 0.1)', borderRadius: 4, height: 5, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${pct}%`, borderRadius: 4, background: `${barColor}`, transition: 'width 0.6s' }} />
                   </div>
-                  {pace > 1.2 && <div style={{ fontSize: 10, color: '#afafaf', marginTop: 4 }}>⚡ Темп витрат вищий за плановий</div>}
-                  {pct >= 100 && <div style={{ fontSize: 10, color: '#757575', marginTop: 4 }}>🚫 Ліміт вичерпано</div>}
+                  {pace > 1.2 && <div style={{ fontSize: 10, color: '#afafaf', marginTop: 4 }}>Темп витрат вищий за плановий</div>}
+                  {pct >= 100 && <div style={{ fontSize: 10, color: '#757575', marginTop: 4 }}>Ліміт вичерпано</div>}
                 </>
               )}
             </div>
@@ -3901,7 +3902,7 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
   }
 
   return (
-    <div style={{ margin: '0 18px 20px', background: `rgba(171,171,171, 0.1)`, border: `1px solid rgba(171,171,171, 0.25)`, borderRadius: 22, padding: '18px 20px', boxShadow: '0 18px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.05)' }}>
+    <div style={{ margin: '0 18px 20px', background: `rgba(171,171,171, 0.1)`, border: `1px solid rgba(171,171,171, 0.25)`, borderRadius: 22, padding: '18px 20px', boxShadow: '0 18px 34px rgba(0,0,0, 0.14)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
         <div style={{ width: 42, height: 42, borderRadius: 13, background: 'rgba(171,171,171, 0.2)', border: `1px solid rgba(171,171,171, 0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -4114,7 +4115,7 @@ function OverviewScreen() {
           fontSize: 12,
           color: goldLight,
           background: 'rgba(176,176,176, 0.08)',
-          border: '1px solid rgba(176,176,176, 0.16)',
+          border: '1px solid transparent',
           borderRadius: 999,
           padding: '7px 11px',
           display: 'flex',
@@ -4123,7 +4124,7 @@ function OverviewScreen() {
           fontFamily: 'inherit',
           fontWeight: 600,
           cursor: 'pointer',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)',
+          boxShadow: 'none',
         }}>
           {t('all')} <Chevron size={12} color={gold} />
         </button>
@@ -4134,7 +4135,7 @@ function OverviewScreen() {
           <div style={{ fontSize: 12, color: text.muted, marginBottom: 12 }}>{t('cards_issue_hint')}</div>
           <button
             onClick={() => goTo('cards')}
-            style={{ padding: '8px 12px', borderRadius: 10, border: `1px solid ${bg.border}`, background: 'rgba(255,255,255, 0.03)', color: text.secondary, cursor: 'pointer' }}
+            style={{ padding: '8px 12px', borderRadius: 10, border: `1px solid ${bg.border}`, background: 'rgba(255,255,255, 0.1)', color: text.secondary, cursor: 'pointer' }}
           >
             {t('open_cards')}
           </button>
@@ -4316,15 +4317,15 @@ function OverviewScreen() {
           ...glassCard({
             padding: '18px 18px 16px',
             borderRadius: 28,
-            background: 'rgba(33,33,33, 0.9)',
-            boxShadow: '0 20px 42px rgba(0,0,0, 0.24), inset 0 1px 0 rgba(255,255,255, 0.06)',
+            background: '#1c1c1e',
+            boxShadow: '0 20px 42px rgba(0,0,0, 0.24)',
           }),
           position: 'relative',
           overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(185,185,185, 0.12)', pointerEvents: 'none' }} />
+          
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${goldLight}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#242424', fontSize: 14, fontWeight: 700, boxShadow: '0 0 0 2px rgba(176,176,176, 0.14), inset 0 1px 0 rgba(225,225,225, 0.5), 0 6px 18px rgba(0,0,0, 0.28)', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${goldLight}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#242424', fontSize: 14, fontWeight: 700, boxShadow: '0 0 0 2px rgba(176,176,176, 0.14), 0 6px 18px rgba(0,0,0, 0.28)', overflow: 'hidden', flexShrink: 0 }}>
               {profilePhoto ? <img src={profilePhoto} alt={t('profile_photo_alt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : avatarInitials}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -4335,7 +4336,7 @@ function OverviewScreen() {
               <svg key="chat" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="#d8d8d8" strokeWidth="1.6" strokeLinejoin="round" /></svg>,
               <svg key="bell" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
             ].map((icon, i) => (
-              <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.045)', border: '1px solid rgba(176,176,176, 0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.06), 0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+              <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', boxShadow: '0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
 
                 {icon}
                 {i === 1 && unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#888888', border: '1.5px solid rgba(18,18,18, 0.9)' }} />}
@@ -4345,7 +4346,7 @@ function OverviewScreen() {
           <div style={{ height: 18 }} />
           <BalanceBlock visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)} balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'} />
           <div style={{ display: 'flex', gap: 8, marginTop: 18, flexWrap: 'wrap' }}>
-            <div style={{ padding: '8px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.045)', border: '1px solid rgba(255,255,255, 0.06)', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
+            <div style={{ padding: '8px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
               {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
             </div>
             <div style={{ padding: '8px 12px', borderRadius: 999, background: flowNet >= 0 ? 'rgba(169,169,169, 0.14)' : 'rgba(136,136,136, 0.14)', border: `1px solid ${flowNet >= 0 ? 'rgba(169,169,169, 0.24)' : 'rgba(136,136,136, 0.22)'}`, fontSize: 11, color: flowNet >= 0 ? '#c5c5c5' : '#bfbfbf', fontWeight: 600, fontFeatureSettings: '"tnum" 1' }}>
@@ -4396,7 +4397,7 @@ function OverviewScreen() {
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0',
           padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
-          border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+          border: '1px solid transparent', borderBottom: 'none',
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
@@ -4412,7 +4413,6 @@ function OverviewScreen() {
           </div>
           {apiNotifications.length === 0 ? (
             <div style={{ padding: '28px 0', textAlign: 'center', color: text.muted, fontSize: 14 }}>
-              <div style={{ fontSize: 28, marginBottom: 12 }}>🔔</div>
               {t('no_new_notifications')}
             </div>
           ) : (
@@ -4688,7 +4688,7 @@ function CardsScreen() {
             padding: '18px 18px 16px',
             borderRadius: 26,
             background: 'rgba(29,29,29, 0.92)',
-            boxShadow: '0 20px 42px rgba(0,0,0, 0.22), inset 0 1px 0 rgba(255,255,255, 0.05)',
+            boxShadow: '0 20px 42px rgba(0,0,0, 0.22)',
           }),
           position: 'relative',
           overflow: 'hidden',
@@ -4699,7 +4699,7 @@ function CardsScreen() {
               <div style={{ fontSize: 11, color: text.muted, letterSpacing: 0.6, marginBottom: 4 }}>{t('cards_title')}</div>
               <div style={{ ...T.h1, color: text.primary, marginBottom: 8 }}>{t('cards_title')}</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.05)', border: '1px solid rgba(255,255,255, 0.06)', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
+                <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
                   {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
                 </div>
                 <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(169,169,169, 0.12)', border: '1px solid rgba(169,169,169, 0.22)', fontSize: 11, color: '#c5c5c5', fontWeight: 600 }}>
@@ -4711,7 +4711,7 @@ function CardsScreen() {
               padding: '11px 16px', background: `${goldLight}`,
               color: '#292929', border: 'none', borderRadius: 16, fontSize: 13, fontWeight: 700,
               fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-              boxShadow: `0 10px 22px -10px rgba(172,172,172, 0.45), inset 0 1px 0 rgba(240,240,240, 0.55)`,
+              boxShadow: `0 10px 22px -10px rgba(172,172,172, 0.45)`,
               opacity: designLoading && designMode === 'issue' ? 0.65 : 1,
               flexShrink: 0,
             }}>
@@ -4844,13 +4844,13 @@ function CardsScreen() {
               onClick={() => openDesignModal('current')}
               style={{
                 padding: '7px 12px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.24)',
-                background: 'rgba(255,255,255, 0.04)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >{t('change_label')}</button>
           </div>
 
           {/* Card balance block */}
-          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'rgba(255,255,255, 0.03)', borderRadius: 14, border: '1px solid rgba(172,172,172, 0.1)' }}>
+          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'rgba(255,255,255, 0.1)', borderRadius: 14, border: '1px solid transparent' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
@@ -4870,7 +4870,7 @@ function CardsScreen() {
                 {!card?.isPrimary && card?.statusRaw !== 'closed' && (
                   <button onClick={setPrimaryCard} style={{
                     padding: '8px 14px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.22)',
-                    background: 'rgba(255,255,255, 0.03)', color: text.muted, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+                    background: 'rgba(255,255,255, 0.1)', color: text.muted, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
                   }}>Зробити головною</button>
                 )}
               </div>
@@ -4906,10 +4906,10 @@ function CardsScreen() {
                 display: 'flex', flexDirection: 'column', alignItems: layout === 'mobile' ? 'flex-start' : 'center', gap: 10,
                 minHeight: layout === 'mobile' ? 94 : undefined,
                 padding: layout === 'mobile' ? '14px 12px' : '10px 4px',
-                background: 'rgba(255,255,255, 0.045)',
-                border: '1px solid rgba(172,172,172, 0.12)', borderRadius: 16,
+                background: 'rgba(255,255,255, 0.1)',
+                border: '1px solid transparent', borderRadius: 16,
                 color: '#d8d8d8', fontSize: layout === 'mobile' ? 12.5 : 11, fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer',
-                textAlign: layout === 'mobile' ? 'left' : 'center', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)',
+                textAlign: layout === 'mobile' ? 'left' : 'center', boxShadow: 'none',
               }}>
                 {a.icon}{a.label}
               </button>
@@ -4976,7 +4976,7 @@ function CardsScreen() {
           background: 'rgba(35,35,35, 0.98)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
-          border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+          border: '1px solid transparent', borderBottom: 'none',
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
           <div style={{ fontSize: 18, fontWeight: 700, color: text.primary, marginBottom: 4 }}>{t('change_pin')}</div>
@@ -4988,7 +4988,7 @@ function CardsScreen() {
                 type="password" inputMode="numeric" maxLength={4}
                 value={pinValue} onChange={e => setPinValue(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder="••••"
-                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
               />
             </div>
             <div>
@@ -4997,7 +4997,7 @@ function CardsScreen() {
                 type="password" inputMode="numeric" maxLength={4}
                 value={pinConfirm} onChange={e => setPinConfirm(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder="••••"
-                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid ${pinConfirm && pinValue !== pinConfirm ? 'rgba(110,110,110, 0.5)' : 'rgba(172,172,172, 0.18)'}`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid ${pinConfirm && pinValue !== pinConfirm ? 'rgba(110,110,110, 0.5)' : 'rgba(172,172,172, 0.18)'}`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: fontFamily, letterSpacing: 8, boxSizing: 'border-box' }}
               />
               {pinConfirm && pinValue !== pinConfirm && <div style={{ fontSize: 11, color: '#888888', marginTop: 4 }}>{t('pin_mismatch')}</div>}
             </div>
@@ -5026,7 +5026,7 @@ function CardsScreen() {
           background: 'rgba(35,35,35, 0.98)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '24px 20px calc(22px + env(safe-area-inset-bottom,0px))',
-          border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+          border: '1px solid transparent', borderBottom: 'none',
           maxHeight: '82vh', overflowY: 'auto',
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 18px' }} />
@@ -5048,7 +5048,7 @@ function CardsScreen() {
                   padding: 10,
                   borderRadius: 14,
                   border: selectedDesign === opt.design ? '1px solid rgba(215,215,215, 0.42)' : '1px solid rgba(172,172,172, 0.18)',
-                  background: selectedDesign === opt.design ? 'rgba(255,255,255, 0.08)' : 'rgba(255,255,255, 0.03)',
+                  background: selectedDesign === opt.design ? 'rgba(255,255,255, 0.08)' : 'rgba(255,255,255, 0.1)',
                   color: text.secondary,
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -5083,7 +5083,7 @@ function CardsScreen() {
               disabled={designLoading}
               style={{
                 flex: 1, padding: '13px 12px', borderRadius: 14, border: '1px solid rgba(172,172,172, 0.22)',
-                background: 'rgba(255,255,255, 0.03)', color: text.secondary, fontSize: 14, fontWeight: 600, cursor: designLoading ? 'default' : 'pointer',
+                background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 14, fontWeight: 600, cursor: designLoading ? 'default' : 'pointer',
               }}
             >{t('cancel_label')}</button>
             <button
@@ -5109,7 +5109,7 @@ function CardsScreen() {
           background: 'rgba(35,35,35, 0.98)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
-          border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+          border: '1px solid transparent', borderBottom: 'none',
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
           <div style={{ fontSize: 18, fontWeight: 700, color: text.primary, marginBottom: 4 }}>Поповнити картку</div>
@@ -5121,7 +5121,7 @@ function CardsScreen() {
             type="text" inputMode="decimal"
             value={topupAmount} onChange={e => setTopupAmount(e.target.value)}
             placeholder="0.00"
-            style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
+            style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid rgba(172,172,172, 0.18)`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
           />
           <div style={{ fontSize: 11, color: text.dim, marginBottom: 20 }}>
             Баланс рахунку: {formatUah(Number(account?.balance || 0))}
@@ -5242,10 +5242,10 @@ function DepositsSection() {
 
   const panelStyle: React.CSSProperties = {
     background: 'rgba(32,32,32, 0.72)',
-    border: '1px solid rgba(183,183,183, 0.12)',
+    border: '1px solid transparent',
     borderRadius: 26,
     overflow: 'hidden',
-    boxShadow: '0 18px 44px rgba(0,0,0, 0.16), inset 0 1px 0 rgba(255,255,255, 0.04)',
+    boxShadow: '0 18px 44px rgba(0,0,0, 0.16)',
   };
   const metricGridStyle: React.CSSProperties = {
     display: 'grid',
@@ -5280,7 +5280,7 @@ function DepositsSection() {
     justifyContent: 'center',
     color: goldLight,
     flexShrink: 0,
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.06)',
+    boxShadow: 'none',
   };
 
   return (
@@ -5302,7 +5302,7 @@ function DepositsSection() {
           style={{
             padding: '10px 16px',
             borderRadius: 14,
-            background: showCreate ? 'rgba(255,255,255, 0.06)' : 'rgba(126,126,126, 0.95)',
+            background: showCreate ? 'rgba(255,255,255, 0.1)' : 'rgba(126,126,126, 0.95)',
             border: showCreate ? `1px solid ${bg.border}` : '1px solid rgba(171,171,171, 0.22)',
             color: showCreate ? text.secondary : '#f5f5f5',
             display: 'flex',
@@ -5329,7 +5329,7 @@ function DepositsSection() {
                 type="text" inputMode="decimal"
                 value={amount} onChange={e => setAmount(e.target.value)}
                 placeholder="0,00"
-                style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255, 0.045)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 14, color: text.primary, fontSize: 22, fontWeight: 500, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }}
+                style={{ width: '100%', padding: '14px 16px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 14, color: text.primary, fontSize: 22, fontWeight: 500, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', boxShadow: 'none' }}
               />
               <div style={{ fontSize: 11, color: text.muted, marginTop: 4 }}>{t('dep_min_amount')}</div>
             </div>
@@ -5343,8 +5343,8 @@ function DepositsSection() {
                     onClick={() => setTermMonths(m)}
                     style={{
                       padding: '10px 4px', borderRadius: 12, fontFamily: 'inherit', cursor: 'pointer',
-                      border: termMonths === m ? `1px solid ${gold}55` : `1px solid rgba(172,172,172, 0.14)`,
-                      background: termMonths === m ? `rgba(171,171,171, 0.12)` : 'rgba(255,255,255, 0.04)',
+                      border: termMonths === m ? `1px solid ${gold}55` : `1px solid transparent`,
+                      background: termMonths === m ? `rgba(171,171,171, 0.12)` : 'rgba(255,255,255, 0.1)',
                       color: termMonths === m ? gold : text.secondary,
                       fontSize: 12, fontWeight: termMonths === m ? 700 : 500,
                     }}
@@ -5357,7 +5357,7 @@ function DepositsSection() {
             </div>
 
             {/* Projected return */}
-            <div style={{ background: 'rgba(171,171,171, 0.07)', border: `1px solid rgba(171,171,171, 0.15)`, borderRadius: 16, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ background: 'rgba(171,171,171, 0.07)', border: `1px solid transparent`, borderRadius: 16, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8 }}>{t('dep_accrued')}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: gold }}>+{projectedInterest()}{'\u00a0TAX'}</div>
@@ -5649,10 +5649,10 @@ function CreditsSection() {
   const activeCredits = credits.filter(c => c.status === 'active').length;
   const panelStyle: React.CSSProperties = {
     background: 'rgba(32,32,32, 0.72)',
-    border: '1px solid rgba(183,183,183, 0.12)',
+    border: '1px solid transparent',
     borderRadius: 26,
     overflow: 'hidden',
-    boxShadow: '0 18px 44px rgba(0,0,0, 0.16), inset 0 1px 0 rgba(255,255,255, 0.04)',
+    boxShadow: '0 18px 44px rgba(0,0,0, 0.16)',
   };
   const sectionIconStyle: React.CSSProperties = {
     width: 42,
@@ -5665,7 +5665,7 @@ function CreditsSection() {
     justifyContent: 'center',
     color: '#dbdbdb',
     flexShrink: 0,
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.05)',
+    boxShadow: 'none',
   };
   const metricGridStyle: React.CSSProperties = {
     display: 'grid',
@@ -5763,7 +5763,7 @@ function CreditsSection() {
             <div style={{ fontSize: 12, color: text.muted }}>{activeCredits > 0 ? `${activeCredits} ${tt.activeSuffix}` : tt.subtitle}</div>
           </div>
         </div>
-        <button onClick={() => setShowCreate(v => !v)} style={{ padding: '10px 16px', borderRadius: 14, border: showCreate ? `1px solid ${bg.border}` : '1px solid rgba(128,128,128, 0.18)', cursor: 'pointer', background: showCreate ? 'rgba(255,255,255, 0.06)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', boxShadow: showCreate ? 'none' : '0 12px 28px rgba(47,47,47, 0.22)' }}>{showCreate ? '✕' : tt.toggleOpen}</button>
+        <button onClick={() => setShowCreate(v => !v)} style={{ padding: '10px 16px', borderRadius: 14, border: showCreate ? `1px solid ${bg.border}` : '1px solid rgba(128,128,128, 0.18)', cursor: 'pointer', background: showCreate ? 'rgba(255,255,255, 0.1)' : 'rgba(98,98,98, 0.96)', color: '#f8f8f8', fontSize: 12.5, fontWeight: 700, fontFamily: 'inherit', boxShadow: showCreate ? 'none' : '0 12px 28px rgba(47,47,47, 0.22)' }}>{showCreate ? '✕' : tt.toggleOpen}</button>
       </div>
 
       {showCreate && (
@@ -5771,13 +5771,13 @@ function CreditsSection() {
           <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
               <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{tt.amountLabel}</label>
-              <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder={tt.amountPlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.045)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 16, outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }} />
+              <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder={tt.amountPlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 16, outline: 'none', boxShadow: 'none' }} />
             </div>
             <div>
               <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 8 }}>{tt.termLabel}</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {CREDIT_TERMS.map(mo => (
-                  <button key={mo} type="button" onClick={() => setTerm(mo)} style={{ flex: 1, padding: '10px 0', borderRadius: 12, border: `1.5px solid ${term === mo ? '#787878' : bg.border}`, background: term === mo ? 'rgba(120,120,120, 0.14)' : 'rgba(255,255,255, 0.035)', color: term === mo ? '#cacaca' : text.muted, fontSize: 12, fontWeight: term === mo ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button key={mo} type="button" onClick={() => setTerm(mo)} style={{ flex: 1, padding: '10px 0', borderRadius: 12, border: `1.5px solid ${term === mo ? '#787878' : bg.border}`, background: term === mo ? 'rgba(120,120,120, 0.14)' : 'rgba(255,255,255, 0.1)', color: term === mo ? '#cacaca' : text.muted, fontSize: 12, fontWeight: term === mo ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {mo}м<div style={{ fontSize: 10, marginTop: 2 }}>{CREDIT_RATES[mo]}%</div>
                   </button>
                 ))}
@@ -5795,7 +5795,7 @@ function CreditsSection() {
                 </div>
               </div>
             )}
-            <input value={desc} onChange={e => setDesc(e.target.value)} placeholder={tt.purposePlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.045)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)' }} />
+            <input value={desc} onChange={e => setDesc(e.target.value)} placeholder={tt.purposePlaceholder} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none', boxShadow: 'none' }} />
             <button type="submit" disabled={creating} style={{ padding: '14px', borderRadius: 16, border: 'none', background: creating ? 'rgba(51,51,51, 0.4)' : 'rgba(98,98,98, 0.96)', color: creating ? text.dim : '#f8f8f8', fontSize: 14, fontWeight: 700, cursor: creating ? 'default' : 'pointer', fontFamily: 'inherit', boxShadow: creating ? 'none' : '0 14px 30px rgba(47,47,47, 0.2)' }}>{creating ? '…' : tt.submit}</button>
           </form>
         </div>
@@ -5823,7 +5823,7 @@ function CreditsSection() {
                     </div>
                     <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.3, padding: '7px 12px', borderRadius: 999, background: `${statusColor}18`, color: statusColor, border: `1px solid ${statusColor}30` }}>{isActive ? tt.statusActive : tt.statusClosed}</div>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255, 0.06)', borderRadius: 999, height: 6, overflow: 'hidden' }}>
+                  <div style={{ background: 'rgba(255,255,255, 0.1)', borderRadius: 999, height: 6, overflow: 'hidden' }}>
                     <div style={{ height: '100%', borderRadius: 999, background: isActive ? 'rgba(86,86,86, 0.95)' : '#666666', width: `${cr.progress}%`, transition: 'width 0.6s', boxShadow: isActive ? '0 0 16px rgba(151,151,151, 0.16)' : 'none' }} />
                   </div>
                   <div style={{ fontSize: 11, color: text.muted, marginTop: 6 }}>{cr.progress.toFixed(0)}% {tt.progressPaid}</div>
@@ -6001,7 +6001,7 @@ function OperationsScreen() {
             padding: '18px 18px 16px',
             borderRadius: 26,
             background: 'rgba(29,29,29, 0.9)',
-            boxShadow: '0 20px 42px rgba(0,0,0, 0.2), inset 0 1px 0 rgba(255,255,255, 0.05)',
+            boxShadow: '0 20px 42px rgba(0,0,0, 0.2)',
           }),
           position: 'relative',
           overflow: 'hidden',
@@ -6036,7 +6036,7 @@ function OperationsScreen() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={t('search_transactions')}
-            style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 12, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 12, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
           />
         </div>
         <div style={{ display: 'flex', gap: 4, padding: '3px', background: 'rgba(36,36,36, 0.5)', borderRadius: 100, marginTop: 10 }}>
@@ -6209,7 +6209,7 @@ function OperationsScreen() {
       {txGroups.map((g, gi) => (
         <div key={gi} style={{ padding: '4px 18px 12px' }}>
           <div style={{ ...sectionLabel }}>{g.group}</div>
-          <div style={{ background: 'rgba(31,31,31, 0.82)', border: `1px solid ${bg.border}`, borderRadius: 20, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
+          <div style={{ background: 'rgba(31,31,31, 0.82)', border: `1px solid ${bg.border}`, borderRadius: 20, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12)' }}>
             {g.items.map((item, i) => {
               const s = CAT_STYLES[item.cat];
               return (
@@ -6229,7 +6229,7 @@ function OperationsScreen() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ ...T.body, fontWeight: 600, color: item.positive ? '#a9a9a9' : text.secondary, ...T.num }}>{item.amount} TAX</div>
                       {item.txId ? (
-                        <button onClick={e => { e.stopPropagation(); downloadReceipt(item.txId!); }} disabled={dlReceipt === item.txId} title={t('download_receipt')} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.08)', border: `1px solid rgba(172,172,172, 0.15)`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: goldLight }}>{dlReceipt === item.txId ? '…' : <ReceiptIcon size={14} color={goldLight} />}</button>
+                        <button onClick={e => { e.stopPropagation(); downloadReceipt(item.txId!); }} disabled={dlReceipt === item.txId} title={t('download_receipt')} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.08)', border: `1px solid transparent`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: goldLight }}>{dlReceipt === item.txId ? '…' : <ReceiptIcon size={14} color={goldLight} />}</button>
                       ) : (
                         <Chevron size={12} color="rgba(215,215,215, 0.3)" />
                       )}
@@ -6287,7 +6287,7 @@ function OperationsScreen() {
           background: 'rgba(35,35,35, 0.98)',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
-          border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+          border: '1px solid transparent', borderBottom: 'none',
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
@@ -6306,10 +6306,10 @@ function OperationsScreen() {
             onChange={e => setTxNote(e.target.value)}
             placeholder={t('tx_note_placeholder')}
             rows={3}
-            style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 14, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 14, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }}
           />
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <button onClick={() => setSelectedTxId(null)} style={{ flex: 1, padding: '12px', background: 'rgba(172,172,172, 0.07)', border: '1px solid rgba(172,172,172, 0.15)', borderRadius: 14, color: text.muted, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
+            <button onClick={() => setSelectedTxId(null)} style={{ flex: 1, padding: '12px', background: 'rgba(172,172,172, 0.07)', border: '1px solid transparent', borderRadius: 14, color: text.muted, fontSize: 14, fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }}>
               {t('cancel_label')}
             </button>
             <button onClick={saveNote} disabled={savingNote} style={{ flex: 2, padding: '12px', background: `${gold}`, border: 'none', borderRadius: 14, color: '#161616', fontSize: 14, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', opacity: savingNote ? 0.7 : 1 }}>
@@ -6616,7 +6616,7 @@ function ProfileScreen() {
   ];
 
   const section = (children: React.ReactNode) => (
-    <div style={{ breakInside: 'avoid', background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14), inset 0 1px 0 rgba(255,255,255, 0.04)' }}>
+    <div style={{ breakInside: 'avoid', background: 'rgba(33,33,33, 0.8)', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14)' }}>
       {children}
     </div>
   );
@@ -6631,7 +6631,7 @@ function ProfileScreen() {
             padding: '22px 18px 18px',
             borderRadius: 28,
             background: 'rgba(29,29,29, 0.92)',
-            boxShadow: '0 22px 44px rgba(0,0,0, 0.22), inset 0 1px 0 rgba(255,255,255, 0.05)',
+            boxShadow: '0 22px 44px rgba(0,0,0, 0.22)',
           }),
           position: 'relative',
           overflow: 'hidden',
@@ -6650,7 +6650,7 @@ function ProfileScreen() {
           background: `${gold}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 28, fontWeight: 700, color: '#242424', letterSpacing: 0.5,
-          boxShadow: `0 0 0 3px rgba(0,0,0, 0.6), 0 0 0 5px ${gold}55, inset 0 1px 0 rgba(225,225,225, 0.5)`,
+          boxShadow: `0 0 0 3px rgba(0,0,0, 0.6), 0 0 0 5px ${gold}55`,
           marginBottom: 14,
           overflow: 'hidden',
         }}>
@@ -6665,7 +6665,7 @@ function ProfileScreen() {
             onClick={() => photoInputRef.current?.click()}
             style={{
               padding: '6px 12px', borderRadius: 10, border: '1px solid rgba(172,172,172, 0.24)',
-              background: 'rgba(255,255,255, 0.05)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}
           >
             {t('profile_change_photo')}
@@ -6689,11 +6689,11 @@ function ProfileScreen() {
           <span style={{ fontSize: 11.5, color: '#a9a9a9', fontWeight: 500 }}>{t('profile_verified')}</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, width: '100%', marginTop: 16 }}>
-          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(255,255,255, 0.05)' }}>
+          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent' }}>
             <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.7, marginBottom: 4 }}>{t('profile_phone')}</div>
             <div style={{ fontSize: 13, color: text.secondary, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{phone}</div>
           </div>
-          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.04)', border: '1px solid rgba(255,255,255, 0.05)' }}>
+          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent' }}>
             <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.7, marginBottom: 4 }}>{t('balance_total')}</div>
             <div style={{ fontSize: 13, color: text.primary, fontWeight: 700, fontFeatureSettings: '"tnum" 1' }}>{formatUah(Number(account?.balance || 0), lang)}</div>
           </div>
@@ -6728,8 +6728,8 @@ function ProfileScreen() {
                   style={{
                     padding: '11px 12px',
                     borderRadius: 12,
-                    border: active ? `1px solid rgba(172,172,172, 0.34)` : '1px solid rgba(172,172,172, 0.14)',
-                    background: active ? 'rgba(172,172,172, 0.16)' : 'rgba(255,255,255, 0.04)',
+                    border: active ? `1px solid rgba(172,172,172, 0.34)` : '1px solid transparent',
+                    background: active ? 'rgba(172,172,172, 0.16)' : 'rgba(255,255,255, 0.1)',
                     color: active ? text.primary : text.secondary,
                     fontSize: 13,
                     fontWeight: active ? 700 : 500,
@@ -6806,11 +6806,11 @@ function ProfileScreen() {
             <form onSubmit={changePassword} style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               <input
                 type="password" placeholder={t('profile_current_password')} value={oldPwd} onChange={e => setOldPwd(e.target.value)} required
-                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
               />
               <input
                 type="password" placeholder={t('profile_new_password')} value={newPwd} onChange={e => setNewPwd(e.target.value)} required
-                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 10, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                style={{ padding: '11px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: text.primary, fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
               />
               <button type="submit" disabled={pwdLoading} style={{
                 padding: '11px', background: pwdLoading ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
@@ -6868,12 +6868,12 @@ function ProfileScreen() {
           })}
           <form onSubmit={addLimit} style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <select value={newLimitType} onChange={e => setNewLimitType(e.target.value)}
-              style={{ flex: 1, padding: '9px 10px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}>
+              style={{ flex: 1, padding: '9px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}>
               {['transfer','food','transport','utility','shopping','subscription'].map(v => <option key={v} value={v}>{v}</option>)}
             </select>
             <input value={newLimitAmt} onChange={e => setNewLimitAmt(e.target.value)}
               placeholder="5000" type="text" inputMode="decimal"
-              style={{ width: 80, padding: '9px 10px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
+              style={{ width: 80, padding: '9px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
             />
             <button type="submit" disabled={limitsLoading}
               style={{ padding: '9px 12px', borderRadius: 10, border: 'none', background: `${goldDark}`, color: '#242424', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -6909,7 +6909,7 @@ function ProfileScreen() {
                 type="password" inputMode="numeric" pattern="[0-9]*" maxLength={8}
                 value={pinInput} onChange={e => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 8))}
                 placeholder="••••"
-                style={{ flex: 1, padding: '10px 12px', background: 'rgba(255,255,255, 0.05)', border: `1px solid rgba(172,172,172, 0.16)`, borderRadius: 10, color: text.primary, fontSize: 20, letterSpacing: 8, outline: 'none', fontFamily: 'inherit' }}
+                style={{ flex: 1, padding: '10px 12px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: text.primary, fontSize: 20, letterSpacing: 8, outline: 'none', fontFamily: 'inherit' }}
               />
               <button type="submit" disabled={pinLoading || pinInput.length < 4} style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: pinInput.length >= 4 ? `${goldDark}` : 'rgba(95,95,95, 0.3)', color: '#242424', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }}>
                 {pinLoading ? '…' : t('profile_save')}
@@ -6949,7 +6949,7 @@ function ProfileScreen() {
             {achievements.achievements.map(a => (
               <div key={a.id} style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10, padding: '12px',
-                background: a.done ? 'rgba(169,169,169, 0.12)' : 'rgba(255,255,255, 0.035)',
+                background: a.done ? 'rgba(169,169,169, 0.12)' : 'rgba(255,255,255, 0.1)',
                 border: `1px solid ${a.done ? 'rgba(169,169,169, 0.18)' : 'rgba(172,172,172, 0.08)'}`,
                 borderRadius: 16, opacity: a.done ? 1 : 0.72, transition: 'opacity 0.3s',
               }}>
@@ -7149,11 +7149,11 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.62)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} />
         <div onClick={e => e.stopPropagation()} role="dialog" aria-label={name} style={{
           position: 'relative', width: 'min(920px, 100%)', maxHeight: '88vh', overflow: 'auto',
-          background: '#1d1d1d', border: '1px solid rgba(172,172,172, 0.15)', borderRadius: 22,
+          background: '#1d1d1d', border: '1px solid transparent', borderRadius: 22,
           boxShadow: '0 30px 80px rgba(0,0,0,0.6)', padding: 24,
           display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 28,
         }}>
-          <button onClick={onClose} aria-label="Close" style={{ position: 'absolute', top: 14, right: 14, width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(172,172,172,0.2)', background: 'rgba(255,255,255,0.04)', color: text.secondary, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
+          <button onClick={onClose} aria-label="Close" style={{ position: 'absolute', top: 14, right: 14, width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(172,172,172,0.2)', background: 'rgba(255,255,255, 0.1)', color: text.secondary, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
           {photo}
           <div style={{ display: 'flex', flexDirection: 'column', paddingTop: 28 }}>{info}</div>
         </div>
@@ -7172,7 +7172,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
         position: 'relative', background: '#232323',
         borderRadius: '24px 24px 0 0', padding: '20px 20px calc(32px + env(safe-area-inset-bottom, 0px))',
         boxShadow: '0 -20px 60px rgba(0,0,0, 0.6)', maxHeight: '92vh', overflowY: 'auto',
-        border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+        border: '1px solid transparent', borderBottom: 'none',
         ...sheetSwipe.sheetStyle,
       }}
       >
@@ -7203,7 +7203,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
   const cartRowsMaxHeight = cart.length > 3 ? 'min(42dvh, 360px)' : undefined;
 
   const fieldStyle: React.CSSProperties = {
-    width: '100%', padding: '11px 14px', background: 'rgba(255,255,255, 0.05)',
+    width: '100%', padding: '11px 14px', background: 'rgba(255,255,255, 0.1)',
     border: '1px solid rgba(172,172,172, 0.18)', borderRadius: 12,
     color: text.primary, fontSize: 14, outline: 'none', fontFamily: fontFamily,
     boxSizing: 'border-box',
@@ -7226,7 +7226,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
         height: 'auto',
         maxHeight: 'min(86dvh, 720px)',
         overflow: 'hidden',
-        border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
+        border: '1px solid transparent', borderBottom: 'none',
         display: 'flex',
         flexDirection: 'column',
         ...sheetSwipe.sheetStyle,
@@ -7260,7 +7260,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
                 WebkitOverflowScrolling: 'touch',
               }}>
                 {cart.map(item => (
-                  <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px', background: 'rgba(255,255,255, 0.04)', border: `1px solid ${bg.border}`, borderRadius: 16 }}>
+                  <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px', background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, borderRadius: 16 }}>
                     <div style={{ width: 46, height: 46, borderRadius: 13, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
                       <ProductVisual product={item.product} size="cart" />
                     </div>
@@ -7272,7 +7272,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
                       <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                       <span style={{ fontSize: 14, fontWeight: 600, color: text.primary, minWidth: 20, textAlign: 'center' }}>{item.qty}</span>
                       <button onClick={() => onQtyChange(item.product.id, 1)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(172,172,172, 0.1)', border: `1px solid rgba(172,172,172, 0.2)`, color: gold, fontSize: 16, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                      <button onClick={() => onRemove(item.product.id)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(110,110,110, 0.08)', border: '1px solid rgba(110,110,110, 0.15)', color: '#888888', fontSize: 14, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                      <button onClick={() => onRemove(item.product.id)} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(110,110,110, 0.08)', border: '1px solid transparent', color: '#888888', fontSize: 14, cursor: 'pointer', fontFamily: fontFamily, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                     </div>
                   </div>
                 ))}
@@ -7281,7 +7281,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
                 margin: '0 -18px',
                 padding: '16px 18px calc(18px + env(safe-area-inset-bottom, 0px))',
                 background: 'rgba(25,25,25, 0.98)',
-                borderTop: '1px solid rgba(216,216,216, 0.08)',
+                borderTop: '1px solid transparent',
                 boxShadow: '0 -20px 38px rgba(0,0,0, 0.22)',
               }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14, padding: '0 4px' }}>
@@ -7642,7 +7642,7 @@ function MarketplaceScreen() {
         {tab === 'catalog' && (
           <div style={{ position: 'relative' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.4 }}><circle cx="11" cy="11" r="7" stroke="#d8d8d8" strokeWidth="1.8" /><path d="M20 20l-3-3" stroke="#d8d8d8" strokeWidth="1.8" strokeLinecap="round" /></svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('product_search')} style={{ width: '100%', padding: '12px 14px 12px 38px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 12, color: '#d8d8d8', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('product_search')} style={{ width: '100%', padding: '12px 14px 12px 38px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 12, color: '#d8d8d8', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
         )}
         {tab === 'catalog' && (
@@ -7666,7 +7666,6 @@ function MarketplaceScreen() {
         <>
           {filteredProducts.length === 0 ? (
             <div style={{ padding: '60px 22px', textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🛍️</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: text.secondary, marginBottom: 6 }}>{search ? t('no_results') : t('market_empty')}</div>
               <div style={{ fontSize: 13, color: text.muted }}>{search ? t('try_another_query') : t('products_not_added')}</div>
             </div>
@@ -7674,7 +7673,7 @@ function MarketplaceScreen() {
             <>
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${isMobileMarket ? 150 : 200}px, 1fr))`, gap: marketGridGap, padding: isMobileMarket ? '6px 22px' : '8px 32px' }}>
                 {pagedProducts.map(p => (
-                  <div key={p.id} className="tt-product-card" onClick={() => setPreview(p)} style={{ background: 'rgba(255,255,255, 0.036)', border: '1px solid rgba(172,172,172, 0.07)', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
+                  <div key={p.id} className="tt-product-card" onClick={() => setPreview(p)} style={{ background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
                     <div style={{ aspectRatio: '3 / 4', flexShrink: 0, background: '#ecebe8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 42, position: 'relative', overflow: 'hidden' }}>
                       <ProductVisual product={p} />
                       {p.badge && (
@@ -7701,7 +7700,7 @@ function MarketplaceScreen() {
               </div>
               {hasMore && (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 22px 8px' }}>
-                  <button onClick={loadMoreProducts} disabled={loadingMore} style={{ padding: '12px 28px', borderRadius: 12, border: `1px solid rgba(172,172,172, 0.25)`, background: 'rgba(255,255,255, 0.04)', color: text.primary, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button onClick={loadMoreProducts} disabled={loadingMore} style={{ padding: '12px 28px', borderRadius: 12, border: `1px solid rgba(172,172,172, 0.25)`, background: 'rgba(255,255,255, 0.1)', color: text.primary, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {loadingMore ? t('loading') : (lang === 'uk' ? 'Показати ще' : 'Show more')}
                   </button>
                 </div>
@@ -7713,7 +7712,7 @@ function MarketplaceScreen() {
                     disabled={catalogPage === 1}
                     style={{
                       width: 32, height: 32, borderRadius: 10, border: `1px solid ${bg.border}`,
-                      background: catalogPage === 1 ? 'rgba(255,255,255, 0.03)' : 'rgba(172,172,172, 0.12)',
+                      background: catalogPage === 1 ? 'rgba(255,255,255, 0.1)' : 'rgba(172,172,172, 0.12)',
                       color: catalogPage === 1 ? text.dim : text.secondary, cursor: catalogPage === 1 ? 'default' : 'pointer',
                       fontFamily: 'inherit', fontWeight: 700,
                     }}
@@ -7725,7 +7724,7 @@ function MarketplaceScreen() {
                       onClick={() => goToCatalogPage(page)}
                       style={{
                         minWidth: 32, height: 32, padding: '0 8px', borderRadius: 10, border: 'none',
-                        background: page === catalogPage ? `${goldDark}` : 'rgba(255,255,255, 0.04)',
+                        background: page === catalogPage ? `${goldDark}` : 'rgba(255,255,255, 0.1)',
                         color: page === catalogPage ? '#161616' : text.secondary, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
                       }}
                     >{page}</button>
@@ -7738,7 +7737,7 @@ function MarketplaceScreen() {
                     disabled={catalogPage === totalCatalogPages}
                     style={{
                       width: 32, height: 32, borderRadius: 10, border: `1px solid ${bg.border}`,
-                      background: catalogPage === totalCatalogPages ? 'rgba(255,255,255, 0.03)' : 'rgba(172,172,172, 0.12)',
+                      background: catalogPage === totalCatalogPages ? 'rgba(255,255,255, 0.1)' : 'rgba(172,172,172, 0.12)',
                       color: catalogPage === totalCatalogPages ? text.dim : text.secondary, cursor: catalogPage === totalCatalogPages ? 'default' : 'pointer',
                       fontFamily: 'inherit', fontWeight: 700,
                     }}
@@ -7755,7 +7754,6 @@ function MarketplaceScreen() {
         <div style={{ padding: '8px 22px' }}>
           {orders.length === 0 ? (
             <div style={{ padding: '60px 0', textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: text.secondary, marginBottom: 6 }}>{t('orders_empty')}</div>
               <div style={{ fontSize: 13, color: text.muted }}>{t('catalog_first_order_hint')}</div>
             </div>
@@ -7772,7 +7770,7 @@ function MarketplaceScreen() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
-                  boxShadow: 'inset 0 1px 0 rgba(225,225,225, 0.08), 0 12px 26px rgba(0,0,0, 0.22)',
+                  boxShadow: '0 12px 26px rgba(0,0,0, 0.22)',
                 }}>
                   <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -7796,7 +7794,7 @@ function MarketplaceScreen() {
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       letterSpacing: 0.2,
-                    }}>{dlPdf === `order-${o.id}` ? '…' : `🧾 ${t('receipt_short')}`}</button>
+                    }}>{dlPdf === `order-${o.id}` ? '…' : t('receipt_short')}</button>
                   </div>
                 </div>
               );})}
@@ -7810,7 +7808,6 @@ function MarketplaceScreen() {
         <div style={{ padding: '8px 22px' }}>
           {invoices.length === 0 ? (
             <div style={{ padding: '60px 0', textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🧾</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: text.secondary, marginBottom: 6 }}>{t('invoices_empty')}</div>
               <div style={{ fontSize: 13, color: text.muted }}>{t('invoices_after_orders')}</div>
             </div>
@@ -7827,7 +7824,7 @@ function MarketplaceScreen() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
-                  boxShadow: 'inset 0 1px 0 rgba(225,225,225, 0.08), 0 10px 22px rgba(0,0,0, 0.2)',
+                  boxShadow: '0 10px 22px rgba(0,0,0, 0.2)',
                 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 5 }}>
@@ -7854,7 +7851,7 @@ function MarketplaceScreen() {
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                         letterSpacing: 0.2,
-                      }}>{dlPdf === `order-${inv.order_id}` ? '…' : `🧾 ${t('receipt_short')}`}</button>
+                      }}>{dlPdf === `order-${inv.order_id}` ? '…' : t('receipt_short')}</button>
                     )}
                   </div>
                 </div>
@@ -7904,7 +7901,7 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
         position: 'relative',
         pointerEvents: 'auto',
         background: 'rgba(29,29,29, 0.92)',
-        borderTop: '1px solid rgba(172,172,172, 0.10)',
+        borderTop: '1px solid transparent',
         boxShadow: '0 -8px 32px rgba(0,0,0, 0.28)',
         backdropFilter: 'blur(28px) saturate(190%)',
         WebkitBackdropFilter: 'blur(28px) saturate(190%)',
@@ -7923,10 +7920,10 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
             left: `calc(${activeIdx * 20}% + 6px)`,
             width: 'calc(20% - 12px)',
             background: 'rgba(176,176,176, 0.12)',
-            border: '1px solid rgba(176,176,176, 0.12)',
+            border: '1px solid transparent',
             borderRadius: 14,
             transition: 'left 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: 'inset 0 1px 0 rgba(225,225,225, 0.06)',
+            boxShadow: 'none',
             pointerEvents: 'none',
           }} />
           {tabs.map(tab => {
@@ -7993,7 +7990,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
 
   const fieldSt: React.CSSProperties = {
     width: '100%', padding: '9px 12px',
-    background: 'rgba(255,255,255, 0.05)', border: '1px solid rgba(172,172,172, 0.18)',
+    background: 'rgba(255,255,255, 0.1)', border: '1px solid rgba(172,172,172, 0.18)',
     borderRadius: 10, color: text.primary, fontSize: 13, outline: 'none',
     fontFamily, boxSizing: 'border-box',
   };
@@ -8009,7 +8006,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
       zIndex: 90,
     }}>
       {/* Header */}
-      <div style={{ padding: '32px 20px 16px', borderBottom: '1px solid rgba(172,172,172, 0.07)', flexShrink: 0 }}>
+      <div style={{ padding: '32px 20px 16px', borderBottom: '1px solid transparent', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
             <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h12" stroke={gold} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
@@ -8037,7 +8034,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
         ) : step === 'cart' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {cart.map(item => (
-              <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255, 0.04)', border: `1px solid ${bg.border}`, borderRadius: 14 }}>
+              <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, borderRadius: 14 }}>
                 <div style={{ width: 42, height: 42, borderRadius: 11, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
                   <ProductVisual product={item.product} size="cart" />
                 </div>
@@ -8079,7 +8076,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
 
       {/* Footer */}
       {cart.length > 0 && (
-        <div style={{ padding: '14px 20px 24px', borderTop: '1px solid rgba(172,172,172, 0.07)', flexShrink: 0 }}>
+        <div style={{ padding: '14px 20px 24px', borderTop: '1px solid transparent', flexShrink: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
             <span style={{ fontSize: 12, color: text.muted }}>{step === 'cart' ? t('total_label') : t('pay_total')}:</span>
             <span style={{ ...T.num, fontSize: 20, fontWeight: 700, color: text.primary }}>{fmtInt(total)}{fmtDec(total)}{'\u00a0TAX'}</span>
@@ -8431,7 +8428,7 @@ function CommandPalette({ onClose, onNavigate }: { onClose: () => void; onNaviga
       <div role="dialog" aria-modal="true" aria-label={t('dk_search')} className="kp-pop" onMouseDown={e => e.stopPropagation()} onKeyDown={onKeyDown} style={{
         width: 'min(680px, calc(100vw - 48px))', borderRadius: 24, overflow: 'hidden',
         border: '1px solid var(--kp-line-2)', background: 'rgba(20,20,22, 0.97)',
-        boxShadow: '0 50px 100px -30px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.06)',
+        boxShadow: '0 50px 100px -30px rgba(0,0,0,0.9)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '0 22px', height: 64, borderBottom: '1px solid var(--kp-line)' }}>
           <span style={{ color: 'var(--kp-muted)', display: 'flex' }}><Ico n="search" size={20} /></span>
@@ -8626,7 +8623,7 @@ function BalanceTrend() {
                   <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              {[0.25, 0.5, 0.75].map(g => <line key={g} x1="0" x2={W} y1={H * g} y2={H * g} stroke="rgba(255,255,255,0.05)" strokeDasharray="3 6" vectorEffect="non-scaling-stroke" />)}
+              {[0.25, 0.5, 0.75].map(g => <line key={g} x1="0" x2={W} y1={H * g} y2={H * g} stroke="rgba(255,255,255, 0.1)" strokeDasharray="3 6" vectorEffect="non-scaling-stroke" />)}
               <path d={area} fill={`url(#bt-${uid})`} />
               <path d={line} fill="none" stroke="#f4f4f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
             </svg>
@@ -8671,7 +8668,7 @@ function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, vis
   const { goTo } = useApp();
   return (
     <section className={`kp-card kp-rise ${span}`} style={{ padding: '30px 36px 30px', overflow: 'hidden', ['--i' as string]: 0 }}>
-      <div aria-hidden style={{ position: 'absolute', right: -140, top: -180, width: 460, height: 460, borderRadius: '50%', background: 'radial-gradient(closest-side, rgba(255,212,0,0.10), transparent)', pointerEvents: 'none' }} />
+
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 26 }}>
         <div style={{ fontSize: 16, color: text.muted }}>{greeting}, <span style={{ color: text.primary, fontWeight: 600 }}>{firstName}</span></div>
         <div style={{ flex: 1 }} />
@@ -8701,7 +8698,7 @@ function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, vis
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 18 }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, height: 30, padding: '0 12px', borderRadius: 999,
-            background: up ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.04)', color: up ? text.primary : text.muted,
+            background: up ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255, 0.1)', color: up ? text.primary : text.muted,
             fontSize: 13.5, fontWeight: 600, ...T.num,
           }}>
             <Ico n={up ? 'inbound' : 'outbound'} size={14} sw={2} />
@@ -8782,7 +8779,7 @@ function SpendDonut({ rows, span = '' }: { rows: { label: string; value: number 
         <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', width: 152, height: 152, flexShrink: 0 }}>
             <svg viewBox="0 0 140 140" width="152" height="152" role="img" aria-label={t('spending_this_month')} style={{ transform: 'rotate(-90deg)' }}>
-              <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="14" />
+              <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255, 0.1)" strokeWidth="14" />
               {rows.map((r, i) => {
                 const frac = r.value / total;
                 const len = Math.max(0, frac * C - 3);
@@ -8824,8 +8821,8 @@ const ENABLE_MOBILE_TAB_SWIPE = false;
 // Solid base — must equal html/body background AND gradient bottom stop.
 // Appended to the shorthand → becomes CSS background-color, painting UNDER
 // all gradient layers so any edge-pixel gap is invisible on OLED.
-const appBgBase = '#121212';
-const appBg = `rgba(78,78,78, 0.78), rgba(80,80,80, 0.34), #1e1e1e ${appBgBase}`;
+const appBgBase = '#000000';
+const appBg = '#000000';
 
 const appBase: React.CSSProperties = {
   position: 'absolute',
@@ -9249,7 +9246,7 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
               cursor: faceIdLoading ? 'default' : 'pointer',
               fontFamily, fontSize: 15, fontWeight: 500, letterSpacing: 0.2,
-              boxShadow: '0 1px 0 rgba(255,255,255, 0.05) inset',
+              boxShadow: '0 1px 0 rgba(255,255,255, 0.1) inset',
               transition: 'all 0.18s',
             }}
           >
