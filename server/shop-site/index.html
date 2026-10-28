@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>munister — магазин</title>
+<meta name="description" content="munister: італійський одяг, взуття та аксесуари.">
+<style>
+:root{--bg:#f6f5f1;--ink:#14161a;--mute:#6b6f76;--card:#fff;--line:#e4e2db;--accent:#14161a;--on:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1114;--ink:#f1efe9;--mute:#9a9ea6;--card:#181b20;--line:#272b32;--accent:#f1efe9;--on:#14161a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar{max-width:1200px;margin:0 auto;padding:14px 16px;display:flex;gap:16px;align-items:center}
+.logo{font-size:26px;font-weight:800;letter-spacing:-.04em}
+.search{flex:1;min-width:0;padding:11px 16px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.sort{padding:10px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.chips{max-width:1200px;margin:0 auto;padding:0 16px 12px;display:flex;gap:8px;overflow-x:auto}
+.chip{flex:none;padding:8px 16px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--on);border-color:var(--accent)}
+main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(28px,5vw,48px);letter-spacing:-.03em;margin:8px 0 4px}.sub{color:var(--mute);margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .2s}
+.item:hover{transform:translateY(-3px)}
+.item img{width:100%;aspect-ratio:3/4;object-fit:cover;background:var(--line);display:block}
+.info{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.t{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.p{font-weight:700;font-size:18px;margin-top:auto}.p small{font-weight:500;color:var(--mute);font-size:13px}
+.more{display:block;margin:30px auto 0;padding:13px 30px;border-radius:99px;border:0;background:var(--accent);color:var(--on);font:inherit;font-weight:600;cursor:pointer}
+.empty{color:var(--mute);padding:40px 0;text-align:center}
+footer{border-top:1px solid var(--line);color:var(--mute);font-size:13px;padding:22px 16px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><span class="logo">munister</span>
+  <input id="q" class="search" type="search" placeholder="Бренд, назва, артикул" aria-label="Пошук">
+  <select id="s" class="sort" aria-label="Сортування"><option value="">Популярні</option><option value="price_asc">Дешевші</option><option value="price_desc">Дорожчі</option><option value="newest">Нові</option></select></div>
+ <div id="chips" class="chips"></div>
+</header>
+<main>
+ <h1>Одяг, взуття, аксесуари</h1><p class="sub" id="count"></p>
+ <div id="grid" class="grid"></div><div id="empty" class="empty" hidden>Нічого не знайдено</div>
+ <button id="more" class="more" hidden>Показати ще</button>
+</main>
+<footer>© munister · товари та фото: maniagroup.com.ua</footer>
+<script>
+const NAMES={women:'Жіноче',men:'Чоловіче',shoes:'Взуття',bags:'Сумки',accessories:'Аксесуари'};
+const st={cat:'',q:'',sort:'',page:1};
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('uk-UA');
+async function load(reset){
+ if(reset){st.page=1;$('grid').innerHTML=''}
+ const u=new URLSearchParams({per_page:48,page:st.page});
+ if(st.cat)u.set('category',st.cat);if(st.q)u.set('search',st.q);if(st.sort)u.set('sort',st.sort);
+ let d;try{d=(await (await fetch('/api/marketplace/catalog?'+u)).json()).data}catch(e){$('empty').hidden=false;return}
+ if(reset&&!$('chips').children.length){
+  const mk=(k,t)=>{const b=document.createElement('button');b.className='chip';b.textContent=t;b.setAttribute('aria-pressed',k===st.cat);b.onclick=()=>{st.cat=k;[...$('chips').children].forEach(c=>c.setAttribute('aria-pressed',c===b));load(true)};return b};
+  $('chips').append(mk('','Усе'));for(const k of Object.keys(NAMES))if(d.categories[k])$('chips').append(mk(k,NAMES[k]))}
+ $('count').textContent=d.total+' товарів';
+ for(const p of d.items){const sku=p.slug.replace('mania-','');
+  const a=document.createElement('a');a.className='item';a.href='https://maniagroup.com.ua/product/sku/'+sku+'/';a.target='_blank';a.rel='noopener';
+  a.innerHTML='<img loading="lazy" alt=""><div class="info"><div class="t"></div><div class="p">'+fmt(p.price)+' <small>грн</small></div></div>';
+  a.querySelector('img').src=p.image_url;a.querySelector('.t').textContent=p.title;$('grid').append(a)}
+ $('empty').hidden=d.total>0;$('more').hidden=!d.has_more;
+}
+$('more').onclick=()=>{st.page++;load(false)};
+let tm;$('q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{st.q=e.target.value.trim();load(true)},300)};
+$('s').onchange=e=>{st.sort=e.target.value;load(true)};
+load(true);
+</script>
+</body>
+</html>

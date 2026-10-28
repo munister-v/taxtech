@@ -39,7 +39,7 @@ struct ShopView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    ScreenTitle(title: "Магазин") {
+                    ScreenTitle(title: "munister") {
                         Button { showCart = true } label: {
                             ZStack(alignment: .topTrailing) {
                                 RoundGlyph(symbol: "bag")
@@ -301,7 +301,7 @@ struct ShopTabs: View {
 }
 
 enum ShopCategory: String, CaseIterable, Identifiable {
-    case all, phones, laptops, audio, gaming, appliances, home, wearables, tablets, gadgets
+    case all, women, men, shoes, bags, accessories, phones, laptops, audio, gaming, appliances, home, wearables, tablets, gadgets
     var id: String { rawValue }
     var key: String? { self == .all ? nil : rawValue }
 
@@ -317,6 +317,11 @@ enum ShopCategory: String, CaseIterable, Identifiable {
         case .wearables: "Годинники"
         case .tablets: "Планшети"
         case .gadgets: "Гаджети"
+        case .women: "Жіноче"
+        case .men: "Чоловіче"
+        case .shoes: "Взуття"
+        case .bags: "Сумки"
+        case .accessories: "Аксесуари"
         }
     }
 
@@ -332,6 +337,11 @@ enum ShopCategory: String, CaseIterable, Identifiable {
         case .wearables: "applewatch"
         case .tablets: "ipad"
         case .gadgets: "camera"
+        case .women: "figure.dress.line.vertical.figure"
+        case .men: "tshirt"
+        case .shoes: "shoeprints.fill"
+        case .bags: "handbag"
+        case .accessories: "eyeglasses"
         }
     }
 }
@@ -773,7 +783,7 @@ struct CartView: View {
             .safeAreaInset(edge: .bottom) {
                 if bought == nil && !cart.isEmpty {
                     Button("Оплатити \(Format.money(total))") {
-                        Task { await screen.run { challenge = try await model.api.challenge(amount: total, recipient: "Магазин TaxTech") } }
+                        Task { await screen.run { challenge = try await model.api.challenge(amount: total, recipient: "munister") } }
                     }
                     .buttonStyle(InkButton())
                     .disabled(name.count < 2 || address.count < 8 || screen.busy)
@@ -790,7 +800,7 @@ struct CartView: View {
                 }
             }
             .sheet(item: $challenge) { c in
-                ThreeDSView(challenge: c, amount: total, merchant: "Магазин TaxTech") {
+                ThreeDSView(challenge: c, amount: total, merchant: "munister") {
                     let paid = await screen.run {
                         bought = try await model.api.checkout(cart, name: name, phone: phone, address: address)
                     }
