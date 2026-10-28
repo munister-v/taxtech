@@ -297,13 +297,8 @@ struct RoundActionLabel: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: symbol)
-                .font(.system(size: 19, weight: .semibold))
-                .contentTransition(.symbolEffect(.replace))
-                .frame(width: 56, height: 56)
-                .background(on ? Theme.ink : .clear, in: .circle)
+            GuillocheBadge(symbol: symbol, tint: on ? .cyan : Theme.accent, size: 58)
                 .glassEffect(.regular.interactive(), in: .circle)
-                .foregroundStyle(on ? Theme.onInk : Theme.ink)
             Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
                 .contentTransition(.opacity)
         }

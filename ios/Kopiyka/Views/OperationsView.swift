@@ -107,8 +107,8 @@ struct OperationsView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 11)
-        .overlay(Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1))
+        .padding(.vertical, 12)
+        .glassEffect(.regular.interactive(), in: .capsule)
     }
 
     // MARK: Витрати за період
@@ -157,27 +157,41 @@ struct OperationsView: View {
         }
     }
 
+    /// Палітра видів витрат: перший - фірмовий жовтий, далі спокійні, але розрізнені кольори.
+    static let palette: [Color] = [Theme.accent, .orange, .blue, .purple, .teal, .pink, .green, .gray]
+
     @ViewBuilder private func byType(_ s: API.Analytics) -> some View {
         let out = s.byType.filter { $0.direction == "out" && $0.total > 0 }.sorted { $0.total > $1.total }
         let total = max(out.reduce(0) { $0 + $1.total }, 1)
         if !out.isEmpty { VStack(alignment: .leading, spacing: 12) {
             BlockTitle("Витрати за видами")
             Surface {
-                ForEach(Array(out.enumerated()), id: \.element.id) { i, t in
-                    if i > 0 { Rule() }
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(BankText.type(t.txType))
-                            Spacer()
-                            Text(Format.money(t.total)).fontWeight(.semibold).monospacedDigit()
-                            Text("\(Int(t.total / total * 100))%").font(.footnote).foregroundStyle(.secondary)
-                                .frame(width: 40, alignment: .trailing)
-                        }
-                        Meter(value: t.total / total, tint: i == 0 ? Theme.accent : Theme.ink.opacity(0.55))
+                HStack(alignment: .center, spacing: 18) {
+                    Chart(Array(out.enumerated()), id: \.element.id) { i, t in
+                        SectorMark(angle: .value("Сума", t.total), innerRadius: .ratio(0.64), angularInset: 2)
+                            .cornerRadius(4)
+                            .foregroundStyle(Self.palette[i % Self.palette.count])
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 13)
+                    .chartBackground { _ in
+                        VStack(spacing: 0) {
+                            Text("\(out.count)").font(.title2.weight(.bold)).monospacedDigit()
+                            Text("видів").font(.caption2).foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(width: 128, height: 128)
+                    VStack(alignment: .leading, spacing: 9) {
+                        ForEach(Array(out.prefix(6).enumerated()), id: \.element.id) { i, t in
+                            HStack(spacing: 8) {
+                                Circle().fill(Self.palette[i % Self.palette.count]).frame(width: 9, height: 9)
+                                Text(BankText.type(t.txType)).font(.subheadline).lineLimit(1)
+                                Spacer(minLength: 4)
+                                Text("\(Int((t.total / total * 100).rounded()))%")
+                                    .font(.subheadline.weight(.semibold)).monospacedDigit()
+                            }
+                        }
+                    }
                 }
+                .padding(16)
             }
         } }
     }
@@ -188,7 +202,13 @@ struct OperationsView: View {
             Surface {
                 ForEach(Array(insights.enumerated()), id: \.offset) { i, ins in
                     if i > 0 { Rule() }
-                    Text(ins.text).font(.subheadline).padding(16)
+                    HStack(alignment: .top, spacing: 12) {
+                        let marks = ["flame", "calendar", "sum", "leaf", "sparkles"]
+                        let tints: [Color] = [.orange, .blue, .purple, .green, Theme.accent]
+                        GuillocheBadge(symbol: marks[i % marks.count], tint: tints[i % tints.count], size: 36)
+                        Text(ins.text).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(16)
                 }
             }
         }
@@ -225,8 +245,17 @@ struct OperationsView: View {
         } else {
             ForEach(days, id: \.day) { day in
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(BankText.dayTitle(day.day)).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
-                        .padding(.horizontal, 4)
+                    let net = day.items.reduce(0) { $0 + ($1.isIncome ? $1.amount : -$1.amount) }
+                    HStack {
+                        Text(BankText.dayTitle(day.day))
+                        Spacer()
+                        Text((net >= 0 ? "+" : "−") + OverviewView.compactCents(abs(net)))
+                            .monospacedDigit()
+                            .foregroundStyle(net >= 0 ? Color.green : Color.secondary)
+                    }
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
                     Surface {
                         ForEach(Array(day.items.enumerated()), id: \.element.id) { i, tx in
                             if i > 0 { Rule() }
@@ -239,7 +268,7 @@ struct OperationsView: View {
     }
 
     private func row(_ tx: API.Transaction) -> some View {
-        Button { selected = tx } label: { TransactionRow(tx: tx).contentShape(.rect) }
+        Button { selected = tx } label: { ActivityRow(tx: tx).contentShape(.rect) }
             .buttonStyle(.plain)
     }
 }

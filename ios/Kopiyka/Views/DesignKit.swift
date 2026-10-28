@@ -322,3 +322,56 @@ struct TextTabs<T: Hashable>: View {
         }
     }
 }
+
+/// Значок-печатка: тонований круг із тонкою гільйош-розеткою й мікрокільцем, як захисний друк у шапці головної.
+struct GuillocheBadge: View {
+    let symbol: String
+    var tint: Color = Theme.accent
+    var size: CGFloat = 42
+    /// Для темної шапки: біла лінія розетки замість тону.
+    var onDark = false
+
+    var body: some View {
+        ZStack {
+            Circle().fill(
+                RadialGradient(colors: [tint.opacity(onDark ? 0.28 : 0.30), tint.opacity(onDark ? 0.08 : 0.10)],
+                               center: .topLeading, startRadius: 0, endRadius: size)
+            )
+            Canvas { ctx, sz in
+                let c = CGPoint(x: sz.width / 2, y: sz.height / 2)
+                let r = sz.width / 2
+                let ink = onDark ? Color.white : tint
+                // розетка: петлі навколо центру
+                for k in 0..<10 {
+                    var p = Path()
+                    let phase = Double(k) / 10 * .pi * 2
+                    for i in 0...120 {
+                        let t = Double(i) / 120 * .pi * 2
+                        let rr = r * (0.62 + 0.26 * cos(6 * t + phase))
+                        let pt = CGPoint(x: c.x + rr * cos(t), y: c.y + rr * sin(t))
+                        i == 0 ? p.move(to: pt) : p.addLine(to: pt)
+                    }
+                    ctx.stroke(p, with: .color(ink.opacity(0.22)), lineWidth: 0.45)
+                }
+                // мікрокільце з рисок по краю
+                for i in 0..<48 {
+                    let a = Double(i) / 48 * .pi * 2
+                    var p = Path()
+                    p.move(to: CGPoint(x: c.x + (r - 1.2) * cos(a), y: c.y + (r - 1.2) * sin(a)))
+                    p.addLine(to: CGPoint(x: c.x + (r - 3.4) * cos(a), y: c.y + (r - 3.4) * sin(a)))
+                    ctx.stroke(p, with: .color(ink.opacity(0.35)), lineWidth: 0.6)
+                }
+            }
+            Circle().strokeBorder(
+                AngularGradient(colors: [tint.opacity(0.9), tint.opacity(0.25), tint.opacity(0.9)], center: .center),
+                lineWidth: 1
+            )
+            Image(systemName: symbol)
+                .font(.system(size: size * 0.38, weight: .semibold))
+                .foregroundStyle(onDark ? .white : tint)
+                .shadow(color: tint.opacity(0.5), radius: 4)
+        }
+        .frame(width: size, height: size)
+        .drawingGroup()
+    }
+}

@@ -148,8 +148,8 @@ struct ShopView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 11)
-        .overlay(Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1))
+        .padding(.vertical, 12)
+        .glassEffect(.regular.interactive(), in: .capsule)
 
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
@@ -165,7 +165,7 @@ struct ShopView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 9)
                         .background(on ? Theme.ink : Color.clear, in: .capsule)
-                        .overlay(Capsule().stroke(Theme.ink.opacity(on ? 0 : 0.14), lineWidth: 1))
+                        .glassEffect(on ? .identity : .regular.interactive(), in: .capsule)
                         .foregroundStyle(on ? Theme.onInk : Theme.ink)
                     }
                     .buttonStyle(PressScale())
@@ -243,7 +243,17 @@ struct ShopView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
             .foregroundStyle(Theme.onAccent)
-            .background(Theme.accent, in: .rect(cornerRadius: 20, style: .continuous))
+            .background {
+                // жовта «купюра»: гільйош-розетка й мікродрук, як захисний друк на головній
+                ZStack {
+                    Theme.accent
+                    Guilloche(lines: Theme.onAccent.opacity(0.35), accent: Theme.onAccent.opacity(0.25))
+                        .frame(width: 220, height: 220)
+                        .offset(x: 110)
+                        .opacity(0.5)
+                }
+                .clipShape(.rect(cornerRadius: 20, style: .continuous))
+            }
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 8)
         }

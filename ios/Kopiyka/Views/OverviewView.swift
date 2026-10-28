@@ -179,8 +179,7 @@ struct OverviewView: View {
     private func heroAction(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Image(systemName: symbol).font(.system(size: 19, weight: .semibold))
-                    .frame(width: 54, height: 54)
+                GuillocheBadge(symbol: symbol, tint: Color(red: 0.85, green: 0.72, blue: 0.40), size: 56, onDark: true)
                     .glassEffect(.regular.interactive(), in: .circle)
                 Text(title).font(.caption.weight(.semibold))
             }
@@ -487,10 +486,7 @@ struct ActivityRow: View {
     var body: some View {
         let row = TransactionRow(tx: tx)
         HStack(spacing: 12) {
-            Image(systemName: symbol).font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(tint)
-                .frame(width: 42, height: 42)
-                .background(tint.opacity(0.16), in: .circle)
+            GuillocheBadge(symbol: symbol, tint: tint, size: 44)
             VStack(alignment: .leading, spacing: 2) {
                 Text(row.title).font(.body.weight(.medium)).lineLimit(2)
                 Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Locale(identifier: "uk_UA"))))
@@ -623,11 +619,8 @@ struct RoundGlyph: View {
     let symbol: String
 
     var body: some View {
-        Image(systemName: symbol)
-            .font(.system(size: 19, weight: .regular))
-            .frame(width: 36, height: 36)
-            .foregroundStyle(Theme.ink)
-            .contentShape(.rect)
+        GuillocheBadge(symbol: symbol, tint: Theme.accent, size: 40)
+            .contentShape(.circle)
     }
 }
 
