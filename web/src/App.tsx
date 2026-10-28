@@ -8982,6 +8982,8 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
   const [lit, setLit] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [section, setSection] = useState('top');
+  const [depTerm, setDepTerm] = useState(3);
+  const [depAmount, setDepAmount] = useState(10000);
 
   useEffect(() => {
     fetch('/api/marketplace/catalog?per_page=16&sort=newest&category=women')
@@ -9045,7 +9047,17 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
     { t: 'Розваги', v: 940, c: '#bf5af2' }, { t: 'Здоров’я', v: 520, c: '#30d158' },
   ];
   const spendTotal = spend.reduce((a, x) => a + x.v, 0);
-  const rates = [['1 міс.', '8%'], ['3 міс.', '10%'], ['6 міс.', '12%'], ['12 міс.', '14%']];
+  // Same terms and formula as the bank server (deposit_service.RATES; interest = amount * rate / 100 * days / 365).
+  const depTerms = [{ m: 1, r: 8 }, { m: 3, r: 10 }, { m: 6, r: 12 }, { m: 12, r: 14 }];
+  const dep = depTerms[depTerm];
+  const depDays = Math.round(dep.m * 30.44);
+  const depInterest = Math.round(depAmount * dep.r / 100 * depDays / 365 * 100) / 100;
+  const depCurve = Array.from({ length: 25 }, (_, i) => {
+    const t = i / 24;
+    return { x: 8 + t * 384, y: 150 - (t * depInterest / Math.max(1, depAmount * 0.14)) * 120 };
+  });
+  const depPath = depCurve.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  const fmtTax = (n: number) => n.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const faq = [
     ['Що таке TAX?', 'Віртуальний токен банку TaxTech. Ним поповнюють рахунок, платять, переказують і відкривають депозити. TAX не є грошима й не обмінюється на гроші.'],
     ['Чи можна втратити справжні гроші?', 'Ні. Банк навчальний: усі баланси віртуальні, справжні картки чи рахунки до нього не прив’язуються.'],
@@ -9194,48 +9206,98 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         </div>
       </section>
 
-      <section id="grow" className="ap-wrap ap-tiles">
-        <article className="ap-tile ap-reveal">
-          <div className="ap-tile-copy">
-            <h2 className="ap-grad">Депозити.<br />До 14% річних.</h2>
-            <p>Відсотки нараховуються щодня, а забрати вклад можна будь-коли.</p>
-          </div>
-          <div className="ap-rates">
-            {rates.map(([t, r], i) => (
-              <div key={t} className={i === 3 ? 'on' : ''}><span>{t}</span><b>{r}</b></div>
+      <section id="grow" className="ap-wrap ap-dep ap-reveal">
+        <div className="ap-dep-copy">
+          <h2 className="ap-grad">Депозити.<br />До 14% річних.</h2>
+          <p>Оберіть строк і суму — і одразу побачите, скільки нарахується. Відсотки ростуть щодня, вклад можна закрити будь-коли.</p>
+        </div>
+        <div className="ap-dep-card">
+          <div className="ap-seg" role="tablist" aria-label="Строк депозиту">
+            {depTerms.map((d, i) => (
+              <button key={d.m} type="button" role="tab" aria-selected={depTerm === i} className={depTerm === i ? 'on' : ''} onClick={() => setDepTerm(i)}>
+                {d.m} міс.<span>{d.r}%</span>
+              </button>
             ))}
           </div>
-        </article>
-        <article className="ap-tile ap-reveal">
-          <div className="ap-tile-copy">
-            <h2 className="ap-grad">Перекази.<br />За секунду.</h2>
-            <p>За номером рахунку чи картки, з шаблонами й регулярними платежами.</p>
+          <div className="ap-dep-row">
+            <div>
+              <small>Ви вкладаєте</small>
+              <b>{fmtTax(depAmount)} <em>TAX</em></b>
+            </div>
+            <div className="ap-dep-right">
+              <small>Нарахується за {dep.m} міс.</small>
+              <b className="ap-dep-gain">+{fmtTax(depInterest)} <em>TAX</em></b>
+            </div>
           </div>
-          <div className="ap-tx">
-            <div className="ap-tx-amount">+2 000<span>,00 TAX</span></div>
-            <div className="ap-tx-meta">Від Олени К. · щойно</div>
-          </div>
-        </article>
+          <svg className="ap-dep-chart" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden>
+            <defs><linearGradient id="apDepFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd400" stopOpacity=".35" /><stop offset="1" stopColor="#ffd400" stopOpacity="0" /></linearGradient></defs>
+            <path d={`${depPath} L392 158 L8 158 Z`} fill="url(#apDepFill)" />
+            <path d={depPath} fill="none" stroke="#ffd400" strokeWidth="3" strokeLinecap="round" />
+            <circle cx={depCurve[24].x} cy={depCurve[24].y} r="6" fill="#ffd400" />
+          </svg>
+          <label className="ap-range">
+            <span>Сума вкладу</span>
+            <input type="range" min={1000} max={100000} step={1000} value={depAmount} onChange={e => setDepAmount(Number(e.target.value))} aria-label="Сума вкладу в TAX" />
+          </label>
+          <div className="ap-dep-total">Разом після строку: <b>{fmtTax(depAmount + depInterest)} TAX</b></div>
+        </div>
       </section>
 
-      <section id="shop" className="ap-wrap ap-reveal">
-        <article className="ap-tile ap-tile-shop">
-          <div className="ap-tile-copy ap-shop-head">
-            <div>
-              <h2 className="ap-grad">Saint Agnes. За TAX.</h2>
-              <p>Італійський гардероб, вбудований у банк: 2 705 речей, оплата просто з рахунку.</p>
+      <section id="money" className="ap-wrap ap-split ap-split-rev ap-reveal">
+        <div className="ap-notifs" aria-hidden>
+          {[
+            { t: 'Переказ отримано', m: 'Олена К. надіслала вам 2 000,00 TAX', w: 'щойно' },
+            { t: 'Оплата карткою •• 4417', m: 'Saint Agnes · −8 610,00 TAX · 3-D Secure', w: '2 хв тому' },
+            { t: 'Депозит відкрито', m: '5 000,00 TAX на 6 міс. під 12% річних', w: '1 год тому' },
+          ].map((n, i) => (
+            <div key={n.t} className="ap-notif" style={{ ['--i' as string]: i }}>
+              <span className="ap-notif-icon"><BrandMark size={34} radiusValue={9} /></span>
+              <div className="ap-notif-body">
+                <div className="ap-notif-top"><b>TaxTech</b><time>{n.w}</time></div>
+                <strong>{n.t}</strong>
+                <p>{n.m}</p>
+              </div>
             </div>
-            <a className="ap-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">У магазин <span aria-hidden>›</span></a>
+          ))}
+        </div>
+        <div className="ap-split-copy">
+          <h2 className="ap-grad">Перекази.<br />За секунду.</h2>
+          <p>За номером рахунку чи картки, з шаблонами й регулярними платежами. Про кожне надходження й списання — сповіщення одразу.</p>
+          <ul className="ap-ticks">
+            <li>Переказ за номером картки чи рахунку</li>
+            <li>Шаблони й регулярні платежі</li>
+            <li>Підтвердження кодом 3-D Secure</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="shop" className="ap-sa ap-reveal">
+        <div className="ap-wrap">
+          <div className="ap-sa-head">
+            <div className="ap-sa-brand">Saint Agnes</div>
+            <h2 className="ap-grad">Італійський гардероб.<br />За TAX.</h2>
+            <p>2 705 речей від EA7, PINKO, MC2 Saint Barth та інших — прямо в банку. Оплата з рахунку в один дотик або «Pay with TaxTech» на сайті магазину.</p>
           </div>
-          <div className="ap-photos">
+          <div className="ap-sa-grid">
             {(items.length ? items : [null, null, null, null]).map((p, i) => (
-              <figure key={p ? p.id : i}>
+              <figure key={p ? p.id : i} className={i === 0 ? 'big' : ''}>
                 {p && <img src={p.image_url} alt={p.title} loading="lazy" />}
-                {p && <figcaption><span>{String(p.description || '').split(' · ')[0]}</span><b>{fmtInt(p.price)} TAX</b></figcaption>}
+                {p && (
+                  <figcaption>
+                    <span>{String(p.description || '').split(' · ')[0]}</span>
+                    <b>{fmtInt(p.price)} TAX</b>
+                  </figcaption>
+                )}
               </figure>
             ))}
           </div>
-        </article>
+          <div className="ap-sa-pay">
+            <button type="button" className="ap-paybtn" onClick={() => onAuth('register')}>
+              <span>Pay with</span><BrandMark size={20} radiusValue={5} /><b>TaxTech</b>
+            </button>
+            <a className="ap-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">Перейти в Saint Agnes <span aria-hidden>›</span></a>
+          </div>
+        </div>
       </section>
 
       <section id="security" className="ap-security ap-reveal">
