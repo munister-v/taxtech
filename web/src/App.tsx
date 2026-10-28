@@ -3136,49 +3136,52 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
         onCancel={() => setTdsChallenge(null)}
       />
     )}
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(6px)' }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div
+    <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(6px)' }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="tt-sheet"
         {...sheetSwipe.sheetProps}
         style={{ width: '100%', maxWidth: 480, background: '#232323', border: '1px solid transparent', borderRadius: '24px 24px 0 0', padding: '28px 24px calc(40px + env(safe-area-inset-bottom, 0px))', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)', ...sheetSwipe.sheetStyle }}
       >
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '-8px auto 16px' }} />
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ ...T.h2, color: text.primary, flex: 1 }}>{cfg.title}</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ ...T.h2, color: text.primary, flex: 1, textAlign: 'center', paddingLeft: 28 }}>{cfg.title}</div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(215,215,215, 0.5)', padding: 4 }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </button>
         </div>
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {mode !== 'topup' && (
-            <div>
-              <label style={{ ...T.caption, color: text.muted, display: 'block', marginBottom: 6 }}>{cfg.recipientLabel}</label>
-              <input style={inp} value={recipient} onChange={e => setRecipient(e.target.value)} placeholder={mode === 'by_card' ? t('transfer_placeholder_card') : t('transfer_placeholder_account')} />
-            </div>
-          )}
-          <div>
-            <label style={{ ...T.caption, color: text.muted, display: 'block', marginBottom: 6 }}>{t('amount_label')}</label>
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <label className="tt-amount">
+            <span className="sr-only">{t('amount_label')}</span>
             <input
-              style={{ ...inp, fontSize: 26, fontWeight: 300, letterSpacing: -0.5 }}
               type="text"
               inputMode="decimal"
+              autoFocus
               value={amount}
-              onChange={e => setAmount(e.target.value)}
-              placeholder="0,00"
+              onChange={e => setAmount(e.target.value.replace(/[^\d.,\s]/g, ''))}
+              placeholder="0"
+              size={Math.max(1, (amount || '0').length)}
             />
+            <em>TAX</em>
+          </label>
+          <div className="tt-quick">
+            {[100, 500, 1000, 5000].map(v => (
+              <button key={v} type="button" className={parseAmount(amount) === v ? 'on' : ''} onClick={() => setAmount(String(v))}>{v.toLocaleString('uk-UA')}</button>
+            ))}
           </div>
-          <div>
-            <input style={{ ...inp, fontSize: 13 }} value={description} onChange={e => setDescription(e.target.value)} placeholder={cfg.placeholder} />
+          {mode !== 'topup' && (
+            <div className="tt-field">
+              <label htmlFor="tt-recipient">{cfg.recipientLabel}</label>
+              <input id="tt-recipient" value={recipient} onChange={e => setRecipient(e.target.value)} placeholder={mode === 'by_card' ? t('transfer_placeholder_card') : t('transfer_placeholder_account')} inputMode={mode === 'by_card' ? 'numeric' : 'text'} autoComplete="off" />
+            </div>
+          )}
+          <div className="tt-field">
+            <label htmlFor="tt-desc">{mode === 'topup' ? t('transfer_optional_desc') : t('transfer_comment')}</label>
+            <input id="tt-desc" value={description} onChange={e => setDescription(e.target.value)} placeholder={cfg.placeholder} />
           </div>
-          {error && <div style={{ padding: '10px 14px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 10, color: '#989898', fontSize: 13 }}>{error}</div>}
-          <button type="submit" disabled={loading} style={{
-            marginTop: 4, padding: '15px', borderRadius: 14,
-            border: `1px solid ${bg.border}`,
-            background: loading ? 'rgba(51,51,51, 0.4)' : 'rgba(53,53,53, 0.95)',
-            color: loading ? text.dim : text.primary, fontSize: 15, fontWeight: 600,
-            cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit',
-            boxShadow: loading ? 'none' : '0 1px 0 rgba(255,255,255, 0.1) inset',
-            letterSpacing: 0.3,
-          }}>{loading ? '…' : cfg.title}</button>
+          {error && <div role="alert" className="tt-error">{error}</div>}
+          <button type="submit" className="tt-primary" disabled={loading || !(amtNum > 0)}>
+            {loading ? '…' : amtNum > 0 ? `${cfg.title} · ${amtNum.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TAX` : cfg.title}
+          </button>
+          {mode !== 'topup' && <p className="tt-hint">Переказ підтверджується одноразовим кодом 3-D Secure.</p>}
         </form>
       </div>
     </div>
@@ -3214,9 +3217,9 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
   }
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2000, display: 'flex', alignItems: 'flex-end' }}>
+    <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 2000, display: 'flex', alignItems: 'flex-end' }}>
       <div onClick={onClose} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(6px)' }} />
-      <div style={{ position: 'relative', width: '100%', maxWidth: 500, margin: '0 auto', background: '#1f1f1f', borderRadius: '28px 28px 0 0', padding: '24px 24px max(env(safe-area-inset-bottom,20px),24px)', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)' }}>
+      <div className="tt-sheet" style={{ position: 'relative', width: '100%', maxWidth: 500, margin: '0 auto', background: '#1f1f1f', borderRadius: '28px 28px 0 0', padding: '24px 24px max(env(safe-area-inset-bottom,20px),24px)', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)' }}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255, 0.1)', margin: '0 auto 20px' }} />
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: text.primary }}>Обмін валюти</div>
@@ -4389,9 +4392,9 @@ function OverviewScreen() {
       {showFx && fxRates.length > 0 && <FxExchangeModal rates={fxRates} onClose={() => setShowFx(false)} />}
     </div>
     {showNotifications && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setShowNotifications(false)}>
+      <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setShowNotifications(false)}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
-        <div onClick={e => e.stopPropagation()} style={{
+        <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
           background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
@@ -4968,9 +4971,9 @@ function CardsScreen() {
 
     {/* PIN Change Modal */}
     {pinModal && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setPinModal(false)}>
+      <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setPinModal(false)}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(4px)' }} />
-        <div onClick={e => e.stopPropagation()} style={{
+        <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 480,
           background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
@@ -5018,9 +5021,9 @@ function CardsScreen() {
       </div>
     )}
     {designModal && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 320, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => !designLoading && setDesignModal(false)}>
+      <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 320, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => !designLoading && setDesignModal(false)}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.62)', backdropFilter: 'blur(4px)' }} />
-        <div onClick={e => e.stopPropagation()} style={{
+        <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 620,
           background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
@@ -5101,9 +5104,9 @@ function CardsScreen() {
     )}
     {/* Top-up card modal */}
     {topupModal && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setTopupModal(false)}>
+      <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setTopupModal(false)}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(4px)' }} />
-        <div onClick={e => e.stopPropagation()} style={{
+        <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 480,
           background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
@@ -6279,9 +6282,9 @@ function OperationsScreen() {
 
     {/* Transaction detail sheet */}
     {selectedTxId && selectedTxData && (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setSelectedTxId(null)}>
+      <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setSelectedTxId(null)}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
-        <div onClick={e => e.stopPropagation()} style={{
+        <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
           background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
@@ -7163,7 +7166,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }} onClick={onClose}>
       <div style={{ background: `rgba(0,0,0, ${0.5 - sheetSwipe.progress * 0.32})`, position: 'absolute', inset: 0, transition: sheetSwipe.dragging ? 'none' : 'background 200ms ease' }} />
-      <div
+      <div className="tt-sheet"
         {...sheetSwipe.sheetProps}
         onClick={e => e.stopPropagation()}
         style={{
@@ -7211,7 +7214,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }} onClick={onClose}>
       <div style={{ background: `rgba(0,0,0, ${0.5 - sheetSwipe.progress * 0.32})`, position: 'absolute', inset: 0, transition: sheetSwipe.dragging ? 'none' : 'background 200ms ease' }} />
-      <div
+      <div className="tt-sheet"
         {...sheetSwipe.sheetProps}
         onClick={e => e.stopPropagation()}
         style={{
@@ -8532,7 +8535,7 @@ function DesktopShell({ tab, onChange, dataError, loading, children }: { tab: Ta
   useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }); }, [tab]);
 
   return (
-    <div className="kp-stage" style={{ ...appBase, background: undefined, display: 'flex' }}>
+    <div className="kp-stage tt-app" style={{ ...appBase, background: undefined, display: 'flex' }}>
       <DesktopSidebar active={tab} onChange={onChange} collapsed={collapsed} onToggle={toggleRail} />
       <div ref={scrollRef} style={{ flex: 1, minWidth: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <DesktopTopbar tab={tab} onOpenPalette={() => setPalette(true)} />
@@ -9019,7 +9022,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
     const x = (e.clientX - r.left) / r.width - 0.5;
     const y = (e.clientY - r.top) / r.height - 0.5;
     el.style.setProperty('--ry', `${(x * 16).toFixed(2)}deg`);
-    el.style.setProperty('--rx', `${(14 - y * 12).toFixed(2)}deg`);
+    el.style.setProperty('--rx', `${(10 - y * 10).toFixed(2)}deg`);
     el.style.setProperty('--gx', `${((x + 0.5) * 100).toFixed(1)}%`);
     el.style.setProperty('--gy', `${((y + 0.5) * 100).toFixed(1)}%`);
   }
@@ -9100,18 +9103,26 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-hero-glow" aria-hidden />
         <div className="ap-wrap">
           <div className="ap-eyebrow"><BrandMark size={22} radiusValue={6} /> TaxTech</div>
-          <h1>Простота банку.<br />На токенах TAX.</h1>
+          <h1>Простота банку.<br />На токенах <span className="ap-gold">TAX</span>.</h1>
           <p className="ap-hero-sub">Картки, перекази, депозити й покупки — як у справжньому банку. Тільки без ризику.</p>
           <div className="ap-cta">
-            <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+            <button type="button" className="ap-pill ap-pill-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
             <button type="button" className="ap-link" onClick={() => onAuth('login')}>Увійти <span aria-hidden>›</span></button>
           </div>
         </div>
-        <div className="ap-hero-card" onPointerMove={onTilt} onPointerLeave={resetTilt} aria-hidden>
+        <div className="ap-stage" onPointerMove={onTilt} onPointerLeave={resetTilt} aria-hidden>
           <div className="ap-tilt" ref={tiltRef}>
-            <PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} />
-            <div className="ap-sheen" />
+            <div className="ap-st ap-st-l"><PremiumCard variant="roma_marmor" number="8820" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
+            <div className="ap-st ap-st-r"><PremiumCard variant="obsidian" number="5531" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
+            <div className="ap-st ap-st-f"><PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /><div className="ap-sheen" /></div>
           </div>
+        </div>
+        <div className="ap-wrap">
+          <dl className="ap-facts">
+            <div><dt>0 ₴</dt><dd>справжніх грошей під ризиком</dd></div>
+            <div><dt>до 14%</dt><dd>річних на депозитах у TAX</dd></div>
+            <div><dt>2 705</dt><dd>речей у Saint Agnes за TAX</dd></div>
+          </dl>
         </div>
       </section>
 
@@ -9929,7 +9940,7 @@ export default function App() {
     <AppCtx.Provider value={appCtx}>
       <BankDataCtx.Provider value={bankCtx}>
         <LayoutCtx.Provider value="mobile">
-          <div style={{
+          <div className="tt-app" style={{
               position: 'relative',
               width: '100%',
               height: 'var(--app-vh, 100dvh)',
