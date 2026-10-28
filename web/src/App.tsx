@@ -2390,7 +2390,7 @@ function InsightsStrip() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {insights.map((ins, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255, 0.03)', border: '1px solid rgba(172,172,172, 0.1)', borderRadius: 14 }}>
-            <span style={{ fontSize: 16, flexShrink: 0, lineHeight: 1.4 }}>{ins.icon}</span>
+            <span aria-hidden style={{ width: 6, height: 6, borderRadius: '50%', background: i === 0 ? gold : 'rgba(255,255,255,0.35)', flexShrink: 0, marginTop: 7 }} />
             <span style={{ fontSize: 12, color: text.secondary, lineHeight: 1.5 }}>{ins.text}</span>
           </div>
         ))}
@@ -2447,18 +2447,17 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
   return (
     <button onClick={onClick} style={{
       flex: 1,
-      minHeight: isMobile ? 112 : undefined,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: isMobile ? 'flex-start' : 'center',
-      justifyContent: 'space-between',
-      gap: isMobile ? 14 : 9,
-      padding: isMobile ? '16px 14px' : '16px 6px 14px',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: isMobile ? 8 : 9,
+      padding: isMobile ? '12px 4px 10px' : '16px 6px 14px',
       background: isMobile
         ? 'rgba(255,255,255, 0.06)'
         : 'rgba(255,255,255, 0.055)',
       border: `1px solid rgba(176,176,176, ${isMobile ? '0.16' : '0.12'})`,
-      borderRadius: isMobile ? 20 : radius.lg,
+      borderRadius: isMobile ? 16 : radius.lg,
       color: text.secondary,
       fontFamily: 'inherit',
       cursor: 'pointer',
@@ -2466,20 +2465,21 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
       boxShadow: isMobile ? '0 10px 24px rgba(0,0,0, 0.18), inset 0 1px 0 rgba(255,255,255, 0.05)' : '0 2px 8px rgba(0,0,0, 0.12), inset 0 1px 0 rgba(255,255,255, 0.06)',
-      textAlign: isMobile ? 'left' : 'center',
+      textAlign: 'center',
+      minWidth: 0,
     }}>
       <div style={{
-        width: isMobile ? 46 : 42,
-        height: isMobile ? 46 : 42,
-        borderRadius: isMobile ? 14 : 13,
+        width: isMobile ? 40 : 42,
+        height: isMobile ? 40 : 42,
+        borderRadius: isMobile ? 12 : 13,
         background: `${goldLight}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: `0 8px 18px -8px rgba(172,172,172, 0.58), inset 0 1px 0 rgba(240,240,240, 0.52)`,
       }}>{icon}</div>
       <span style={{
-        fontSize: isMobile ? 13 : 10.5,
-        fontWeight: isMobile ? 650 : 600,
-        lineHeight: isMobile ? 1.25 : 1.2,
+        fontSize: isMobile ? 11.5 : 10.5,
+        fontWeight: 600,
+        lineHeight: 1.2,
         letterSpacing: isMobile ? 0.1 : 0.4,
         textTransform: isMobile ? 'none' : 'uppercase',
         color: isMobile ? text.primary : text.secondary,
@@ -2500,12 +2500,12 @@ function ActivityRow({ iconBg, iconEl, title, subtitle, amount, positive, onClic
         boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.04)',
       }}>{iconEl}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ ...T.body, fontWeight: 500, color: text.secondary, marginBottom: 2 }}>{title}</div>
+        <div style={{ ...T.body, fontWeight: 500, color: text.secondary, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
         <div style={{ ...T.sm, color: text.muted }}>{subtitle}</div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ ...T.body, fontWeight: 600, color: positive ? '#a9a9a9' : text.secondary, ...T.num }}>
-          {positive ? '+' : ''}{amount}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        <div style={{ ...T.body, fontWeight: 600, color: positive ? gold : text.secondary, ...T.num, whiteSpace: 'nowrap' }}>
+          {positive ? '+' : '\u2212'}{amount}
         </div>
         {onClick && <Chevron size={13} color="rgba(215,215,215, 0.25)" />}
       </div>
@@ -3599,6 +3599,8 @@ function txToCategory(tx: TxItem): string {
   return 'other';
 }
 
+const BUDGET_ICON_PATHS: Record<string, string> = {"food": "M6 6h15l-1.5 8.5H7.5L6 6Zm0 0L5 3H2M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z", "transport": "M5 17h14M6 17v2M18 17v2M5 17l1.5-6.5A2 2 0 0 1 8.4 9h7.2a2 2 0 0 1 1.9 1.5L19 17M7.5 14h.01M16.5 14h.01", "entertainment": "M5 4h14v16l-7-4-7 4V4Z", "health": "M12 21s-7-4.5-9.3-9A5 5 0 0 1 12 6a5 5 0 0 1 9.3 6C19 16.5 12 21 12 21Z", "shopping": "M6 8h12l1 13H5L6 8Zm3 0V6a3 3 0 0 1 6 0v2", "utilities": "M3 11l9-7 9 7M5 10v10h14V10", "other": "M4 7l8-4 8 4-8 4-8-4Zm0 0v10l8 4 8-4V7M12 11v10"};
+
 function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
   const [budgets, setBudgets] = useState<Record<string, number>>(() => {
     try { return JSON.parse(localStorage.getItem(BUDGET_KEY) || '{}'); } catch { return {}; }
@@ -3645,7 +3647,9 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
           return (
             <div key={cat.key} style={{ background: bg.card, border: `1px solid ${bg.border}`, borderRadius: 16, padding: '12px 14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: limit > 0 ? 10 : 0 }}>
-                <span style={{ fontSize: 20 }}>{cat.icon}</span>
+                <span aria-hidden style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(172,172,172,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={BUDGET_ICON_PATHS[cat.key] ?? BUDGET_ICON_PATHS.other} /></svg>
+                </span>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: text.primary }}>{cat.label}</span>
@@ -4065,7 +4069,7 @@ function OverviewScreen() {
   const quickActionsSection = (
     <div>
       <div style={{ ...T.h3, color: text.secondary, marginBottom: 14 }}>{t('quick_actions')}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: layout === 'mobile' ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, 1fr)', gap: layout === 'mobile' ? 12 : 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8 }}>
         {quickActions.map(a => <Fragment key={a.label}><QuickAction icon={a.icon} label={a.label} onClick={() => handleQuickAction(a.action)} /></Fragment>)}
       </div>
     </div>
