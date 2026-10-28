@@ -702,7 +702,7 @@ CAT_KEYWORDS: dict[str, list[str]] = {
     'tablets':    ['ipad', 'tablet', 'планшет', 'galaxy tab', 'xiaomi pad'],
     'gadgets':    ['dji', 'дрон', 'gopro'],
     'women':      ["women's", 'женск', 'жіноч', 'woman', 'платье', 'блуз'],
-    'men':        ["men's", 'мужск', 'чолов', 'man '],
+    'men':        ["^men's", 'мужск', 'чолов'],
     'shoes':      ['кроссовк', 'кросівк', 'ботинки', 'туфли', 'sneaker', 'shoe', 'boot', 'sandal', 'loafer', 'slipper', 'шлепанц', 'вьетнамк', 'сандал', 'кросівк', 'черевик', 'туфл', 'сліпони', 'мокасин', 'шльопан', 'кеды', 'сапог', 'лофер', 'босонож', 'обувь'],
     'bags':       ['bag', 'backpack', 'wallet', 'clutch', 'сумка', 'рюкзак', 'гаманець', 'клатч', 'кошелек', 'портмоне', 'барсетк'],
     'accessories': ['belt', 'sunglasses', 'scarf', 'hat', 'cap', 'gloves', 'ремень', 'ремінь', 'окуляри', 'очки', 'шарф', 'шапка', 'кепка', 'перчатк', 'платок', 'часы'],
@@ -717,7 +717,7 @@ def _category_counts(conn: Any) -> dict[str, int]:
     for r in rows:
         text = f"{r.get('title') or ''} {r.get('description') or ''}".lower()
         for key, kws in CAT_KEYWORDS.items():
-            if any(kw in text for kw in kws):
+            if any((text.startswith(kw[1:]) if kw.startswith('^') else kw in text) for kw in kws):
                 counts[key] += 1
     return {k: v for k, v in counts.items() if v}
 
@@ -755,7 +755,8 @@ def catalog():
         sub = ' OR '.join(['(LOWER(title) LIKE %s OR LOWER(description) LIKE %s)'] * len(kws))
         where.append(f'({sub})')
         for kw in kws:
-            params += [f'%{kw}%', f'%{kw}%']
+            pat = f'{kw[1:]}%' if kw.startswith('^') else f'%{kw}%'
+            params += [pat, pat]
 
     where_sql = 'WHERE ' + ' AND '.join(where)
     order_sql = {'price_asc': 'price ASC', 'price_desc': 'price DESC',

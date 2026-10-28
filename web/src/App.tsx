@@ -1,6 +1,7 @@
 import markSvg from './assets/mark.svg?raw';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+import { createPortal } from 'react-dom';
 const florenceCardImage = '';
 const tuscanyHillsCardImage = '';
 const veniceCardImage = '';
@@ -6829,6 +6830,22 @@ const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
   'M4':       { bg: 'rgba(113,113,113, 0.15)', color: '#9a9a9a' },
 };
 
+function productBrand(p: Product): string {
+  return String(p.description || '').split(' · ')[0].trim();
+}
+function productName(p: Product): string {
+  return String(p.title || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
+}
+
+const SHOP_CATEGORIES: { k: string; uk: string; en: string }[] = [
+  { k: '', uk: 'Усе', en: 'All' },
+  { k: 'women', uk: 'Жінкам', en: 'Women' },
+  { k: 'men', uk: 'Чоловікам', en: 'Men' },
+  { k: 'shoes', uk: 'Взуття', en: 'Shoes' },
+  { k: 'bags', uk: 'Сумки', en: 'Bags' },
+  { k: 'accessories', uk: 'Аксесуари', en: 'Accessories' },
+];
+
 function BadgePill({ badge }: { badge: string }) {
   const c = BADGE_COLORS[badge] || { bg: 'rgba(172,172,172, 0.12)', color: gold };
   return (
@@ -6840,7 +6857,7 @@ function ProductVisual({ product, size = 'card' }: { product: Product; size?: 'c
   const emoji = product.image_emoji || '🛍️';
   const [imageFailed, setImageFailed] = useState(false);
   const imageUrl = String(product.image_url || '').trim();
-  const preferFallback = true;
+  const preferFallback = false;
 
   useEffect(() => {
     setImageFailed(false);
@@ -6856,9 +6873,11 @@ function ProductVisual({ product, size = 'card' }: { product: Product; size?: 'c
         style={{
           width: '100%',
           height: '100%',
-          objectFit: 'contain',
+          objectFit: 'cover',
+          objectPosition: 'center top',
           display: 'block',
-          padding: size === 'cart' ? 0 : 8,
+          background: '#ecebe8',
+          padding: 0,
           boxSizing: 'border-box',
           transform: size === 'detail' ? 'scale(1.01)' : 'scale(1)',
         }}
@@ -6886,65 +6905,104 @@ function ProductVisual({ product, size = 'card' }: { product: Product; size?: 'c
 
 function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Product; onClose: () => void; onAddToCart: (p: Product) => void }) {
   const { t } = usePreferences();
+  const layout = useLayout();
   const sheetSwipe = useSheetSwipeClose(onClose);
+  const desktop = layout === 'desktop';
+  const out = product.stock !== undefined && product.stock <= 0;
+  const brand = productBrand(product);
+  const name = productName(product);
+  const code = product.title !== name ? product.title.slice(name.length).trim().replace(/^\(|\)$/g, '') : '';
+  const shopId = String(product.slug || '').startsWith('munister-') ? String(product.slug).slice(9) : '';
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const info = (
+    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 12, flexWrap: 'wrap' }}>
+        {product.badge && <BadgePill badge={product.badge} />}
+        {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
+          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 6, background: 'rgba(123,123,123, 0.15)', color: '#8c8c8c', letterSpacing: 0.5 }}>{t('last_items_badge')} {product.stock}</span>
+        )}
+      </div>
+      {brand && <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.6, textTransform: 'uppercase', color: text.muted, marginBottom: 8 }}>{brand}</div>}
+      <div style={{ ...T.h2, color: text.primary, marginBottom: 6, lineHeight: 1.2 }}>{name}</div>
+      {code && <div style={{ fontSize: 12, color: text.dim, marginBottom: 18, fontVariantNumeric: 'tabular-nums' }}>{code}</div>}
+      <div style={{ ...T.hero, fontWeight: 800, color: gold, ...T.num, margin: '6px 0 6px' }}>{fmtInt(product.price)}{fmtDec(product.price)}{'\u00a0TAX'}</div>
+      {product.stock !== undefined && (
+        <div style={{ fontSize: 12, color: out ? '#888888' : text.muted, marginBottom: 22 }}>
+          {out ? t('market_out_of_stock') : `${t('in_stock')}: ${product.stock}`}
+        </div>
+      )}
+      <button
+        onClick={() => { onAddToCart(product); onClose(); }}
+        disabled={out}
+        style={{
+          width: '100%', padding: '15px', borderRadius: 14, border: 'none', fontSize: 15, fontWeight: 700,
+          background: out ? 'rgba(95,95,95, 0.25)' : gold,
+          color: '#161616', cursor: out ? 'default' : 'pointer', fontFamily: 'inherit', marginTop: desktop ? 'auto' : 0,
+        }}
+      >
+        {out ? t('market_out_of_stock') : t('add_to_cart')}
+      </button>
+      {shopId && (
+        <a href={`https://shop.munister.com.ua/product/${shopId}`} target="_blank" rel="noreferrer"
+          style={{ marginTop: 12, textAlign: 'center', fontSize: 13, color: text.muted, textDecoration: 'none' }}>
+          Saint Agnes <span style={{ color: gold }}>↗</span>
+        </a>
+      )}
+    </div>
+  );
+
+  const photo = (
+    <div style={{
+      aspectRatio: '3 / 4', width: '100%', borderRadius: 16, overflow: 'hidden', background: '#ecebe8',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      maxHeight: desktop ? '72vh' : '52vh', marginBottom: desktop ? 0 : 18,
+    }}>
+      <ProductVisual product={product} size="detail" />
+    </div>
+  );
+
+  if (desktop) {
+    return createPortal(
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.62)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} />
+        <div onClick={e => e.stopPropagation()} role="dialog" aria-label={name} style={{
+          position: 'relative', width: 'min(920px, 100%)', maxHeight: '88vh', overflow: 'auto',
+          background: '#1d1d1d', border: '1px solid rgba(172,172,172, 0.15)', borderRadius: 22,
+          boxShadow: '0 30px 80px rgba(0,0,0,0.6)', padding: 24,
+          display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 28,
+        }}>
+          <button onClick={onClose} aria-label="Close" style={{ position: 'absolute', top: 14, right: 14, width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(172,172,172,0.2)', background: 'rgba(255,255,255,0.04)', color: text.secondary, cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
+          {photo}
+          <div style={{ display: 'flex', flexDirection: 'column', paddingTop: 28 }}>{info}</div>
+        </div>
+      </div>,
+      document.body,
+    );
+  }
+
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 200, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }} onClick={onClose}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }} onClick={onClose}>
       <div style={{ background: `rgba(0,0,0, ${0.5 - sheetSwipe.progress * 0.32})`, position: 'absolute', inset: 0, transition: sheetSwipe.dragging ? 'none' : 'background 200ms ease' }} />
       <div
         {...sheetSwipe.sheetProps}
         onClick={e => e.stopPropagation()}
         style={{
         position: 'relative', background: '#232323',
-        borderRadius: '24px 24px 0 0', padding: '28px 24px calc(48px + env(safe-area-inset-bottom, 0px))',
-        boxShadow: '0 -20px 60px rgba(0,0,0, 0.6)', maxHeight: '85vh', overflowY: 'auto',
+        borderRadius: '24px 24px 0 0', padding: '20px 20px calc(32px + env(safe-area-inset-bottom, 0px))',
+        boxShadow: '0 -20px 60px rgba(0,0,0, 0.6)', maxHeight: '92vh', overflowY: 'auto',
         border: '1px solid rgba(172,172,172, 0.15)', borderBottom: 'none',
         ...sheetSwipe.sheetStyle,
       }}
       >
-        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 24px' }} />
-        <div style={{ display: 'flex', gap: 4, marginBottom: 16, flexWrap: 'wrap' }}>
-          {product.badge && <BadgePill badge={product.badge} />}
-          {product.stock !== undefined && product.stock <= 5 && product.stock > 0 && (
-            <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 6, background: 'rgba(123,123,123, 0.15)', color: '#8c8c8c', letterSpacing: 0.5 }}>{t('last_items_badge')} {product.stock}</span>
-          )}
-        </div>
-        <div style={{
-          height: 176,
-          borderRadius: 24,
-          overflow: 'hidden',
-          marginBottom: 18,
-          background: 'rgba(216,216,216, 0.16)',
-          border: '1px solid rgba(216,216,216, 0.12)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255, 0.08), 0 18px 40px rgba(0,0,0, 0.28)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <ProductVisual product={product} size="detail" />
-        </div>
-        <div style={{ ...T.h2, color: text.primary, marginBottom: 8 }}>{product.title}</div>
-        {product.description && (
-          <div style={{ ...T.bodyLg, color: text.muted, lineHeight: 1.6, marginBottom: 20 }}>{product.description}</div>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-          <div style={{ ...T.hero, fontWeight: 800, color: gold, ...T.num }}>{fmtInt(product.price)}{fmtDec(product.price)}{'\u00a0TAX'}</div>
-          {product.stock !== undefined && (
-            <div style={{ fontSize: 12, color: product.stock > 0 ? text.muted : '#888888' }}>
-              {product.stock > 0 ? `${t('in_stock')}: ${product.stock}` : t('market_out_of_stock')}
-            </div>
-          )}
-        </div>
-        <button
-          onClick={() => { onAddToCart(product); onClose(); }}
-          disabled={product.stock !== undefined && product.stock <= 0}
-          style={{
-            width: '100%', padding: '15px', borderRadius: 16, border: 'none', fontSize: 16, fontWeight: 700,
-            background: (product.stock !== undefined && product.stock <= 0) ? 'rgba(95,95,95, 0.25)' : `${goldDark}`,
-            color: text.primary, cursor: (product.stock !== undefined && product.stock <= 0) ? 'default' : 'pointer', fontFamily: 'inherit',
-          }}
-        >
-          {(product.stock !== undefined && product.stock <= 0) ? t('market_out_of_stock') : t('add_to_cart')}
-        </button>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 16px' }} />
+        {photo}
+        {info}
       </div>
     </div>
   );
@@ -7103,7 +7161,7 @@ type MarketTab = 'catalog' | 'orders' | 'invoices';
 
 function MarketplaceScreen() {
   const layout = useLayout();
-  const PRODUCTS_PER_PAGE = layout === 'desktop' ? 12 : 4;
+  const PRODUCTS_PER_PAGE = 100000;
   const { t, lang } = usePreferences();
   const topPad = useTopPad();
   const { toast, refreshDashboard, user: mktUser, setTabBarHidden } = useApp();
@@ -7120,7 +7178,16 @@ function MarketplaceScreen() {
   const [showCart, setShowCart] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [serverPage, setServerPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [catalogPage, setCatalogPage] = useState(1);
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => window.clearTimeout(id);
+  }, [search]);
   const marketTopRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => { localStorage.setItem('arm_cart', JSON.stringify(cart)); }, [cart]);
   useEffect(() => {
@@ -7199,9 +7266,15 @@ function MarketplaceScreen() {
   useEffect(() => {
     if (tab === 'catalog') {
       setLoading(true);
-      fetch(apiUrl('/api/marketplace/catalog?per_page=96&sort=newest'), { headers: { Authorization: `Bearer ${token}` } })
+      setServerPage(1);
+      fetch(apiUrl(catalogUrl(1)), { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.json())
-        .then(j => { if (j.ok) setProducts(Array.isArray(j.data?.items) ? j.data.items : (Array.isArray(j.data) ? j.data : [])); })
+        .then(j => {
+          if (j.ok) {
+            setProducts(Array.isArray(j.data?.items) ? j.data.items : (Array.isArray(j.data) ? j.data : []));
+            setHasMore(Boolean(j.data?.has_more));
+          }
+        })
         .catch(() => {})
         .finally(() => setLoading(false));
     } else if (tab === 'orders') {
@@ -7219,7 +7292,30 @@ function MarketplaceScreen() {
         .catch(() => {})
         .finally(() => setLoading(false));
     }
-  }, [tab]);
+  }, [tab, category, debouncedSearch]);
+
+  function catalogUrl(page: number) {
+    const q = new URLSearchParams({ per_page: '48', page: String(page), sort: 'newest' });
+    if (category) q.set('category', category);
+    if (debouncedSearch) q.set('search', debouncedSearch);
+    return `/api/marketplace/catalog?${q.toString()}`;
+  }
+
+  async function loadMoreProducts() {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const next = serverPage + 1;
+      const r = await fetch(apiUrl(catalogUrl(next)), { headers: { Authorization: `Bearer ${token}` } });
+      const j = await r.json();
+      if (j.ok) {
+        const items: Product[] = Array.isArray(j.data?.items) ? j.data.items : [];
+        setProducts(prev => [...prev, ...items.filter(it => !prev.some(p => p.id === it.id))]);
+        setHasMore(Boolean(j.data?.has_more));
+        setServerPage(next);
+      }
+    } catch { /* keep what we have */ } finally { setLoadingMore(false); }
+  }
 
   async function downloadOrderReceipt(orderId: number) {
     setDlPdf(`order-${orderId}`);
@@ -7262,9 +7358,7 @@ function MarketplaceScreen() {
     return d.toLocaleString(localeForLang(lang), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
-  const filteredProducts = search.trim()
-    ? products.filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || (p.description || '').toLowerCase().includes(search.toLowerCase()))
-    : products;
+  const filteredProducts = products;
   const totalCatalogPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
   const pagedProducts = filteredProducts.slice((catalogPage - 1) * PRODUCTS_PER_PAGE, catalogPage * PRODUCTS_PER_PAGE);
   const catalogPages = useMemo<(number | 'gap-left' | 'gap-right')[]>(() => {
@@ -7335,7 +7429,7 @@ function MarketplaceScreen() {
           fontFamily: 'inherit',
         }}
       >
-          <span style={{ fontSize: 16 }}>⌁</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 8h12l1 13H5L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>
         <span style={{ fontSize: 12, fontWeight: 700 }}>{cartCount}</span>
       </button>
     )}
@@ -7343,10 +7437,15 @@ function MarketplaceScreen() {
     <div style={{ paddingBottom: layout === 'desktop' ? 80 : 'calc(104px + env(safe-area-inset-bottom, 0px))', paddingRight: isMobileMarket ? undefined : 356, overflowX: 'hidden' }}>
       <div ref={marketTopRef} style={{ padding: isMobileMarket ? `${topPad} 22px 12px` : '40px 32px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={{ ...T.h1, color: text.primary }}>{t('market_title')}</div>
+          <div>
+            <div style={{ ...T.h1, color: text.primary }}>{t('market_title')}</div>
+            <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 12, color: text.muted, textDecoration: 'none', letterSpacing: 1.2, textTransform: 'uppercase' }}>
+              Saint Agnes <span style={{ color: gold }}>↗</span>
+            </a>
+          </div>
           {isMobileMarket && (
-            <button onClick={() => setShowCart(true)} style={{ position: 'relative', width: 44, height: 44, borderRadius: 14, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>
-              ⌁
+            <button onClick={() => setShowCart(true)} style={{ position: 'relative', width: 44, height: 44, borderRadius: 14, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, color: text.primary }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 8h12l1 13H5L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>
               {cartCount > 0 && (
                 <span style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: '50%', background: gold, color: text.primary, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount > 9 ? '9+' : cartCount}</span>
               )}
@@ -7367,7 +7466,19 @@ function MarketplaceScreen() {
         {tab === 'catalog' && (
           <div style={{ position: 'relative' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.4 }}><circle cx="11" cy="11" r="7" stroke="#d8d8d8" strokeWidth="1.8" /><path d="M20 20l-3-3" stroke="#d8d8d8" strokeWidth="1.8" strokeLinecap="round" /></svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('product_search')} style={{ width: '100%', padding: '10px 14px 10px 36px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 12, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('product_search')} style={{ width: '100%', padding: '12px 14px 12px 38px', background: 'rgba(255,255,255, 0.04)', border: `1px solid rgba(172,172,172, 0.14)`, borderRadius: 12, color: '#d8d8d8', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+          </div>
+        )}
+        {tab === 'catalog' && (
+          <div data-no-tab-swipe="true" style={{ display: 'flex', gap: 6, overflowX: 'auto', marginTop: 12, paddingBottom: 2, scrollbarWidth: 'none' }}>
+            {SHOP_CATEGORIES.map(c => (
+              <button key={c.k || 'all'} onClick={() => setCategory(c.k)} style={{
+                flexShrink: 0, padding: '8px 14px', borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+                border: `1px solid ${category === c.k ? gold : 'rgba(172,172,172, 0.18)'}`,
+                background: category === c.k ? 'rgba(255,212,0, 0.1)' : 'transparent',
+                color: category === c.k ? gold : text.secondary,
+              }}>{lang === 'uk' ? c.uk : c.en}</button>
+            ))}
           </div>
         )}
       </div>
@@ -7385,21 +7496,22 @@ function MarketplaceScreen() {
             </div>
           ) : (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${isMobileMarket ? 155 : 210}px, 1fr))`, gap: marketGridGap, padding: isMobileMarket ? '6px 22px' : '8px 32px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${isMobileMarket ? 150 : 200}px, 1fr))`, gap: marketGridGap, padding: isMobileMarket ? '6px 22px' : '8px 32px' }}>
                 {pagedProducts.map(p => (
-                  <div key={p.id} onClick={() => setPreview(p)} style={{ background: 'rgba(255,255,255, 0.036)', border: '1px solid rgba(172,172,172, 0.07)', borderRadius: 18, overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer', transition: 'background 0.15s', height: marketCardHeight }}>
-                    <div style={{ height: marketImageHeight, flexShrink: 0, background: `rgba(172,172,172, 0.08)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 42, position: 'relative', overflow: 'hidden' }}>
+                  <div key={p.id} className="tt-product-card" onClick={() => setPreview(p)} style={{ background: 'rgba(255,255,255, 0.036)', border: '1px solid rgba(172,172,172, 0.07)', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}>
+                    <div style={{ aspectRatio: '3 / 4', flexShrink: 0, background: '#ecebe8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 42, position: 'relative', overflow: 'hidden' }}>
                       <ProductVisual product={p} />
                       {p.badge && (
                         <div style={{ position: 'absolute', top: 8, right: 8 }}><BadgePill badge={p.badge} /></div>
                       )}
                     </div>
                     <div style={{ padding: marketCardPad, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <div style={{ ...T.sm, fontSize: isMobileMarket ? 13 : T.sm.fontSize, fontWeight: 600, color: text.secondary, lineHeight: 1.25, ...marketTitleClamp }}>{p.title}</div>
+                      {productBrand(p) && <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.4, textTransform: 'uppercase', color: text.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{productBrand(p)}</div>}
+                      <div style={{ ...T.sm, fontSize: isMobileMarket ? 13 : 14, fontWeight: 500, color: text.secondary, lineHeight: 1.3, ...marketTitleClamp, minHeight: 0, WebkitLineClamp: 1 }}>{productName(p)}</div>
                       <div style={{ marginTop: 'auto', paddingTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
                         <span style={{ ...T.body, fontWeight: 700, color: gold, ...T.num }}>{fmtInt(p.price)}{'\u00a0TAX'}</span>
-                        <button onClick={e => { e.stopPropagation(); addToCart(p); }} disabled={p.stock !== undefined && p.stock <= 0} style={{
-                          width: 28, height: 28, borderRadius: 8, border: `1px solid ${bg.border}`, fontSize: 14, fontWeight: 700,
+                        <button aria-label={t('add_to_cart')} onClick={e => { e.stopPropagation(); addToCart(p); }} disabled={p.stock !== undefined && p.stock <= 0} style={{
+                          width: 32, height: 32, borderRadius: 10, border: `1px solid ${bg.border}`, fontSize: 14, fontWeight: 700,
                           background: (p.stock !== undefined && p.stock <= 0) ? 'rgba(41,41,41, 0.4)' : 'rgba(172,172,172, 0.15)',
                           color: text.secondary, cursor: (p.stock !== undefined && p.stock <= 0) ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>+</button>
@@ -7411,6 +7523,13 @@ function MarketplaceScreen() {
                   </div>
                 ))}
               </div>
+              {hasMore && (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 22px 8px' }}>
+                  <button onClick={loadMoreProducts} disabled={loadingMore} style={{ padding: '12px 28px', borderRadius: 12, border: `1px solid rgba(172,172,172, 0.25)`, background: 'rgba(255,255,255, 0.04)', color: text.primary, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    {loadingMore ? t('loading') : (lang === 'uk' ? 'Показати ще' : 'Show more')}
+                  </button>
+                </div>
+              )}
               {filteredProducts.length > PRODUCTS_PER_PAGE && (
                 <div data-no-tab-swipe="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '12px 22px 16px', position: 'relative', zIndex: 2, flexWrap: 'wrap' }}>
                   <button
@@ -8686,7 +8805,7 @@ function LoginBrandPanel() {
         <BrandMark size={44} radiusValue={13} />
         <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.5, color: text.primary }}>Tax<span style={{ fontWeight: 300, opacity: 0.8 }}>Tech</span></div>
       </div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 560 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 560, paddingBottom: 'clamp(140px, 17vw, 240px)', position: 'relative', zIndex: 1 }}>
         <div style={{ fontSize: 'clamp(34px, 3.4vw, 52px)', fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.06, color: text.primary, marginBottom: 36 }}>{t('dk_login_title')}</div>
         <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {points.map((p, i) => (
@@ -8696,7 +8815,7 @@ function LoginBrandPanel() {
           ))}
         </ul>
       </div>
-      <div aria-hidden className="kp-rise" style={{ position: 'absolute', right: -70, bottom: -20, width: 460, transform: 'rotate(-10deg)', opacity: 0.92, ['--i' as string]: 3 }}>
+      <div aria-hidden className="kp-rise" style={{ position: 'absolute', right: -60, bottom: -40, width: 'clamp(260px, 30vw, 460px)', transform: 'rotate(-10deg)', opacity: 0.92, ['--i' as string]: 3 }}>
         <PremiumCard variant="obsidian" number="6897" name="TAXTECH" expiry="09/29" type="" balance={167504.68} isPrimary style={{ width: '100%' }} />
       </div>
     </aside>
