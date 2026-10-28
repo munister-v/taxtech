@@ -8981,72 +8981,116 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
   useEffect(() => {
     fetch('/api/marketplace/catalog?per_page=12&sort=newest&category=women')
       .then(r => r.json())
-      .then(j => { if (j?.ok) setItems((j.data?.items || []).filter((p: PromoProduct) => p.image_url).slice(0, 5)); })
+      .then(j => { if (j?.ok) setItems((j.data?.items || []).filter((p: PromoProduct) => p.image_url).slice(0, 4)); })
       .catch(() => {});
   }, []);
-  const rows = [
-    ['Картки', 'Віртуальні, з дизайном на ваш смак: від чорного мінімалу до Колізею.'],
-    ['Перекази', 'За номером рахунку чи картки, миттєво.'],
-    ['Депозити й кредити', 'Відсотки, графік платежів, дострокове погашення.'],
-    ['Аналітика', 'Куди йдуть гроші — по категоріях і днях.'],
-  ];
+  const fan: CardVariant[] = ['roma_marmor', 'roma_pantheon', 'roma_colosseum_night', 'obsidian', 'roma_aureus'];
+  const bars = [38, 64, 46, 82, 58, 30, 70];
   return (
-    <div className="tt-promo">
-      <header className="tt-nav">
-        <div className="tt-shell tt-nav-in">
-          <a href="#top" className="tt-logo" aria-label="TaxTech"><BrandMark size={30} radiusValue={8} /><span>TaxTech</span></a>
-          <div className="tt-nav-cta">
-            <button type="button" className="tt-textbtn" onClick={() => onAuth('login')}>Увійти</button>
-            <button type="button" className="tt-btn tt-primary" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-          </div>
+    <div className="ap">
+      <header className="ap-nav">
+        <div className="ap-wrap ap-nav-in">
+          <a href="#top" className="ap-brand"><BrandMark size={26} radiusValue={7} /><span>TaxTech</span></a>
+          <nav className="ap-links" aria-label="Розділи">
+            <a href="#cards">Картки</a><a href="#money">Перекази</a><a href="#shop">Магазин</a><a href="#security">Безпека</a>
+          </nav>
+          <button type="button" className="ap-link ap-signin" onClick={() => onAuth('login')}>Увійти</button>
+          <button type="button" className="ap-pill ap-pill-sm" onClick={() => onAuth('register')}>Відкрити рахунок</button>
         </div>
       </header>
 
-      <section id="top" className="tt-hero">
-        <div className="tt-shell tt-hero-in">
-          <div className="tt-hero-copy">
-            <h1>Банк, у якому вчаться керувати грошима</h1>
-            <p>Справжній банк на віртуальних токенах TAX.</p>
-            <div className="tt-hero-cta">
-              <button type="button" className="tt-btn tt-primary tt-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
-              <button type="button" className="tt-textbtn tt-lg" onClick={() => onAuth('login')}>Увійти →</button>
-            </div>
-          </div>
-          <div className="tt-hero-art" aria-hidden>
-            <div className="tt-card-b"><PremiumCard variant="obsidian" number="4417" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
-            <div className="tt-card-a"><PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
+      <section id="top" className="ap-hero">
+        <div className="ap-wrap">
+          <div className="ap-eyebrow"><BrandMark size={22} radiusValue={6} /> TaxTech</div>
+          <h1>Простота банку.<br />На токенах TAX.</h1>
+          <div className="ap-cta">
+            <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+            <button type="button" className="ap-link" onClick={() => onAuth('login')}>Увійти <span aria-hidden>›</span></button>
           </div>
         </div>
-      </section>
-
-      <section className="tt-list">
-        <div className="tt-shell">
-          {rows.map(([h, d]) => (
-            <div key={h} className="tt-row"><h2>{h}</h2><p>{d}</p></div>
-          ))}
+        <div className="ap-hero-card" aria-hidden>
+          <div className="ap-hero-card-in"><PremiumCard variant="roma_colosseum" number="2026" name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} /></div>
         </div>
       </section>
 
-      <section className="tt-shop">
-        <div className="tt-shell tt-shop-head">
-          <h2>Saint Agnes за TAX</h2>
-          <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer" className="tt-textbtn">У магазин ↗</a>
-        </div>
-        <div className="tt-strip">
-          {(items.length ? items : [null, null, null, null, null]).map((p, i) => (
-            <figure key={p ? p.id : i}>{p && <img src={p.image_url} alt={p.title} loading="lazy" />}</figure>
-          ))}
+      <section className="ap-manifesto">
+        <div className="ap-wrap">
+          <p>
+            TaxTech — це справжній банк для навчання. <b>Картки, перекази, депозити й кредити</b> працюють
+            як у житті, тільки гроші тут — віртуальні токени TAX. <b>Face ID і 3-D Secure</b> захищають кожну
+            операцію, а в <b>Saint Agnes</b> за TAX можна купити справжній одяг. Усе, яким має бути банк.
+          </p>
         </div>
       </section>
 
-      <section className="tt-final">
-        <div className="tt-shell">
-          <h2>Face ID, 3-D Secure, антифрод. Як у великому банку.</h2>
-          <button type="button" className="tt-btn tt-primary tt-lg" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+      <section id="cards" className="ap-wrap ap-tiles">
+        <article className="ap-tile ap-tile-wide">
+          <div className="ap-tile-copy">
+            <h2 className="ap-grad">Картка, яку хочеться тримати.</h2>
+            <p>Колізей, Пантеон, каррарський мармур або чорний мінімал. Дизайн змінюється в один дотик.</p>
+          </div>
+          <div className="ap-fan" aria-hidden>
+            {fan.map((v, i) => (
+              <div key={v} className="ap-fan-card" style={{ ['--i' as string]: i - 2, zIndex: 10 - Math.abs(i - 2) }}>
+                <PremiumCard variant={v} number={String(4417 + i * 1111).slice(-4)} name="ОЛЕНА КОВАЛЬ" expiry="10/29" type="" style={{ width: '100%' }} />
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article id="money" className="ap-tile">
+          <div className="ap-tile-copy">
+            <h2 className="ap-grad">Перекази.<br />За секунду.</h2>
+            <p>За номером рахунку чи картки, з шаблонами й регулярними платежами.</p>
+          </div>
+          <div className="ap-tx" aria-hidden>
+            <div className="ap-tx-amount">+2 000<span>,00 TAX</span></div>
+            <div className="ap-tx-meta">Від Олени К. · щойно</div>
+          </div>
+        </article>
+
+        <article className="ap-tile">
+          <div className="ap-tile-copy">
+            <h2 className="ap-grad">Ваші гроші.<br />Як на долоні.</h2>
+            <p>Витрати по днях і категоріях, ліміти бюджету й цілі накопичень.</p>
+          </div>
+          <div className="ap-bars" aria-hidden>
+            {bars.map((h, i) => <span key={i} style={{ height: `${h}%` }} className={i === 3 ? 'on' : ''} />)}
+          </div>
+        </article>
+
+        <article id="shop" className="ap-tile ap-tile-wide ap-tile-shop">
+          <div className="ap-tile-copy">
+            <h2 className="ap-grad">Saint Agnes. За TAX.</h2>
+            <p>Італійський гардероб, вбудований у банк. <a className="ap-link" href="https://shop.munister.com.ua" target="_blank" rel="noreferrer">У магазин <span aria-hidden>›</span></a></p>
+          </div>
+          <div className="ap-photos">
+            {(items.length ? items : [null, null, null, null]).map((p, i) => (
+              <figure key={p ? p.id : i}>{p && <img src={p.image_url} alt={p.title} loading="lazy" />}</figure>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section id="security" className="ap-security">
+        <div className="ap-wrap">
+          <h2>Безпека, вбудована<br />з самого початку.</h2>
+          <div className="ap-cols">
+            <div><h3>Face ID і passkey</h3><p>Вхід без пароля, ключ лишається на вашому пристрої.</p></div>
+            <div><h3>3-D Secure</h3><p>Кожну оплату підтверджує одноразовий код.</p></div>
+            <div><h3>Антифрод</h3><p>Підозрілий переказ зупиняється до списання.</p></div>
+          </div>
         </div>
       </section>
 
-      <footer className="tt-foot"><div className="tt-shell">© {new Date().getFullYear()} TaxTech · навчальний банк · TAX не є грошима</div></footer>
+      <section className="ap-final">
+        <div className="ap-wrap">
+          <h2>Відкрийте рахунок<br />за хвилину.</h2>
+          <button type="button" className="ap-pill" onClick={() => onAuth('register')}>Відкрити рахунок</button>
+        </div>
+      </section>
+
+      <footer className="ap-foot"><div className="ap-wrap">TaxTech — навчальний банк. TAX не є грошима й не обмінюється на гроші. © {new Date().getFullYear()}</div></footer>
     </div>
   );
 }
@@ -9160,30 +9204,20 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
   }
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '13px 16px', background: 'rgba(12,12,12, 0.52)',
-    border: `1px solid rgba(215,215,215, 0.26)`, borderRadius: radius.md,
-    color: text.primary, fontSize: 15, outline: 'none', fontFamily, boxSizing: 'border-box',
+    width: '100%', padding: '0 16px', height: 54, background: '#1c1c1e',
+    border: '1px solid #2c2c2e', borderRadius: 12,
+    color: '#f5f5f7', fontSize: 17, outline: 'none', fontFamily, boxSizing: 'border-box',
     transition: 'border-color 0.15s, background 0.15s',
     WebkitAppearance: 'none',
   };
   const labelStyle: React.CSSProperties = {
-    display: 'block', ...T.caption, color: 'rgba(225,225,225, 0.78)', marginBottom: 7,
+    display: 'block', fontSize: 13, fontWeight: 500, color: '#86868b', marginBottom: 8,
   };
   const fieldStyle = { marginBottom: 14 };
 
   return (
     <div style={{ ...appBase, overflowY: 'auto' }}>
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0,       bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', pointerEvents: 'none', background: '#121212' }} />
-            <div style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', pointerEvents: 'none',
-        backgroundImage: `url(${AUTH_STATIC_BG})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center top',
-        opacity: 0.82,
-      }} />
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0,       bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', pointerEvents: 'none',
-              background: 'rgba(39,39,39, 0.48)',
-      }} />
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', pointerEvents: 'none', background: '#000' }} />
       {onBack && (
         <button type="button" onClick={onBack} className="tt-back" aria-label="TaxTech">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M15 18l-6-6 6-6" /></svg>
@@ -9191,47 +9225,16 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
         </button>
       )}
       <div style={{ minHeight: '100%', display: 'flex', alignItems: 'stretch', position: 'relative' }}>
-      {wide && <LoginBrandPanel />}
-      <div style={{ flex: wide ? '1 1 48%' : 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px' }}>
-      <div style={{ width: '100%', maxWidth: wide ? 420 : 380 }}>
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '88px 20px 48px' }}>
+      <div className="ap-auth" style={{ width: '100%', maxWidth: 400 }}>
 
-        {/* Logo block */}
-        <div style={{ textAlign: 'center', marginBottom: 40, display: wide ? 'none' : undefined }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-            <BrandMark size={72} radiusValue={22} elevated />
-          </div>
-          {/* Wordmark */}
-          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.5, color: text.primary, fontFamily, lineHeight: 1 }}>
-            Tax<span style={{ fontWeight: 300, color: text.muted }}>Tech</span>
-          </div>
-          <div style={{ ...T.caption, color: text.dim, marginTop: 8, letterSpacing: 2, textTransform: 'uppercase' }}>
-            {t('personal_cabinet')}
-          </div>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}><BrandMark size={56} radiusValue={15} /></div>
+          <h1 className="ap-auth-title">{mode === 'login' ? 'Увійдіть у TaxTech' : 'Відкрийте рахунок'}</h1>
+          <p className="ap-auth-sub">{mode === 'login' ? 'Телефон або email і пароль.' : 'Хвилина — і рахунок у TAX готовий.'}</p>
         </div>
 
-        <div style={{
-          borderRadius: 22,
-          border: '1px solid rgba(215,215,215, 0.22)',
-          background: 'rgba(16,16,16, 0.74)',
-          boxShadow: '0 20px 50px rgba(0,0,0, 0.42), inset 0 1px 0 rgba(255,255,255, 0.08)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          padding: '14px 14px 16px',
-        }}>
-        {/* Tab switcher */}
-        <div style={{ display: 'flex', gap: 0, marginBottom: 18, borderBottom: `1px solid rgba(215,215,215, 0.2)` }}>
-          {(['login', 'register'] as const).map(m => (
-            <button key={m} type="button" onClick={() => { setMode(m); setError(''); setConfirmPass(''); }} style={{
-              flex: 1, padding: '10px', background: 'transparent', border: 'none',
-              borderBottom: mode === m ? `2px solid ${gold}` : '2px solid transparent',
-              marginBottom: -1,
-              color: mode === m ? text.primary : 'rgba(215,215,215, 0.72)',
-              fontSize: 13, fontWeight: mode === m ? 600 : 400, fontFamily,
-              cursor: 'pointer', transition: 'all 0.18s', letterSpacing: 0.3,
-            }}>{m === 'login' ? t('login_tab') : t('register_tab')}</button>
-          ))}
-        </div>
-
+        <div>
         {/* Face ID button — only on login tab, only if platform auth available */}
         {mode === 'login' && hasPlatformAuth && (
           <button
@@ -9239,9 +9242,9 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
             onClick={handleFaceIdLogin}
             disabled={faceIdLoading}
             style={{
-              width: '100%', padding: '14px', marginBottom: 16, borderRadius: radius.md,
-              border: '1px solid rgba(215,215,215, 0.28)',
-              background: 'rgba(32,32,32, 0.95)',
+              width: '100%', height: 54, padding: 0, marginBottom: 22, borderRadius: 999,
+              border: '1px solid #3a3a3c',
+              background: 'transparent',
               color: faceIdLoading ? text.dim : text.primary,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
               cursor: faceIdLoading ? 'default' : 'pointer',
@@ -9359,23 +9362,25 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
             )}
 
             <button type="submit" disabled={loading} style={{
-              width: '100%', padding: '15px', borderRadius: radius.md, border: 'none',
+              width: '100%', height: 54, padding: 0, borderRadius: 999, border: 'none',
               background: loading
                 ? 'rgba(85,85,85, 0.25)'
                 : gold,
               color: loading ? text.dim : '#17140a',
               ...T.bodyLg, fontWeight: 600, cursor: loading ? 'default' : 'pointer',
               fontFamily, letterSpacing: 0.4,
-              boxShadow: loading ? 'none' : '0 10px 28px -12px rgba(255,212,0, 0.55)',
+              boxShadow: 'none', fontSize: 17,
               transition: 'all 0.18s',
             }}>{loading ? t('wait_processing') : mode === 'login' ? t('sign_in') : t('create_account')}</button>
           </div>
         </form>
         </div>
 
-        {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: 24, ...T.caption, color: 'rgba(215,215,215, 0.72)', letterSpacing: 0.6 }}>
-          TaxTech · {t('personal_cabinet')}
+        <div style={{ textAlign: 'center', marginTop: 28, fontSize: 15, color: '#86868b' }}>
+          {mode === 'login' ? 'Ще немає рахунку? ' : 'Вже є рахунок? '}
+          <button type="button" className="ap-link" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setConfirmPass(''); }}>
+            {mode === 'login' ? 'Відкрити' : 'Увійти'} <span aria-hidden>›</span>
+          </button>
         </div>
       </div>
       </div>
