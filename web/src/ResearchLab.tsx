@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import data from './researchData.json';
 import { useLandingT } from './landingLang';
+import { Note, Problem, Sources } from './ResearchAcademic';
 
 // ─── Research chapter of the promo landing ───────────────────────
 // Every number here is real: researchData.json is exported from the EdgeRouter Swift sources
@@ -62,6 +63,7 @@ export default function ResearchLab() {
   return (
     <div id="lab" className="rl">
       <Intro />
+      <Problem />
       <Question />
       <Decision />
       <Field />
@@ -73,6 +75,7 @@ export default function ResearchLab() {
       <Parity />
       <Status />
       <Logged />
+      <Sources />
     </div>
   );
 }
@@ -170,6 +173,10 @@ function Decision() {
               </div>
             ))}
           </div>
+          <Note term={t('Формально', 'Formally')} refs={[6]} code={{ path: 'EdgeRouter/Sources/EdgeRouter/Policy.swift', label: 'Policy.decide' }}>
+            {t('Для запиту з множиною дозволених виконавців P (визначається чутливістю даних і наявністю мережі) метод обирає p* = argmin over p ∈ P of V·(w_t·t_p − w_q·q_p) + Z(t)·E_p. Це правило drift-plus-penalty: мінімізація верхньої межі суми дрейфу Ляпунова та штрафу гарантує, що середня енергія не перевищує бюджет Ē, а штраф відхиляється від оптимального не більше ніж на O(1/V). Ваги w_t = 1, w_q = 4, V = 1, Ē = 1,5 Дж.',
+              'For a request with an allowed executor set P (fixed by data sensitivity and network availability) the method picks p* = argmin over p ∈ P of V·(w_t·t_p − w_q·q_p) + Z(t)·E_p. This is the drift-plus-penalty rule: minimising an upper bound on Lyapunov drift plus penalty keeps average energy within the budget Ē, while the penalty stays within O(1/V) of optimal. Weights: w_t = 1, w_q = 4, V = 1, Ē = 1.5 J.')}
+          </Note>
           {net === 'cellular' && <p className="rl-cap">{t('На стільниковій мережі сервер без замірів вважається у 1,8 раза повільнішим, а радіо після обміну ще 5 с тримає «хвіст» 0,9 Вт. Звідси висока ціна енергії.', 'On cellular, an unmeasured server is assumed 1.8 times slower, and after the exchange the radio holds a 0.9 W tail for another 5 s. That is where the energy cost comes from.')}</p>}
         </div>
       </div>
@@ -213,6 +220,10 @@ function Field() {
           </svg>
           <figcaption className="rl-legend">{used.map(p => <span key={p}><i style={{ background: PLAN_COLOR[p] }} />{planName(t, p)} <b>{share(p)}%</b></span>)}</figcaption>
         </figure>
+        <Note term={t('Інтерпретація', 'Interpretation')} refs={[6]} code={{ path: 'EdgeRouter/Sources/EdgeRouter/Policy.swift', label: 'Policy.decide' }}>
+          {t('Зі зростанням черги Z вага енергії в цілі зростає лінійно, і межа рішень зсувається до дешевших за енергією варіантів. Імовірність відключення p_out входить в оцінку сервера як імовірність відмови f = min(1, 0,7·p_out): очікувані час і енергія сервера змішуються з тайм-аутом 8 с і поверненням на телефон, тому за високого p_out метод уникає сервера.',
+            'As the queue Z grows, the weight of energy in the objective rises linearly and the decision boundary shifts towards energy-cheap options. The outage probability p_out enters the server estimate as a failure probability f = min(1, 0.7·p_out): expected server latency and energy are mixed with an 8 s timeout and a fallback to the phone, so at high p_out the method avoids the server.')}
+        </Note>
         <p className="rl-cap rl-narrow">{t('Заряд 60%, без перегріву, апріорні оцінки. Для чека й помічника на стільниковій мережі метод завжди лишається на телефоні: передача з «хвостом» радіо коштує дорожче, ніж виграш у якості.', 'Battery 60%, no throttling, prior estimates. For receipts and the assistant on cellular the method always stays on the phone: sending data with the radio tail costs more than the quality gain.')}</p>
       </div>
     </section>
@@ -253,6 +264,10 @@ function Strategies() {
           </div>
           <figcaption className="rl-legend">{PLANS.map(p => <span key={p}><i style={{ background: PLAN_COLOR[p] }} />{planName(t, p)}</span>)}</figcaption>
         </figure>
+        <Note term={t('Базові лінії', 'Baselines')} refs={[1, 2, 10]} code={{ path: 'EdgeRouter/Sources/EdgeRouter/Policy.swift', label: 'Strategy' }}>
+          {t('«Завжди телефон» і «завжди сервер» є нижньою та верхньою межами за якістю й приватністю. «Прості правила» відтворюють поширену евристику застосунків (Wi-Fi або низький заряд означає сервер). «Каскад» без адаптації порогу відповідає підходу FrugalGPT. Метод EdgeRouter порівнюється з ними на однаковій сітці контекстів, щоб відмінності пояснювалися лише політикою.',
+            '“Always phone” and “always server” bound quality and privacy from both sides. “Simple rules” reproduce a common app heuristic (Wi-Fi or low battery means server). A non-adaptive “cascade” corresponds to the FrugalGPT approach. EdgeRouter is compared with them on the same grid of contexts, so differences come from the policy alone.')}
+        </Note>
         <p className="rl-cap rl-narrow">{t('Офлайн усі стратегії змушені рахувати на телефоні. Яка з них краща за якістю й енергією, покаже журнал зі справжніх iPhone на наступному етапі.', 'Offline, every strategy has to run on the phone. Which one wins on quality and energy will be shown by logs from real iPhones in the next stage.')}</p>
       </div>
     </section>
@@ -290,6 +305,10 @@ function Energy() {
             <div><span>{t('«Хвіст» Wi-Fi', 'Wi-Fi tail')}</span><b>{e.tailS.wifi} {S_} × {e.tailW.wifi} {W_}</b></div>
             <div><span>{t('«Хвіст» стільникового', 'Cellular tail')}</span><b>{e.tailS.cellular} {S_} × {e.tailW.cellular} {W_}</b></div>
           </div>
+          <Note term={t('Модель', 'Model')} refs={[2, 3]} code={{ path: 'EdgeRouter/Sources/EdgeRouter/EnergyModel.swift', label: 'EnergyModel' }}>
+            {t('E_device = P_cpu·t. E_cloud = P_radio(n)·t + T_tail(n)·P_tail(n) + E_mask, де n означає тип мережі. Модель «хвоста» відповідає вимірюванням LTE, у яких радіо після передачі лишається в стані високого енергоспоживання кілька секунд.',
+              'E_device = P_cpu·t. E_cloud = P_radio(n)·t + T_tail(n)·P_tail(n) + E_mask, where n is the network type. The tail term follows LTE measurements in which the radio stays in a high-power state for several seconds after a transfer.')}
+          </Note>
           <p className="rl-cap">{t('Стартові коефіцієнти з літератури (MAUI, заміри «хвоста» LTE). Наступний крок: калібрування Power Profiler на власних iPhone.', 'Starting coefficients come from the literature (MAUI, LTE tail measurements). Next step: calibration with Power Profiler on our own iPhones.')}</p>
         </div>
         <figure className="rl-fig rl-fig-flat">
@@ -326,6 +345,10 @@ function Conformal() {
           <code>λ ← λ + η(α − err)</code>
           {t(', α = 5%, η = 0,05. Помилка звужує поріг, правильна відповідь розширює.', ', α = 5%, η = 0.05. An error tightens the threshold; a correct answer relaxes it.')}
         </p>
+        <Note term={t('Гарантія', 'Guarantee')} refs={[7, 8, 9]} code={{ path: 'EdgeRouter/Sources/EdgeRouter/Policy.swift', label: 'updateThreshold' }}>
+          {t('Для оновлення λ_{t+1} = λ_t + η(α − err_t) середня частка помилок прийнятих відповідей за T кроків відхиляється від α не більше ніж на (max(λ_1, 1 − λ_1) + η)/(η·T) і прямує до α без припущень про стаціонарність розподілу. Саме тому поріг не потрібно перенавчати після зсуву даних.',
+            'For the update λ_{t+1} = λ_t + η(α − err_t), the average error rate of accepted answers over T steps deviates from α by at most (max(λ_1, 1 − λ_1) + η)/(η·T) and converges to α with no stationarity assumption. That is why the threshold does not need retraining after a data shift.')}
+        </Note>
         <figure className="rl-fig">
           <svg viewBox={`-40 -10 ${W + 50} ${H + 50}`} className="rl-chart" role="img" aria-label={t('Траєкторія порогу λ', 'Trajectory of the threshold λ')}>
             <rect x={W / 2} y="0" width={W / 2} height={H} fill="rgba(255,69,58,.06)" />
@@ -368,6 +391,10 @@ function Masking() {
             <p>{parts.map((s, i) => (/^\[.+\]$/.test(s) ? <mark key={i} className="rl-tok">{s}</mark> : <span key={i}>{s}</span>))}</p>
           </div>
         </div>
+        <Note term={t('Обмеження приватності', 'Privacy constraint')} code={{ path: 'EdgeRouter/Sources/EdgeRouter/Redactor.swift', label: 'Redactor' }}>
+          {t('Чутливість задачі задає множину дозволених виконавців як жорстке обмеження, а не як вагу: відкриті дані допускають усі варіанти, особисті лише телефон або сервер після маскування, секретні лише телефон. Так приватність не можна «купити» вищою якістю, що відповідає принципу захисту даних за задумом (GDPR, ст. 25).',
+            'Task sensitivity defines the allowed executor set as a hard constraint, not a weight: open data allows every option, personal data only the phone or the server after redaction, secret data only the phone. Privacy therefore cannot be traded for quality, in line with data protection by design (GDPR, Art. 25).')}
+        </Note>
         <p className="rl-cap">{t('Вивід справжньої функції ', 'Output of the actual ')}<code>Redactor.redact</code>{t(' на цьому реченні. Імена поточна версія не маскує, це відоме обмеження.', ' function on this sentence (in Ukrainian, as the app uses it). The current version does not redact names; this is a known limitation.')}</p>
       </div>
     </section>
@@ -487,6 +514,10 @@ function Parity() {
           {t(`) один до одного. Сервер згенерував ${p.n} еталонних векторів (суми, баланси, описи) з бальною оцінкою, рівнем ризику й прапорами. Тест вимагає точного збігу кожного.`,
             `) line for line. The server generated ${p.n} reference vectors (amounts, balances, descriptions) with a score, a risk level and flags. The test requires every one of them to match exactly.`)}
         </p>
+        <Note term={t('Валідація', 'Validation')} code={{ path: 'EdgeRouter/Tests/FraudLiteTests/FraudLiteParityTests.swift', label: 'FraudLiteParityTests' }}>
+          {t('Еталонні вектори згенеровано серверною реалізацією першого шару; тест порівнює бал, рівень ризику й набір прапорів для кожного вектора. Паритет гарантує, що різниця між «телефоном» і «сервером» в експерименті зумовлена шарами 2–3 й історією, а не помилками перенесення.',
+            'The reference vectors were generated by the server implementation of the first layer; the test compares the score, risk level and flag set of every vector. Parity ensures that differences between phone and server in the experiment come from layers 2–3 and history, not from porting errors.')}
+        </Note>
         <div className="rl-par">
           <figure className="rl-fig">
             <figcaption className="rl-fig-h"><h4>{t('Рівні ризику', 'Risk levels')}</h4></figcaption>

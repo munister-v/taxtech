@@ -9008,7 +9008,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
       const vh = root.clientHeight;
       const p = Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (r.height + vh * 0.35)));
       setLit(p);
-      const ids = ['faq', 'stack', 'security', 'lab', 'top'];
+      const ids = ['faq', 'stack', 'security', 'sources', 'lab', 'top'];
       const cur = ids.find(id => { const el = root.querySelector('#' + id); return el && el.getBoundingClientRect().top < 140; });
       setSection(cur || 'top');
     };
@@ -9095,7 +9095,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
         <div className="ap-wrap ap-nav-in">
           <a href="#top" className="ap-brand">TaxTech</a>
           <nav className="ap-links" aria-label={t('Розділи', 'Sections')}>
-            {[['top', t('Огляд', 'Overview')], ['lab', t('Дослідження', 'Research')], ['security', t('Безпека', 'Security')], ['stack', t('Стек', 'Stack')], ['faq', t('Питання', 'FAQ')]].map(([id, x]) => (
+            {[['top', t('Огляд', 'Overview')], ['lab', t('Дослідження', 'Research')], ['security', t('Безпека', 'Security')], ['stack', t('Стек', 'Stack')], ['sources', t('Джерела', 'Sources')], ['faq', t('Питання', 'FAQ')]].map(([id, x]) => (
               <a key={id} href={'#' + id} className={section === id ? 'on' : ''} aria-current={section === id ? 'true' : undefined}>{x}</a>
             ))}
           </nav>
@@ -9153,7 +9153,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
 
       <section id="stack" className="ap-stack ap-reveal">
         <div className="ap-wrap">
-          <h2>{t('Стек і стандарти', 'Stack and standards')}</h2>
+          <h2>{t('Стек', 'Stack')}</h2>
           <div className="ap-stack-grid">
             {[
               ['iPhone', ['Swift, SwiftUI, iOS 26', t('Vision: розпізнавання чеків на пристрої', 'Vision: on-device receipt recognition'), t('Foundation Models: локальна мовна модель', 'Foundation Models: on-device language model'), 'Swift Charts, SwiftData, CryptoKit', 'LocalAuthentication: Face ID']],
@@ -9165,20 +9165,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
               <div key={h as string}><h3>{h as string}</h3><ul>{(xs as string[]).map(x => <li key={x}>{x}</li>)}</ul></div>
             ))}
           </div>
-          <h3 className="ap-std-h">{t('Стандарти й протоколи', 'Standards and protocols')}</h3>
-          <div className="ap-std">
-            {[
-              ['W3C WebAuthn, FIDO2', t('Вхід через passkey без пароля', 'Passwordless sign-in with passkeys')],
-              ['EMV 3-D Secure', t('Підтвердження оплат одноразовим кодом (модель challenge-потоку)', 'One-time code confirmation of payments (challenge-flow model)')],
-              [t('ISO/IEC 7812, алгоритм Луна', 'ISO/IEC 7812, Luhn algorithm'), t('Генерація й перевірка номерів карток', 'Card number generation and validation')],
-              ['ISO 13616 (IBAN)', t('Розпізнавання й маскування рахунків', 'Account number detection and redaction')],
-              [t('Подвійний запис', 'Double-entry bookkeeping'), t('Кожна операція проводиться дебетом і кредитом', 'Every transaction is posted as a debit and a credit')],
-              [t('SHA-256, хеш-ланцюг', 'SHA-256 hash chain'), t('Цілісність історії: підміна однієї транзакції ламає всі наступні', 'History integrity: altering one transaction breaks every later one')],
-              [t('Ключі ідемпотентності', 'Idempotency keys'), t('Повтор запиту не створює подвійного списання', 'A repeated request never charges twice')],
-              ['JWT (RFC 7519), Sign in with Apple', t('Вхід через Apple', 'Sign in with Apple')],
-            ].map(([a, b]) => <div key={a}><b>{a}</b><span>{b}</span></div>)}
-          </div>
-          <p className="ap-std-note">{t('Протоколи реалізовано в навчальному контурі. Платформа не проходила сертифікацію EMVCo, PCI DSS чи FIDO і не обробляє справжніх платежів.', 'These protocols are implemented in a training environment. The platform is not certified by EMVCo, PCI DSS or FIDO and processes no real payments.')}</p>
+          <p className="ap-std-note"><a href="#sources">{t('Стандарти, нормативні документи, література й вихідний код зі посиланнями: розділ «Джерела й документи».', 'Standards, regulations, literature and source code with links are in Sources and documents.')}</a></p>
         </div>
       </section>
 
@@ -9209,7 +9196,7 @@ function PromoLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void })
           <div className="ap-dir">
             <div>
               <h4>{t('Дослідження', 'Research')}</h4>
-              <a href="#lab">{t('Метод', 'Method')}</a><a href="#stack">{t('Стек і стандарти', 'Stack and standards')}</a><a href="#faq">{t('Питання й відповіді', 'FAQ')}</a>
+              <a href="#lab">{t('Метод', 'Method')}</a><a href="#stack">{t('Стек', 'Stack')}</a><a href="#sources">{t('Джерела й документи', 'Sources and documents')}</a><a href="#faq">{t('Питання й відповіді', 'FAQ')}</a>
             </div>
             <div>
               <h4>{t('Безпека', 'Security')}</h4>
