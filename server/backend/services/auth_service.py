@@ -3,9 +3,10 @@ from __future__ import annotations
 
 import hashlib
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from ..config import ACCOUNT_PREFIX, APPLE_CLIENT_ID, CURRENCY_LABEL
+from ..database import get_connection
 from . import apple_auth
 from ..repositories.account_repository import AccountRepository
 from ..repositories.feature_repository import FeatureRepository
@@ -14,6 +15,21 @@ from ..utils.security import (
     generate_token, hash_password, token_expiration_iso, verify_password
 )
 from ..utils.validators import require_fields, validate_email, validate_password, validate_phone
+
+RESET_TTL_SECONDS = 600     # код відновлення живе 10 хвилин
+RESET_MAX_ATTEMPTS = 5      # після п'яти невірних спроб код згорає
+
+
+def _mask_contact(user) -> str:
+    """Куди «надіслано» код: пошта або телефон, приховані посередині."""
+    email = (user.get('email') or '').strip()
+    if '@' in email:
+        name, domain = email.split('@', 1)
+        return f"{name[:2]}{'•' * max(1, len(name) - 2)}@{domain}"
+    phone = (user.get('phone') or '').strip()
+    if phone and not phone.startswith('apple:'):
+        return f"{phone[:4]}•••{phone[-2:]}"
+    return 'ваш контакт'
 
 
 class AuthService:
@@ -223,6 +239,93 @@ class AuthService:
         ok = self.users.delete_session_by_id(session_id, user_id)
         if not ok:
             raise ValueError('Сесію не знайдено.')
+
+    # ── Відновлення пароля одноразовим кодом ──────────────────────────────────
+    @staticmethod
+    def _ensure_reset_schema(conn) -> None:
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS password_resets (
+                reset_id VARCHAR(64) PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                code_hash VARCHAR(80) NOT NULL,
+                attempts INTEGER NOT NULL DEFAULT 0,
+                status VARCHAR(16) NOT NULL DEFAULT 'pending',
+                expires_at VARCHAR(40) NOT NULL,
+                created_at VARCHAR(40) NOT NULL
+            )
+        ''')
+
+    @staticmethod
+    def _code_hash(reset_id: str, code: str) -> str:
+        return hashlib.sha256(f'{reset_id}:{code}'.encode('utf-8')).hexdigest()
+
+    def request_password_reset(self, identity: str) -> dict:
+        """Створює код відновлення. Код у базі лише як хеш; повертаємо його маршруту для показу в пісочниці."""
+        identity = (identity or '').strip()
+        if not identity:
+            raise ValueError('Вкажіть телефон або пошту.')
+        user = self.users.get_by_phone_or_email(identity)
+        if not user:
+            raise LookupError('Акаунт із такою поштою чи телефоном не знайдено.')
+        if str(user.get('phone') or '').startswith('apple:') and not user.get('email'):
+            raise ValueError('Цей акаунт входить через Apple: пароля в нього немає.')
+
+        reset_id = secrets.token_hex(16)
+        code = f'{secrets.randbelow(1_000_000):06d}'
+        now = datetime.now(timezone.utc)
+        with get_connection() as conn:
+            self._ensure_reset_schema(conn)
+            conn.execute(
+                "UPDATE password_resets SET status = 'replaced' WHERE user_id = %s AND status = 'pending'",
+                (user['id'],),
+            )
+            conn.execute(
+                'INSERT INTO password_resets (reset_id, user_id, code_hash, expires_at, created_at)'
+                ' VALUES (%s, %s, %s, %s, %s)',
+                (reset_id, user['id'], self._code_hash(reset_id, code),
+                 (now + timedelta(seconds=RESET_TTL_SECONDS)).isoformat(), now.isoformat()),
+            )
+        self.features.add_audit_log(user['id'], 'password_reset_request', 'Запит на відновлення пароля.')
+        return {'reset_id': reset_id, 'code': code, 'sent_to': _mask_contact(user), 'expires_in': RESET_TTL_SECONDS}
+
+    def reset_password(self, reset_id: str, code: str, new_password: str, client_info: dict | None = None) -> dict:
+        """Перевіряє код, ставить новий пароль, закриває всі старі сесії й відкриває нову."""
+        validate_password(new_password)
+        reset_id = (reset_id or '').strip()
+        code = (code or '').strip()
+        # Помилку піднімаємо вже після виходу з транзакції: інакше відкат зітре лічильник спроб.
+        error, user_id = None, None
+        with get_connection() as conn:
+            self._ensure_reset_schema(conn)
+            row = conn.execute('SELECT * FROM password_resets WHERE reset_id = %s', (reset_id,)).fetchone()
+            if not row or row['status'] != 'pending':
+                error = 'Код уже використано або він недійсний. Запросіть новий.'
+            elif datetime.now(timezone.utc) > datetime.fromisoformat(str(row['expires_at'])):
+                conn.execute("UPDATE password_resets SET status = 'expired' WHERE reset_id = %s", (reset_id,))
+                error = 'Час дії коду вийшов. Запросіть новий.'
+            elif not secrets.compare_digest(row['code_hash'], self._code_hash(reset_id, code)):
+                attempts = int(row['attempts'] or 0) + 1
+                burned = attempts >= RESET_MAX_ATTEMPTS
+                conn.execute(
+                    'UPDATE password_resets SET attempts = %s, status = %s WHERE reset_id = %s',
+                    (attempts, 'locked' if burned else 'pending', reset_id),
+                )
+                error = ('Забагато невірних спроб. Запросіть новий код.' if burned
+                         else f'Невірний код. Лишилось спроб: {RESET_MAX_ATTEMPTS - attempts}.')
+            else:
+                conn.execute("UPDATE password_resets SET status = 'used' WHERE reset_id = %s", (reset_id,))
+                user_id = int(row['user_id'])
+        if error:
+            raise ValueError(error)
+
+        user = self.users.get_by_id(user_id)
+        if not user:
+            raise ValueError('Користувача не знайдено.')
+        self.users.update_password(user_id, hash_password(new_password))
+        self.users.delete_all_sessions(user_id)
+        self.features.add_audit_log(user_id, 'password_reset', 'Пароль відновлено кодом; інші сесії завершено.')
+        return self._start_session(user, client_info, auth_method='password', remember=True,
+                                   audit='Вхід після відновлення пароля.')
 
     def change_password(self, user_id: int, old_password: str, new_password: str) -> None:
         validate_password(new_password)

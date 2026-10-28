@@ -181,6 +181,11 @@ class UserRepository(BaseRepository):
             )
             return int(result.rowcount or 0)
 
+    def delete_all_sessions(self, user_id: int) -> int:
+        with self.connection() as conn:
+            result = conn.execute('DELETE FROM sessions WHERE user_id = %s', (user_id,))
+            return int(result.rowcount or 0)
+
     def delete_session_by_id(self, session_id: int, user_id: int) -> bool:
         with self.connection() as conn:
             result = conn.execute(

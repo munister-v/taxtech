@@ -13,9 +13,9 @@ from flask import Blueprint, jsonify, request, g
 
 # Ліміти з конфіга: скільки запитів за вікно, ширина вікна в секундах
 from ..config import AUTH_LOGIN_RATE_LIMIT, AUTH_RATE_WINDOW_SECONDS, AUTH_REGISTER_RATE_LIMIT
-from ..config import TOKEN_TTL_HOURS
+from ..config import AUTH_RESET_SHOW_CODE, TOKEN_TTL_HOURS
 from ..services.auth_service import AuthService          # вся бізнес-логіка автентифікації
-from .helpers import api_error, auth_required, rate_limit  # спільні декоратори та утиліти
+from .helpers import _cfg_bool, api_error, auth_required, rate_limit  # спільні декоратори та утиліти
 
 # Blueprint реєструє всі маршрути цього модуля під /api/auth
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -293,5 +293,55 @@ def change_password():
             return api_error('Потрібно вказати поточний та новий пароль.')
         auth_service.change_password(g.current_user['id'], old_password, new_password)
         return jsonify({'ok': True, 'message': 'Пароль успішно змінено.'})
+    except Exception as exc:
+        return api_error(str(exc))
+
+
+# ── Відновлення пароля ──────────────────────────────────────────────────────
+
+def _reset_rate_key() -> str:
+    data = request.get_json(silent=True) or {}
+    identity = (data.get('identity') or data.get('reset_id') or '').strip().lower()[:80]
+    return f'auth:reset:{_auth_client_ip()}:{identity}'
+
+
+@auth_bp.post('/password/forgot')
+@rate_limit(AUTH_LOGIN_RATE_LIMIT, AUTH_RATE_WINDOW_SECONDS, key_func=_reset_rate_key)
+def forgot_password():
+    """POST /api/auth/password/forgot — одноразовий код для нового пароля.
+
+    Body: { identity }. Доставки SMS/пошти в пісочниці немає: код повертаємо як demo_code
+    лише з AUTH_RESET_SHOW_CODE=1, інакше відновлення вимкнене (503), щоб не обіцяти листа, якого не буде.
+    """
+    if not _cfg_bool('AUTH_RESET_SHOW_CODE', AUTH_RESET_SHOW_CODE):
+        return api_error('Відновлення пароля на цьому сервері вимкнене. Зверніться до адміністратора лабораторії.', 503)
+    try:
+        data = request.get_json(force=True) or {}
+        out = auth_service.request_password_reset(data.get('identity', ''))
+        return jsonify({'ok': True, 'data': {
+            'reset_id': out['reset_id'],
+            'sent_to': out['sent_to'],
+            'expires_in': out['expires_in'],
+            'demo_code': out['code'],
+        }})
+    except LookupError as exc:
+        return api_error(str(exc), 404)
+    except Exception as exc:
+        return api_error(str(exc))
+
+
+@auth_bp.post('/password/reset')
+@rate_limit(AUTH_LOGIN_RATE_LIMIT, AUTH_RATE_WINDOW_SECONDS, key_func=_reset_rate_key)
+def reset_password():
+    """POST /api/auth/password/reset — { reset_id, code, new_password } → нова сесія, старі закрито."""
+    if not _cfg_bool('AUTH_RESET_SHOW_CODE', AUTH_RESET_SHOW_CODE):
+        return api_error('Відновлення пароля на цьому сервері вимкнене.', 503)
+    try:
+        data = request.get_json(force=True) or {}
+        payload = auth_service.reset_password(
+            data.get('reset_id', ''), data.get('code', ''), (data.get('new_password') or '').strip(),
+            client_info=_client_context(),
+        )
+        return _browser_auth_response(payload, remember=True, use_cookie=bool(data.get('use_cookie', False)))
     except Exception as exc:
         return api_error(str(exc))

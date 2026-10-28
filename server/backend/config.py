@@ -58,6 +58,10 @@ CRITICAL_MONEY_RATE_LIMIT = int(os.getenv('CRITICAL_MONEY_RATE_LIMIT', '30'))
 ENFORCE_IDEMPOTENCY_HEADERS = (os.getenv('ENFORCE_IDEMPOTENCY_HEADERS', '1') == '1')
 ENFORCE_IDEMPOTENCY_IN_TESTS = (os.getenv('ENFORCE_IDEMPOTENCY_IN_TESTS', '0') == '1')
 
+# Відновлення пароля: SMS і пошти в пісочниці немає, тож код показуємо у відповіді лише з цим прапорцем.
+# На публічному сервері лишайте 0: тоді відновлення вимкнене, а не «код надіслано» в нікуди.
+AUTH_RESET_SHOW_CODE = (os.getenv('AUTH_RESET_SHOW_CODE', '0') == '1')
+
 # Демо-нарахування віртуальних надходжень (POST /api/payouts/demo-accrual).
 ALLOW_DEMO_PAYOUT_ACCRUAL = (os.getenv('ALLOW_DEMO_PAYOUT_ACCRUAL', '0') == '1')
 
