@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import json
 import random
 import string
 from datetime import date, timedelta
@@ -91,6 +92,34 @@ class CardService:
             'cvv': card.get('cvv') or '000',
             'expiry_display': self._expiry_display(card['expires_at']),
         }
+
+    # Вигляд картки, який збирає користувач: усе - з переліку, назва - вільний короткий текст.
+    _STYLE_CHOICES = {
+        'material': {'solid', 'gradient', 'metal', 'glass'},
+        'color': {'graphite', 'black', 'white', 'gold', 'navy', 'emerald', 'burgundy', 'violet', 'sky', 'sand'},
+        'pattern': {'none', 'guilloche', 'microprint', 'lines', 'mark', 'waves'},
+        'emblem': {'none', 'seal', 'mark'},
+    }
+    _STYLE_NAME_MAX = 24
+
+    @classmethod
+    def _clean_style(cls, style) -> dict:
+        if not isinstance(style, dict):
+            raise ValueError('Вигляд картки має бути обʼєктом.')
+        extra = set(style) - set(cls._STYLE_CHOICES) - {'name'}
+        if extra:
+            raise ValueError(f'Невідомі поля вигляду: {", ".join(sorted(extra))}.')
+        clean = {}
+        for key, allowed in cls._STYLE_CHOICES.items():
+            value = str(style.get(key) or '').strip().lower()
+            if value not in allowed:
+                raise ValueError(f'Недопустиме значення «{key}».')
+            clean[key] = value
+        name = ' '.join(str(style.get('name') or '').split())
+        if len(name) > cls._STYLE_NAME_MAX:
+            raise ValueError(f'Назва картки - до {cls._STYLE_NAME_MAX} символів.')
+        clean['name'] = name
+        return clean
 
     _VALID_DESIGNS = {
         'gold', 'navy', 'forest', 'rose', 'slate', 'camo', 'dark',
@@ -199,6 +228,19 @@ class CardService:
         updated['masked_number'] = self._mask(updated['card_number'])
         updated['expiry_display'] = self._expiry_display(updated['expires_at'])
         return updated
+
+    def update_style(self, user_id: int, card_id: int, style) -> dict:
+        """Зберігає зібраний вигляд картки; None повертає звичайний дизайн."""
+        account = self._get_account(user_id)
+        card = self.cards.get_card(card_id, account['id'])
+        if not card:
+            raise ValueError('Картку не знайдено.')
+        if card['status'] == 'closed':
+            raise ValueError('Закрита картка не може змінювати вигляд.')
+        clean = None if style is None else self._clean_style(style)
+        self.cards.set_style(card_id, account['id'], json.dumps(clean, ensure_ascii=False) if clean else None)
+        self.features.add_audit_log(user_id, 'card_style_updated', f'Оновлено вигляд картки {self._mask(card["card_number"])}.')
+        return {'id': card_id, 'style': clean}
 
     def update_design(self, user_id: int, card_id: int, design: str) -> dict:
         account = self._get_account(user_id)

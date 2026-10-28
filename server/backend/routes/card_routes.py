@@ -105,6 +105,25 @@ def close_card(card_id: int):
         return api_error(str(exc))
 
 
+# ── Власний вигляд картки ─────────────────────────────────────────────────────
+
+@card_bp.patch('/cards/<int:card_id>/style')
+@auth_required
+def update_card_style(card_id: int):
+    """PATCH /api/cards/{id}/style — зібраний вигляд картки.
+
+    Body: { style: { material, color, pattern, emblem, name } } або { style: null } - повернути дизайн.
+    Значення лише з переліку (див. CardService._STYLE_CHOICES), назва до 24 символів.
+    """
+    try:
+        data = request.get_json(force=True) or {}
+        if 'style' not in data:
+            return api_error('Потрібне поле style.')
+        return jsonify({'ok': True, 'data': service.update_style(g.current_user['id'], card_id, data['style'])})
+    except Exception as exc:
+        return api_error(str(exc))
+
+
 # ── Зміна дизайну картки ──────────────────────────────────────────────────────
 
 @card_bp.patch('/cards/<int:card_id>/design')

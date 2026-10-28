@@ -1,8 +1,43 @@
 """Репозиторій віртуальних карток пісочниці Kopiyka."""
 from __future__ import annotations
 
-from ..database import get_returning_id_suffix, insert_last_id
+import json
+import threading
+
+from ..database import USE_PG, get_connection, get_returning_id_suffix, insert_last_id
 from .base import BaseRepository
+
+_STYLE_READY = False
+_STYLE_LOCK = threading.Lock()
+
+
+def _ensure_style_column() -> None:
+    """Колонка style (JSON зовнішнього вигляду картки) для старих баз."""
+    global _STYLE_READY
+    if _STYLE_READY:
+        return
+    with _STYLE_LOCK:
+        if _STYLE_READY:
+            return
+        with get_connection() as conn:
+            if USE_PG:
+                conn.execute('ALTER TABLE cards ADD COLUMN IF NOT EXISTS style TEXT')
+            elif 'style' not in {r['name'] for r in conn.execute('PRAGMA table_info(cards)').fetchall()}:
+                conn.execute('ALTER TABLE cards ADD COLUMN style TEXT')
+        _STYLE_READY = True
+
+
+def _decode(row) -> dict | None:
+    """Рядок картки як словник; style з JSON-тексту стає обʼєктом (або None)."""
+    if not row:
+        return None
+    card = dict(row)
+    raw = card.get('style')
+    try:
+        card['style'] = json.loads(raw) if isinstance(raw, str) and raw else None
+    except ValueError:
+        card['style'] = None
+    return card
 
 
 class CardRepository(BaseRepository):
@@ -20,6 +55,7 @@ class CardRepository(BaseRepository):
             return insert_last_id(cursor)
 
     def list_cards(self, account_id: int) -> list[dict]:
+        _ensure_style_column()
         with self.connection() as conn:
             # Join account to get account balance for primary card display
             rows = conn.execute(
@@ -28,7 +64,7 @@ class CardRepository(BaseRepository):
                    WHERE c.account_id = %s ORDER BY c.issued_at DESC''',
                 (account_id,),
             ).fetchall()
-            return [dict(r) for r in rows]
+            return [_decode(r) for r in rows]
 
     def get_card(self, card_id: int, account_id: int):
         with self.connection() as conn:
@@ -36,7 +72,7 @@ class CardRepository(BaseRepository):
                 'SELECT * FROM cards WHERE id = %s AND account_id = %s',
                 (card_id, account_id),
             ).fetchone()
-            return dict(row) if row else None
+            return _decode(row)
 
     def get_card_by_number(self, card_number: str):
         with self.connection() as conn:
@@ -53,6 +89,14 @@ class CardRepository(BaseRepository):
             conn.execute(
                 'UPDATE cards SET status = %s WHERE id = %s AND account_id = %s',
                 (status, card_id, account_id),
+            )
+
+    def set_style(self, card_id: int, account_id: int, style_json: str | None) -> None:
+        _ensure_style_column()
+        with self.connection() as conn:
+            conn.execute(
+                'UPDATE cards SET style = %s WHERE id = %s AND account_id = %s',
+                (style_json, card_id, account_id),
             )
 
     def set_design(self, card_id: int, account_id: int, design: str) -> None:
