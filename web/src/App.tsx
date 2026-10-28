@@ -4333,10 +4333,10 @@ function OverviewScreen() {
               <div style={{ fontSize: 20, fontWeight: 700, color: text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.08, letterSpacing: -0.2 }}>{firstName}</div>
             </div>
             {[
-              <svg key="chat" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z" stroke="#d8d8d8" strokeWidth="1.6" strokeLinejoin="round" /></svg>,
+              <svg key="shop" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8h12l1 13H5L6 8Zm3 0V6a3 3 0 0 1 6 0v2" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
               <svg key="bell" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
             ].map((icon, i) => (
-              <button key={i} onClick={() => i === 0 ? window.open('https://munister.com.ua/messenger', '_blank') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', boxShadow: '0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+              <button key={i} aria-label={i === 0 ? 'Магазин' : 'Сповіщення'} onClick={() => i === 0 ? goTo('market') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', boxShadow: '0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
 
                 {icon}
                 {i === 1 && unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#888888', border: '1.5px solid rgba(18,18,18, 0.9)' }} />}
