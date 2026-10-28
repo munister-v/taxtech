@@ -1966,7 +1966,9 @@ type CardVariant =
   | 'roma_colosseum'
   | 'roma_spqr'
   | 'roma_pantheon'
-  | 'roma_aqueduct';
+  | 'roma_aqueduct'
+  | 'roma_forum'
+  | 'roma_colosseum_night';
 
 interface CardData {
   variant: CardVariant;
@@ -1999,6 +2001,8 @@ const DESIGN_TO_VARIANT: Record<string, CardVariant> = {
   roma_spqr: 'roma_spqr',
   roma_pantheon: 'roma_pantheon',
   roma_aqueduct: 'roma_aqueduct',
+  roma_forum: 'roma_forum',
+  roma_colosseum_night: 'roma_colosseum_night',
 };
 
 function cardVariantFromDesign(design?: string | null): CardVariant {
@@ -2152,6 +2156,17 @@ const ROMAN_ART = {
     </g>
     <text x="200" y="150" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="92" font-weight="700" letter-spacing="10" fill="url(#foil)" fill-opacity=".16">SPQR</text>${VIGNETTE(.5)}${GRAIN(.14)}`),
 };
+const photoVariant = (image: string, light = false) => ({
+  bg: light ? '#ece8df' : '#1a120c', image,
+  text: light ? '#1d1810' : '#ffffff', muted: light ? 'rgba(29,24,16,0.62)' : 'rgba(255,255,255,0.72)',
+  shimmer: 'transparent',
+  overlay: light
+    ? 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.25) 100%)'
+    : 'linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.05) 38%, rgba(0,0,0,0.12) 58%, rgba(0,0,0,0.72) 100%)',
+  numberPlate: light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)',
+  bottomPlate: light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)',
+  badgePlate: light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)',
+});
 const romanVariant = (image: string, dark: boolean) => ({
   bg: dark ? '#2a1a12' : '#efe8da', image,
   text: dark ? '#fbf3e4' : '#20180c', muted: dark ? 'rgba(251,243,228,0.7)' : 'rgba(32,24,12,0.6)',
@@ -2237,11 +2252,13 @@ const CARD_VARIANTS: Record<CardVariant, {
   },
   roma_aureus: romanVariant(ROMAN_ART.aureus, false),
   roma_purpura: romanVariant(ROMAN_ART.purpura, true),
-  roma_marmor: romanVariant(ROMAN_ART.marmor, false),
-  roma_colosseum: romanVariant(ROMAN_ART.colosseum, true),
+  roma_marmor: photoVariant('/cards/roma-marble.webp', true),
+  roma_colosseum: photoVariant('/cards/roma-colosseum.webp'),
   roma_spqr: romanVariant(ROMAN_ART.spqr, true),
-  roma_pantheon: romanVariant(ROMAN_ART.pantheon, true),
-  roma_aqueduct: romanVariant(ROMAN_ART.aqueduct, true),
+  roma_pantheon: photoVariant('/cards/roma-pantheon.webp'),
+  roma_aqueduct: photoVariant('/cards/roma-aqueduct.webp'),
+  roma_forum: photoVariant('/cards/roma-forum.webp'),
+  roma_colosseum_night: photoVariant('/cards/roma-colosseum-night.webp'),
   tuscany_villa: {
     bg: '#bdbdbd',
     text: '#000000', muted: 'rgba(0,0,0, 0.55)',
@@ -2262,12 +2279,14 @@ type CardDesignOption = {
 };
 
 const CARD_DESIGN_OPTIONS: CardDesignOption[] = [
-  { design: 'roma_pantheon', variant: 'roma_pantheon', title: 'Пантеон', subtitle: 'Рим · портик Агріппи' },
-  { design: 'roma_aqueduct', variant: 'roma_aqueduct', title: 'Акведук', subtitle: 'Кампанія · захід сонця' },
+  { design: 'roma_colosseum', variant: 'roma_colosseum', title: 'Колізей', subtitle: 'Фото: Wilfredor · CC0' },
+  { design: 'roma_colosseum_night', variant: 'roma_colosseum_night', title: 'Колізей уночі', subtitle: 'Фото: John Samuel · CC BY-SA 4.0' },
+  { design: 'roma_pantheon', variant: 'roma_pantheon', title: 'Пантеон', subtitle: 'Фото: Nhartmannphotos · CC BY-SA 4.0' },
+  { design: 'roma_forum', variant: 'roma_forum', title: 'Форум', subtitle: 'Храм Сатурна · фото: Nicholas Hartmann · CC BY-SA 4.0' },
+  { design: 'roma_aqueduct', variant: 'roma_aqueduct', title: 'Акведук', subtitle: 'Аква Клавдія · фото: Mario2912 · CC BY-SA 4.0' },
+  { design: 'roma_marmor', variant: 'roma_marmor', title: 'Мармур', subtitle: 'Каррара · фото: Solarence · CC BY-SA 4.0' },
   { design: 'roma_aureus', variant: 'roma_aureus', title: 'Ауреус', subtitle: 'Рим · золота монета' },
   { design: 'roma_purpura', variant: 'roma_purpura', title: 'Пурпур', subtitle: 'Рим · імператорський' },
-  { design: 'roma_marmor', variant: 'roma_marmor', title: 'Мармур', subtitle: 'Рим · Каррара' },
-  { design: 'roma_colosseum', variant: 'roma_colosseum', title: 'Колізей', subtitle: 'Рим · травертин' },
   { design: 'roma_spqr', variant: 'roma_spqr', title: 'SPQR', subtitle: 'Рим · сенат і народ' },
   { design: 'gold', variant: 'gold', title: 'Папір', subtitleKey: 'design_subtitle_gold' },
   { design: 'forest', variant: 'emerald', title: 'Попіл', subtitleKey: 'design_subtitle_forest' },
