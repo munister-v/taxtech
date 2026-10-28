@@ -14,6 +14,7 @@ struct CardsTab: View {
     @State private var confirmClose = false
     @State private var screen = Screen()
     @State private var loaded = false
+    @State private var copied = false
 
     private var card: API.Card? { cards.indices.contains(index) ? cards[index] : nil }
 
@@ -24,7 +25,9 @@ struct CardsTab: View {
                     header
                     if loaded && cards.isEmpty {
                         VStack(spacing: 14) {
-                            VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil, design: .rose)
+                            VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil,
+                                            look: CardLook(material: .glass, color: .graphite, pattern: .waves))
+                                .opacity(0.6)
                             Text("Карток ще немає.")
                                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
                         }
@@ -98,7 +101,7 @@ struct CardsTab: View {
                     ForEach(Array(cards.enumerated()), id: \.element.id) { i, c in
                         VirtualCardView(number: i == index ? (revealed?.cardNumber ?? c.maskedNumber) : c.maskedNumber,
                                         expiry: c.expiryDisplay, holder: c.holderName,
-                                        design: CardDesign(server: c.design), frozen: c.isBlocked)
+                                        look: c.look, frozen: c.isBlocked)
                             .tilt()
                             .containerRelativeFrame(.horizontal)
                             .scrollTransition(axis: .horizontal) { v, phase in
@@ -141,9 +144,10 @@ struct CardsTab: View {
                     Rule()
                     Button { designing = c } label: {
                         HStack {
-                            Text("Дизайн").foregroundStyle(.secondary)
+                            Text("Вигляд").foregroundStyle(.secondary)
                             Spacer()
-                            Text(CardDesign(server: c.design).title)
+                            Text(c.look.name.isEmpty ? "\(c.look.material.title), \(c.look.color.title.lowercased())" : c.look.name)
+                                .lineLimit(1)
                             Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
                         }
                         .padding(16)
@@ -159,7 +163,7 @@ struct CardsTab: View {
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("Баланс картки").caption()
+                        Text(c.isPrimary ? "Баланс рахунку" : "Баланс картки").caption()
                         Spacer()
                         if c.isPrimary {
                             Text("Головна")
@@ -170,6 +174,10 @@ struct CardsTab: View {
                         }
                     }
                     BigAmount(value: c.displayBalance ?? 0, size: 38)
+                    if c.isPrimary {
+                        // головна картка не має окремих грошей - вона платить з рахунку
+                        Text("Головна картка списує з основного рахунку.").font(.footnote).foregroundStyle(.secondary)
+                    }
                     VStack(spacing: 10) {
                         Button { topping = c } label: {
                             Label("Поповнити картку", systemImage: "plus")
@@ -209,9 +217,16 @@ struct CardsTab: View {
                     if revealed != nil { revealed = nil } else { act { revealed = try await model.api.reveal(c.id) } }
                 }
                 NavigationLink { SecurityView() } label: { TileLabel(title: "PIN", symbol: "lock") }.buttonStyle(.plain)
-                QuickTile(title: "Рахунок", symbol: "number") {
-                    if let n = account?.accountNumber { UIPasteboard.general.string = n }
+                QuickTile(title: copied ? "Скопійовано" : "Рахунок", symbol: copied ? "checkmark" : "number") {
+                    guard let n = account?.accountNumber else { return }
+                    UIPasteboard.general.string = n
+                    withAnimation(.snappy) { copied = true }
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.6))
+                        withAnimation(.snappy) { copied = false }
+                    }
                 }
+                .sensoryFeedback(.success, trigger: copied) { _, v in v }
             }
             HStack(spacing: 10) {
                 Button(c.isBlocked ? "Розморозити" : "Заморозити") { act { try await model.api.toggleCardBlock(c.id) } }

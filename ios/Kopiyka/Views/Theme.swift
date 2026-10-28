@@ -266,9 +266,9 @@ enum CardDesign: String, CaseIterable, Identifiable {
         case .dark: "Чорний"
         case .slate: "Графіт"
         case .navy: "Сталь"
-        case .forest: "Попіл"
-        case .gold: "Сигнал"
-        case .rose: "Контур"
+        case .forest: "Білий"
+        case .gold: "Золото"
+        case .rose: "Скло"
         }
     }
 
@@ -301,80 +301,84 @@ enum CardDesign: String, CaseIterable, Identifiable {
     }
 }
 
-/// Віртуальна картка: плоска заливка, знак лабораторії великим водяним знаком у куті.
+/// Віртуальна картка: матеріал, колір і візерунок з `CardLook`, чип, безконтакт, власна назва.
 struct VirtualCardView: View {
     let number: String
     let expiry: String?
     let holder: String?
     var design = CardDesign.dark
+    /// Зібраний вигляд; без нього картка малюється зі старого дизайну.
+    var look: CardLook?
     var frozen = false
     var compact = false
 
+    private var resolved: CardLook { look ?? CardLook(legacy: design) }
+
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
         ZStack {
-            RoundedRectangle(cornerRadius: corner, style: .continuous).fill(design.fill)
-            watermark
-            // відблиск зверху ліворуч і внутрішня світла рамка: картка читається предметом, а не плиткою
-            RoundedRectangle(cornerRadius: corner, style: .continuous)
-                .fill(LinearGradient(colors: [.white.opacity(design == .dark ? 0.10 : 0.22), .clear],
-                                     startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.6)))
-            RoundedRectangle(cornerRadius: corner, style: .continuous)
-                .strokeBorder(.white.opacity(design == .dark ? 0.10 : 0.28), lineWidth: 0.75)
+            CardSurface(look: resolved, corner: corner)
             if !compact { face }
-            if let border = design.border {
-                RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .strokeBorder(border, lineWidth: design == .rose ? 1.5 : 1)
-            }
             if frozen {
-                RoundedRectangle(cornerRadius: corner, style: .continuous).fill(.black.opacity(0.62))
+                shape.fill(.black.opacity(0.62))
                 Label("Заморожена", systemImage: "snowflake")
-                    .font(.headline)
+                    .font(compact ? .caption2 : .headline)
+                    .labelStyle(compact ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleAndIcon))
                     .foregroundStyle(.white)
             }
         }
         .aspectRatio(1.586, contentMode: .fit)
-        .clipShape(.rect(cornerRadius: corner, style: .continuous))
+        .clipShape(shape)
+        .shadow(color: .black.opacity(compact ? 0.12 : 0.28), radius: compact ? 4 : 16, y: compact ? 2 : 10)
     }
 
     private var corner: CGFloat { compact ? 8 : 18 }
 
-    private var watermark: some View {
-        GeometryReader { g in
-            Image("Mark")
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(height: g.size.height * 1.05)
-                .foregroundStyle(design.text.opacity(0.1))
-                .position(x: g.size.width * 0.86, y: g.size.height * 0.72)
-        }
-    }
-
     private var face: some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(Brand.name)
-                    .font(.system(.title3, weight: .semibold))
+        let l = resolved
+        return VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(l.name.isEmpty ? Brand.name : l.name)
+                        .font(.system(.title3, weight: .semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    if !l.name.isEmpty {
+                        Text(Brand.name.uppercased()).font(.caption2.weight(.semibold)).tracking(1.4).opacity(0.6)
+                    }
+                }
                 Spacer()
-                Text("ВІРТУАЛЬНА")
-                    .font(.caption2.weight(.medium))
-                    .tracking(1.6)
-                    .opacity(0.7)
+                CardEmblemView(emblem: l.emblem, ink: l.text)
             }
-            Spacer()
+            Spacer(minLength: 6)
+            HStack(spacing: 12) {
+                CardChip()
+                Image(systemName: "wave.3.right").font(.system(size: 18, weight: .medium)).opacity(0.75)
+            }
+            Spacer(minLength: 6)
             Text(number)
-                .font(.system(.title3, design: .monospaced, weight: .regular))
-                .minimumScaleFactor(0.7)
+                .font(.system(.title3, design: .monospaced, weight: .medium))
+                .minimumScaleFactor(0.6)
                 .lineLimit(1)
-            HStack {
-                Text(holder ?? "")
+                .shadow(color: .black.opacity(l.color.isLight ? 0 : 0.25), radius: 1, y: 1)
+            HStack(alignment: .lastTextBaseline) {
+                Text(holder ?? "").lineLimit(1)
                 Spacer()
                 if let expiry { Text(expiry).monospacedDigit() }
+                Text("ВІРТУАЛЬНА").font(.system(size: 9, weight: .bold)).tracking(1.4).opacity(0.7)
             }
             .font(.caption.weight(.medium))
-            .opacity(0.75)
+            .opacity(0.85)
+            .padding(.top, 4)
         }
         .padding(20)
-        .foregroundStyle(design.text)
+        .foregroundStyle(l.text)
     }
+}
+
+/// Стиль підпису, обраний під час виконання.
+struct AnyLabelStyle: LabelStyle {
+    private let make: (Configuration) -> AnyView
+    init<S: LabelStyle>(_ style: S) { make = { AnyView(Label($0).labelStyle(style)) } }
+    func makeBody(configuration: Configuration) -> some View { make(configuration) }
 }

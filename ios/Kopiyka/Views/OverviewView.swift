@@ -93,7 +93,12 @@ struct OverviewView: View {
         VStack(spacing: 0) {
             HStack {
                 Button { showProfile = true } label: {
-                    Text(initials).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
+                    // поки профіль не прийшов - значок, а не чужі «TT», що потім стрибають на справжні
+                    Group {
+                        if let initials { Text(initials).font(.system(size: 14, weight: .semibold)) }
+                        else { Image(systemName: "person.fill").font(.system(size: 15)) }
+                    }
+                    .foregroundStyle(.white)
                         .frame(width: 40, height: 40)
                         .glassEffect(.regular, in: .circle)
                 }
@@ -153,9 +158,9 @@ struct OverviewView: View {
         .padding(.horizontal, Theme.gutter)
     }
 
-    private var initials: String {
+    private var initials: String? {
         let l = (me?.fullName ?? "").split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
-        return l.isEmpty ? "TT" : l
+        return l.isEmpty ? nil : l
     }
 
     private func heroAction(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
@@ -255,7 +260,7 @@ struct OverviewView: View {
                 HStack(spacing: 12) {
                     ForEach(bank.cards) { c in
                         VStack(alignment: .leading, spacing: 8) {
-                            VirtualCardView(number: c.maskedNumber, expiry: nil, holder: nil, design: CardDesign(server: c.design),
+                            VirtualCardView(number: c.maskedNumber, expiry: nil, holder: nil, look: c.look,
                                             frozen: c.isBlocked, compact: true)
                                 .frame(width: 128)
                             Text("•• " + String(c.maskedNumber.suffix(4))).font(.footnote.weight(.semibold).monospacedDigit())
@@ -351,7 +356,7 @@ struct ActivityRow: View {
                 .frame(width: 42, height: 42)
                 .background(Theme.ink.opacity(0.06), in: .circle)
             VStack(alignment: .leading, spacing: 2) {
-                Text(row.title).font(.body.weight(.medium)).lineLimit(1)
+                Text(row.title).font(.body.weight(.medium)).lineLimit(2)
                 Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Locale(identifier: "uk_UA"))))
                     .font(.footnote).foregroundStyle(.secondary)
             }

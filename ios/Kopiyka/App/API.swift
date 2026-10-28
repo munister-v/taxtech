@@ -108,12 +108,14 @@ struct API: Sendable {
         let cardType: String?
         let isPrimary: Bool
         let displayBalance: Double?
+        /// Власний вигляд, якщо користувач його зібрав.
+        let style: CardLook?
 
         var isBlocked: Bool { status == "blocked" }
         var isClosed: Bool { status == "closed" }
 
         enum CodingKeys: String, CodingKey {
-            case id, maskedNumber, expiryDisplay, holderName, status, design, cardType, isPrimary, displayBalance
+            case id, maskedNumber, expiryDisplay, holderName, status, design, cardType, isPrimary, displayBalance, style
         }
 
         init(from decoder: Decoder) throws {
@@ -126,6 +128,8 @@ struct API: Sendable {
             design = try c.decodeIfPresent(String.self, forKey: .design)
             cardType = try c.decodeIfPresent(String.self, forKey: .cardType)
             displayBalance = try c.decodeIfPresent(Double.self, forKey: .displayBalance)
+            // невідоме значення від новішого сервера - не причина зламати весь список
+            style = try? c.decodeIfPresent(CardLook.self, forKey: .style)
             // сервер віддає то true, то 0/1
             if let flag = try? c.decode(Bool.self, forKey: .isPrimary) {
                 isPrimary = flag
@@ -140,6 +144,15 @@ struct API: Sendable {
         r.setValue("application/json", forHTTPHeaderField: "Content-Type")
         r.httpBody = try JSONSerialization.data(withJSONObject: ["design": design])
         let _: Wrapped<Card> = try await send(r)
+    }
+
+    /// Зберегти зібраний вигляд; nil повертає картці її дизайн.
+    func setCardStyle(_ id: Int, _ look: CardLook?) async throws {
+        var r = request("cards/\(id)/style", method: "PATCH")
+        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let style: Any = look.map { (try? JSONSerialization.jsonObject(with: JSONEncoder().encode($0))) ?? NSNull() } ?? NSNull()
+        r.httpBody = try JSONSerialization.data(withJSONObject: ["style": style])
+        let _: Ignored = try await send(r)
     }
 
     func account() async throws -> Account {
