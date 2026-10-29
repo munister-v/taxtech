@@ -37,6 +37,34 @@ const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
   { id: 'marble', uk: 'Мармур', en: 'Marble', photo: '/cards/roma-marble.webp' },
 ];
 
+// "Inside": what the bank does. Facts match the FAQ (landingFaq.ts) and the services behind it.
+const INSIDE: { ic: keyof typeof IC; tint: string; uk: [string, string, string]; en: [string, string, string] }[] = [
+  { ic: 'arrow', tint: '#4fd18b',
+    uk: ['Перекази', 'Надішліть TAX будь-кому з рахунком. Натиснули двічі помилково — піде все одно один раз.', 'Двічі не спишеться'],
+    en: ['Transfers', 'Send TAX to anyone with an account. Press twice by mistake and it still goes once.', 'Never charged twice'] },
+  { ic: 'percent', tint: '#c7a46f',
+    uk: ['Депозити', 'Поповніть рахунок, покладіть TAX на депозит і дивіться, скільки він приносить.', 'Поповнення · депозити'],
+    en: ['Deposits', 'Top up, put TAX on a deposit and see what it earns.', 'Top-ups · deposits'] },
+  { ic: 'plus', tint: '#6aa8ff',
+    uk: ['Кредит', 'Візьміть кредит у TAX і повертайте його за графіком.', 'Графік погашення'],
+    en: ['Credit', 'Take a loan in TAX and pay it back on a schedule.', 'Repayment schedule'] },
+  { ic: 'lock', tint: '#ff6b5e',
+    uk: ['Антифрод', 'Кожен переказ перед відправкою перевіряють 28 правил. Підозрілі зупиняються. Онлайн-оплата ще й просить код 3-D Secure.', '28 правил · 3 шари'],
+    en: ['Fraud checks', 'Every transfer is checked against 28 rules before it goes. Suspicious ones are stopped. Online payments also ask for a 3-D Secure code.', '28 rules · 3 layers'] },
+  { ic: 'check', tint: '#ffd400',
+    uk: ['Квитанції', 'Кожна квитанція — PDF із QR-кодом. Скануєте, і банк підтверджує, що вона справжня, не показуючи вашого імені.', 'TT-XXXX-XXXX-XXXX'],
+    en: ['Receipts', 'Every receipt is a PDF with a QR code. Scan it and the bank confirms it is real, without showing your name.', 'TT-XXXX-XXXX-XXXX'] },
+  { ic: 'face', tint: '#b08cff',
+    uk: ['Face ID', 'Входьте за Face ID або Touch ID. Після першого разу пароль не потрібен.', 'Без пароля'],
+    en: ['Face ID', 'Sign in with Face ID or Touch ID. After the first time, no password.', 'No password'] },
+];
+
+const STEPS: { uk: [string, string]; en: [string, string] }[] = [
+  { uk: ['Реєстрація', 'Телефон або email і пароль. Картка з’являється одразу.'], en: ['Sign up', 'Phone or email, and a password. The card is there right away.'] },
+  { uk: ['Картка', 'Гільйош або одне з п’яти фото Рима.'], en: ['Choose a card', 'Guilloche or one of five Rome photos.'] },
+  { uk: ['Оплата', 'У Saint Agnes одним дотиком або надішліть TAX знайомому.'], en: ['Pay', 'In Saint Agnes with one tap, or send TAX to a friend.'] },
+];
+
 type ShopItem = { id: number; title: string; price: number | string; image_url?: string; slug?: string };
 
 const fmt = (n: number, d = 0) => n.toLocaleString('uk-UA', { minimumFractionDigits: d, maximumFractionDigits: d }).replace(/ /g, ' ');
@@ -251,7 +279,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes']];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#inside', t('Всередині', 'Inside')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes'], ['#faq', t('Питання', 'Questions')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (
@@ -305,6 +333,11 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <section id="top" className="bl-hero">
             <div className="bl-wrap bl-hero-in">
               <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
+              <p className="bl-hero-sub">{t('Навчальний банк: картка, рахунок і магазин в одному застосунку. Живе на TAX, а не на справжніх грошах.', 'A training bank: card, account and shop in one app. It runs on TAX, not real money.')}</p>
+              <div className="bl-cta">
+                <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
+                <a className="bl-ghost" href="#inside">{t('Що в застосунку', 'What’s in the app')}</a>
+              </div>
             </div>
             {/* The debit arrives the way a real one does: a banner from the top (top right on a desktop, like macOS) */}
             <div className="bl-hero-push" aria-hidden>
@@ -356,6 +389,39 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-toast bl-push bl-toast-pay">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
           )}
         />
+
+        {/* ── Inside: what the bank actually does (the rest of the page sells the feeling, this says what is there) ── */}
+        <section id="inside" className="bl-sec bl-inside">
+          <div className="bl-wrap">
+            <div className="bl-inside-head bl-rv">
+              <p className="bl-kick">{t('Всередині', 'Inside')}</p>
+              <h2 className="bl-h">{t('Що в застосунку.', 'What’s in the app.')}</h2>
+              <p className="bl-sub">{t('Працює як справжній банк. Тільки гроші ненастоящі.', 'It works like a real bank. Only the money is pretend.')}</p>
+            </div>
+            <ul className="bl-inside-grid">
+              {INSIDE.map((x, i) => (
+                <li key={x.en[0]} className="bl-tilex bl-rv" style={{ ['--d' as string]: `${(i % 3) * 0.08}s`, ['--tint' as string]: x.tint }}>
+                  <Medallion tint={x.tint}>{IC[x.ic]}</Medallion>
+                  <h3>{t(x.uk[0], x.en[0])}</h3>
+                  <p>{t(x.uk[1], x.en[1])}</p>
+                  <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
+                </li>
+              ))}
+            </ul>
+            <ol className="bl-steps bl-rv" aria-label={t('Як почати', 'How to start')}>
+              {STEPS.map((x, i) => (
+                <li key={x.en[0]}>
+                  <b aria-hidden>{['I', 'II', 'III'][i]}</b>
+                  <h3>{t(x.uk[0], x.en[0])}</h3>
+                  <p>{t(x.uk[1], x.en[1])}</p>
+                </li>
+              ))}
+            </ol>
+            <div className="bl-cta bl-center bl-rv">
+              <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
+            </div>
+          </div>
+        </section>
 
         {/* ── Six faces: a 3D cover-flow of the card designs ── */}
         <section id="card" className="bl-sec bl-faces">
@@ -423,7 +489,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
-        <section className="bl-sec bl-sec-faq">
+        <section id="faq" className="bl-sec bl-sec-faq">
           <div className="bl-wrap bl-faq-wrap">
             <h2 className="bl-h bl-rv">{t('Питання.', 'Questions.')}</h2>
             <div className="bl-faq bl-rv">
