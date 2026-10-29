@@ -510,8 +510,17 @@
   .bl-hero { justify-content: center; }
   .bl-hero-in { width: 100%; padding-top: 40px; text-align: left; }
   .bl .bl-hero h1 { max-width: 6.2em; font-size: clamp(72px, 7.6vw, 124px); }
-  .bl-hero-pay { top: 50%; bottom: auto; right: max(24px, calc((100vw - 1120px) / 2 + 22px)); width: min(440px, 36vw); translate: 0 -38%; }
-  .bl-hero-card { transform: rotate(-7deg); }
+  /* The card hovers over the Colosseum pin (RomeMap sets --pin-x/--pin-y), leaning back a little, its shadow on the map. */
+  .bl-hero-pay { top: var(--pin-y, 66%); left: var(--pin-x, 70%); right: auto; bottom: auto; width: min(400px, 30vw); translate: -50% calc(-100% - 46px); perspective: 1400px; }
+  .bl-hero-card { transform: rotateX(16deg) rotateZ(-5deg); transform-origin: 50% 100%; animation: bl-hover 9s ease-in-out infinite; }
+  .bl-hero-pay::after { content: ""; position: absolute; left: 50%; top: calc(100% + 34px); width: 78%; height: 26px; translate: -50% 0; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.75), rgba(0,0,0,0)), radial-gradient(closest-side, rgba(255,212,0,.16), rgba(255,212,0,0)); filter: blur(6px); animation: bl-shadow 9s ease-in-out infinite; pointer-events: none; }
   .bl-hero-push { right: max(24px, calc((100vw - 1120px) / 2 + 22px)); top: calc(96px + env(safe-area-inset-top, 0px)); }
   .bl-hero-card > .bl-card { box-shadow: 0 44px 90px -24px rgba(0,0,0,.75), 0 0 140px -40px rgba(255,212,0,.4); }
 }
+
+@keyframes bl-shadow { 0%, 100% { opacity: .9; scale: 1; } 50% { opacity: .65; scale: .92; } }
+/* The Colosseum pin rings out each time the debit banner arrives (same 7 s loop and delay as .bl-toast-loop). */
+.rm-pin.rm-pay::before { content: ""; position: absolute; width: 20px; height: 20px; left: -10px; top: -10px; border-radius: 50%; border: 1.5px solid #ffd400; opacity: 0; animation: rm-pay 7s cubic-bezier(.2,.8,.2,1) 1.8s infinite; }
+@keyframes rm-pay { 0%, 9% { opacity: 0; transform: scale(1); } 12% { opacity: .95; transform: scale(1); } 30%, 100% { opacity: 0; transform: scale(4.2); } }
+@media (prefers-reduced-motion: reduce) { .rm-pin.rm-pay::before, .bl-hero-pay::after { animation: none; } }
+@keyframes bl-hover { 0%, 100% { transform: rotateX(16deg) rotateZ(-5deg) translateY(0); } 50% { transform: rotateX(14deg) rotateZ(-4deg) translateY(-12px); } }

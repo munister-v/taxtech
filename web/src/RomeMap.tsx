@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 
 type Data = typeof import('./romeMapData')['ROME'];
 
-const HERO = { x: 1390, y: 930 };            // wide view: the cluster of landmarks
+const HERO = { x: 1460, y: 930 };            // phone view: the cluster of landmarks
 const Z_HERO = 1.15, Z_NEAR = 2.9;
 const AMBIENT = ['l0', 'a0', 'a1', 'a2', 'a3', 'a4', 'l1', 'l2'] as const;
 const PINS = ['colosseo', 'foro', 'pantheon', 'trevi', 'navona', 'vaticano', 'spagna'] as const;
@@ -51,6 +51,9 @@ export default function RomeMap() {
       routes[a] = { path: new Path2D(D.routes[a]), len: probe[a].getTotalLength() };
     }
     const legs = [probe.l1, probe.l2];
+    const cine = el.closest<HTMLElement>('.bl-cine');
+    const col = D.pois.colosseo;
+    let pinKey = '';
     const lens = legs.map(p => p.getTotalLength());
     const foro = D.pois.foro;
 
@@ -87,10 +90,12 @@ export default function RomeMap() {
         fx = pt.x; fy = pt.y; z = Z_NEAR - 1.1 * Math.sin(Math.PI * e);
       } else {
         const he = smooth(0, 1, h);
-        const hx = W > 860 ? HERO.x : 1460, hz = W > 860 ? Z_HERO : 1;
-        fx = lerp(hx, foro.x, he); fy = lerp(HERO.y, foro.y, he); z = lerp(hz, Z_NEAR, he);
+        // Wide screens: the camera puts the Colosseum where the card hovers (right of the headline), the place it pays.
+        const hz = W > 860 ? Z_HERO : 1;
+        const hx = W > 860 ? col.x - (0.7 * W - W / 2 - 0.02 * W) / (ppu * hz) : HERO.x;
+        const hy = W > 860 ? col.y - (0.72 * Hh - Hh / 2 - 0.2 * Hh) / (ppu * hz) : HERO.y;
+        fx = lerp(hx, foro.x, he); fy = lerp(hy, foro.y, he); z = lerp(hz, Z_NEAR, he);
       }
-      // On wide screens the text sits left and the card right, so the point of interest rides in the lower middle.
       const wide = W > 860;
       const ox = wide ? 0.02 * W / ppu : 0, oy = wide ? 0.2 * Hh / ppu : 0.02 * Hh / ppu;
       const pulsing = !still && h < 0.95 && p <= 0;
@@ -162,8 +167,16 @@ export default function RomeMap() {
         g.style.opacity = String(fade);
         const i = STOPS.indexOf(name as typeof STOPS[number]);
         g.style.setProperty('--on', i < 0 ? '0' : clamp(1 - Math.abs(s - (i + 0.5)) * 2).toFixed(2));
+        if (name === 'colosseo') g.classList.toggle('rm-pay', p <= 0 && h < 0.5);
       }
       dot.style.transform = `translate3d(${sx(pt.x).toFixed(1)}px, ${sy(pt.y).toFixed(1)}px, 0)`;
+      // The hero card hovers over the Colosseum pin: hand its screen position to the page as CSS variables.
+      const pk = `${sx(col.x).toFixed(0)}|${sy(col.y).toFixed(0)}`;
+      if (cine && pk !== pinKey) {
+        pinKey = pk;
+        cine.style.setProperty('--pin-x', `${sx(col.x).toFixed(0)}px`);
+        cine.style.setProperty('--pin-y', `${sy(col.y).toFixed(0)}px`);
+      }
       dot.style.opacity = p > 0 ? '1' : '0';
 
       if (animating && visible) raf = requestAnimationFrame(frame);
