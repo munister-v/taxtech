@@ -280,7 +280,6 @@
 /* Saint Agnes: a cream lookbook page, the colours of the shop */
 .bl-shopx { position: relative; padding: 128px 0 120px; background: var(--cream); color: var(--ink); color-scheme: light; }
 .bl-shopx-head { display: grid; grid-template-columns: 1fr minmax(0, 360px); align-items: end; gap: 12px 48px; }
-.bl-shopx-kick { grid-column: 1 / -1; margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #8a6d2b; }
 .bl-shopx .bl-h-xl { margin: 0; color: var(--ink); }
 .bl-shopx-sub { margin: 0 0 10px; font-size: 17px; line-height: 1.45; color: #5d564b; }
 .bl-shopx-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; margin-top: 52px; }
@@ -420,13 +419,11 @@
 .bl-tap.hit .bl-tap-b { opacity: 1; }
 .bl-tap-b h2 { color: var(--yellow); }
 .bl-tap.hit .bl-tap-b h2 { animation: bl-pop .75s cubic-bezier(.2,1.5,.3,1) .12s both; }
-@keyframes bl-pop { from { opacity: 0; transform: scale(.7) translateY(.1em); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
 .bl-tap-ring { width: 84px; height: 84px; fill: none; stroke: #4fd18b; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
 .bl-tap-ring circle { stroke-dasharray: 340; stroke-dashoffset: 340; }
 .bl-tap-ring path { stroke-dasharray: 90; stroke-dashoffset: 90; }
 .bl-tap.hit .bl-tap-ring circle { animation: bl-draw .7s cubic-bezier(.5,0,.2,1) .05s forwards; }
 .bl-tap.hit .bl-tap-ring path { animation: bl-draw .4s ease-out .55s forwards; }
-@keyframes bl-draw { to { stroke-dashoffset: 0; } }
 .bl-tap-b .bl-toast { position: static; left: auto; top: auto; transform: none; animation: none; opacity: 0; }
 .bl-tap.hit .bl-tap-b .bl-toast { animation: bl-toast-in .7s cubic-bezier(.2,.9,.2,1) .7s both; }
 @keyframes bl-toast-in { from { opacity: 0; transform: translateY(24px) scale(.94); } to { opacity: 1; transform: none; } }
@@ -543,12 +540,6 @@
 .bl .bl-tilex h3 { font-size: 22px; letter-spacing: -0.025em; }
 .bl .bl-tilex p { margin-top: 10px; font-size: 15.5px; line-height: 1.5; color: var(--sub); flex: 1; }
 .bl-tilex-proof { margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: var(--tint); }
-.bl-steps { list-style: none; counter-reset: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 72px 0 0; padding: 0; border-top: 1px solid var(--line); }
-.bl-steps li { padding: 28px 32px 0 0; }
-.bl-steps li + li { padding-left: 32px; border-left: 1px solid var(--line); }
-.bl-steps b { display: block; margin-bottom: 14px; font-family: var(--roman); font-size: 28px; font-weight: 400; letter-spacing: .06em; color: var(--yellow); }
-.bl .bl-steps h3 { font-size: 20px; letter-spacing: -0.02em; }
-.bl .bl-steps p { margin-top: 8px; font-size: 15.5px; line-height: 1.5; color: var(--sub); }
 .bl-inside > .bl-wrap > .bl-cta { margin-top: 56px; justify-content: center; }
 @media (max-width: 960px) { .bl-inside-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 734px) {
@@ -556,8 +547,6 @@
   .bl-inside-head { margin-bottom: 40px; }
   .bl-inside-grid { grid-template-columns: 1fr; }
   .bl-tilex { padding: 24px 22px 20px; }
-  .bl-steps { grid-template-columns: 1fr; margin-top: 48px; border-top: 0; }
-  .bl-steps li, .bl-steps li + li { padding: 22px 0; border-left: 0; border-top: 1px solid var(--line); }
 }
 
 /* Inside tiles: a small live scene on top of each one. Loops run only after the tile has been revealed. */
@@ -577,45 +566,32 @@
 @keyframes bl-arrive { 0%, 58% { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); } 66% { box-shadow: inset 0 0 0 2px var(--tint), 0 0 0 0 color-mix(in srgb, var(--tint) 60%, transparent); } 90%, 100% { box-shadow: inset 0 0 0 1.5px var(--tint), 0 0 0 16px transparent; } }
 @keyframes bl-tick { 0%, 60% { scale: 0; } 70%, 92% { scale: 1; } 100% { scale: 0; } }
 /* Deposits: the curve draws itself, the amount pops in at the end */
-.bl-st-dep svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.bl-st-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: bl-draw 5s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(220,193,149,.6)); }
-.bl-st-area { opacity: 0; animation: bl-area 5s ease-in-out infinite; }
-.bl-st-dep .bl-st-chip { animation: bl-pop 5s ease-out infinite; }
-@keyframes bl-draw { 0% { stroke-dashoffset: 1; } 55%, 92% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
-@keyframes bl-area { 0%, 20% { opacity: 0; } 55%, 92% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes bl-pop { 0%, 52% { scale: .6; opacity: 0; } 62% { scale: 1.08; opacity: 1; } 68%, 92% { scale: 1; opacity: 1; } 100% { opacity: 0; } }
 /* Credit: six instalments fill one after another */
-.bl-st-credit { gap: 9px; align-items: flex-end; padding: 0 28px 24px; }
-.bl-st-credit i { flex: 1; height: calc(36px + var(--i) * 0px); border-radius: 7px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tint) 45%, transparent); position: relative; overflow: hidden; }
-.bl-st-credit i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in srgb, var(--tint) 90%, #fff), var(--tint)); transform-origin: bottom; transform: scaleY(0); animation: bl-fill 6s ease-out infinite; animation-delay: calc(var(--i) * .55s); }
-@keyframes bl-fill { 0% { transform: scaleY(0); } 10%, 82% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
 /* Fraud: three layers are checked, the last one fails, the transfer is blocked */
 .bl-st-fraud ul { width: 62%; display: grid; gap: 7px; margin-right: 36px; }
 .bl-st-fraud li { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.05); color: var(--sub); opacity: .35; animation: bl-row 6s ease-out infinite; animation-delay: calc(var(--i) * .7s); }
 .bl-st-fraud li b { color: #4fd18b; }
 .bl-st-fraud li.bad b { color: var(--tint); }
 .bl-st-fraud li.bad { animation-name: bl-row-bad; }
-.bl-st-blocked { top: auto; bottom: 14px; right: 14px; color: #fff; opacity: 0; animation: bl-pop 6s ease-out infinite; animation-delay: 1.4s; }
+.bl-st-blocked { top: auto; bottom: 14px; right: 14px; color: #fff; opacity: 0; animation: bl-st-pop 6s ease-out infinite; animation-delay: 1.4s; }
 @keyframes bl-row { 0% { opacity: .35; } 8%, 85% { opacity: 1; color: var(--fg); } 100% { opacity: .35; } }
 @keyframes bl-row-bad { 0% { opacity: .35; } 8%, 85% { opacity: 1; color: var(--fg); background: rgba(255,107,94,.18); } 100% { opacity: .35; } }
 /* Receipts: a QR with a scan line, then "Valid" */
 .bl-st-qr { position: relative; width: 84px; height: 84px; padding: 7px; border-radius: 10px; background: #f5f5f7; }
 .bl-st-qr svg { width: 100%; height: 100%; fill: #0a0a0c; }
 .bl-st-qr i { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--tint); box-shadow: 0 0 14px 3px var(--tint); animation: bl-scan 4s ease-in-out infinite; }
-.bl-st-valid { top: auto; bottom: 14px; right: 14px; opacity: 0; animation: bl-pop 4s ease-out infinite; animation-delay: .9s; }
+.bl-st-valid { top: auto; bottom: 14px; right: 14px; opacity: 0; animation: bl-st-pop 4s ease-out infinite; animation-delay: .9s; }
 @keyframes bl-scan { 0% { top: 4px; opacity: 0; } 8% { opacity: 1; } 50% { top: calc(100% - 6px); opacity: 1; } 58%, 100% { top: calc(100% - 6px); opacity: 0; } }
 /* Face ID: a frame with a scan line turns into a tick */
 .bl-st-face { color: var(--tint); }
 .bl-st-frame { position: relative; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 22px; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--tint) 60%, transparent); animation: bl-frame 4.5s ease-in-out infinite; }
 .bl-st-frame svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .bl-st-frame i { position: absolute; left: 8px; right: 8px; top: 8px; height: 2px; border-radius: 2px; background: var(--tint); box-shadow: 0 0 12px 2px var(--tint); animation: bl-scan 4.5s ease-in-out infinite; }
-.bl-st-ok { position: absolute; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 22px; background: #4fd18b; color: #04140b; opacity: 0; animation: bl-pop 4.5s ease-out infinite; animation-delay: .5s; }
+.bl-st-ok { position: absolute; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 22px; background: #4fd18b; color: #04140b; opacity: 0; animation: bl-st-pop 4.5s ease-out infinite; animation-delay: .5s; }
 .bl-st-ok svg { width: 38px; height: 38px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 @keyframes bl-frame { 0%, 45% { opacity: 1; } 55%, 85% { opacity: 0; } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .bl-stage * { animation: none !important; }
-  .bl-st-line { stroke-dashoffset: 0; } .bl-st-area { opacity: 1; }
-  .bl-st-credit i::after { transform: scaleY(1); } .bl-st-credit i:nth-child(n+5)::after { transform: scaleY(0); }
   .bl-st-fraud li, .bl-st-blocked, .bl-st-valid { opacity: 1; } .bl-st-track i, .bl-st-ok { display: none; }
 }
 
@@ -625,4 +601,68 @@
   .bl-hero .bl-cta { margin-top: 26px; flex-direction: column; gap: 4px; }
   .bl .bl-hero .bl-ghost { height: 44px; padding: 0 10px; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; font-size: 15.5px; font-weight: 600; color: var(--yellow); }
   .bl .bl-hero .bl-ghost::after { content: "\203A"; margin-left: 6px; font-size: 20px; line-height: 1; }
+}
+
+/* Phone: the debit banner sits above the headline instead of on it, and in the Rome scene it keeps its full text with air above the card */
+@media (max-width: 860px) {
+  .bl-hero-in { padding-top: calc(158px + env(safe-area-inset-top, 0px)); }
+  .bl-rome-toasts { height: 92px; align-items: end; }
+  .bl .bl-rome-toasts .bl-push-tx p { white-space: normal; overflow: visible; text-overflow: clip; }
+  .bl-rome-right { gap: 34px; }
+}
+
+@keyframes bl-pop { from { opacity: 0; transform: scale(.7) translateY(.1em); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes bl-draw { to { stroke-dashoffset: 0; } }
+@keyframes bl-st-pop { 0%, 52% { scale: .6; opacity: 0; } 62% { scale: 1.08; opacity: 1; } 68%, 92% { scale: 1; opacity: 1; } 100% { opacity: 0; } }
+
+/* Under the hood: figures strip and the new scenes */
+.bl-inside-head { margin-bottom: 44px; }
+.bl-hood-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0 0 20px; }
+.bl-hood-stats li { display: flex; align-items: baseline; gap: 14px; padding: 18px 24px; border-radius: 20px; background: #0d0d0f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.bl-hood-stats b { font-family: var(--roman); font-size: 40px; font-weight: 400; letter-spacing: .02em; color: var(--yellow); font-variant-numeric: tabular-nums; }
+.bl-hood-stats span { font-size: 14px; line-height: 1.35; color: var(--sub); }
+.bl-tilex-proof { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: .02em; text-transform: none; }
+.bl-inside-grid { margin-top: 0; }
+/* Ledger: two entries and a zero sum */
+.bl-st-ledger ul { width: 70%; display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+.bl-st-ledger li { display: flex; justify-content: space-between; padding: 7px 12px; border-radius: 9px; font-size: 13px; background: rgba(255,255,255,.05); color: var(--sub); opacity: 0; transform: translateY(6px); animation: bl-entry 5s ease-out infinite; animation-delay: calc(var(--i) * .5s); }
+.bl-st-ledger li b { color: var(--fg); font-weight: 600; }
+.bl-st-ledger li.sum { background: color-mix(in srgb, var(--tint) 20%, transparent); color: var(--tint); }
+.bl-st-ledger li.sum b { color: var(--tint); }
+@keyframes bl-entry { 0% { opacity: 0; transform: translateY(6px); } 10%, 82% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+/* Atomic: the state machine lights up step by step */
+.bl-st-atomic { gap: 8px; padding: 0 14px; }
+.bl-st-atomic span { position: relative; padding: 7px 10px; border-radius: 980px; font: 600 11.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--mut); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); animation: bl-state 5s ease-in-out infinite; animation-delay: calc(var(--i) * .9s); }
+.bl-st-atomic span + span::before { content: "→"; position: absolute; left: -12px; top: 50%; translate: 0 -52%; color: var(--mut); font-size: 11px; }
+@keyframes bl-state { 0% { color: var(--mut); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); } 8%, 70% { color: #04101f; background: var(--tint); box-shadow: 0 0 16px -2px var(--tint); } 85%, 100% { color: var(--mut); background: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); } }
+/* Idempotency: two taps, one arrives; the second coin is absorbed */
+.bl-st-track i.dup { background: #ff6b5e; box-shadow: 0 0 14px 3px #ff6b5e; animation: bl-dup 4s cubic-bezier(.5,0,.3,1) .5s infinite; }
+@keyframes bl-dup { 0% { left: 0; opacity: 0; scale: 1; } 8% { opacity: 1; } 34% { left: 46%; opacity: 1; scale: 1; } 44%, 100% { left: 46%; opacity: 0; scale: 2.2; } }
+/* Hash chain: change one block and every later link turns red */
+.bl-st-chain { gap: 6px; padding: 0 12px; }
+.bl-st-chain span { flex: 1; display: grid; gap: 2px; padding: 8px 7px; border-radius: 9px; background: rgba(255,255,255,.05); font-family: ui-monospace, "SF Mono", Menlo, monospace; text-align: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.bl-st-chain span + span { position: relative; }
+.bl-st-chain small { font-size: 9.5px; color: var(--mut); }
+.bl-st-chain b { font-size: 13px; color: var(--tint); }
+.bl-st-chain span.after { animation: bl-broken 6s ease-in-out infinite; animation-delay: calc(var(--i) * .35s); }
+@keyframes bl-broken { 0%, 38% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); background: rgba(255,255,255,.05); } 46%, 84% { box-shadow: inset 0 0 0 1.5px #ff6b5e; background: rgba(255,107,94,.16); } 94%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); background: rgba(255,255,255,.05); } }
+/* Hold: part of the balance is reserved */
+.bl-st-hold { flex-direction: column; justify-content: center; gap: 10px; padding: 0 22px; }
+.bl-st-bar { position: relative; width: 100%; height: 18px; border-radius: 9px; overflow: hidden; background: color-mix(in srgb, var(--tint) 35%, #151515); }
+.bl-st-bar i { position: absolute; inset: 0 auto 0 0; width: 100%; background: linear-gradient(90deg, var(--tint), color-mix(in srgb, var(--tint) 70%, #fff)); }
+.bl-st-bar u { position: absolute; top: 0; bottom: 0; right: 0; width: 0; text-decoration: none; background: repeating-linear-gradient(45deg, #1a1a1c 0 5px, #2b2b2e 5px 10px); animation: bl-hold 5s ease-in-out infinite; }
+.bl-st-hold p { display: flex; justify-content: space-between; width: 100%; font: 600 11.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--sub); }
+@keyframes bl-hold { 0%, 12% { width: 0; } 38%, 80% { width: 38%; } 94%, 100% { width: 0; } }
+/* 3-D Secure: six digits, a draining time-to-live bar */
+.bl-st-otp { flex-direction: column; gap: 14px; }
+.bl-st-otp div { display: flex; gap: 6px; }
+.bl-st-otp b { display: grid; place-items: center; width: 28px; height: 38px; border-radius: 8px; font: 700 18px ui-monospace, "SF Mono", Menlo, monospace; color: var(--fg); background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); opacity: 0; animation: bl-digit 6s ease-out infinite; animation-delay: calc(var(--i) * .25s); }
+.bl-st-ttl { width: 70%; height: 3px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,.1); }
+.bl-st-ttl i { display: block; height: 100%; background: var(--tint); transform-origin: left; animation: bl-ttl 6s linear infinite; }
+@keyframes bl-digit { 0% { opacity: 0; translate: 0 6px; } 8%, 88% { opacity: 1; translate: 0 0; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 60%, transparent); } 96%, 100% { opacity: 0; } }
+@keyframes bl-ttl { 0%, 25% { transform: scaleX(1); } 90%, 100% { transform: scaleX(0); } }
+@media (max-width: 860px) { .bl-hood-stats { grid-template-columns: 1fr; } .bl-hood-stats li { padding: 14px 20px; } }
+@media (prefers-reduced-motion: reduce) {
+  .bl-st-ledger li, .bl-st-otp b { opacity: 1; transform: none; }
+  .bl-st-bar u { width: 38%; } .bl-st-track i.dup { display: none; }
 }

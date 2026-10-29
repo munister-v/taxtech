@@ -37,29 +37,44 @@ const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
   { id: 'marble', uk: 'Мармур', en: 'Marble', photo: '/cards/roma-marble.webp' },
 ];
 
-// "Inside": what the bank does. Facts match the FAQ (landingFaq.ts) and the services behind it.
-const INSIDE: { ic: keyof typeof IC; tint: string; uk: [string, string, string]; en: [string, string, string] }[] = [
-  { ic: 'arrow', tint: '#4fd18b',
-    uk: ['Перекази', 'Надішліть TAX будь-кому з рахунком. Натиснули двічі помилково — піде все одно один раз.', 'Двічі не спишеться'],
-    en: ['Transfers', 'Send TAX to anyone with an account. Press twice by mistake and it still goes once.', 'Never charged twice'] },
-  { ic: 'percent', tint: '#c7a46f',
-    uk: ['Депозити', 'Поповніть рахунок, покладіть TAX на депозит і дивіться, скільки він приносить.', 'Поповнення · депозити'],
-    en: ['Deposits', 'Top up, put TAX on a deposit and see what it earns.', 'Top-ups · deposits'] },
-  { ic: 'plus', tint: '#6aa8ff',
-    uk: ['Кредит', 'Візьміть кредит у TAX і повертайте його за графіком.', 'Графік погашення'],
-    en: ['Credit', 'Take a loan in TAX and pay it back on a schedule.', 'Repayment schedule'] },
-  { ic: 'lock', tint: '#ff6b5e',
-    uk: ['Антифрод', 'Кожен переказ перед відправкою перевіряють 28 правил. Підозрілі зупиняються. Онлайн-оплата ще й просить код 3-D Secure.', '28 правил · 3 шари'],
-    en: ['Fraud checks', 'Every transfer is checked against 28 rules before it goes. Suspicious ones are stopped. Online payments also ask for a 3-D Secure code.', '28 rules · 3 layers'] },
-  { ic: 'check', tint: '#ffd400',
-    uk: ['Квитанції', 'Кожна квитанція — PDF із QR-кодом. Скануєте, і банк підтверджує, що вона справжня, не показуючи вашого імені.', 'TT-XXXX-XXXX-XXXX'],
-    en: ['Receipts', 'Every receipt is a PDF with a QR code. Scan it and the bank confirms it is real, without showing your name.', 'TT-XXXX-XXXX-XXXX'] },
-  { ic: 'face', tint: '#b08cff',
-    uk: ['Face ID', 'Входьте за Face ID або Touch ID. Після першого разу пароль не потрібен.', 'Без пароля'],
-    en: ['Face ID', 'Sign in with Face ID or Touch ID. After the first time, no password.', 'No password'] },
+// "Under the hood": how the bank is built. Every line is taken from the server code (server/backend/services).
+type Kind = 'ledger' | 'atomic' | 'idem' | 'fraud' | 'chain' | 'hold' | 'tds' | 'passkey' | 'receipt';
+const HOOD: { kind: Kind; tint: string; uk: [string, string, string]; en: [string, string, string] }[] = [
+  { kind: 'ledger', tint: '#4fd18b',
+    uk: ['Подвійний запис', 'Кожен переказ дає дві проводки: дебет і кредит. Баланс має сходитися, а наприкінці дня reconcile перевіряє це й шукає проводки-сироти.', 'Σ дебет = Σ кредит'],
+    en: ['Double-entry ledger', 'Every transfer posts two entries, a debit and a credit. The books must balance, and an end-of-day reconcile checks it and flags orphan entries.', 'Σ debit = Σ credit'] },
+  { kind: 'atomic', tint: '#6aa8ff',
+    uk: ['Атомарні перекази', 'Списання, зарахування й перевірка балансу йдуть в одній SQL-транзакції. Перевірка стоїть усередині UPDATE (WHERE balance ≥ amount), тому паралельні запити не можуть піти в мінус.', 'pending → processing → completed'],
+    en: ['Atomic transfers', 'Debit, credit and the balance check run in one SQL transaction. The check sits inside the UPDATE (WHERE balance ≥ amount), so parallel requests cannot overdraw an account.', 'pending → processing → completed'] },
+  { kind: 'idem', tint: '#ffd400',
+    uk: ['Ключі ідемпотентності', 'Тіло запиту канонізується й хешується SHA-256. Той самий ключ і те саме тіло повертають збережену відповідь, той самий ключ з іншим тілом дає конфлікт.', 'new · processing · replay · conflict'],
+    en: ['Idempotency keys', 'The request body is canonicalised and hashed with SHA-256. The same key and body replays the saved answer; the same key with a different body is a conflict.', 'new · processing · replay · conflict'] },
+  { kind: 'fraud', tint: '#ff6b5e',
+    uk: ['Нечіткий антифрод', '28 правил у трьох шарах: 5 за самим переказом, 12 за історією відправника, 11 за парою відправник–одержувач і графом переказів. Свідчення об’єднує Noisy-OR, 1 − ∏(1 − pᵢ); критичний скор блокує переказ до зміни балансів.', '28 правил · Noisy-OR'],
+    en: ['Fuzzy fraud engine', '28 rules in three layers: 5 on the transfer alone, 12 on the sender’s history, 11 on the sender–recipient pair and the transfer graph. Evidence is combined by Noisy-OR, 1 − ∏(1 − pᵢ); a critical score blocks the transfer before any balance moves.', '28 rules · Noisy-OR'] },
+  { kind: 'chain', tint: '#b08cff',
+    uk: ['Хеш-ланцюг', 'Кожна транзакція хешується разом із хешем попередньої. Правка історії в обхід застосунку ламає всі наступні ланки, а перевірка це виявляє.', 'SHA-256 · tamper-evident'],
+    en: ['Hash chain', 'Each transaction is hashed together with the previous one’s hash. Editing history behind the app’s back breaks every later link, and a verification pass detects it.', 'SHA-256 · tamper-evident'] },
+  { kind: 'hold', tint: '#c7a46f',
+    uk: ['Холди авторизації', 'Преавторизація резервує кошти: доступно = баланс − Σ активних холдів. Холд проводиться, знімається або спливає за TTL, від 12 до 72 годин залежно від типу.', 'authorize · capture · release'],
+    en: ['Authorization holds', 'Pre-authorisation reserves funds: available = balance − Σ active holds. A hold is captured, released or expires after its TTL, from 12 to 72 hours by type.', 'authorize · capture · release'] },
+  { kind: 'tds', tint: '#5ac8fa',
+    uk: ['3-D Secure', 'Шестицифровий OTP живе 3 хвилини. Після перевірки видається одноразовий токен сесії на 5 хвилин, а платіж споживає його рівно один раз.', 'OTP 180 с · токен 300 с'],
+    en: ['3-D Secure', 'A six-digit OTP lives for 3 minutes. Verifying it issues a one-time session token valid for 5 minutes, and the payment consumes it exactly once.', 'OTP 180 s · token 300 s'] },
+  { kind: 'passkey', tint: '#ff9f43',
+    uk: ['Passkey на WebAuthn', 'Вхід за Face ID чи Touch ID за стандартом WebAuthn. Resident-ключі бажані, а верифікація користувача обов’язкова в кожній церемонії.', 'WebAuthn · UV required'],
+    en: ['WebAuthn passkeys', 'Sign-in with Face ID or Touch ID through the WebAuthn standard. Resident keys are preferred and user verification is required on every ceremony.', 'WebAuthn · UV required'] },
+  { kind: 'receipt', tint: '#e6c35c',
+    uk: ['Квитанції з перевіркою', 'TT-XXXX-XXXX-XXXX — це 12 символів base32 від HMAC-SHA256 за видом, посиланням і власником. Без серверного ключа код не підробити, а публічна перевірка показує лише знеособлені реквізити.', 'HMAC-SHA256 · QR'],
+    en: ['Verifiable receipts', 'TT-XXXX-XXXX-XXXX is 12 base32 characters of an HMAC-SHA256 over kind, reference and owner. It cannot be forged without the server key, and the public check page shows masked details only.', 'HMAC-SHA256 · QR'] },
+];
+const HOOD_STATS: { n: string; uk: string; en: string }[] = [
+  { n: '28', uk: 'правил антифроду у трьох шарах', en: 'fraud rules in three layers' },
+  { n: '148', uk: 'автоматичних тестів', en: 'automated tests' },
+  { n: '2', uk: 'бази даних: PostgreSQL і SQLite', en: 'databases: PostgreSQL and SQLite' },
 ];
 
-// Mini scenes at the top of the "Inside" tiles: one small loop per feature, CSS only, running once the tile is on screen.
+// Mini scenes at the top of the tiles: one small loop per mechanism, CSS only, running once the tile is on screen.
 const QR_CELLS = (() => {
   const out: [number, number][] = [];
   let x = 7;
@@ -70,31 +85,31 @@ const QR_CELLS = (() => {
   }
   return out;
 })();
+const HASHES = ['a3f9', '7c1e', '02bd', 'e84a'];
 
-function Stage({ kind, t }: { kind: keyof typeof IC; t: (uk: string, en: string) => string }) {
-  if (kind === 'arrow') return (
+function Stage({ kind, t }: { kind: Kind; t: (uk: string, en: string) => string }) {
+  if (kind === 'ledger') return (
+    <div className="bl-stage bl-st-ledger" aria-hidden>
+      <ul>
+        <li style={{ ['--i' as string]: 0 }}><span>{t('Дебет', 'Debit')}</span><b>−1 200</b></li>
+        <li style={{ ['--i' as string]: 1 }}><span>{t('Кредит', 'Credit')}</span><b>+1 200</b></li>
+        <li className="sum" style={{ ['--i' as string]: 2 }}><span>Σ</span><b>0</b></li>
+      </ul>
+    </div>
+  );
+  if (kind === 'atomic') return (
+    <div className="bl-stage bl-st-atomic" aria-hidden>
+      {['pending', 'processing', 'completed'].map((x, i) => <span key={x} style={{ ['--i' as string]: i }}>{x}</span>)}
+    </div>
+  );
+  if (kind === 'idem') return (
     <div className="bl-stage bl-st-send" aria-hidden>
       <span className="bl-st-av">Y</span>
-      <span className="bl-st-track"><i /><em>−1 200 TAX</em></span>
+      <span className="bl-st-track"><i /><i className="dup" /><em>×2 → ×1</em></span>
       <span className="bl-st-av bl-st-to">M<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
     </div>
   );
-  if (kind === 'percent') return (
-    <div className="bl-stage bl-st-dep" aria-hidden>
-      <svg viewBox="0 0 220 90" preserveAspectRatio="none">
-        <defs><linearGradient id="bldep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c7a46f" stopOpacity=".45" /><stop offset="1" stopColor="#c7a46f" stopOpacity="0" /></linearGradient></defs>
-        <path className="bl-st-area" d="M0 78 C40 74 60 66 90 58 S150 36 220 10 V90 H0Z" fill="url(#bldep)" />
-        <path className="bl-st-line" d="M0 78 C40 74 60 66 90 58 S150 36 220 10" fill="none" stroke="#dcc195" strokeWidth="2.4" strokeLinecap="round" pathLength="1" />
-      </svg>
-      <span className="bl-st-chip">+512 TAX</span>
-    </div>
-  );
-  if (kind === 'plus') return (
-    <div className="bl-stage bl-st-credit" aria-hidden>
-      {[0, 1, 2, 3, 4, 5].map(i => <i key={i} style={{ ['--i' as string]: i }} />)}
-    </div>
-  );
-  if (kind === 'lock') return (
+  if (kind === 'fraud') return (
     <div className="bl-stage bl-st-fraud" aria-hidden>
       <ul>
         {([['Сума', 'Amount'], ['Історія', 'History'], ['Граф', 'Graph']] as const).map(([uk, en], i) => <li key={en} style={{ ['--i' as string]: i }} className={i === 2 ? 'bad' : ''}><span>{t(uk, en)}</span><b>{i === 2 ? '✕' : '✓'}</b></li>)}
@@ -102,7 +117,24 @@ function Stage({ kind, t }: { kind: keyof typeof IC; t: (uk: string, en: string)
       <span className="bl-st-chip bl-st-blocked">{t('Заблоковано', 'Blocked')}</span>
     </div>
   );
-  if (kind === 'check') return (
+  if (kind === 'chain') return (
+    <div className="bl-stage bl-st-chain" aria-hidden>
+      {HASHES.map((h, i) => <span key={h} style={{ ['--i' as string]: i }} className={i >= 2 ? 'after' : ''}><small>{i ? HASHES[i - 1] : '0000'}</small><b>{h}</b></span>)}
+    </div>
+  );
+  if (kind === 'hold') return (
+    <div className="bl-stage bl-st-hold" aria-hidden>
+      <div className="bl-st-bar"><i /><u /></div>
+      <p><span>{t('доступно', 'available')}</span><span>hold</span></p>
+    </div>
+  );
+  if (kind === 'tds') return (
+    <div className="bl-stage bl-st-otp" aria-hidden>
+      <div>{['4', '8', '2', '9', '1', '7'].map((d, i) => <b key={i} style={{ ['--i' as string]: i }}>{d}</b>)}</div>
+      <span className="bl-st-ttl"><i /></span>
+    </div>
+  );
+  if (kind === 'receipt') return (
     <div className="bl-stage bl-st-rcpt" aria-hidden>
       <div className="bl-st-qr">
         <svg viewBox="0 0 11 11" shapeRendering="crispEdges">
@@ -121,12 +153,6 @@ function Stage({ kind, t }: { kind: keyof typeof IC; t: (uk: string, en: string)
     </div>
   );
 }
-
-const STEPS: { uk: [string, string]; en: [string, string] }[] = [
-  { uk: ['Реєстрація', 'Телефон або email і пароль. Картка з’являється одразу.'], en: ['Sign up', 'Phone or email, and a password. The card is there right away.'] },
-  { uk: ['Картка', 'Гільйош або одне з п’яти фото Рима.'], en: ['Choose a card', 'Guilloche or one of five Rome photos.'] },
-  { uk: ['Оплата', 'У Saint Agnes одним дотиком або надішліть TAX знайомому.'], en: ['Pay', 'In Saint Agnes with one tap, or send TAX to a friend.'] },
-];
 
 type ShopItem = { id: number; title: string; price: number | string; image_url?: string; slug?: string };
 
@@ -342,7 +368,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#inside', t('Всередині', 'Inside')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes'], ['#faq', t('Питання', 'Questions')]];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes'], ['#faq', t('Питання', 'Questions')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (
@@ -398,7 +424,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
               <div className="bl-cta">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-                <a className="bl-ghost" href="#inside">{t('Що в застосунку', 'What’s in the app')}</a>
+                <a className="bl-ghost" href="#inside">{t('Під капотом', 'Under the hood')}</a>
               </div>
             </div>
             {/* The debit arrives the way a real one does: a banner from the top (top right on a desktop, like macOS) */}
@@ -452,33 +478,25 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           )}
         />
 
-        {/* ── Inside: what the bank actually does (the rest of the page sells the feeling, this says what is there) ── */}
+        {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <section id="inside" className="bl-sec bl-inside">
           <div className="bl-wrap">
             <div className="bl-inside-head bl-rv">
-              <p className="bl-kick">{t('Всередині', 'Inside')}</p>
-              <h2 className="bl-h">{t('Що в застосунку.', 'What’s in the app.')}</h2>
-              <p className="bl-sub">{t('Працює як справжній банк. Тільки гроші ненастоящі.', 'It works like a real bank. Only the money is pretend.')}</p>
+              <h2 className="bl-h">{t('Під капотом.', 'Under the hood.')}</h2>
             </div>
+            <ul className="bl-hood-stats bl-rv">
+              {HOOD_STATS.map(x => <li key={x.en}><b>{x.n}</b><span>{t(x.uk, x.en)}</span></li>)}
+            </ul>
             <ul className="bl-inside-grid">
-              {INSIDE.map((x, i) => (
+              {HOOD.map((x, i) => (
                 <li key={x.en[0]} className="bl-tilex bl-rv" style={{ ['--d' as string]: `${(i % 3) * 0.08}s`, ['--tint' as string]: x.tint }}>
-                  <Stage kind={x.ic} t={t} />
+                  <Stage kind={x.kind} t={t} />
                   <h3>{t(x.uk[0], x.en[0])}</h3>
                   <p>{t(x.uk[1], x.en[1])}</p>
                   <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
                 </li>
               ))}
             </ul>
-            <ol className="bl-steps bl-rv" aria-label={t('Як почати', 'How to start')}>
-              {STEPS.map((x, i) => (
-                <li key={x.en[0]}>
-                  <b aria-hidden>{['I', 'II', 'III'][i]}</b>
-                  <h3>{t(x.uk[0], x.en[0])}</h3>
-                  <p>{t(x.uk[1], x.en[1])}</p>
-                </li>
-              ))}
-            </ol>
             <div className="bl-cta bl-center bl-rv">
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
             </div>
@@ -510,9 +528,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <section id="shop" className="bl-shopx">
           <div className="bl-wrap">
             <div className="bl-shopx-head bl-rv">
-              <p className="bl-shopx-kick">Saint Agnes × TaxTech</p>
-              <h2 className="bl-h bl-h-xl">{t('Одягайтесь за TAX.', 'Dress in TAX.')}</h2>
-              <p className="bl-shopx-sub">{t('Осінь від Saint Agnes. Ціни в TAX, платите карткою з цієї сторінки.', 'The Saint Agnes autumn edit. Priced in TAX, paid with the card from this page.')}</p>
+              <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
+              <p className="bl-shopx-sub">{t('Ціни в TAX. Оплата через TaxPay одним дотиком.', 'Priced in TAX. Paid through TaxPay in one tap.')}</p>
             </div>
             <div className="bl-shopx-grid">
               <a className="bl-shopx-look bl-rv" href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="Saint Agnes">
