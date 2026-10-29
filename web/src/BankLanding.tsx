@@ -120,6 +120,14 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const [sound, setSound] = useState(false);
   useEffect(() => { const disarm = armSound(), f = () => setSound(soundOn()), unsub = onSound(f); f(); return () => { disarm(); unsub(); }; }, []);
   const [menu, setMenu] = useState(false);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!menu || !root) return;
+    root.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(false); };
+    window.addEventListener('keydown', onKey);
+    return () => { root.style.overflow = ''; window.removeEventListener('keydown', onKey); };
+  }, [menu]);
   const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
@@ -273,13 +281,21 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </header>
         {menu && (
-          <div className="bl-sheet" onClick={() => setMenu(false)}>
-            <nav className="bl-wrap">
-              {nav.map(([h, x], i) => <a key={h} href={h} style={{ ['--i' as string]: i }}>{x}</a>)}
-              <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-              <button type="button" className="bl-more" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')} ›</button>
-              {langSwitch}
+          <div className="bl-sheet" role="dialog" aria-modal="true" aria-label={t('Меню', 'Menu')} onClick={() => setMenu(false)}>
+            <nav className="bl-wrap bl-sheet-links">
+              {nav.map(([h, x], i) => (
+                <a key={h} href={h} style={{ ['--i' as string]: i }}>
+                  <small>{String(i + 1).padStart(2, '0')}</small><span>{x}</span><i aria-hidden>›</i>
+                </a>
+              ))}
             </nav>
+            <div className="bl-wrap bl-sheet-foot" onClick={e => e.stopPropagation()}>
+              <div className="bl-sheet-cta">
+                <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
+                <button type="button" className="bl-ghost" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
+              </div>
+              {langSwitch}
+            </div>
           </div>
         )}
 

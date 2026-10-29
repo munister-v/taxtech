@@ -60,12 +60,21 @@
 .bl .bl-nav-in-btn { font-size: 13px; color: #d2d2d7; }
 .bl .bl-burger { display: none; width: 36px; height: 36px; place-items: center; }
 .bl-burger svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
-.bl-sheet { position: fixed; inset: 0; z-index: 29; background: rgba(0,0,0,.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding-top: calc(84px + env(safe-area-inset-top, 0px)); animation: bl-fade .25s ease both; }
-.bl-sheet nav { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.bl-sheet a { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; padding: 6px 0; animation: bl-up .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 35ms); }
-.bl .bl-sheet .bl-pill { margin-top: 28px; }
-.bl .bl-sheet .bl-more { margin-top: 16px; }
-.bl-sheet .bl-lang { margin-top: 28px; }
+/* Mobile menu: an opaque sheet (nothing shows through, no costly blur), numbered rows, actions and language at the bottom */
+.bl-sheet { position: fixed; inset: 0; z-index: 29; display: flex; flex-direction: column; justify-content: space-between; background: radial-gradient(120% 60% at 100% 0%, rgba(255,212,0,.07), transparent 60%), #050506; padding: calc(76px + env(safe-area-inset-top, 0px)) 0 calc(24px + env(safe-area-inset-bottom, 0px)); animation: bl-fade .2s ease both; overscroll-behavior: contain; }
+.bl-sheet-links { display: flex; flex-direction: column; width: 100%; }
+.bl-sheet-links a { display: flex; align-items: baseline; gap: 16px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,.09); animation: bl-up .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(60ms + var(--i) * 45ms); }
+.bl-sheet-links a:first-child { border-top: 1px solid rgba(255,255,255,.09); }
+.bl-sheet-links small { font-size: 12px; font-weight: 600; letter-spacing: .12em; color: var(--yellow); font-variant-numeric: tabular-nums; }
+.bl-sheet-links span { flex: 1; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; }
+.bl-sheet-links i { font-style: normal; font-size: 26px; color: var(--mut); transition: transform .25s, color .25s; }
+.bl-sheet-links a:active i { transform: translateX(4px); color: var(--yellow); }
+.bl-sheet-foot { width: 100%; display: flex; flex-direction: column; gap: 18px; animation: bl-up .5s cubic-bezier(.2,.7,.2,1) .2s both; }
+.bl-sheet-cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bl .bl-sheet-cta .bl-pill, .bl .bl-sheet-cta .bl-ghost { width: 100%; height: 52px; padding: 0 12px; font-size: 16px; }
+.bl .bl-sheet .bl-lang { align-self: flex-start; gap: 2px; padding: 3px; border-radius: 980px; background: rgba(255,255,255,.07); }
+.bl .bl-sheet .bl-lang button { min-width: 44px; height: 34px; border-radius: 980px; font-size: 12.5px; font-weight: 600; letter-spacing: .06em; color: var(--sub); }
+.bl .bl-sheet .bl-lang button.on { background: var(--fg); color: #000; }
 @keyframes bl-fade { from { opacity: 0; } }
 @keyframes bl-up { from { opacity: 0; transform: translateY(14px); } }
 

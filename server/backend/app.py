@@ -6,6 +6,7 @@ iOS-клієнт вирішує, де виконувати AI-задачу — �
 """
 from __future__ import annotations
 
+import mimetypes
 import os
 import re
 import uuid
@@ -73,8 +74,9 @@ def create_app() -> Flask:
     app.config.setdefault('ALLOW_DEMO_PAYOUT_ACCRUAL', ALLOW_DEMO_PAYOUT_ACCRUAL)
 
     # ── Gzip для великих JSON-відповідей (лише якщо клієнт надсилає Accept-Encoding) ──
-    app.config['COMPRESS_REGISTER'] = False
+    # Збірка фронтенду вже лежить стиснутою (.br/.gz поруч, див. web_app), тут стискаємо лише JSON на льоту.
     app.config['COMPRESS_MIMETYPES'] = ['application/json']
+    app.config['COMPRESS_ALGORITHM'] = ['gzip']
     app.config['COMPRESS_MIN_SIZE'] = 500
     app.config['COMPRESS_LEVEL'] = 6
     Compress(app)
@@ -223,10 +225,23 @@ def create_app() -> Flask:
             abort(404)
         target = (frontend / path).resolve() if path else None
         if target and target.is_file() and frontend.resolve() in target.parents:
-            resp = send_from_directory(frontend, path)
-            # файли з хешем у назві не змінюються - кешуємо надовго
             if path.startswith('assets/'):
+                # файли з хешем у назві не змінюються - кешуємо надовго; стиснуту копію робить збірка (web/scripts/compress.mjs)
+                accept = request.headers.get('Accept-Encoding', '')
+                for enc, ext in (('br', '.br'), ('gzip', '.gz')):
+                    if enc in accept and target.with_name(target.name + ext).is_file():
+                        resp = send_from_directory(frontend, path + ext, mimetype=mimetypes.guess_type(path)[0])
+                        resp.headers['Content-Encoding'] = enc
+                        break
+                else:
+                    resp = send_from_directory(frontend, path)
+                resp.headers['Vary'] = 'Accept-Encoding'
                 resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+                return resp
+            resp = send_from_directory(frontend, path)
+            # фото й іконки без хешу: тиждень з кешу, далі тихо оновлюємо
+            if path.startswith(('cards/', 'landing/', 'shop/', 'icons/')):
+                resp.headers['Cache-Control'] = 'public, max-age=604800, stale-while-revalidate=86400'
             return resp
         resp = send_from_directory(frontend, 'index.html')
         resp.headers['Cache-Control'] = 'no-cache'
