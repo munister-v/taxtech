@@ -137,33 +137,9 @@ struct Shake: GeometryEffect {
     }
 }
 
-/// Повільне «сяйво» за екраном входу: темні плями переливаються, у куті ледь жевріє жовтий.
+/// Тло екрана входу: плоске, як і решта застосунку.
 struct Aurora: View {
-    @Environment(\.accessibilityReduceMotion) private var reduce
-    @Environment(\.colorScheme) private var scheme
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
-            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
-            let base = scheme == .dark ? Color(white: 0.055) : Color(red: 0.957, green: 0.945, blue: 0.918)
-            let lift = scheme == .dark ? Color(white: 0.13) : Color.white
-            let glow = Theme.accent.opacity(scheme == .dark ? 0.22 : 0.35)
-            MeshGradient(
-                width: 3, height: 3,
-                points: [
-                    [0, 0], [Float(0.5 + 0.12 * sin(t * 0.35)), 0], [1, 0],
-                    [0, Float(0.5 + 0.1 * cos(t * 0.3))], [Float(0.5 + 0.15 * sin(t * 0.4)), Float(0.5 + 0.12 * cos(t * 0.33))], [1, Float(0.5 + 0.1 * sin(t * 0.28))],
-                    [0, 1], [Float(0.5 + 0.12 * cos(t * 0.31)), 1], [1, 1],
-                ],
-                colors: [
-                    lift, base, glow,
-                    base, lift.opacity(0.6), base,
-                    base, base, lift,
-                ]
-            )
-        }
-        .ignoresSafeArea()
-    }
+    var body: some View { Theme.bg.ignoresSafeArea() }
 }
 
 /// Заставка на старті: знак виростає й обертається, жовте коло розкривається й відкриває застосунок.

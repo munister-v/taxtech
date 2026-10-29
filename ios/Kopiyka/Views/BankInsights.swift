@@ -18,23 +18,22 @@ struct TransactionDetailView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     HeroPanel {
-                        GuillocheRibbon(label: "КВИТАНЦІЯ · TAXTECH").padding(.bottom, 16)
                         VStack(spacing: 10) {
                             TxGlyph(tx: tx, size: 76)
                             Text(TransactionRow(tx: tx).title)
                                 .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
-                                .font(.system(size: 42, weight: .semibold, design: .serif)).monospacedDigit()
+                                .font(.system(size: 42, weight: .semibold)).monospacedDigit()
                                 .minimumScaleFactor(0.5).lineLimit(1)
                                 .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
                             Label("Виконано", systemImage: "checkmark.seal.fill")
-                                .font(.caption.weight(.bold)).tracking(0.8).foregroundStyle(.green)
+                                .font(.caption.weight(.semibold)).foregroundStyle(.green)
                                 .padding(.horizontal, 12).padding(.vertical, 6)
                                 .background(Color.green.opacity(0.14), in: .capsule)
                                 .overlay(Capsule().strokeBorder(Color.green.opacity(0.4), lineWidth: 0.6))
                         }
                         .frame(maxWidth: .infinity)
-                        Perforation().padding(.top, 14)
+                        Rule().padding(.horizontal, -16).padding(.top, 14)
                         VStack(spacing: 0) {
                             LeaderRow(title: "Вид", value: BankText.type(tx.txType))
                             LeaderRow(title: "Коли", value: tx.date.formatted(date: .long, time: .shortened))
@@ -42,7 +41,6 @@ struct TransactionDetailView: View {
                             LeaderRow(title: "Номер операції", value: "№ " + String(format: "%08d", tx.id))
                         }
                         .padding(.horizontal, -18)
-                        Microprint().padding(.top, 8)
                     }
 
                     Button {

@@ -120,10 +120,9 @@ struct VerifySeal: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            GuillocheRibbon(label: "ПЕРЕВІРКА · QR")
             QRPlate(text: doc.verifyUrl)
             VStack(spacing: 4) {
-                Text("Код документа").font(.caption.weight(.semibold)).tracking(1).foregroundStyle(.secondary)
+                Text("Код документа").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                 Text(doc.code)
                     .font(.system(.title3, design: .monospaced).weight(.bold)).tracking(1.2)
                     .textSelection(.enabled).minimumScaleFactor(0.7).lineLimit(1)
@@ -190,16 +189,14 @@ struct DocumentsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 HeroPanel {
-                    GuillocheRibbon(label: "СХОВИЩЕ ДОКУМЕНТІВ").padding(.bottom, 14)
                     HStack(alignment: .top, spacing: 12) {
                         count("Квитанції", all.filter { $0.isReceipt }.count)
                         count("Виписки", all.filter { !$0.isReceipt }.count)
                         count("Усього", all.count)
                     }
-                    Perforation().padding(.top, 14)
+                    Rule().padding(.horizontal, -16).padding(.top, 14)
                     Text("Кожен документ має власний код і QR. Перевірити його можна в інтернеті: сторінка звіряє запис із реєстром операцій.")
                         .font(.footnote).foregroundStyle(.secondary).padding(.top, 6)
-                    Microprint().padding(.top, 10)
                 }
 
                 SegmentBar(items: [(Kind.all, "Усі"), (.receipt, "Квитанції"), (.statement, "Виписки")], selection: $kind)
@@ -244,8 +241,8 @@ struct DocumentsView: View {
 
     private func count(_ title: String, _ n: Int) -> some View {
         VStack(spacing: 2) {
-            Text("\(n)").font(.system(size: 30, weight: .semibold, design: .serif)).monospacedDigit()
-            Text(title.uppercased()).font(.system(size: 9.5, weight: .bold)).tracking(1.2).foregroundStyle(.secondary)
+            Text("\(n)").font(.system(size: 30, weight: .semibold)).monospacedDigit()
+            Text(title).font(.caption).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -267,7 +264,7 @@ struct DocumentRow: View {
             VStack(alignment: .trailing, spacing: 3) {
                 if let a = doc.amount {
                     Text((doc.direction == "in" ? "+" : doc.direction == "out" ? "−" : "") + Format.money(a))
-                        .font(.system(.callout, design: .serif).weight(.semibold)).monospacedDigit()
+                        .font(.callout.weight(.semibold)).monospacedDigit()
                         .lineLimit(1).fixedSize()
                         .foregroundStyle(doc.direction == "in" ? Color.green : Theme.ink)
                 }
@@ -293,7 +290,6 @@ struct DocumentDetailView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     HeroPanel {
-                        GuillocheRibbon(label: doc.isReceipt ? "КВИТАНЦІЯ" : "ВИПИСКА").padding(.bottom, 14)
                         VStack(spacing: 8) {
                             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                                            tint: doc.isReceipt ? .green : Theme.accent, size: 72)
@@ -306,7 +302,7 @@ struct DocumentDetailView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        Perforation().padding(.top, 14)
+                        Rule().padding(.horizontal, -16).padding(.top, 14)
                         VStack(spacing: 0) {
                             LeaderRow(title: "Вид", value: doc.isReceipt ? "Квитанція" : "Виписка")
                             LeaderRow(title: "Видано", value: doc.date.formatted(date: .long, time: .shortened))
@@ -320,7 +316,6 @@ struct DocumentDetailView: View {
                             }
                         }
                         .padding(.horizontal, -18)
-                        Microprint().padding(.top, 8)
                     }
 
                     Surface { VerifySeal(doc: doc).padding(18) }

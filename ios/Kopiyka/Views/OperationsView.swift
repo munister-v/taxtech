@@ -111,7 +111,8 @@ struct OperationsView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .glassEffect(.regular.interactive(), in: .capsule)
+        .background(Theme.surface, in: .capsule)
+        .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
     }
 
     // MARK: Витрати за період

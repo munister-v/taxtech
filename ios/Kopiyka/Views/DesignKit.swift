@@ -40,7 +40,7 @@ extension EnvironmentValues {
     }
 }
 
-/// Панель головної цифри екрана. Жовта - лише одна на застосунок (баланс), решта - спокійні.
+/// Панель головної цифри екрана. Жовта - лише одна на застосунок (баланс), решта - плоскі з тонкою лінією.
 struct HeroPanel<Content: View>: View {
     var yellow = false
     @ViewBuilder var content: Content
@@ -51,34 +51,13 @@ struct HeroPanel<Content: View>: View {
             .padding(22)
             .foregroundStyle(yellow ? Theme.onAccent : Theme.ink)
             .environment(\.onYellow, yellow)
-            .background {
-                if !yellow {
-                    Canvas { ctx, sz in
-                        let c = CGPoint(x: sz.width * 0.95, y: sz.height * 0.12)
-                        let r = min(sz.width, sz.height) * 0.55
-                        Engraving.rosette(in: &ctx, center: c, radius: r, curves: 22, lobes: 7, depth: 0.24, second: 0.06,
-                                          steps: 220, color: Theme.accent.opacity(0.07), width: 0.4)
-                        Engraving.rings(in: &ctx, center: c, from: r * 0.1, to: r * 0.26, count: 6, color: Theme.accent.opacity(0.08))
-                    }
-                    .allowsHitTesting(false)
-                }
-            }
-            .background(alignment: .bottomTrailing) {
-                if !yellow {
-                    MarkView(height: 150, color: Theme.ink.opacity(0.04))
-                        .offset(x: 34, y: 34)
-                        .parallax(0.14)
-                }
-            }
             .background(yellow ? Theme.accent : Theme.surface)
+            .clipShape(.rect(cornerRadius: 24, style: .continuous))
             .overlay {
-                // рамка банкноти: тонка лінія всередині краю
-                RoundedRectangle(cornerRadius: 21, style: .continuous)
-                    .strokeBorder(yellow ? Theme.onAccent.opacity(0.18) : Theme.accent.opacity(0.22), lineWidth: 0.6)
-                    .padding(5)
-                    .allowsHitTesting(false)
+                if !yellow {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline)
+                }
             }
-            .clipShape(.rect(cornerRadius: 26, style: .continuous))
     }
 }
 
@@ -411,25 +390,7 @@ struct GuillocheBadge: View {
 
 // MARK: Гравійовані елементи оформлення
 
-/// Стрічка з плетених хвиль, як рамка банкноти, із написом по центру.
-struct GuillocheRibbon: View {
-    let label: String
-    var height: CGFloat = 30
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.6)
-            Text(label)
-                .font(.system(size: 10, weight: .semibold)).tracking(2)
-                .foregroundStyle(Color.secondary)
-                .fixedSize()
-            Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.6)
-        }
-        .frame(height: height)
-    }
-}
-
-/// Заголовок дня: напис великими літерами, гравійована лінія, підсумок із засічками.
+/// Заголовок дня: напис, тонка лінія й підсумок.
 struct DayRibbon: View {
     let title: String
     let trailing: String
@@ -437,11 +398,9 @@ struct DayRibbon: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(title.uppercased()).font(.system(size: 11, weight: .bold)).tracking(1.6).foregroundStyle(Theme.tint)
-            Rectangle().fill(LinearGradient(colors: [Theme.accent.opacity(0.6), Theme.accent.opacity(0)],
-                                            startPoint: .leading, endPoint: .trailing))
-                .frame(height: 0.6)
-            Text(trailing).font(.system(.footnote, design: .serif).weight(.semibold)).monospacedDigit()
+            Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+            Rectangle().fill(Theme.line).frame(height: Theme.hairline)
+            Text(trailing).font(.footnote.weight(.semibold)).monospacedDigit()
                 .foregroundStyle(positive ? Color.green : Color.secondary)
         }
         .padding(.horizontal, 4)
@@ -465,33 +424,5 @@ struct LeaderRow: View {
         .overlay(alignment: .bottom) {
             Rectangle().fill(Theme.ink.opacity(0.08)).frame(height: 0.5).padding(.horizontal, 18)
         }
-    }
-}
-
-/// Мікродрук: рядок дрібного тексту, який не читається на око, але видно в захисті.
-struct Microprint: View {
-    var text = "STATE TAX UNIVERSITY · TAXTECH · VIRTUAL FINANCE · "
-    var body: some View {
-        // Текст лежить в overlay: його довжина не бере участі в розкладці батьківського стеку.
-        Color.clear.frame(height: 8)
-            .overlay(alignment: .leading) {
-                Text(String(repeating: text, count: 6))
-                    .font(.system(size: 5.5, weight: .semibold, design: .monospaced)).tracking(1)
-                    .lineLimit(1).fixedSize()
-                    .foregroundStyle(Theme.ink.opacity(0.14))
-            }
-            .clipped()
-    }
-}
-
-/// Перфорація: лінія з півколами по краях, як відривний корінець.
-struct Perforation: View {
-    var body: some View {
-        Canvas { ctx, sz in
-            var p = Path()
-            p.move(to: CGPoint(x: 14, y: sz.height / 2)); p.addLine(to: CGPoint(x: sz.width - 14, y: sz.height / 2))
-            ctx.stroke(p, with: .color(Theme.ink.opacity(0.25)), style: StrokeStyle(lineWidth: 1, lineCap: .round, dash: [1, 6]))
-        }
-        .frame(height: 14)
     }
 }

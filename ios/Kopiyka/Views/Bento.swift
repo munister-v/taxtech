@@ -43,13 +43,13 @@ struct BentoTile<Content: View>: View {
             .foregroundStyle(tone.foreground)
             .environment(\.onYellow, tone == .yellow)
             .background(tone.background)
-            .clipShape(.rect(cornerRadius: 28, style: .continuous))
+            .clipShape(.rect(cornerRadius: 24, style: .continuous))
             .overlay {
                 if tone == .surface {
-                    RoundedRectangle(cornerRadius: 28, style: .continuous).strokeBorder(Theme.ink.opacity(0.06), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.ink.opacity(0.06), lineWidth: 1)
                 }
             }
-            .contentShape(.rect(cornerRadius: 28, style: .continuous))
+            .contentShape(.rect(cornerRadius: 24, style: .continuous))
     }
 }
 
@@ -184,76 +184,5 @@ struct BrandSeal: View {
             .frame(width: size, height: size)
             .foregroundStyle(color)
             .accessibilityHidden(true)
-    }
-}
-
-// MARK: Захисний друк: гільйош і мікродрук, як на банкнотах і гербовому папері
-
-/// Гільйошна розетка: кілька епітрохоїд тонкими лініями, що повільно обертаються одна проти одної.
-struct Guilloche: View {
-    var lines: Color = .white
-    var accent: Color = Theme.accent
-    @Environment(\.accessibilityReduceMotion) private var reduce
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
-            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
-            Canvas { ctx, size in
-                let c = CGPoint(x: size.width / 2, y: size.height / 2)
-                let scale = min(size.width, size.height) / 2
-                // (R, r, d, оберти, колір, прозорість, напрям обертання)
-                let rosettes: [(Double, Double, Double, Double, Bool, Double, Double)] = [
-                    (1.0, 0.142, 0.30, 7, false, 0.16, 1),
-                    (0.92, 0.111, 0.26, 9, true, 0.30, -1),
-                    (0.78, 0.1666, 0.34, 6, false, 0.12, 1),
-                    (0.62, 0.0909, 0.22, 11, true, 0.22, -1),
-                ]
-                for (i, ro) in rosettes.enumerated() {
-                    let (R, r, d, turns, gold, alpha, dir) = ro
-                    let spin = dir * t * (0.035 + Double(i) * 0.01)
-                    var path = Path()
-                    let steps = 1400
-                    for s in 0...steps {
-                        let a = Double(s) / Double(steps) * 2 * .pi * turns
-                        let k = (R - r) / r
-                        let x = (R - r) * cos(a) + d * cos(k * a)
-                        let y = (R - r) * sin(a) - d * sin(k * a)
-                        let xr = x * cos(spin) - y * sin(spin), yr = x * sin(spin) + y * cos(spin)
-                        let p = CGPoint(x: c.x + xr * scale * 0.5, y: c.y + yr * scale * 0.5)
-                        if s == 0 { path.move(to: p) } else { path.addLine(to: p) }
-                    }
-                    ctx.stroke(path, with: .color((gold ? accent : lines).opacity(alpha)), lineWidth: 0.6)
-                }
-            }
-        }
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
-
-/// Кільце мікродруку: напис по колу дрібними літерами, як на печатці чи банкноті.
-struct MicroprintRing: View {
-    var text = "STATE TAX UNIVERSITY · TAXTECH LAB · VIRTUAL FINANCE · "
-    var diameter: CGFloat = 300
-    var color: Color = .white
-    @Environment(\.accessibilityReduceMotion) private var reduce
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
-            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
-            let chars = Array(String(repeating: text, count: 2))
-            ZStack {
-                ForEach(chars.indices, id: \.self) { i in
-                    Text(String(chars[i]))
-                        .font(.system(size: 7.5, weight: .semibold).monospaced())
-                        .foregroundStyle(color)
-                        .offset(y: -diameter / 2)
-                        .rotationEffect(.degrees(Double(i) / Double(chars.count) * 360 + t * 3))
-                }
-            }
-            .frame(width: diameter, height: diameter)
-        }
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
     }
 }

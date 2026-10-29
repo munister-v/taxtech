@@ -384,22 +384,19 @@ struct StatementsView: View {
                 let income = rows.filter(\.isIncome).reduce(0) { $0 + $1.amount }
                 let spent = rows.filter { !$0.isIncome }.reduce(0) { $0 + $1.amount }
                 HeroPanel {
-                    GuillocheRibbon(label: "ВИПИСКА · STATE TAX UNIVERSITY")
-                        .padding(.bottom, 14)
-                    Text(title).font(.footnote.weight(.semibold)).tracking(0.4).foregroundStyle(.secondary)
+                    Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                     Text("Витрачено").font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 14)
                     Text(Format.short(spent))
-                        .font(.system(size: 44, weight: .semibold, design: .serif)).monospacedDigit()
+                        .font(.system(size: 44, weight: .semibold)).monospacedDigit()
                         .minimumScaleFactor(0.5).lineLimit(1).frame(maxWidth: .infinity)
-                    Perforation().padding(.top, 14)
+                    Rule().padding(.horizontal, -16).padding(.top, 14)
                     HStack(alignment: .top, spacing: 12) {
                         summary("Надійшло", Format.short(income), tint: .green)
                         summary("Операцій", "\(rows.count)")
                         summary("Різниця", (income - spent >= 0 ? "+" : "−") + Format.short(abs(income - spent)))
                     }
                     .padding(.top, 6)
-                    Microprint().padding(.top, 16)
                 }
                 if !rows.isEmpty {
                     BlockTitle("Операції періоду", trailing: "\(rows.count)")
@@ -444,9 +441,9 @@ struct StatementsView: View {
 
     private func summary(_ title: String, _ value: String, tint: Color = Theme.ink) -> some View {
         VStack(spacing: 3) {
-            Text(value).font(.system(.headline, design: .serif)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(value).font(.headline).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
                 .foregroundStyle(tint)
-            Text(title.uppercased()).font(.system(size: 9.5, weight: .bold)).tracking(1.3).foregroundStyle(.secondary)
+            Text(title).font(.caption).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }

@@ -222,17 +222,7 @@ struct ShopView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
             .foregroundStyle(Theme.onAccent)
-            .background {
-                // жовта «купюра»: гільйош-розетка й мікродрук, як захисний друк на головній
-                Theme.accent
-                    .overlay(alignment: .trailing) {
-                        Guilloche(lines: Theme.onAccent.opacity(0.35), accent: Theme.onAccent.opacity(0.25))
-                            .frame(width: 220, height: 220)
-                            .offset(x: 110)
-                            .opacity(0.5)
-                    }
-                    .clipShape(.rect(cornerRadius: 20, style: .continuous))
-            }
+            .background(Theme.accent, in: .rect(cornerRadius: 20, style: .continuous))
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 8)
         }

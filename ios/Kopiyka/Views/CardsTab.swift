@@ -34,7 +34,6 @@ struct CardsTab: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 110)
             }
-            .background(alignment: .top) { glow }
             .screenBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
@@ -75,22 +74,6 @@ struct CardsTab: View {
 
     // MARK: Тло, шапка, стрічка
 
-    /// Сяйво кольору вибраної картки за верхом екрана: зміна картки перефарбовує сцену.
-    private var glow: some View {
-        let look = card?.look ?? CardLook()
-        return ZStack {
-            RadialGradient(colors: [look.color.partner.opacity(0.55), .clear], center: UnitPoint(x: 0.25, y: 0.2),
-                           startRadius: 10, endRadius: 320)
-            RadialGradient(colors: [look.color.base.opacity(0.5), .clear], center: UnitPoint(x: 0.85, y: 0.35),
-                           startRadius: 10, endRadius: 280)
-        }
-        .frame(height: 620)
-        .blur(radius: 30)
-        .ignoresSafeArea()
-        .animation(.smooth(duration: 0.6), value: look)
-        .allowsHitTesting(false)
-    }
-
     private var header: some View {
         ScreenTitle(title: "Картки") {
             Button { issuing = true } label: {
@@ -98,7 +81,8 @@ struct CardsTab: View {
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .background(Theme.surface, in: .capsule)
+                    .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
                     .foregroundStyle(Theme.ink)
             }
             .buttonStyle(PressScale())
@@ -297,8 +281,12 @@ struct RoundActionLabel: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            GuillocheBadge(symbol: symbol, tint: on ? .cyan : Theme.accent, size: 58)
-                .glassEffect(.regular.interactive(), in: .circle)
+            Image(systemName: symbol)
+                .font(.system(size: 21, weight: .semibold))
+                .frame(width: 58, height: 58)
+                .foregroundStyle(on ? Theme.onAccent : Theme.ink)
+                .background(on ? Theme.accent : Theme.surface, in: .circle)
+                .overlay(Circle().strokeBorder(Theme.line, lineWidth: on ? 0 : Theme.hairline))
             Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
                 .contentTransition(.opacity)
         }

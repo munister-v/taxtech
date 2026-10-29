@@ -89,18 +89,6 @@ struct TaxesView: View {
                 .padding(.top, 18)
             }
         }
-        // захисний друк, як на головній: розетка й мікродрук у куті - довідка виглядає документом
-        .overlay(alignment: .topTrailing) {
-            ZStack {
-                Guilloche(lines: Theme.ink.opacity(0.5)).frame(width: 260, height: 260)
-                MicroprintRing(text: "ПОДАТКОВА ДОВІДКА · STATE TAX UNIVERSITY · ", diameter: 170, color: Theme.ink.opacity(0.35))
-            }
-            .opacity(0.22)
-            .blendMode(.plusLighter)
-            .offset(x: 90, y: -70)
-            .allowsHitTesting(false)
-        }
-        .clipShape(.rect(cornerRadius: Theme.corner, style: .continuous))
     }
 }
 

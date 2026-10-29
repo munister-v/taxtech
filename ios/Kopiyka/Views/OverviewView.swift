@@ -49,13 +49,7 @@ struct OverviewView: View {
                 }
             }
             .scrollIndicators(.hidden)
-            .background {
-                ZStack(alignment: .top) {
-                    Theme.bg
-                    HeroGradient().frame(height: 560)
-                }
-                .ignoresSafeArea()
-            }
+            .screenBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
             .refreshable { await load() }
@@ -93,7 +87,7 @@ struct OverviewView: View {
 
     // MARK: Шапка з балансом
 
-    /// Темна сцена: аватар і сповіщення, баланс по центру, рахунок і скляні дії.
+    /// Спокійна шапка на тлі екрана: аватар і сповіщення, баланс по центру, рахунок і круглі дії.
     private var hero: some View {
         VStack(spacing: 0) {
             HStack {
@@ -103,20 +97,22 @@ struct OverviewView: View {
                         if let initials { Text(initials).font(.system(size: 14, weight: .semibold)) }
                         else { Image(systemName: "person.fill").font(.system(size: 15)) }
                     }
-                    .foregroundStyle(.white)
-                        .frame(width: 40, height: 40)
-                        .glassEffect(.regular, in: .circle)
+                    .foregroundStyle(Theme.ink)
+                    .frame(width: 40, height: 40)
+                    .background(Theme.surface, in: .circle)
+                    .overlay(Circle().strokeBorder(Theme.line, lineWidth: Theme.hairline))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Профіль")
                 Spacer()
-                BrandLockup(height: 26, color: .white)
+                BrandLockup(height: 26, color: Theme.ink)
                 Spacer()
                 NavigationLink { NoticesView() } label: {
-                    Image(systemName: unread > 0 ? "bell.badge" : "bell").font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
+                    Image(systemName: unread > 0 ? "bell.badge" : "bell").font(.system(size: 16, weight: .semibold)).foregroundStyle(Theme.ink)
                         .symbolEffect(.wiggle, value: unread)
                         .frame(width: 40, height: 40)
-                        .glassEffect(.regular, in: .circle)
+                        .background(Theme.surface, in: .circle)
+                        .overlay(Circle().strokeBorder(Theme.line, lineWidth: Theme.hairline))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
@@ -125,7 +121,7 @@ struct OverviewView: View {
             .rise(0)
 
             VStack(spacing: 6) {
-                Text("Основний рахунок · TAX").font(.footnote.weight(.medium)).foregroundStyle(.white.opacity(0.7))
+                Text("Основний рахунок · TAX").font(.footnote.weight(.medium)).foregroundStyle(.secondary)
                 Button { withAnimation(.snappy) { hidden.toggle() } } label: {
                     HeroAmount(value: shown, hidden: hidden)
                 }
@@ -146,26 +142,18 @@ struct OverviewView: View {
                     .transition(.opacity.combined(with: .scale(scale: 0.9)))
                 }
             }
-            .padding(.vertical, 56)
+            .padding(.top, 44)
+            .padding(.bottom, 36)
             .frame(maxWidth: .infinity)
-            .background {
-                // захисний друк за сумою: гільйош і мікродрук, як на банкноті
-                ZStack {
-                    Guilloche().frame(width: 410, height: 410)
-                    MicroprintRing(diameter: 236, color: .white.opacity(0.3))
-                }
-            }
-            .padding(.top, 10)
             .rise(1)
 
             HStack(alignment: .top, spacing: 0) {
-                heroAction("Поповнити", "plus") { sheet = .topUp }
-                heroAction("Переказ", "arrow.right") { prefill = ""; sheet = .byAccount }
-                heroAction("На картку", "creditcard") { sheet = .byCard }
-                heroAction("Податки", "percent") { open(.taxes) }
+                CircleAction(title: "Поповнити", symbol: "plus", primary: true) { sheet = .topUp }
+                CircleAction(title: "Переказ", symbol: "arrow.right") { prefill = ""; sheet = .byAccount }
+                CircleAction(title: "На картку", symbol: "creditcard") { sheet = .byCard }
+                CircleAction(title: "Податки", symbol: "percent") { open(.taxes) }
             }
-            .padding(.top, 14)
-            .padding(.bottom, 28)
+            .padding(.bottom, 24)
             .rise(2)
         }
         .padding(.horizontal, Theme.gutter)
@@ -176,28 +164,16 @@ struct OverviewView: View {
         return l.isEmpty ? nil : l
     }
 
-    private func heroAction(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                GuillocheBadge(symbol: symbol, tint: Color(red: 0.85, green: 0.72, blue: 0.40), size: 56, onDark: true)
-                    .glassEffect(.regular.interactive(), in: .circle)
-                Text(title).font(.caption.weight(.semibold))
-            }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
-    }
-
     private func monthPill(_ symbol: String, _ text: String, tint: Color) -> some View {
         HStack(spacing: 5) {
             Image(systemName: symbol).font(.caption2.weight(.bold)).foregroundStyle(tint)
             Text(text).font(.caption.weight(.semibold)).monospacedDigit()
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(Theme.ink)
         .padding(.horizontal, 10)
-        .frame(height: 26)
-        .glassEffect(.regular, in: .capsule)
+        .frame(height: 28)
+        .background(Theme.surface, in: .capsule)
+        .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
     }
 
     // MARK: Картки під шапкою
@@ -234,9 +210,7 @@ struct OverviewView: View {
                                 }
                                     .foregroundStyle(.white)
                                     .frame(width: 54, height: 54)
-                                    .background(LinearGradient(colors: [Color(hue: hue, saturation: 0.55, brightness: 0.85),
-                                                                        Color(hue: hue + 0.08, saturation: 0.7, brightness: 0.55)],
-                                                               startPoint: .topLeading, endPoint: .bottomTrailing), in: .circle)
+                                    .background(Color(hue: hue, saturation: 0.5, brightness: 0.72), in: .circle)
                                 Text(shop ? String(r.relatedAccount.dropFirst(4)).replacingOccurrences(of: "-", with: " ").capitalized
                                           : r.relatedAccount)
                                     .font(.caption2.weight(.medium).monospacedDigit())
@@ -460,7 +434,7 @@ struct Card<Content: View>: View {
     }
 }
 
-/// Значок виду операції: гравійований медальйон. Надходження смарагдові, покупки золоті, перекази сталеві.
+/// Значок виду операції: тонований круг. Надходження зелені, покупки жовті, перекази сині.
 struct TxGlyph: View {
     let tx: API.Transaction
     var size: CGFloat = 46
@@ -502,10 +476,10 @@ struct ActivityRow: View {
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
                 Text((tx.isIncome ? "+" : "−") + tx.amount.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
-                    .font(.system(.title3, design: .serif).weight(.semibold)).monospacedDigit()
+                    .font(.title3.weight(.semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
                     .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
-                Text("TAX").font(.system(size: 9.5, weight: .bold)).tracking(1.6).foregroundStyle(Theme.tint.opacity(0.7))
+                Text("TAX").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
             }
             .fixedSize(horizontal: true, vertical: false)
         }
@@ -521,7 +495,7 @@ extension OverviewView {
     }
 }
 
-/// Баланс у шапці: цілі великим білим, копійки й TAX дрібніше.
+/// Баланс у шапці: цілі великим, копійки й TAX дрібніше.
 struct HeroAmount: View {
     let value: Double
     var hidden = false
@@ -541,39 +515,10 @@ struct HeroAmount: View {
             Text(" TAX").font(.system(size: 20, weight: .semibold)).opacity(0.75)
         }
         .monospacedDigit()
-        .foregroundStyle(.white)
+        .foregroundStyle(Theme.ink)
         .lineLimit(1)
         .minimumScaleFactor(0.5)
         .contentTransition(.numericText(value: value))
-    }
-}
-
-/// Фон шапки: темна синя сцена, що повільно переливається й тане донизу; тепло дає золотий гільйош.
-struct HeroGradient: View {
-    @Environment(\.accessibilityReduceMotion) private var reduce
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
-            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
-            let navy = Color(red: 0.07, green: 0.11, blue: 0.24)
-            let deep = Color(red: 0.03, green: 0.04, blue: 0.09)
-            let blue = Color(red: 0.13, green: 0.22, blue: 0.48)
-            MeshGradient(
-                width: 3, height: 3,
-                points: [
-                    [0, 0], [Float(0.5 + 0.15 * sin(t * 0.25)), 0], [1, 0],
-                    [0, Float(0.45 + 0.1 * cos(t * 0.2))], [Float(0.5 + 0.18 * cos(t * 0.3)), Float(0.5 + 0.12 * sin(t * 0.22))], [1, Float(0.5 + 0.1 * sin(t * 0.27))],
-                    [0, 1], [Float(0.5 + 0.12 * sin(t * 0.18)), 1], [1, 1],
-                ],
-                colors: [
-                    deep, navy, blue,
-                    navy, blue, navy,
-                    deep, navy, deep,
-                ]
-            )
-            .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black, location: 0.78),
-                                         .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
-        }
     }
 }
 
