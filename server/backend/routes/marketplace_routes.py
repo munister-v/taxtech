@@ -262,6 +262,7 @@ def _ensure_schema() -> None:
         _safe_add_column(conn, 'marketplace_orders', 'invoice_number VARCHAR(40)')
         _safe_add_column(conn, 'marketplace_orders', "invoice_status VARCHAR(20) NOT NULL DEFAULT 'paid'")
         _safe_add_column(conn, 'marketplace_orders', 'invoice_due_at TIMESTAMP')
+        _safe_add_column(conn, 'marketplace_order_items', "size VARCHAR(40) NOT NULL DEFAULT ''")
         _safe_add_column(conn, 'marketplace_orders', 'payment_auth_id INTEGER')
         _safe_add_column(conn, 'marketplace_invoices', 'payment_auth_id INTEGER')
         _safe_add_column(conn, 'marketplace_products', 'image_url TEXT')
@@ -817,6 +818,25 @@ def catalog_product(product_id: int):
     return jsonify({'ok': True, 'data': _to_payload_product(dict(row))})
 
 
+@marketplace_bp.get('/catalog/<int:product_id>/sizes')
+def catalog_product_sizes(product_id: int):
+    """Розміри товару магазину й залишок по кожному (порожньо - розмір не потрібен)."""
+    _ensure_schema()
+    with get_connection() as conn:
+        row = conn.execute(
+            'SELECT slug FROM marketplace_products WHERE id = %s AND is_active = TRUE LIMIT 1', (product_id,),
+        ).fetchone()
+    if not row:
+        return api_error('Товар не знайдено.', 404)
+    sid = shop_sync._shop_product_id(row.get('slug'))
+    if not sid:
+        return jsonify({'ok': True, 'data': {'sizes': []}})
+    found = shop_sync.shop_sizes([sid])
+    if found is None:
+        return api_error('Магазин не відповів, спробуйте ще раз.', 503)
+    return jsonify({'ok': True, 'data': {'sizes': found.get(sid, [])}})
+
+
 @marketplace_bp.get('/orders')
 @auth_required
 def list_orders():
@@ -1170,6 +1190,51 @@ def _shop_stock_shortage(product_ids: list[int], requested: dict[int, int]) -> s
     return None
 
 
+def _shop_size_problem(lines: dict[tuple[int, str], int]) -> tuple[str | None, set[int]]:
+    """Розміри в кошику проти магазину: чи обрано розмір там, де він потрібен, і чи вистачає штук.
+
+    Повертає (текст помилки або None, id товарів, у яких розмірів немає взагалі).
+    Магазин мовчить - перевірити нічого, пропускаємо, як і з залишком товару.
+    """
+    pids = sorted({pid for pid, _ in lines})
+    with get_connection() as conn:
+        rows = conn.execute(
+            f"SELECT id, slug, title FROM marketplace_products WHERE id IN ({', '.join(['%s'] * len(pids))})", tuple(pids),
+        ).fetchall() or []
+    shop_of = {int(r['id']): (shop_sync._shop_product_id(r.get('slug')), str(r.get('title') or 'позиція')) for r in rows}
+    sids = [sid for sid, _ in shop_of.values() if sid]
+    if not sids:
+        return None, set()
+    sizes_by_shop = shop_sync.shop_sizes(sids)
+    if sizes_by_shop is None:
+        return None, set()
+    one_size: set[int] = set()
+    checks: list[dict[str, Any]] = []
+    for (pid, size), qty in lines.items():
+        sid, title = shop_of.get(pid, (None, ''))
+        if not sid:
+            continue
+        have = sizes_by_shop.get(sid) or []
+        if not have:
+            one_size.add(pid)
+            continue
+        if not size:
+            return f"Оберіть розмір для «{title}».", one_size
+        if size not in {x['size'] for x in have}:
+            return f"«{title}»: розміру {size} немає.", one_size
+        checks.append({'product_id': sid, 'variation': size, 'quantity': qty})
+    if checks:
+        live = shop_sync.check_size_stock(checks)
+        if live is not None:
+            for c in checks:
+                avail = live.get((c['product_id'], c['variation']))
+                if avail is not None and avail < c['quantity']:
+                    title = next((t for sid, t in shop_of.values() if sid == c['product_id']), 'позиція')
+                    return (f"«{title}», розмір {c['variation']}: закінчився." if avail <= 0
+                            else f"«{title}», розмір {c['variation']}: лишилось {avail} шт."), one_size
+    return None, one_size
+
+
 @marketplace_bp.post('/checkout')
 @auth_required
 def checkout():
@@ -1203,15 +1268,18 @@ def _checkout_impl():
         return api_error('Заповніть дані доставки (ПІБ та адресу).')
 
     requested: dict[int, int] = {}
+    lines: dict[tuple[int, str], int] = {}
     for item in cart_items:
         try:
             pid = int(item.get('product_id'))
             qty = int(item.get('qty') or 1)
+            size = str(item.get('size') or '').strip()[:40]
         except Exception:
             return api_error('Некоректний склад кошика.')
         if pid <= 0 or qty <= 0 or qty > 50:
             return api_error('Некоректна кількість товару.')
         requested[pid] = requested.get(pid, 0) + qty
+        lines[(pid, size)] = lines.get((pid, size), 0) + qty
 
     idempotency_key, idem_err = require_idempotency_key(payload=payload, allow_body_fallback=True)
     if idem_err:
@@ -1224,8 +1292,8 @@ def _checkout_impl():
             key=idempotency_key,
             payload={
                 'items': sorted(
-                    [{'product_id': int(pid), 'qty': int(qty)} for pid, qty in requested.items()],
-                    key=lambda item: item['product_id'],
+                    [{'product_id': int(pid), 'size': size, 'qty': int(qty)} for (pid, size), qty in lines.items()],
+                    key=lambda item: (item['product_id'], item['size']),
                 ),
                 'shipping_name': shipping_name,
                 'shipping_phone': shipping_phone,
@@ -1249,6 +1317,11 @@ def _checkout_impl():
     shortage = _shop_stock_shortage(product_ids, requested)
     if shortage:
         return api_error(shortage, 409)
+    size_problem, one_size = _shop_size_problem(lines)
+    if size_problem:
+        return api_error(size_problem, 409)
+    # A one-size product never carries a size, whatever the client sent.
+    lines = {(pid, '' if pid in one_size else size): qty for (pid, size), qty in lines.items()}
 
     with get_connection() as conn:
         _expire_overdue_invoices(conn)
@@ -1271,20 +1344,23 @@ def _checkout_impl():
         if len(by_id) != len(product_ids):
             return api_error('Один або кілька товарів недоступні.')
 
-        normalized_items: list[dict[str, Any]] = []
-        total_amount = 0.0
         for pid in product_ids:
             row = by_id[pid]
-            qty = requested[pid]
-            stock = int(row.get('stock') or 0)
-            if stock < qty:
+            if int(row.get('stock') or 0) < requested[pid]:
                 return api_error(f"Товар «{row.get('title') or 'позиція'}» закінчився на складі.")
+
+        normalized_items: list[dict[str, Any]] = []
+        total_amount = 0.0
+        for (pid, size), qty in sorted(lines.items()):
+            row = by_id[pid]
             price = float(row.get('price') or 0)
             line_total = round(price * qty, 2)
             total_amount = round(total_amount + line_total, 2)
+            title = row.get('title') or f'Товар #{pid}'
             normalized_items.append({
                 'product_id': pid,
-                'title': row.get('title') or f'Товар #{pid}',
+                'title': (f'{title[:150]} · {size}' if size else title)[:160],
+                'size': size,
                 'price': price,
                 'qty': qty,
                 'line_total': line_total,
@@ -1370,10 +1446,10 @@ def _checkout_impl():
         for row in normalized_items:
             conn.execute(
                 """
-                INSERT INTO marketplace_order_items(order_id, product_id, title, price, qty, line_total)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO marketplace_order_items(order_id, product_id, title, size, price, qty, line_total)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
-                (order_id, row['product_id'], row['title'], row['price'], row['qty'], row['line_total']),
+                (order_id, row['product_id'], row['title'], row['size'], row['price'], row['qty'], row['line_total']),
             )
             conn.execute(
                 'UPDATE marketplace_products SET stock = stock - %s, updated_at = ' + _now_sql() + ' WHERE id = %s',

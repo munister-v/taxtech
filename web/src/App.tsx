@@ -457,7 +457,6 @@ const translations = {
     personal_cabinet: 'Особистий кабінет',
     face_id_unavailable: 'Недоступно на цьому пристрої',
     push_notifications: 'Push-сповіщення',
-    twofa_sms: 'Підтвердження за SMS',
     unavailable: 'Недоступно',
     no_change: 'Без змін',
     new_cash_flow: 'Новий рух коштів',
@@ -752,7 +751,6 @@ const translations = {
     personal_cabinet: 'Personal banking',
     face_id_unavailable: 'Unavailable on this device',
     push_notifications: 'Push notifications',
-    twofa_sms: 'SMS confirmation',
     unavailable: 'Unavailable',
     no_change: 'No change',
     new_cash_flow: 'New cash flow',
@@ -1047,7 +1045,6 @@ const translations = {
     personal_cabinet: 'Private banking',
     face_id_unavailable: 'Non disponibile su questo dispositivo',
     push_notifications: 'Notifiche push',
-    twofa_sms: 'Conferma via SMS',
     unavailable: 'Non disponibile',
     no_change: 'Nessuna variazione',
     new_cash_flow: 'Nuovo flusso di cassa',
@@ -1342,7 +1339,6 @@ const translations = {
     personal_cabinet: 'Banca privada',
     face_id_unavailable: 'No disponible en este dispositivo',
     push_notifications: 'Notificaciones push',
-    twofa_sms: 'Confirmación por SMS',
     unavailable: 'No disponible',
     no_change: 'Sin cambios',
     new_cash_flow: 'Nuevo flujo de caja',
@@ -6460,7 +6456,6 @@ function ProfileScreen() {
   const [faceIdReady, setFaceIdReady] = useState(false);
   const [faceIdBusy, setFaceIdBusy] = useState(false);
   const [push, setPush] = useState(true);
-  const [twofa, setTwofa] = useState(false);
   const [notifTx, setNotifTx] = useState(true);
   const [notifSec, setNotifSec] = useState(true);
   const [notifPromo, setNotifPromo] = useState(false);
@@ -6841,10 +6836,6 @@ function ProfileScreen() {
         <ProfileToggle label={t('push_notifications')} on={push} onChange={setPush}
           icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke={gold} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>}
         />
-        <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 18px' }} />
-        <ProfileToggle label="2FA" sub={t('twofa_sms')} on={twofa} onChange={setTwofa}
-          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="4" y="11" width="16" height="10" rx="2" stroke={gold} strokeWidth="1.6" /><path d="M8 11V8a4 4 0 018 0v3" stroke={gold} strokeWidth="1.6" /></svg>}
-        />
       </>)}
 
       {/* Change password */}
@@ -7058,7 +7049,38 @@ function ProfileScreen() {
 interface Product { id: number; title: string; description?: string; price: number; currency?: string; image_emoji?: string; image_url?: string; badge?: string; stock?: number; slug?: string; }
 interface MarketOrder { id: number; total_amount: number; currency: string; status: string; invoice_number?: string; invoice_status?: string; created_at?: string; items_count?: number; }
 interface MarketInvoice { invoice_number: string; amount: number; currency: string; status: string; due_at?: string; paid_at?: string; created_at?: string; order_id?: number; }
-interface CartItem { product: Product; qty: number; }
+interface CartItem { product: Product; qty: number; size?: string; }
+const cartKey = (i: CartItem) => `${i.product.id}|${i.size || ''}`;
+const isShopProduct = (p: Product) => String(p.slug || '').startsWith('munister-');
+
+/** Dispatch is promised within two working days: say the actual date. */
+function dispatchBy(lang: string): string {
+  const d = new Date();
+  let left = 2;
+  while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+  while (left > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) left--; }
+  return d.toLocaleDateString(lang === 'uk' ? 'uk-UA' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+const shipErrStyle: React.CSSProperties = { borderColor: '#d0594a' };
+function ShipError({ text: msg }: { text: string }) {
+  return <div role="alert" style={{ marginTop: 5, fontSize: 12, color: '#e07a6c' }}>{msg}</div>;
+}
+
+/** Delivery form rules; the backend wants a name and an address of 8+ characters. */
+function validateShipping(name: string, phone: string, addr: string, uk: boolean): { name?: string; phone?: string; address?: string } {
+  const e: { name?: string; phone?: string; address?: string } = {};
+  const n = name.trim();
+  if (!n) e.name = uk ? 'Вкажіть імʼя та прізвище одержувача' : 'Enter the recipient\u2019s full name';
+  else if (n.length < 2 || !/^[\p{L}][\p{L}\s'’.\-]*$/u.test(n)) e.name = uk ? 'Лише літери, щонайменше 2' : 'Letters only, at least 2';
+  const digits = phone.replace(/\D/g, '');
+  const p = (phone.trim().startsWith('+') ? '+' : '') + digits;
+  if (!phone.trim()) e.phone = uk ? 'Вкажіть номер телефону' : 'Enter a phone number';
+  else if (!/^\+?\d{9,15}$/.test(p) || (p.startsWith('0') && p.length !== 10)) e.phone = uk ? 'Невірний номер, приклад: +380 50 123 45 67' : 'Invalid number, e.g. +380 50 123 45 67';
+  if (!addr.trim()) e.address = uk ? 'Вкажіть адресу або відділення Нової пошти' : 'Enter an address or a Nova Poshta branch';
+  else if (addr.trim().length < 8) e.address = uk ? 'Додайте місто, вулицю й номер (мінімум 8 символів)' : 'Add the city, street and number (8+ characters)';
+  return e;
+}
 
 const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
   'HOT':      { bg: 'rgba(94,94,94, 0.15)', color: '#888888' },
@@ -7284,7 +7306,7 @@ function ProductVisual({ product, size = 'card' }: { product: Product; size?: 'c
   );
 }
 
-function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Product; onClose: () => void; onAddToCart: (p: Product) => void }) {
+function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Product; onClose: () => void; onAddToCart: (p: Product, size: string, qty: number) => void }) {
   const { t, lang } = usePreferences();
   const layout = useLayout();
   const sheetSwipe = useSheetSwipeClose(onClose);
@@ -7302,11 +7324,42 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
   }, [onClose]);
 
   const uk = lang === 'uk';
+  // Sizes come live from the shop: a product with none is one-size, nothing to pick.
+  const shopItem = isShopProduct(product);
+  const [sizes, setSizes] = useState<{ size: string; available: number }[] | null>(shopItem ? null : []);
+  const [sizesErr, setSizesErr] = useState(false);
+  const [sizesTry, setSizesTry] = useState(0);
+  const [size, setSize] = useState('');
+  const [qty, setQty] = useState(1);
+  const [ships, setShips] = useState('');
+  useEffect(() => setShips(dispatchBy(lang)), [lang]);
+  useEffect(() => {
+    if (!shopItem) return;
+    let off = false;
+    setSizes(null); setSizesErr(false);
+    fetch(apiUrl(`/api/marketplace/catalog/${product.id}/sizes`))
+      .then(r => r.json())
+      .then(j => { if (!off) { if (j.ok) setSizes(j.data?.sizes || []); else setSizesErr(true); } })
+      .catch(() => { if (!off) setSizesErr(true); });
+    return () => { off = true; };
+  }, [product.id, shopItem, sizesTry]);
+  const needsSize = Boolean(sizes && sizes.length > 0);
+  const sizeLeft = size ? (sizes?.find(x => x.size === size)?.available ?? 0) : (product.stock ?? 10);
+  const maxQty = Math.max(1, Math.min(10, sizeLeft || 1, product.stock ?? 10));
+  const qtyNow = Math.min(qty, maxQty);
+  const orderTotal = product.price * qtyNow;
+  const FREE_FROM = 3000;
+  const loadingSizes = shopItem && sizes === null && !sizesErr;
+  const canAdd = !out && !loadingSizes && !sizesErr && (!needsSize || Boolean(size));
   const perks: { icon: ShopIconName; label: string }[] = [
-    { icon: 'truck', label: uk ? 'Нова пошта · безкоштовно від 3 000 TAX' : 'Nova Poshta · free from 3 000 TAX' },
+    { icon: 'truck', label: orderTotal >= FREE_FROM
+        ? (uk ? 'Нова пошта · безкоштовна доставка для цього замовлення' : 'Nova Poshta · free delivery on this order')
+        : (uk ? `Нова пошта · безкоштовно від 3 000 TAX, ще ${fmtInt(FREE_FROM - orderTotal)}` : `Nova Poshta · free from 3 000 TAX, ${fmtInt(FREE_FROM - orderTotal)} to go`) },
+    { icon: 'bag', label: uk ? `Відправка за 1–2 робочі дні${ships ? ` · до ${ships}` : ''}` : `Ships within 1–2 working days${ships ? ` · by ${ships}` : ''}` },
     { icon: 'swap', label: uk ? 'Обмін і повернення 14 днів' : '14 days to exchange or return' },
     { icon: 'shield', label: uk ? 'Лише оригінал, з гарантією' : 'Original only, guaranteed' },
   ];
+  const stepSt: React.CSSProperties = { width: 44, height: '100%', border: 'none', background: 'transparent', color: text.primary, fontSize: 20, cursor: 'pointer', fontFamily };
   const info = (
     <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       {(product.badge || (product.stock !== undefined && product.stock > 0 && product.stock <= 5)) && (
@@ -7323,22 +7376,75 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
         <span style={{ fontSize: 13, fontWeight: 500, color: text.dim, letterSpacing: 0.8 }}>TAX</span>
       </div>
       {product.stock !== undefined && (
-        <div style={{ fontSize: 12.5, color: out ? '#888888' : text.muted, marginBottom: 22 }}>
+        <div style={{ fontSize: 12.5, color: out ? '#888888' : text.muted, marginBottom: shopItem ? 16 : 22 }}>
           {out ? t('market_out_of_stock') : `${t('in_stock')}: ${product.stock}`}
         </div>
       )}
-      <button
-        onClick={() => { onAddToCart(product); onClose(); }}
-        disabled={out}
-        style={{
-          ...shopCaps(13, 0.18), fontWeight: 600, width: '100%', height: 54, borderRadius: 14, border: 'none',
-          background: out ? 'rgba(95,95,95, 0.25)' : SHOP_CREAM,
-          color: out ? text.muted : SHOP_INK, cursor: out ? 'default' : 'pointer', marginTop: desktop ? 'auto' : 0,
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-        }}
-      >
-        {out ? t('market_out_of_stock') : <><ShopIcon n="bag-plus" size={19} />{t('add_to_cart')}</>}
-      </button>
+      {!out && shopItem && (
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+            <span style={{ ...shopCaps(11, 0.16), color: text.muted }}>{uk ? 'Розмір' : 'Size'}</span>
+            {size && <span style={{ fontSize: 12, color: text.primary }}>{size}</span>}
+          </div>
+          {loadingSizes && <div style={{ fontSize: 13, color: text.muted }}>{uk ? 'Завантажуємо розміри…' : 'Loading sizes…'}</div>}
+          {sizesErr && (
+            <div style={{ fontSize: 13, color: text.muted }}>
+              {uk ? 'Не вдалося завантажити розміри. ' : 'Could not load sizes. '}
+              <button onClick={() => setSizesTry(n => n + 1)} style={{ background: 'none', border: 'none', color: gold, cursor: 'pointer', fontFamily, fontSize: 13, padding: 0 }}>{uk ? 'Спробувати ще' : 'Try again'}</button>
+            </div>
+          )}
+          {needsSize && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {sizes!.map(x => {
+                const gone = x.available <= 0;
+                const on = size === x.size;
+                return (
+                  <button key={x.size} disabled={gone} aria-pressed={on} onClick={() => { setSize(x.size); setQty(1); }}
+                    title={gone ? (uk ? 'Немає в наявності' : 'Out of stock') : `${x.available} ${uk ? 'шт.' : 'pcs'}`}
+                    style={{
+                      position: 'relative', minWidth: 48, height: 44, padding: '0 14px', borderRadius: 12, fontFamily, fontSize: 14, fontWeight: 500,
+                      border: `1px solid ${on ? SHOP_CREAM : 'rgba(255,255,255,0.18)'}`,
+                      background: on ? SHOP_CREAM : 'transparent', color: on ? SHOP_INK : gone ? 'rgba(255,255,255,0.28)' : text.primary,
+                      textDecoration: gone ? 'line-through' : 'none', cursor: gone ? 'not-allowed' : 'pointer',
+                    }}>
+                    {x.size}
+                    {!gone && !on && x.available <= 2 && <span aria-hidden style={{ position: 'absolute', top: 5, right: 5, width: 6, height: 6, borderRadius: '50%', background: '#e8a33d' }} />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {size && sizeLeft > 0 && sizeLeft <= 2 && (
+            <div style={{ marginTop: 10, fontSize: 12.5, color: '#e8a33d' }}>
+              {sizeLeft === 1 ? (uk ? `Остання одиниця в розмірі ${size}` : `Last piece in ${size}`) : (uk ? `Лишилось ${sizeLeft} шт. у розмірі ${size}` : `Only ${sizeLeft} left in ${size}`)}
+            </div>
+          )}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: 10, marginTop: desktop ? 'auto' : 0 }}>
+        {!out && (
+          <div role="group" aria-label={uk ? 'Кількість' : 'Quantity'} style={{ display: 'flex', alignItems: 'stretch', height: 54, flexShrink: 0, borderRadius: 14, border: '1px solid rgba(255,255,255,0.18)' }}>
+            <button aria-label="−" disabled={qtyNow <= 1} onClick={() => setQty(Math.max(1, qtyNow - 1))} style={{ ...stepSt, opacity: qtyNow <= 1 ? 0.35 : 1 }}>−</button>
+            <span style={{ minWidth: 28, display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 600, color: text.primary, ...T.num }}>{qtyNow}</span>
+            <button aria-label="+" disabled={qtyNow >= maxQty} onClick={() => setQty(Math.min(maxQty, qtyNow + 1))} style={{ ...stepSt, opacity: qtyNow >= maxQty ? 0.35 : 1 }}>+</button>
+          </div>
+        )}
+        <button
+          onClick={() => { onAddToCart(product, size, qtyNow); onClose(); }}
+          disabled={!canAdd}
+          style={{
+            ...shopCaps(13, 0.18), fontWeight: 600, flex: 1, minWidth: 0, height: 54, borderRadius: 14, border: 'none',
+            background: canAdd ? SHOP_CREAM : 'rgba(95,95,95, 0.25)',
+            color: canAdd ? SHOP_INK : text.muted, cursor: canAdd ? 'pointer' : 'default',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, whiteSpace: 'nowrap',
+          }}
+        >
+          {out ? t('market_out_of_stock')
+            : loadingSizes ? '…'
+            : needsSize && !size ? (uk ? 'Оберіть розмір' : 'Select a size')
+            : <><ShopIcon n="bag-plus" size={19} />{t('add_to_cart')}{qtyNow > 1 ? ` · ${qtyNow}` : ''}</>}
+        </button>
+      </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         {perks.map(k => (
           <div key={k.label} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13.5, color: text.secondary }}>
@@ -7409,19 +7515,25 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
 
 function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checkingOut, user }: {
   cart: CartItem[]; onClose: () => void;
-  onQtyChange: (id: number, delta: number) => void;
-  onRemove: (id: number) => void;
+  onQtyChange: (key: string, delta: number) => void;
+  onRemove: (key: string) => void;
   onCheckout: (shipping: { name: string; phone: string; address: string }) => void;
   checkingOut: boolean;
   user: { full_name: string; phone: string } | null;
 }) {
-  const { t } = usePreferences();
+  const { t, lang } = usePreferences();
   const sheetSwipe = useSheetSwipeClose(onClose);
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   const [step, setStep] = useState<'cart' | 'shipping'>('cart');
   const [shipName, setShipName] = useState(user?.full_name || '');
   const [shipPhone, setShipPhone] = useState(user?.phone || '');
   const [shipAddr, setShipAddr] = useState('');
+  const [tried, setTried] = useState(false);
+  const shipErr = validateShipping(shipName, shipPhone, shipAddr, lang === 'uk');
+  const submitShipping = () => {
+    if (Object.keys(shipErr).length > 0) { setTried(true); return; }
+    onCheckout({ name: shipName.trim(), phone: shipPhone.trim(), address: shipAddr.trim() });
+  };
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartRowsMaxHeight = cart.length > 3 ? 'min(42dvh, 360px)' : undefined;
 
@@ -7483,20 +7595,20 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
                 WebkitOverflowScrolling: 'touch',
               }}>
                 {cart.map((item, idx) => (
-                  <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(255,255,255,0.07)' }}>
+                  <div key={cartKey(item)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderTop: idx === 0 ? 'none' : '1px solid rgba(255,255,255,0.07)' }}>
                     <div style={{ width: 54, aspectRatio: '3 / 4', borderRadius: 10, overflow: 'hidden', flexShrink: 0, background: '#ecebe8' }}>
                       <ProductVisual product={item.product} size="cart" />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       {productBrand(item.product) && <div style={{ ...shopCaps(10.5, 0.14), fontWeight: 600, color: text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{productBrand(item.product)}</div>}
-                      <div style={{ fontSize: 13, color: text.muted, margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{productName(item.product)}</div>
+                      <div style={{ fontSize: 13, color: text.muted, margin: '3px 0 6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{productName(item.product)}{item.size ? <span style={{ color: text.primary }}> · {item.size}</span> : null}</div>
                       <div style={{ fontSize: 15, fontWeight: 600, color: gold, ...T.num }}>{fmtInt(item.product.price * item.qty)}{Number.isInteger(item.product.price * item.qty) ? '' : fmtDec(item.product.price * item.qty)}<span style={{ fontSize: 10.5, fontWeight: 500, color: text.dim, letterSpacing: 0.6, marginLeft: 4 }}>TAX</span></div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <button onClick={() => onQtyChange(item.product.id, -1)} aria-label="−" style={{ width: 32, height: 32, background: 'none', border: 'none', color: text.secondary, fontSize: 20, cursor: 'pointer', fontFamily: fontFamily }}>−</button>
+                      <button onClick={() => onQtyChange(cartKey(item), -1)} aria-label="−" style={{ width: 32, height: 32, background: 'none', border: 'none', color: text.secondary, fontSize: 20, cursor: 'pointer', fontFamily: fontFamily }}>−</button>
                       <span style={{ fontSize: 15, fontWeight: 600, color: text.primary, minWidth: 16, textAlign: 'center', ...T.num }}>{item.qty}</span>
-                      <button onClick={() => onQtyChange(item.product.id, 1)} aria-label="+" style={{ width: 32, height: 32, background: 'none', border: 'none', color: text.secondary, fontSize: 20, cursor: 'pointer', fontFamily: fontFamily }}>+</button>
-                      <button onClick={() => onRemove(item.product.id)} aria-label="Remove" style={{ width: 32, height: 32, background: 'none', border: 'none', color: text.dim, fontSize: 14, cursor: 'pointer', fontFamily: fontFamily }}>✕</button>
+                      <button onClick={() => onQtyChange(cartKey(item), 1)} aria-label="+" style={{ width: 32, height: 32, background: 'none', border: 'none', color: text.secondary, fontSize: 20, cursor: 'pointer', fontFamily: fontFamily }}>+</button>
+                      <button onClick={() => onRemove(cartKey(item))} aria-label="Remove" style={{ width: 32, height: 32, background: 'none', border: 'none', color: text.dim, fontSize: 14, cursor: 'pointer', fontFamily: fontFamily }}>✕</button>
                     </div>
                   </div>
                 ))}
@@ -7525,29 +7637,31 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto', paddingBottom: 'calc(18px + env(safe-area-inset-bottom, 0px))' }}>
             <div>
               <label style={labelStyle}>{t('recipient_label')}</label>
-              <input value={shipName} onChange={e => setShipName(e.target.value)} placeholder={t('shipping_name_placeholder')} style={fieldStyle} />
+              <input value={shipName} onChange={e => setShipName(e.target.value)} placeholder={t('shipping_name_placeholder')} style={{ ...fieldStyle, ...(tried && shipErr.name ? shipErrStyle : null) }} aria-invalid={tried && shipErr.name ? true : undefined} autoComplete="name" />
+              {tried && shipErr.name && <ShipError text={shipErr.name} />}
             </div>
             <div>
               <label style={labelStyle}>{t('delivery_phone')}</label>
-              <input value={shipPhone} onChange={e => setShipPhone(e.target.value)} placeholder="+380XXXXXXXXX" style={fieldStyle} />
+              <input value={shipPhone} onChange={e => setShipPhone(e.target.value)} placeholder="+380XXXXXXXXX" style={{ ...fieldStyle, ...(tried && shipErr.phone ? shipErrStyle : null) }} aria-invalid={tried && shipErr.phone ? true : undefined} inputMode="tel" autoComplete="tel" />
+              {tried && shipErr.phone && <ShipError text={shipErr.phone} />}
             </div>
             <div>
               <label style={labelStyle}>{t('delivery_address')}</label>
-              <input value={shipAddr} onChange={e => setShipAddr(e.target.value)} placeholder={t('shipping_address_placeholder')} style={fieldStyle} />
+              <input value={shipAddr} onChange={e => setShipAddr(e.target.value)} placeholder={t('shipping_address_placeholder')} style={{ ...fieldStyle, ...(tried && shipErr.address ? shipErrStyle : null) }} aria-invalid={tried && shipErr.address ? true : undefined} autoComplete="street-address" />
+              {tried && shipErr.address && <ShipError text={shipErr.address} />}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '4px 4px 0' }}>
               <span style={{ fontSize: 13, color: text.muted }}>{t('pay_total')}:</span>
               <span style={{ ...T.num, color: gold }}><span style={{ fontSize: 24, fontWeight: 600, letterSpacing: -0.3 }}>{fmtInt(total)}{fmtDec(total)}</span><span style={{ fontSize: 12, fontWeight: 500, color: text.dim, letterSpacing: 0.8, marginLeft: 6 }}>TAX</span></span>
             </div>
             <button
-              onClick={() => onCheckout({ name: shipName, phone: shipPhone, address: shipAddr })}
-              disabled={checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8}
+              onClick={submitShipping}
+              disabled={checkingOut}
               style={{
                 ...shopCaps(13, 0.16), fontWeight: 600, width: '100%', height: 54, borderRadius: 14, border: 'none',
-                background: (checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8)
-                  ? 'rgba(95,95,95, 0.3)' : gold,
-                color: (checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8) ? text.muted : '#161616',
-                cursor: (checkingOut || shipName.trim().length < 2 || shipAddr.trim().length < 8) ? 'default' : 'pointer',
+                background: checkingOut ? 'rgba(95,95,95, 0.3)' : gold,
+                color: checkingOut ? text.muted : '#161616',
+                cursor: checkingOut ? 'default' : 'pointer',
               }}>{checkingOut ? t('checkout_processing') : `✓ ${t('place_order')}`}</button>
           </div>
         )}
@@ -7609,21 +7723,22 @@ function MarketplaceScreen() {
     }
   }, []);
 
-  function addToCart(product: Product) {
+  function addToCart(product: Product, size = '', qty = 1) {
+    const key = `${product.id}|${size}`;
     setCart(prev => {
-      const existing = prev.find(i => i.product.id === product.id);
-      if (existing) return prev.map(i => i.product.id === product.id ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { product, qty: 1 }];
+      const existing = prev.find(i => cartKey(i) === key);
+      if (existing) return prev.map(i => cartKey(i) === key ? { ...i, qty: Math.min(50, i.qty + qty) } : i);
+      return [...prev, { product, qty, size: size || undefined }];
     });
-    toast(`✓ ${product.title} — ${t('added_to_cart')}`);
+    toast(`✓ ${product.title}${size ? ` · ${size}` : ''} — ${t('added_to_cart')}`);
   }
 
-  function changeQty(id: number, delta: number) {
-    setCart(prev => prev.map(i => i.product.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i));
+  function changeQty(key: string, delta: number) {
+    setCart(prev => prev.map(i => cartKey(i) === key ? { ...i, qty: Math.min(50, Math.max(1, i.qty + delta)) } : i));
   }
 
-  function removeFromCart(id: number) {
-    setCart(prev => prev.filter(i => i.product.id !== id));
+  function removeFromCart(key: string) {
+    setCart(prev => prev.filter(i => cartKey(i) !== key));
   }
 
   async function checkoutCart(shipping: { name: string; phone: string; address: string }) {
@@ -7640,7 +7755,7 @@ function MarketplaceScreen() {
           'Idempotency-Key': idempotencyKey,
         },
         body: JSON.stringify({
-          items: cart.map(i => ({ product_id: i.product.id, qty: i.qty })),
+          items: cart.map(i => ({ product_id: i.product.id, qty: i.qty, size: i.size || '' })),
           shipping_name: shipping.name.trim(),
           shipping_phone: shipping.phone.trim(),
           shipping_address: shipping.address.trim(),
@@ -7911,7 +8026,7 @@ function MarketplaceScreen() {
             <>
               <div style={{ display: 'grid', gridTemplateColumns: isMobileMarket ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fill, minmax(230px, 1fr))', gap: isMobileMarket ? '24px 14px' : '34px 20px', padding: isMobileMarket ? '22px 20px 6px' : '26px 32px 8px' }}>
                 {pagedProducts.map(p => (
-                  <ShopProductCard key={p.id} p={p} compact={isMobileMarket} onOpen={() => setPreview(p)} onAdd={() => addToCart(p)} />
+                  <ShopProductCard key={p.id} p={p} compact={isMobileMarket} onOpen={() => setPreview(p)} onAdd={() => (isShopProduct(p) ? setPreview(p) : addToCart(p))} />
                 ))}
               </div>
               {hasMore && (
@@ -8169,18 +8284,24 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
 // ─── Desktop cart panel ───────────────────────────────────────
 function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut, user }: {
   cart: CartItem[];
-  onQtyChange: (id: number, delta: number) => void;
-  onRemove: (id: number) => void;
+  onQtyChange: (key: string, delta: number) => void;
+  onRemove: (key: string) => void;
   onCheckout: (shipping: { name: string; phone: string; address: string }) => void;
   checkingOut: boolean;
   user: { full_name: string; phone: string } | null;
 }) {
-  const { t } = usePreferences();
+  const { t, lang } = usePreferences();
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   const [step, setStep] = useState<'cart' | 'shipping'>('cart');
   const [shipName, setShipName] = useState(user?.full_name || '');
   const [shipPhone, setShipPhone] = useState(user?.phone || '');
   const [shipAddr, setShipAddr] = useState('');
+  const [tried, setTried] = useState(false);
+  const shipErr = validateShipping(shipName, shipPhone, shipAddr, lang === 'uk');
+  const submitShipping = () => {
+    if (Object.keys(shipErr).length > 0) { setTried(true); return; }
+    onCheckout({ name: shipName.trim(), phone: shipPhone.trim(), address: shipAddr.trim() });
+  };
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   useEffect(() => { if (cart.length === 0) setStep('cart'); }, [cart.length]);
 
@@ -8230,19 +8351,19 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
         ) : step === 'cart' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {cart.map(item => (
-              <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, borderRadius: 14 }}>
+              <div key={cartKey(item)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, borderRadius: 14 }}>
                 <div style={{ width: 42, height: 42, borderRadius: 11, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(216,216,216, 0.06)' }}>
                   <ProductVisual product={item.product} size="cart" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 600, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.title}</div>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.title}{item.size ? ` · ${item.size}` : ''}</div>
                   <div style={{ fontSize: 12, color: gold, fontWeight: 700, marginTop: 2 }}>{fmtInt(item.product.price * item.qty)}{fmtDec(item.product.price * item.qty)}{'\u00a0TAX'}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                  <button onClick={() => onQtyChange(item.product.id, -1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                  <button onClick={() => onQtyChange(cartKey(item), -1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                   <span style={{ minWidth: 20, textAlign: 'center', fontSize: 13, fontWeight: 600, color: text.primary }}>{item.qty}</span>
-                  <button onClick={() => onQtyChange(item.product.id, 1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                  <button onClick={() => onRemove(item.product.id)} style={{ width: 26, height: 26, borderRadius: 7, background: 'transparent', border: 'none', color: 'rgba(126,126,126, 0.55)', cursor: 'pointer', fontFamily, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  <button onClick={() => onQtyChange(cartKey(item), 1)} style={{ width: 26, height: 26, borderRadius: 7, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.secondary, cursor: 'pointer', fontFamily, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                  <button onClick={() => onRemove(cartKey(item))} style={{ width: 26, height: 26, borderRadius: 7, background: 'transparent', border: 'none', color: 'rgba(126,126,126, 0.55)', cursor: 'pointer', fontFamily, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
               </div>
             ))}
@@ -8256,15 +8377,18 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
             <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{t('delivery_title')}</div>
             <div>
               <label style={lblSt}>{t('recipient_label')}</label>
-              <input value={shipName} onChange={e => setShipName(e.target.value)} placeholder={t('shipping_name_placeholder')} style={fieldSt} />
+              <input value={shipName} onChange={e => setShipName(e.target.value)} placeholder={t('shipping_name_placeholder')} style={{ ...fieldSt, ...(tried && shipErr.name ? shipErrStyle : null) }} aria-invalid={tried && shipErr.name ? true : undefined} autoComplete="name" />
+              {tried && shipErr.name && <ShipError text={shipErr.name} />}
             </div>
             <div>
               <label style={lblSt}>{t('delivery_phone')}</label>
-              <input value={shipPhone} onChange={e => setShipPhone(e.target.value)} placeholder="+380XXXXXXXXX" style={fieldSt} />
+              <input value={shipPhone} onChange={e => setShipPhone(e.target.value)} placeholder="+380XXXXXXXXX" style={{ ...fieldSt, ...(tried && shipErr.phone ? shipErrStyle : null) }} aria-invalid={tried && shipErr.phone ? true : undefined} inputMode="tel" autoComplete="tel" />
+              {tried && shipErr.phone && <ShipError text={shipErr.phone} />}
             </div>
             <div>
               <label style={lblSt}>{t('delivery_address')}</label>
-              <input value={shipAddr} onChange={e => setShipAddr(e.target.value)} placeholder={t('shipping_address_placeholder')} style={fieldSt} />
+              <input value={shipAddr} onChange={e => setShipAddr(e.target.value)} placeholder={t('shipping_address_placeholder')} style={{ ...fieldSt, ...(tried && shipErr.address ? shipErrStyle : null) }} aria-invalid={tried && shipErr.address ? true : undefined} autoComplete="street-address" />
+              {tried && shipErr.address && <ShipError text={shipErr.address} />}
             </div>
           </div>
         )}
@@ -8278,12 +8402,11 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
             <span style={{ ...T.num, fontSize: 20, fontWeight: 700, color: text.primary }}>{fmtInt(total)}{fmtDec(total)}{'\u00a0TAX'}</span>
           </div>
           <button
-            onClick={() => step === 'cart' ? setStep('shipping') : onCheckout({ name: shipName, phone: shipPhone, address: shipAddr })}
-            disabled={checkingOut || (step === 'shipping' && (shipName.trim().length < 2 || shipAddr.trim().length < 4))}
+            onClick={() => step === 'cart' ? setStep('shipping') : submitShipping()}
+            disabled={checkingOut}
             style={{
               width: '100%', padding: '13px 16px', borderRadius: 14,
-              background: (checkingOut || (step === 'shipping' && (shipName.trim().length < 2 || shipAddr.trim().length < 4)))
-                ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
+              background: checkingOut ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
               border: 'none', color: '#161616', fontSize: 13.5, fontWeight: 700,
               cursor: checkingOut ? 'wait' : 'pointer', fontFamily, letterSpacing: 0.2,
             }}

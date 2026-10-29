@@ -89,7 +89,7 @@ def push_order(conn: Any, order_id: int) -> bool:
         return False
     rows = conn.execute(
         """
-        SELECT i.qty, i.price, i.title, p.slug FROM marketplace_order_items i
+        SELECT i.qty, i.price, i.title, i.size, p.slug FROM marketplace_order_items i
         LEFT JOIN marketplace_products p ON p.id = i.product_id WHERE i.order_id = %s
         """,
         (order_id,),
@@ -98,7 +98,7 @@ def push_order(conn: Any, order_id: int) -> bool:
     for r in rows:
         pid = _shop_product_id(r.get('slug'))
         if pid:
-            items.append({'product_id': pid, 'qty': int(r['qty']), 'price': float(r['price'])})
+            items.append({'product_id': pid, 'qty': int(r['qty']), 'price': float(r['price']), 'variation': str(r.get('size') or '')})
     if not items:
         return False  # у замовленні немає товарів магазину
     ok, data = post('/api/integrations/taxtech/orders', {
@@ -145,6 +145,55 @@ def check_stock(items: list[dict[str, int]]) -> dict[int, int] | None:
     for it in data.get('items') or []:
         try:
             out[int(it['product_id'])] = int(it['available'])
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
+_SIZES_TTL = 60.0
+_sizes_cache: dict[int, tuple[float, list[dict[str, Any]]]] = {}
+
+
+def shop_sizes(shop_ids: list[int]) -> dict[int, list[dict[str, Any]]] | None:
+    """Розміри товарів магазину й залишок по кожному: {shop_id: [{size, available}]}.
+
+    Порожній список - товар без розмірів, обирати нічого. None - магазин не відповів.
+    Відповідь тримаємо хвилину: картку відкривають частіше, ніж змінюється полиця.
+    """
+    import time
+    now = time.monotonic()
+    out: dict[int, list[dict[str, Any]]] = {}
+    missing: list[int] = []
+    for sid in shop_ids:
+        hit = _sizes_cache.get(sid)
+        if hit and now - hit[0] < _SIZES_TTL:
+            out[sid] = hit[1]
+        else:
+            missing.append(sid)
+    if missing:
+        ok, data = post('/api/integrations/taxtech/sizes', {'items': [{'product_id': i} for i in missing]}, timeout=5)
+        if not ok or not data.get('ok'):
+            return None if not out else out
+        for it in data.get('items') or []:
+            try:
+                sid = int(it['product_id'])
+                sizes = [{'size': str(x['size']), 'available': int(x['available'])} for x in it.get('sizes') or []]
+            except (KeyError, TypeError, ValueError):
+                continue
+            _sizes_cache[sid] = (now, sizes)
+            out[sid] = sizes
+    return out
+
+
+def check_size_stock(lines: list[dict[str, Any]]) -> dict[tuple[int, str], int] | None:
+    """Живий залишок по розмірах: {(shop_id, size): доступно}. None - магазин не відповів."""
+    ok, data = post('/api/integrations/taxtech/stock', {'items': lines}, timeout=5)
+    if not ok or not data.get('ok'):
+        return None
+    out: dict[tuple[int, str], int] = {}
+    for it in data.get('items') or []:
+        try:
+            out[(int(it['product_id']), str(it.get('variation') or ''))] = int(it['available'])
         except (KeyError, TypeError, ValueError):
             continue
     return out
