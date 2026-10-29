@@ -1,15 +1,14 @@
 import markSvg from './assets/mark.svg?raw';
 import BankLanding from './BankLanding';
+import { Laurel, Meander, ROMAN_FONT, ROMAN_GOLD, ROMAN_YEAR } from './roman';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
 const florenceCardImage = '';
-const tuscanyHillsCardImage = '';
 const veniceCardImage = '';
 const tuscanyVillaCardImage = '';
 const veniceCityImage = '';
 const florenceDuomoImage = '';
-const valdorciaHillsImage = '';
 const valdorciaChapelImage = '';
 const sicilyEmblemImage = '';
 
@@ -137,8 +136,18 @@ function BrandMark({
 
 // ─── Shared section-label style ───────────────────────────────
 const sectionLabel: React.CSSProperties = {
-  ...T.caption, color: text.dim, padding: '0 6px 10px',
+  ...T.caption, fontFamily: ROMAN_FONT, fontWeight: 400, letterSpacing: '0.16em', textTransform: 'uppercase', color: text.dim, padding: '0 6px 10px',
 };
+
+// Brand mark inside a laurel wreath: the Roman seal used on sign-in screens.
+function RomanSeal({ size }: { size: number }) {
+  return (
+    <div style={{ position: 'relative', width: size * 1.7, height: size * 1.7, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+      <Laurel size={size * 1.7} style={{ position: 'absolute', inset: 0 }} />
+      <BrandMark size={size} radiusValue={size / 3.4} />
+    </div>
+  );
+}
 
 // Кнопка-таблетка для виписки й експорту: іконка + підпис
 const docPill: React.CSSProperties = {
@@ -1712,16 +1721,6 @@ function markAppContinuation() {
   } catch {
     // ignore storage errors
   }
-}
-
-function shouldShowInitialSplash(): boolean {
-  try {
-    const lastActive = Number(localStorage.getItem(APP_CONTINUATION_STORAGE_KEY) || 0);
-    if (Number.isFinite(lastActive) && Date.now() - lastActive < 15 * 60_000) return false;
-  } catch {
-    // ignore storage errors
-  }
-  return true;
 }
 
 function readStoredTab(): TabKey {
@@ -8545,11 +8544,12 @@ function DesktopSidebar({ active, onChange, collapsed, onToggle }: { active: Tab
         <BrandMark size={40} radiusValue={12} />
         {!collapsed && (
           <div style={{ minWidth: 0 }}>
-            <div style={{ ...T.h3, fontSize: 19, color: text.primary, lineHeight: 1.1 }}>Tax<span style={{ fontWeight: 300, opacity: 0.8 }}>Tech</span></div>
-            <div style={{ fontSize: 12, color: text.dim, marginTop: 2 }}>{t('personal_cabinet')}</div>
+            <div style={{ fontFamily: ROMAN_FONT, fontSize: 19, letterSpacing: '0.22em', color: text.primary, lineHeight: 1.1 }}>TAXTECH</div>
+            <div style={{ fontSize: 12, color: text.dim, marginTop: 3 }}>{t('personal_cabinet')}</div>
           </div>
         )}
       </div>
+      <Meander opacity={0.32} style={{ margin: '-6px 6px 18px', height: 14, flexShrink: 0 }} />
 
       <nav aria-label={t('dk_menu')} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {tabs.map(tb => {
@@ -9182,8 +9182,6 @@ const appBase: React.CSSProperties = {
 };
 
 const AUTH_STATIC_BG = florenceDuomoImage;
-const SPLASH_BASE_BG = tuscanyHillsCardImage;
-const SPLASH_STATIC_BG = valdorciaHillsImage;
 
 function LuxuryAmbientFx() {
   return null;
@@ -9259,68 +9257,19 @@ function PremiumStatusStrip() {
   );
 }
 
-function WowSplash() {
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))', zIndex: 9999, overflow: 'hidden', background: '#000' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(64,64,64, 0.64)' }} />
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `url(${SPLASH_BASE_BG})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center bottom',
-        opacity: 0.46,
-        filter: 'saturate(1.02) contrast(1.01)',
-      }} />
-      <div style={{
-        position: 'absolute',
-        inset: '-4%',
-        backgroundImage: `url(${SPLASH_STATIC_BG})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center bottom',
-        opacity: 0.52,
-        filter: 'blur(22px) saturate(1.04)',
-      }} />
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `url(${SPLASH_STATIC_BG})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center bottom',
-        opacity: 0.82,
-        filter: 'saturate(1.06) contrast(1.02)',
-      }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(13,13,13, 0.3)' }} />
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'transparent',
-        opacity: 0.28,
-      }} />
-      <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', padding: 24 }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -0.8, color: text.primary }}>
-            Tax<span style={{ fontWeight: 300, color: 'rgba(215,215,215, 0.82)' }}>Tech</span>
-          </div>
-          <div style={{ ...T.caption, color: 'rgba(215,215,215, 0.72)', marginTop: 8, letterSpacing: 2.2 }}>
-            Віртуальна лабораторія цифрових фінансів
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Login screen ─────────────────────────────────────────────
 
 function LoginBrandPanel() {
   const { t } = usePreferences();
   const points = [t('dk_login_p1'), t('dk_login_p2'), t('dk_login_p3')];
   return (
-    <aside className="kp-fade" style={{ position: 'relative', flex: '1 1 52%', minWidth: 0, overflow: 'hidden', padding: '56px 64px', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--kp-line)', background: 'radial-gradient(900px 520px at 20% 0%, rgba(255,255,255,0.07), transparent 60%), rgba(10,10,11,0.6)' }}>
+    <aside className="kp-fade" style={{ position: 'relative', flex: '1 1 52%', minWidth: 0, overflow: 'hidden', padding: '56px 64px', display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--kp-line)', background: 'linear-gradient(180deg, rgba(5,5,7,0.78) 0%, rgba(5,5,7,0.55) 45%, rgba(5,5,7,0.92) 100%), url(/cards/roma-pantheon.webp) center / cover, #0a0a0b' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <BrandMark size={44} radiusValue={13} />
-        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.5, color: text.primary }}>Tax<span style={{ fontWeight: 300, opacity: 0.8 }}>Tech</span></div>
+        <RomanSeal size={40} />
+        <div>
+          <div style={{ fontFamily: ROMAN_FONT, fontSize: 26, letterSpacing: '0.24em', color: text.primary }}>TAXTECH</div>
+          <div style={{ fontFamily: ROMAN_FONT, fontSize: 12, letterSpacing: '0.34em', color: ROMAN_GOLD, marginTop: 4 }}>ARGENTARIA VIRTVALIS · {ROMAN_YEAR}</div>
+        </div>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 560, paddingBottom: 'clamp(140px, 17vw, 240px)', position: 'relative', zIndex: 1 }}>
         <div style={{ fontSize: 'clamp(34px, 3.4vw, 52px)', fontWeight: 600, letterSpacing: '-0.035em', lineHeight: 1.06, color: text.primary, marginBottom: 36 }}>{t('dk_login_title')}</div>
@@ -9332,6 +9281,7 @@ function LoginBrandPanel() {
           ))}
         </ul>
       </div>
+      <Meander opacity={0.45} style={{ position: 'absolute', left: 64, right: 64, bottom: 40, zIndex: 1 }} />
       <div aria-hidden className="kp-rise" style={{ position: 'absolute', right: -60, bottom: -40, width: 'clamp(260px, 30vw, 460px)', transform: 'rotate(-10deg)', opacity: 0.92, ['--i' as string]: 3 }}>
         <PremiumCard variant="obsidian" number="6897" name="TAXTECH" expiry="09/29" type="" balance={167504.68} isPrimary style={{ width: '100%' }} />
       </div>
@@ -9447,7 +9397,7 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
       <div className="ap-auth" style={{ width: '100%', maxWidth: 400 }}>
 
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}><BrandMark size={56} radiusValue={15} /></div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><RomanSeal size={52} /></div>
           <h1 className="ap-auth-title">{mode === 'login' ? 'Увійдіть у TaxTech' : 'Відкрийте рахунок'}</h1>
           <p className="ap-auth-sub">{mode === 'login' ? 'Телефон або email і пароль.' : 'Хвилина — і рахунок у TAX готовий.'}</p>
         </div>
@@ -9602,6 +9552,7 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
         </div>
       </div>
       </div>
+      {wide && <LoginBrandPanel />}
       </div>
     </div>
   );
@@ -9617,7 +9568,6 @@ export default function App() {
     } catch { return 'promo'; }
   });
   const [authed, setAuthed] = useState(() => !!getToken());
-  const [showSplash, setShowSplash] = useState(() => shouldShowInitialSplash());
   const [tab, setTabState] = useState<TabKey>(() => readStoredTab());
   const [profilePhoto, setProfilePhotoState] = useState<string>(() => getProfilePhoto());
   const [lang, setLangState] = useState<AppLang>(() => getStoredLanguage());
@@ -9724,12 +9674,6 @@ export default function App() {
     }
     resetTabSwipe();
   }
-
-  useEffect(() => {
-    const id = setTimeout(() => setShowSplash(false), 3600);
-    if (showSplash) markAppContinuation();
-    return () => clearTimeout(id);
-  }, [showSplash]);
 
   const fetchDashboard = React.useCallback(async () => {
     try {
@@ -9892,10 +9836,6 @@ export default function App() {
     setLang,
     t,
   };
-
-  if (showSplash) {
-    return <WowSplash />;
-  }
 
   if (!authed && authView === 'promo') {
     return <BankLanding onAuth={(m) => setAuthView(m)} />;

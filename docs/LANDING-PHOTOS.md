@@ -1,50 +1,32 @@
 # Фото для лендингу
 
-Лендинг (`web/src/BankLanding.tsx`) темний, у дусі Apple: великий текст по центру, багато повітря. Карти
-намальовано в CSS, тож фото потрібні лише для чотирьох повноекранних вставок. Кожна вставка вже чекає на файл:
-покладіть його в `web/public/landing/` під потрібним ім’ям, зберіть і викладіть фронтенд. Доки файлу немає,
-вставка лишається чистим темним полем.
+Лендинг (`web/src/BankLanding.tsx`) побудований на справжніх фотографіях: Рим, Колізей, Пантеон, Форум, плюс кадр
+оплати карткою і зйомка Saint Agnes з магазину. Векторних малюнків немає. Картки показано в CSS, поверх кадрів
+лежать темні градієнти, тож текст читається.
 
-Загальний стиль серії: темні, художні, кінематографічні кадри Рима та Італії. Глибокі тіні, мало світла,
-теплі бурштинові й медові відблиски (`#c7a46f`), холодний синій «knight» (`#1c2740`) у тінях, легке плівкове
-зерно, жодного тексту, логотипів і впізнаваних облич. Над кожним кадром лежить темний градієнт, а низ
-перекриває текст, тож нижня третина кадру має бути спокійною й темною.
+Фото лежать у `web/public/landing/` (WebP, 2400 px по довгій стороні) і підключені як `background-image`.
 
-| Файл | Розмір | Де стоїть | Композиція |
-|---|---|---|---|
-| `hero.webp` | 2400×1600 | перший екран, за заголовком і карткою | центр кадру темний і рівний (там текст і картка), світло по краях |
-| `rome.webp` | 2400×1350 | «Платіть одним поглядом» | текст унизу по центру; головний об’єкт у верхніх двох третинах |
-| `night.webp` | 2400×1600 | «Безпека» | текст і три плитки по центру; кадр майже чорний, світло лише по краях |
-| `coast.webp` | 2400×1600 | фінальний заклик «Ваша картка чекає» | текст по центру; широкий спокійний горизонт |
+| Файл | Де стоїть | Джерело і ліцензія |
+|---|---|---|
+| `rome-colosseum-night.webp` | перший екран | [John Samuel](https://commons.wikimedia.org/wiki/File:Colosseum_at_night_01.jpg), CC BY-SA 4.0 |
+| `pay-tap.webp` | сцена «Дотик. Оплачено.» | [SumUp / Unsplash](https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek), ліцензія Unsplash |
+| `rome-forum-sunset.webp` | депозит | [Sonse](https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg), CC BY 2.0 |
+| `rome-pantheon-night.webp` | безпека | [DeveshT](https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg), CC0 |
+| `rome-colosseum-day.webp` | фінальний заклик | [Diliff](https://commons.wikimedia.org/wiki/File:Colosseum_in_Rome,_Italy_-_April_2007.jpg), CC BY-SA 2.5 |
 
-## Промпти
+Сцена Saint Agnes бере `/shop/hero-autumn.webp` з магазину, а товари підтягує з `/api/marketplace/catalog`.
 
-**hero.webp**
-> Dark cinematic fine-art photograph of the Colosseum at blue hour, seen through a stone archway, deep shadows,
-> only the upper arches catching warm amber light, the centre of the frame calm and nearly black, cold navy sky,
-> subtle film grain, Roman travertine texture, no people, no text, 3:2
+Подяки авторам виведено в підвалі лендингу (`.bl-credits`). Якщо міняєте кадр, оновіть і підпис, і цю таблицю.
 
-**rome.webp**
-> Dark fine-art photograph of a narrow Roman street at night after rain, cobblestones reflecting a single warm
-> street lamp, an ivy-covered ochre facade fading into shadow, a lone figure seen from behind far away,
-> chiaroscuro, honey and deep blue tones, film grain, lower third dark and empty, no text, 16:9
+## Як замінити кадр
 
-**night.webp**
-> Dark moody photograph of a classical marble statue in a Roman museum at night, lit by a single narrow beam of
-> warm light from the side, the rest of the frame falling into black, velvet shadows, museum stillness,
-> fine-art, film grain, no text, 3:2
-
-**coast.webp**
-> Dark cinematic photograph of the Amalfi coast at dusk from a high terrace, the last honey-coloured light on the
-> cliffs, the sea turning deep navy, tiny warm lights of a village, a quiet empty horizon across the middle of the
-> frame, film grain, no people, no text, 3:2
-
-## Як додати
+Беріть оригінал з Wikimedia Commons (API з `iiurlwidth=2400`) або з Unsplash. Перевіряйте ліцензію: для CC BY і
+CC BY-SA потрібна атрибуція в підвалі. Потім:
 
 ```bash
-cp ~/Downloads/hero.webp web/public/landing/hero.webp   # і так для rome, night, coast
+cwebp -q 82 -resize 2400 0 original.jpg -o web/public/landing/<name>.webp
 cd web && npm run build
 ```
 
-Далі викладається лише `server/frontend/` (див. `server/README.md`, розділ про розгортання). WebP з якістю
-80–85, перший екран до ~400 КБ.
+Далі викладається лише `server/frontend/` (див. `server/README.md`, розділ про розгортання). Перший екран тримайте
+до ~400 КБ.
