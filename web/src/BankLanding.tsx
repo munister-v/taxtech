@@ -3,9 +3,9 @@ import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
 import TapScene from './TapScene';
-import CineGL, { GL_OK } from './CineGL';
+import RomeMap from './RomeMap';
 import FaceFlow from './FaceFlow';
-import { DAWN_SPOTS, SUN_SPOTS } from './fireData';
+import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
@@ -230,7 +230,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   return (
     <LandingLangContext.Provider value={lang}>
       <div className="bl" ref={rootRef}>
-        <div className="bl-progress" aria-hidden />
         <header className={`bl-nav${scrolled ? ' s' : ''}`}>
           <div className="bl-wrap bl-nav-in">
             <a href="#top" className="bl-logo" aria-label="TaxTech"><img src="/icons/mark-white.svg" alt="TaxTech" /></a>
@@ -256,41 +255,26 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         )}
 
-        {/* ── Hero and the evening in Rome share one WebGL background where photographs burn into each other ── */}
-        <div className={`bl-cine${GL_OK ? ' bl-cine-gl' : ''}`}>
-          {GL_OK && (
-            <div className="bl-cine-bg" aria-hidden>
-              <div className="bl-cine-poster" />
-              <CineGL />
+        {/* ── Hero and the evening in Rome share one night map of Rome: streets from OpenStreetMap, a payment travels along them ── */}
+        <div className="bl-cine">
+          <div className="bl-cine-bg" aria-hidden><RomeMap /></div>
+          <section id="top" className="bl-hero">
+            <div className="bl-wrap bl-hero-in">
+              <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
             </div>
-          )}
-        {/* ── Hero: a real photograph of Rome at dusk ── */}
-        <section id="top" className="bl-hero">
-          {!GL_OK && <FireScene className="bl-hero-photo" src="/landing/colosseum-dawn.webp" ratio={1.4991} focusX={0.22} focusY={0.3} spots={DAWN_SPOTS} embers={120} dawn />}
-          <div className="bl-wrap bl-hero-in">
-            <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
-            <div className="bl-cta">
-              <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-              <button type="button" className="bl-ghost" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
+            <div className="bl-hero-pay" aria-hidden>
+              <div className="bl-toast bl-toast-loop">
+                <Medallion tint="#4fd18b">{IC.check}</Medallion>
+                <div><b>Roma · Colosseo</b><span>{t('Оплачено', 'Paid')}</span></div>
+                <strong>−850 <small>TAX</small></strong>
+              </div>
+              <div className="bl-hero-card"><Card finish="guilloche" /></div>
             </div>
-          </div>
-          <div className="bl-cue" aria-hidden><i /></div>
-          <div className="bl-hero-pay" aria-hidden>
-            <div className="bl-toast bl-toast-loop">
-              <Medallion tint="#4fd18b">{IC.check}</Medallion>
-              <div><b>Roma · Colosseo</b><span>{t('Оплачено', 'Paid')}</span></div>
-              <strong>−850 <small>TAX</small></strong>
-            </div>
-            <div className="bl-hero-card"><Card finish="guilloche" /></div>
-          </div>
-        </section>
+          </section>
 
         {/* ── One evening in Rome: the scroll runs the clock, the photographs change, the card pays ── */}
         <section id="pay" className="bl-rome">
           <div className="bl-rome-stage">
-            {!GL_OK && DAY.map((d, i) => (
-              <div key={d.img} className="bl-rome-layer" style={{ backgroundImage: `url(${d.img})`, ['--pos' as string]: d.pos, ['--o' as string]: i === 0 ? 1 : 0 }} aria-hidden />
-            ))}
             <div className="bl-rome-shade" aria-hidden />
             <div className="bl-wrap bl-rome-in">
               <div className="bl-rome-left">
@@ -316,9 +300,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                 </div>
                 <div className="bl-rome-card"><Card finish="guilloche" /></div>
               </div>
-            </div>
-            <div className="bl-rome-dots" aria-hidden>
-              {DAY.map((d, i) => <i key={d.img} data-i={i} className="bl-rome-item" style={{ ['--a' as string]: i === 0 ? 1 : 0 }} />)}
             </div>
           </div>
         </section>
@@ -408,7 +389,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <footer className="bl-foot">
           <div className="bl-wrap">
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
-            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a></p>
+            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
             <div className="bl-foot-row">
               <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
               <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}<a href={DOCS_URL} target="_blank" rel="noreferrer">{t('Дослідження', 'Research')}</a><a href="https://github.com/munister-v/taxtech" target="_blank" rel="noreferrer">GitHub</a></nav>

@@ -5,7 +5,7 @@
 
 | Файл | Де стоїть | Джерело і ліцензія |
 |---|---|---|
-| `colosseum-dawn.webp` | перший екран | [Radek Kucharski](https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg), CC BY 2.0 |
+| `colosseum-dawn.webp` | (раніше перший екран; зараз не використовується) | [Radek Kucharski](https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg), CC BY 2.0 |
 | `rome-forum-sunset.webp` | сцена «Один вечір у Римі», 19:10 | [Sonse](https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg), CC BY 2.0 |
 | `rome-pantheon-night.webp` | сцена «Один вечір у Римі», 21:30 | [DeveshT](https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg), CC0 |
 | `rome-trevi-night.webp` | сцена «Один вечір у Римі», 23:40 | [miketnorton](https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg), CC BY 2.0 |
@@ -21,17 +21,18 @@
 (`DAY` у `BankLanding.tsx`), 3D-картка повертається, а під кожним кадром спливає платіж. Усе рахується в `frame()`
 і лягає в CSS-змінні `--o`, `--z`, `--a`, `--ry`.
 
-## Живий фон першого екрана і вечора (`web/src/CineGL.tsx`)
+## Нічна карта Риму (`web/src/RomeMap.tsx`, дані `web/src/romeMapData.ts`)
 
-Перший екран і сцена «Один вечір у Римі» ділять один WebGL2-фон (`.bl-cine-bg`, липкий на всю висоту обох секцій):
-- чотири фото лежать в одному масиві текстур (світанок, форум, пантеон, Треві); скрол вибирає кадр, а перехід між кадрами
-  — шум fbm із «випалюванням» країв і жаром;
-- марево над теплими пікселями, мерехтіння арок, «смолоскип» за курсором (на дотик — блукає сам);
-- на вході фото «розгорається» з темряви; іскри й золотий пил — на 2D-канвасі зверху.
+Перший екран і сцена «Один вечір у Римі» ділять один фон: SVG-карта центру Риму з вулицями OpenStreetMap
+(© OpenStreetMap contributors, ODbL; подяка в підвалі). Дані підвантажуються окремим чанком.
+- шари: Тибр, малі/середні/головні вулиці, золоті маршрути між пам’ятками; по маршрутах біжать імпульси;
+- на першому екрані камера оглядає місто, далі скрол наближає її до Форуму і веде за «платежем»
+  Форум → Пантеон → Треві (камера, слід і точка рахуються в `update()`);
+- маршрути — найкоротші шляхи по графу вулиць між пам’ятками, шматки `l1`, `l2` ведуть камеру.
 
-Фото і точки фокусу (`SRC`) задані на початку файлу. Якщо WebGL2 немає (`GL_OK === false`), `BankLanding` малює
-старий варіант: `FireScene` у першому екрані і шари `.bl-rome-layer` у вечорі. Контекст не гасимо в `cleanup`
-(`loseContext` ламає повторний монтаж у StrictMode).
+Оновити дані: Overpass (`highway=*` і `waterway=river` у bbox 41.878,12.440 – 41.917,12.512, `out body geom`),
+спроєктувати (x = lon·cos(41.9°), y = −lat), спростити Дугласом–Пекером (~0.9 од.), знайти маршрути Дейкстрою по найбільшій
+зв’язній компоненті й записати `ROME` у `romeMapData.ts`.
 
 ## «Дотик. Оплачено.» (`web/src/TapScene.tsx`)
 
