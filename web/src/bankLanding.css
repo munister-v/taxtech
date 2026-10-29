@@ -49,10 +49,15 @@
 .bl .bl-lang button.on { color: var(--fg); }
 
 /* Nav */
-.bl-nav { position: sticky; top: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px); background: rgba(0,0,0,.66); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); transition: box-shadow .3s; }
-.bl-nav.s { box-shadow: 0 1px 0 rgba(255,255,255,.08); }
+.bl-nav { position: sticky; top: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px); margin-bottom: calc(-56px - env(safe-area-inset-top, 0px)); background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,0)); transition: background .35s, box-shadow .3s; }
+.bl-nav.s { background: rgba(0,0,0,.72); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 1px 0 rgba(255,255,255,.08); }
 .bl-nav-in { display: flex; align-items: center; height: 56px; gap: 24px; }
-.bl-logo { font-family: var(--roman); font-weight: 400; font-size: 16px; letter-spacing: .34em; white-space: nowrap; }
+.bl-logo { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; font-family: var(--roman); font-weight: 400; font-size: 18px; letter-spacing: .3em; color: #fff; white-space: nowrap; }
+.bl-logo-seal { position: relative; width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center; margin-left: -4px; }
+.bl-logo-seal svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px rgba(199,164,111,.35)); }
+.bl-logo-seal img { position: relative; height: 44%; width: auto; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
+.bl-logo:hover .bl-logo-seal img { transform: translateY(-1px) scale(1.12); }
+.bl-logo-word { padding-top: 2px; }
 .bl-links { display: flex; gap: 30px; margin: 0 auto; }
 .bl-links a { font-size: 13px; color: #d2d2d7; opacity: .85; transition: opacity .2s; }
 .bl-links a:hover { opacity: 1; }
@@ -72,11 +77,11 @@
 /* iPhone frame around a real screenshot */
 
 /* Hero: a real photograph of Rome at dusk */
-.bl-hero { position: relative; overflow: hidden; min-height: max(640px, calc(100svh - 56px)); display: flex; flex-direction: column; background: #05070f; }
+.bl-hero { position: relative; overflow: hidden; min-height: max(660px, 100svh); display: flex; flex-direction: column; background: #05070f; }
 .bl-hero-photo { position: absolute; inset: 0; background-size: cover; background-position: center 42%; animation: bl-kenburns 28s ease-in-out infinite alternate; }
 .bl-hero-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(3,5,14,.78) 0%, rgba(3,5,14,.38) 36%, rgba(3,5,14,0) 62%, rgba(0,0,0,.72) 100%); }
 @keyframes bl-kenburns { from { transform: scale(1.02); } to { transform: scale(1.12) translate(-1.5%, -1%); } }
-.bl-hero-in { position: relative; z-index: 2; text-align: center; padding-top: clamp(40px, 9vh, 110px); }
+.bl-hero-in { position: relative; z-index: 2; text-align: center; padding-top: clamp(96px, 17vh, 170px); }
 .bl .bl-hero h1 { font-size: clamp(52px, 9vw, 128px); line-height: 1; letter-spacing: -0.045em; text-shadow: 0 6px 60px rgba(0,0,0,.6); }
 .bl-hero .bl-eyebrow, .bl-hero h1, .bl-hero .bl-cta { animation: bl-up 1.1s cubic-bezier(.2,.7,.2,1) both; }
 .bl-hero .bl-eyebrow { justify-content: center; }
@@ -222,7 +227,7 @@
 /* Numbers strip, app medallions, mobile scene tweaks */
 @media (max-width: 960px) { .bl-stats { grid-template-columns: 1fr 1fr; row-gap: 40px; } }
 @media (max-width: 734px) {
-  .bl-hero { min-height: max(620px, calc(100svh - 56px)); }
+  .bl-hero { min-height: max(640px, 100svh); }
   .bl .bl-hero h1 { font-size: clamp(48px, 15vw, 72px); }
   .bl-hero-photo { background-position: 38% 70%; }
   .bl-hero-pay { right: 16px; left: 16px; width: auto; align-items: center; bottom: 28px; }
@@ -319,3 +324,9 @@
   .bl-photo, .bl-paystage-photo, .bl-hero-photo { translate: none; scale: 1; }
   .bl-hero-in, .bl-hero-pay { opacity: 1; translate: none; }
 }
+
+@media (max-width: 560px) {
+  .bl-logo { gap: 8px; font-size: 15px; letter-spacing: .24em; }
+  .bl-logo-seal { width: 42px; height: 42px; margin-left: -4px; }
+}
+@media (max-width: 299px) { .bl-logo-word { display: none; } }

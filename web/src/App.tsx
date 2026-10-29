@@ -1,6 +1,6 @@
 import markSvg from './assets/mark.svg?raw';
 import BankLanding from './BankLanding';
-import { Laurel, Meander, ROMAN_FONT, ROMAN_GOLD, ROMAN_YEAR } from './roman';
+import { Laurel, Meander, ROMAN_FONT, ROMAN_GOLD } from './roman';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
@@ -9268,7 +9268,6 @@ function LoginBrandPanel() {
         <RomanSeal size={40} />
         <div>
           <div style={{ fontFamily: ROMAN_FONT, fontSize: 26, letterSpacing: '0.24em', color: text.primary }}>TAXTECH</div>
-          <div style={{ fontFamily: ROMAN_FONT, fontSize: 12, letterSpacing: '0.34em', color: ROMAN_GOLD, marginTop: 4 }}>ARGENTARIA VIRTVALIS · {ROMAN_YEAR}</div>
         </div>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 560, paddingBottom: 'clamp(140px, 17vw, 240px)', position: 'relative', zIndex: 1 }}>
