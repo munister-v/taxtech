@@ -84,23 +84,25 @@ const glassCard = (extra?: React.CSSProperties): React.CSSProperties => {
     // Десктоп: та сама плоска поверхня, що й `.kp-card`; фон і тінь із виклику ігноруються
     const { background: _bg, boxShadow: _sh, backdropFilter: _bf, WebkitBackdropFilter: _wbf, ...rest } = extra || {};
     return {
-      background: '#1c1c1e',
-      border: '1px solid transparent',
+      ...ENGRAVED_FRAME,
       borderRadius: radius.xl,
-      boxShadow: 'none',
       ...rest,
     };
   }
   return glassCardMobile(extra);
 };
+// Гравюрна рамка: золотий градієнтний край, ледь помітний блик і внутрішня тонка лінія, як у Surface на iOS
+const ENGRAVED_FRAME: React.CSSProperties = {
+  border: '1px solid transparent',
+  background: 'linear-gradient(155deg, rgba(255,212,0,0.08), rgba(255,212,0,0) 42%) padding-box, linear-gradient(#1c1c1e, #1c1c1e) padding-box, linear-gradient(135deg, rgba(255,212,0,0.55), rgba(255,255,255,0.08) 48%, rgba(255,212,0,0.30)) border-box',
+  boxShadow: 'inset 0 0 0 4px #1c1c1e, inset 0 0 0 4.5px rgba(255,212,0,0.10)',
+};
 const glassCardMobile = (extra?: React.CSSProperties): React.CSSProperties => ({
   ...extra,
-  background: '#1c1c1e',
+  ...ENGRAVED_FRAME,
   backdropFilter: 'none',
   WebkitBackdropFilter: 'none',
-  border: '1px solid transparent',
   borderRadius: radius.xl,
-  boxShadow: 'none',
 });
 
 function BrandMark({
@@ -2627,69 +2629,34 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
   const layout = useLayout();
   const isMobile = layout === 'mobile';
   return (
-    <button onClick={onClick} style={{
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      gap: isMobile ? 8 : 9,
-      padding: isMobile ? '12px 4px 10px' : '16px 6px 14px',
-      background: isMobile
-        ? 'rgba(255,255,255, 0.1)'
-        : 'rgba(255,255,255, 0.1)',
-      border: `1px solid rgba(176,176,176, ${isMobile ? '0.16' : '0.12'})`,
-      borderRadius: isMobile ? 16 : radius.lg,
-      color: text.secondary,
-      fontFamily: 'inherit',
-      cursor: 'pointer',
-      transition: 'background 0.15s, border-color 0.15s, transform 0.15s',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      boxShadow: isMobile ? '0 10px 24px rgba(0,0,0, 0.18)' : '0 2px 8px rgba(0,0,0, 0.12)',
-      textAlign: 'center',
-      minWidth: 0,
+    <button onClick={onClick} className="kp-tx-row" style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
+      gap: 9, padding: isMobile ? '8px 2px 6px' : '12px 6px 10px', background: 'transparent', border: 'none',
+      color: text.secondary, fontFamily: 'inherit', cursor: 'pointer', textAlign: 'center', minWidth: 0,
     }}>
-      <div style={{
-        width: isMobile ? 40 : 42,
-        height: isMobile ? 40 : 42,
-        borderRadius: isMobile ? 12 : 13,
-        background: `${goldLight}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: `0 8px 18px -8px rgba(172,172,172, 0.58)`,
-      }}>{icon}</div>
+      <Medallion tint={gold} size={isMobile ? 54 : 58}>{recolorIcon(icon, gold)}</Medallion>
       <span style={{
-        fontSize: isMobile ? 11.5 : 10.5,
-        fontWeight: 600,
-        lineHeight: 1.2,
-        letterSpacing: isMobile ? 0.1 : 0.4,
-        textTransform: isMobile ? 'none' : 'uppercase',
-        color: isMobile ? text.primary : text.secondary,
+        fontSize: isMobile ? 11.5 : 10.5, fontWeight: 600, lineHeight: 1.2, letterSpacing: isMobile ? 0.1 : 0.4,
+        textTransform: isMobile ? 'none' : 'uppercase', color: text.secondary,
       }}>{label}</span>
     </button>
   );
 }
 
-function ActivityRow({ iconBg, iconEl, title, subtitle, amount, positive, onClick }: {
-  iconBg: string; iconEl: React.ReactNode; title: string; subtitle: string; amount: string; positive?: boolean; onClick?: () => void;
+function ActivityRow({ iconEl, title, subtitle, amount, positive, onClick }: {
+  iconBg?: string; iconEl: React.ReactNode; title: string; subtitle: string; amount: string; positive?: boolean; onClick?: () => void;
 }) {
+  const tint = positive ? '#4fd18b' : '#FFD400';
   return (
-    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', cursor: onClick ? 'pointer' : 'default', transition: 'background 0.15s' }}>
-      <div style={{
-        width: 40, height: 40, borderRadius: 12, background: iconBg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        border: `1px solid transparent`,
-        boxShadow: 'none',
-      }}>{iconEl}</div>
+    <div onClick={onClick} className="kp-tx-row" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 16px', cursor: onClick ? 'pointer' : 'default' }}>
+      <Medallion tint={tint} size={46}>{recolorIcon(iconEl, tint)}</Medallion>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ ...T.body, fontWeight: 500, color: text.secondary, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
-        <div style={{ ...T.sm, color: text.muted }}>{subtitle}</div>
+        <div style={{ ...T.body, fontWeight: 500, color: text.primary, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}>{title}</div>
+        <div style={{ ...T.sm, color: text.muted, marginTop: 3 }}>{subtitle}</div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-        <div style={{ ...T.body, fontWeight: 600, color: positive ? gold : text.secondary, ...T.num, whiteSpace: 'nowrap' }}>
-          {positive ? '+' : '\u2212'}{amount}
-        </div>
-        {onClick && <Chevron size={13} color="rgba(215,215,215, 0.25)" />}
+      <div style={{ flexShrink: 0, textAlign: 'right', fontFamily: 'ui-serif, "New York", Georgia, serif', fontSize: 18, fontWeight: 600, letterSpacing: -0.3, color: positive ? '#5fd68a' : text.primary, ...T.num, whiteSpace: 'nowrap' }}>
+        {positive ? '+' : '\u2212'}{amount.replace(/[\s\u00a0]*TAX$/, '')}
+        <div style={{ fontFamily: 'inherit', fontSize: 10, fontWeight: 700, color: gold, letterSpacing: 1.6, marginTop: 2 }}>TAX</div>
       </div>
     </div>
   );
@@ -4335,7 +4302,7 @@ function OverviewScreen() {
           position: 'relative',
           overflow: 'hidden',
         }}>
-          
+          <HeroRosette />
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${goldLight}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#242424', fontSize: 14, fontWeight: 700, boxShadow: '0 0 0 2px rgba(176,176,176, 0.14), 0 6px 18px rgba(0,0,0, 0.28)', overflow: 'hidden', flexShrink: 0 }}>
               {profilePhoto ? <img src={profilePhoto} alt={t('profile_photo_alt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : avatarInitials}
@@ -4861,27 +4828,25 @@ function CardsScreen() {
           </div>
 
           {/* Card balance block */}
-          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'rgba(255,255,255, 0.1)', borderRadius: 14, border: '1px solid transparent' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'linear-gradient(160deg, rgba(255,212,0,0.07), rgba(255,255,255,0.04))', borderRadius: 16, border: '1px solid rgba(255,212,0,0.28)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
                   {card?.isPrimary ? 'Баланс рахунку (головна картка)' : 'Баланс картки'}
                 </div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: text.primary, fontFeatureSettings: '"tnum"' }}>
+                <div style={{ fontFamily: 'ui-serif, "New York", Georgia, serif', fontSize: 26, fontWeight: 600, color: text.primary, fontFeatureSettings: '"tnum"' }}>
                   {formatUah(card?.balance ?? 0)}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {!card?.isPrimary && card?.statusRaw === 'active' && (
                   <button onClick={() => setTopupModal(true)} style={{
-                    padding: '8px 14px', borderRadius: 10, border: '1px solid transparent',
-                    background: 'rgba(255,255,255, 0.1)', color: goldLight, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                    ...docPill, height: 34, padding: '0 14px', fontSize: 12.5,
                   }}>Поповнити</button>
                 )}
                 {!card?.isPrimary && card?.statusRaw !== 'closed' && (
                   <button onClick={setPrimaryCard} style={{
-                    padding: '8px 14px', borderRadius: 10, border: '1px solid transparent',
-                    background: 'rgba(255,255,255, 0.1)', color: text.muted, fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+                    ...docPill, height: 34, padding: '0 14px', fontSize: 12.5, color: text.secondary, border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(255,255,255,0.05)',
                   }}>Зробити головною</button>
                 )}
               </div>
@@ -4917,12 +4882,12 @@ function CardsScreen() {
                 display: 'flex', flexDirection: 'column', alignItems: layout === 'mobile' ? 'flex-start' : 'center', gap: 10,
                 minHeight: layout === 'mobile' ? 94 : undefined,
                 padding: layout === 'mobile' ? '14px 12px' : '10px 4px',
-                background: 'rgba(255,255,255, 0.1)',
-                border: '1px solid transparent', borderRadius: 16,
-                color: '#d8d8d8', fontSize: layout === 'mobile' ? 12.5 : 11, fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer',
+                background: 'linear-gradient(160deg, rgba(255,212,0,0.07), rgba(255,255,255,0.03))',
+                border: '1px solid rgba(255,212,0,0.22)', borderRadius: 16,
+                color: '#e8e8ea', fontSize: layout === 'mobile' ? 12.5 : 11, fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer',
                 textAlign: layout === 'mobile' ? 'left' : 'center', boxShadow: 'none',
               }}>
-                {a.icon}{a.label}
+                <Medallion tint={gold} size={38}>{a.icon}</Medallion>{a.label}
               </button>
             ))}
           </div>
@@ -5174,6 +5139,17 @@ const MEDALLION_TICKS = Array.from({ length: 60 }, (_, i) => {
   const a = (i / 60) * Math.PI * 2, long = i % 5 === 0, r0 = 48.6, r1 = long ? 44.6 : 46;
   return `M${(50 + r0 * Math.cos(a)).toFixed(1)} ${(50 + r0 * Math.sin(a)).toFixed(1)}L${(50 + r1 * Math.cos(a)).toFixed(1)} ${(50 + r1 * Math.sin(a)).toFixed(1)}`;
 }).join('');
+// Велика гільошна розетка для шапок: тло, що не заважає читанню
+const HERO_ROSETTE = rosettePaths(26, 8, 0.2, 0.06, 46, 110).join('');
+function HeroRosette({ size = 280, style }: { size?: number; style?: React.CSSProperties }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={{ position: 'absolute', right: -size * 0.28, top: -size * 0.3, opacity: 0.1, pointerEvents: 'none', ...style }}>
+      <path d={HERO_ROSETTE} fill="none" stroke={gold} strokeWidth="0.18" />
+      <circle cx="50" cy="50" r="47" fill="none" stroke={gold} strokeWidth="0.25" />
+      <circle cx="50" cy="50" r="14" fill="none" stroke={gold} strokeWidth="0.25" />
+    </svg>
+  );
+}
 let medallionSeq = 0;
 function Medallion({ tint, size = 42, children }: { tint: string; size?: number; children?: React.ReactNode }) {
   const [id] = useState(() => `md${++medallionSeq}`);
@@ -6406,9 +6382,9 @@ function OperationsScreen() {
                       <div style={{ ...T.body, fontWeight: 500, color: text.primary, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}>{item.title}</div>
                       <div style={{ ...T.sm, color: text.muted, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle}</div>
                     </div>
-                    <div style={{ flexShrink: 0, textAlign: 'right', fontSize: 16, fontWeight: 600, letterSpacing: -0.2, color: item.positive ? '#5fd68a' : text.primary, ...T.num }}>
+                    <div style={{ flexShrink: 0, textAlign: 'right', fontFamily: 'ui-serif, "New York", Georgia, serif', fontSize: 19, fontWeight: 600, letterSpacing: -0.3, color: item.positive ? '#5fd68a' : text.primary, ...T.num }}>
                       {item.amount}
-                      <div style={{ fontSize: 11, fontWeight: 500, color: text.dim, letterSpacing: 0.4, marginTop: 2 }}>TAX</div>
+                      <div style={{ fontFamily: 'inherit', fontSize: 10, fontWeight: 700, color: gold, letterSpacing: 1.6, marginTop: 2 }}>TAX</div>
                     </div>
                   </div>
                   {i < g.items.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.06)', margin: '0 16px 0 72px' }} />}
@@ -8881,6 +8857,7 @@ function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, vis
   const { goTo } = useApp();
   return (
     <section className={`kp-card kp-rise ${span}`} style={{ padding: '30px 36px 30px', overflow: 'hidden', ['--i' as string]: 0 }}>
+      <HeroRosette size={420} style={{ right: -110, top: -140 }} />
 
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 26 }}>
         <div style={{ fontSize: 16, color: text.muted }}>{greeting}, <span style={{ color: text.primary, fontWeight: 600 }}>{firstName}</span></div>
