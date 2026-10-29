@@ -101,6 +101,26 @@ function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
   );
 }
 
+/** Eases a displayed number towards its target, so the deposit gain rolls instead of jumping. */
+function useTween(target: number) {
+  const [v, setV] = useState(target);
+  const from = useRef(target);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { from.current = target; setV(target); return; }
+    const a = from.current, t0 = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / 650);
+      const cur = a + (target - a) * (1 - Math.pow(1 - k, 3));
+      from.current = cur; setV(cur);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return v;
+}
+
 export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
@@ -125,9 +145,51 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     root.classList.add('bl-js');
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root, threshold: 0.12 });
     root.querySelectorAll('.bl-rv').forEach(el => io.observe(el));
-    const onScroll = () => setScrolled(root.scrollTop > 10);
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
+    const hero = root.querySelector<HTMLElement>('.bl-hero');
+    let raf = 0;
+    // Photos drift slower than the page (parallax), the hero lets go as you leave it, a gold hairline tracks progress.
+    const frame = () => {
+      raf = 0;
+      const box = root.getBoundingClientRect();
+      const max = root.scrollHeight - root.clientHeight;
+      root.style.setProperty('--sp', (max > 0 ? root.scrollTop / max : 0).toFixed(4));
+      if (still) return;
+      for (const el of photos) {
+        const sec = el.parentElement;
+        if (!sec) continue;
+        const r = sec.getBoundingClientRect();
+        if (r.bottom < box.top - 150 || r.top > box.bottom + 150) continue;
+        const lim = el.offsetHeight * (el.classList.contains('bl-hero-photo') ? 0.04 : 0.08);
+        const d = (r.top + r.height / 2) - (box.top + box.height / 2);
+        el.style.setProperty('--py', `${Math.max(-lim, Math.min(lim, -d * 0.1)).toFixed(1)}px`);
+      }
+      if (hero) hero.style.setProperty('--hp', Math.max(0, Math.min(1, root.scrollTop / (hero.offsetHeight * 0.75))).toFixed(3));
+    };
+    const onScroll = () => { setScrolled(root.scrollTop > 10); if (!raf) raf = requestAnimationFrame(frame); };
     root.addEventListener('scroll', onScroll, { passive: true });
-    return () => { io.disconnect(); root.removeEventListener('scroll', onScroll); };
+    window.addEventListener('resize', onScroll);
+    frame();
+    // The hero card leans towards the pointer.
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const tilt = (e: PointerEvent) => {
+      if (!hero) return;
+      const r = hero.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5, ny = (e.clientY - r.top) / r.height - 0.5;
+      hero.style.setProperty('--ry', `${(nx * 14).toFixed(2)}deg`);
+      hero.style.setProperty('--rx', `${(-ny * 10).toFixed(2)}deg`);
+    };
+    const untilt = () => { hero?.style.setProperty('--ry', '0deg'); hero?.style.setProperty('--rx', '0deg'); };
+    if (fine && !still && hero) { hero.addEventListener('pointermove', tilt); hero.addEventListener('pointerleave', untilt); }
+    return () => {
+      io.disconnect();
+      root.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      hero?.removeEventListener('pointermove', tilt);
+      hero?.removeEventListener('pointerleave', untilt);
+    };
   }, []);
 
   useEffect(() => {
@@ -143,6 +205,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
   const days = useMemo(() => { const a = new Date(); const b = new Date(a); b.setMonth(b.getMonth() + term); return Math.round((b.getTime() - a.getTime()) / 86400000); }, [term]);
   const gain = Math.round(amount * DEPOSIT_RATES[term] / 100 * days / 365 * 100) / 100;
+  const shownGain = useTween(gain);
   const cur = FINISHES.find(f => f.id === finish)!;
 
   const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#save', t('Депозит', 'Deposit')], ['#security', t('Безпека', 'Security')], ['#shop', 'Saint Agnes']];
@@ -162,6 +225,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   return (
     <LandingLangContext.Provider value={lang}>
       <div className="bl" ref={rootRef}>
+        <div className="bl-progress" aria-hidden />
         <header className={`bl-nav${scrolled ? ' s' : ''}`}>
           <div className="bl-wrap bl-nav-in">
             <a href="#top" className="bl-logo">TAXTECH</a>
@@ -249,7 +313,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <div className="bl-photo bl-photo-warm" style={{ backgroundImage: 'url(/landing/rome-forum-sunset.webp)' }} aria-hidden />
           <div className="bl-wrap bl-center">
             <Eyebrow n={3} className="bl-rv">{t('Депозит', 'Deposit')}</Eyebrow>
-            <div className="bl-calc-big bl-rv"><span>+{fmt(gain, 0)}<em>TAX</em></span><small>{t('за', 'in')} {term} {t('міс', 'months')} · {DEPOSIT_RATES[term]}%</small></div>
+            <div className="bl-calc-big bl-rv"><span>+{fmt(shownGain, 0)}<em>TAX</em></span><small>{t('за', 'in')} {term} {t('міс', 'months')} · {DEPOSIT_RATES[term]}%</small></div>
             <div className="bl-calc bl-rv">
               <div className="bl-seg" role="group" aria-label={t('Строк', 'Term')}>
                 {Object.keys(DEPOSIT_RATES).map(Number).map(m => (
