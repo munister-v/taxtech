@@ -211,7 +211,7 @@ const IC = {
 };
 
 // Section label in inscription capitals with a Roman numeral: "II · Вигляд картки".
-function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
+function Card({ finish, n = '6595', name = 'DEMO USER' }: { finish: Finish; n?: string; name?: string }) {
   const f = FINISHES.find(x => x.id === finish)!;
   return (
     <div className={`bl-card${f.photo ? ' bl-card-photo' : ' bl-card-guil'}`} style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>
@@ -226,7 +226,7 @@ function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
         <path d="M.5 12h12.5q4 0 4 5t-4 5H.5M43.5 12H31q-4 0-4 5t4 5h12.5M17 .5v8.5M27 .5v8.5M17 33.5V25M27 33.5V25M17 9h10v16H17z" fill="none" stroke="rgba(70,45,5,.55)" strokeWidth=".9" />
       </svg>
       <span className="bl-card-num">•••• •••• •••• {n}</span>
-      <span className="bl-card-name">DEMO USER</span>
+      <span className="bl-card-name">{name}</span>
       <span className="bl-card-virt">VIRTUAL</span>
     </div>
   );
@@ -240,6 +240,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   useEffect(() => { const disarm = armSound(), f = () => setSound(soundOn()), unsub = onSound(f); f(); return () => { disarm(); unsub(); }; }, []);
   const [menu, setMenu] = useState(false);
   const [hood, setHood] = useState(0);
+  const [holder, setHolder] = useState('');
   const hoodAuto = useRef(true);
   const hoodRef = useRef<HTMLDivElement | null>(null);
   // The map walks through the nine places on its own while it is on screen, until the visitor picks one.
@@ -585,6 +586,20 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <FireScene className="bl-photo bl-photo-final" src="/landing/colosseum-sun.webp" ratio={1.504} focusX={0.12} focusY={0.5} spots={SUN_SPOTS} embers={50} />
           <div className="bl-wrap bl-center">
             <h2 className="bl-h bl-h-xl bl-rv">{t('Ваша картка чекає.', 'Your card is waiting.')}</h2>
+            <div className="bl-final-card bl-rv"
+              onPointerMove={e => {
+                const r = e.currentTarget.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+                e.currentTarget.classList.add('on');
+                e.currentTarget.style.setProperty('--ry', `${(x * 22).toFixed(1)}deg`);
+                e.currentTarget.style.setProperty('--rx', `${(-y * 18).toFixed(1)}deg`);
+                e.currentTarget.style.setProperty('--sx', `${(x * 90).toFixed(0)}%`);
+              }}
+              onPointerLeave={e => { e.currentTarget.classList.remove('on'); ['--rx', '--ry', '--sx'].forEach(k => e.currentTarget.style.removeProperty(k)); }}>
+              <div className="bl-final-tilt"><Card finish="guilloche" name={holder.trim().toUpperCase() || t('ВАШЕ ІМʼЯ', 'YOUR NAME')} /></div>
+            </div>
+            <label className="bl-final-name bl-rv">
+              <input value={holder} maxLength={22} autoComplete="off" spellCheck={false} placeholder={t('Ваше імʼя', 'Your name')} aria-label={t('Імʼя на картці', 'Name on the card')} onChange={e => setHolder(e.target.value)} />
+            </label>
             <div className="bl-cta bl-rv">
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
               <button type="button" className="bl-ghost" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>

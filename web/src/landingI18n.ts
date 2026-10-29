@@ -71,6 +71,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Dress in TAX.': 'Vestiti di TAX.',
     'Visit the shop': 'Visita il negozio',
     'Your card is waiting.': 'La tua carta ti aspetta.',
+    'Your name': 'Il tuo nome',
+    'YOUR NAME': 'IL TUO NOME',
+    'Name on the card': 'Nome sulla carta',
     'Questions.': 'Domande.',
     'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.':
       'TaxTech è la banca didattica di un laboratorio di finanza digitale. TAX è un token virtuale: non è denaro né moneta elettronica e non si cambia in grivnie né in altra valuta. Non ci sono pagamenti, carte o conti reali; i numeri delle carte iniziano con 0000. La piattaforma non è certificata EMVCo, PCI DSS o FIDO. Face ID è un marchio di Apple Inc.',
@@ -158,6 +161,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Dress in TAX.': 'Kleide dich in TAX.',
     'Visit the shop': 'Zum Shop',
     'Your card is waiting.': 'Deine Karte wartet.',
+    'Your name': 'Dein Name',
+    'YOUR NAME': 'DEIN NAME',
+    'Name on the card': 'Name auf der Karte',
     'Questions.': 'Fragen.',
     'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.':
       'TaxTech ist die Lernbank eines Labors für digitale Finanzen. TAX ist ein virtueller Token: weder Geld noch E-Geld, nicht in Hrywnja oder eine andere Währung umtauschbar. Es gibt keine echten Zahlungen, Karten oder Konten; Kartennummern beginnen mit 0000. Die Plattform ist nicht nach EMVCo, PCI DSS oder FIDO zertifiziert. Face ID ist eine Marke von Apple Inc.',
@@ -245,6 +251,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Dress in TAX.': 'Оденься в TAX.',
     'Visit the shop': 'В магазин',
     'Your card is waiting.': 'Ваша карта ждёт.',
+    'Your name': 'Ваше имя',
+    'YOUR NAME': 'ВАШЕ ИМЯ',
+    'Name on the card': 'Имя на карте',
     'Questions.': 'Вопросы.',
     'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.':
       'TaxTech — учебный банк лаборатории цифровых финансов. TAX — виртуальный токен: это не деньги и не электронные деньги, он не обменивается на гривну или другую валюту. Реальных платежей, карт и счетов нет; номера карт начинаются с 0000. Платформа не сертифицирована EMVCo, PCI DSS или FIDO. Face ID — товарный знак Apple Inc.',
