@@ -13,7 +13,6 @@ struct ShopView: View {
     @State private var page = 1
     @State private var pages = 1
     @State private var total = 0
-    @State private var hits: [API.Product] = []
     @State private var categoryCounts: [String: Int] = [:]
     @State private var orders: [API.Order] = []
     @State private var invoices: [API.Invoice] = []
@@ -37,35 +36,46 @@ struct ShopView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    ScreenTitle(title: "munister") {
-                        Button { showCart = true } label: {
-                            ZStack(alignment: .topTrailing) {
-                                RoundGlyph(symbol: "bag")
-                                    .symbolEffect(.bounce, value: cartCount)
-                                if cartCount > 0 {
-                                    Text("\(cartCount)").font(.caption2.weight(.bold)).monospacedDigit()
-                                        .contentTransition(.numericText(value: Double(cartCount)))
-                                        .frame(minWidth: 18, minHeight: 18)
-                                        .background(Theme.accent, in: .circle).foregroundStyle(Theme.onAccent)
-                                        .offset(x: 4, y: -4)
-                                        .transition(.scale.combined(with: .opacity))
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 22) {
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 9) {
+                                ShopWordmark()
+                                Text("Магазин · оплата TAX").font(ShopStyle.caps(10)).tracking(2).textCase(.uppercase)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Button { showCart = true } label: {
+                                ZStack(alignment: .topTrailing) {
+                                    Image(systemName: "bag").font(.system(size: 23, weight: .light))
+                                        .foregroundStyle(Theme.ink)
+                                        .frame(width: 44, height: 44)
+                                        .symbolEffect(.bounce, value: cartCount)
+                                    if cartCount > 0 {
+                                        Text("\(cartCount)").font(.system(size: 10, weight: .bold)).monospacedDigit()
+                                            .contentTransition(.numericText(value: Double(cartCount)))
+                                            .frame(minWidth: 17, minHeight: 17)
+                                            .background(Theme.accent, in: .circle).foregroundStyle(Theme.onAccent)
+                                            .offset(x: -2, y: 4)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
                                 }
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Кошик, товарів: \(cartCount)")
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Кошик, товарів: \(cartCount)")
+                        .padding(.top, 10)
+                        ShopTabBar(items: Tab.allCases.map { ($0, $0.title) }, selection: $tab)
+                        switch tab {
+                        case .catalog: catalog(proxy)
+                        case .orders: ordersList
+                        case .invoices: invoicesList
+                        }
                     }
-                    ShopTabs(selection: $tab)
-                    switch tab {
-                    case .catalog: catalog
-                    case .orders: ordersList
-                    case .invoices: invoicesList
-                    }
+                    .padding(.horizontal, Theme.gutter)
+                    .padding(.bottom, cartCount > 0 ? 96 : 32)
                 }
-                .padding(.horizontal, Theme.gutter)
-                .padding(.bottom, cartCount > 0 ? 96 : 32)
             }
             .scrollDismissesKeyboard(.interactively)
             .screenBackground()
@@ -75,10 +85,6 @@ struct ShopView: View {
                 try? await Task.sleep(for: .milliseconds(200))
                 guard !Task.isCancelled else { return }
                 await reload()
-            }
-            .task {
-                hits = ((try? await model.api.catalog(search: "", page: 1, sort: "stock", perPage: 40))?.items ?? [])
-                    .filter { ["HOT", "TOP", "NEW"].contains($0.badge ?? "") }
             }
             .task(id: tab) { await loadLists() }
             .refreshable {
@@ -138,92 +144,65 @@ struct ShopView: View {
 
     // MARK: Каталог
 
-    @ViewBuilder private var catalog: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+    private func scrollToGrid(_ proxy: ScrollViewProxy) {
+        withAnimation(.smooth(duration: 0.5)) { proxy.scrollTo("shop-grid", anchor: .top) }
+    }
+
+    @ViewBuilder private func catalog(_ proxy: ScrollViewProxy) -> some View {
+        if browsing {
+            ShopHero { scrollToGrid(proxy) }
+            ShopTrust()
+            ShopHeading(title: "Колекції", sub: "Оригінальні бренди з Європи")
+            ShopCollections { c in
+                withAnimation(.snappy) { category = c }
+                Task { try? await Task.sleep(for: .milliseconds(120)); scrollToGrid(proxy) }
+            }
+        }
+
+        ShopHeading(title: category == .all ? "Добірка" : category.title, sub: browsing ? "Обране цього тижня" : nil)
+            .padding(.top, browsing ? 10 : 0)
+            .id("shop-grid")
+
+        ShopTabBar(items: ShopCategory.allCases
+            .filter { $0 == .all || categoryCounts.isEmpty || categoryCounts[$0.rawValue] != nil }
+            .map { ($0, $0.title) }, selection: $category, gap: 22)
+
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass").font(.system(size: 16, weight: .light)).foregroundStyle(.secondary)
             TextField("Пошук товарів…", text: $search).autocorrectionDisabled()
             if !search.isEmpty {
                 Button { search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary) }
                     .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .glassEffect(.regular.interactive(), in: .capsule)
-
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(ShopCategory.allCases.filter { $0 == .all || categoryCounts.isEmpty || categoryCounts[$0.rawValue] != nil }) { c in
-                    let on = category == c
-                    Button { withAnimation(.snappy) { category = c } } label: {
-                        HStack(spacing: 5) {
-                            Text(c.title).font(.subheadline.weight(on ? .semibold : .regular))
-                            if let n = c == .all ? categoryCounts.values.reduce(0, +) : categoryCounts[c.rawValue], n > 0 {
-                                Text("\(n)").font(.caption.weight(.medium)).monospacedDigit().opacity(0.55)
-                            }
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 9)
-                        .background(on ? Theme.ink : Color.clear, in: .capsule)
-                        .glassEffect(on ? .identity : .regular.interactive(), in: .capsule)
-                        .foregroundStyle(on ? Theme.onInk : Theme.ink)
-                    }
-                    .buttonStyle(PressScale())
-                }
-            }
-        }
-        .scrollClipDisabled()
-
-        if browsing, !hits.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 12) {
-                    ForEach(hits.prefix(4)) { hero in
-                        HeroProduct(product: hero, inCart: cart[hero] ?? 0, open: { detailSource = "h\(hero.id)"; detail = hero }, add: { add(hero) })
-                            .matchedTransitionSource(id: "h\(hero.id)", in: zoom)
-                            .containerRelativeFrame(.horizontal) { w, _ in hits.count > 1 ? w * 0.92 : w }
-                            .scrollTransition(axis: .horizontal) { v, phase in
-                                v.scaleEffect(phase.isIdentity ? 1 : 0.94)
-                                    .rotation3DEffect(.degrees(phase.value * -10), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
-                            }
-                    }
-                }
-                .scrollTargetLayout()
-            }
-            .scrollTargetBehavior(.viewAligned)
-            .scrollClipDisabled()
-        }
+        .padding(.vertical, 6)
+        .overlay(alignment: .bottom) { Rectangle().fill(Theme.line).frame(height: 1).offset(y: 8) }
+        .padding(.bottom, 4)
 
         HStack(alignment: .firstTextBaseline) {
-            Text(category == .all ? "Усі товари" : category.title).font(.title3.weight(.bold))
-            Text("\(total)").foregroundStyle(.secondary).monospacedDigit()
+            Text("\(total) товарів").font(.footnote).foregroundStyle(.secondary).monospacedDigit()
             Spacer()
             Menu {
                 Picker("Сортування", selection: $sort) {
                     ForEach(ShopSort.allCases) { Text($0.title).tag($0) }
                 }
             } label: {
-                Label(sort.title, systemImage: "arrow.up.arrow.down")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Theme.ink)
+                HStack(spacing: 6) {
+                    Text(sort.title).textCase(.uppercase).tracking(1.2)
+                    Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
+                }
+                .font(ShopStyle.caps(10.5, .semibold))
+                .foregroundStyle(Theme.ink)
             }
         }
-        .padding(.top, 4)
 
         if items.isEmpty && !loading { BrandEmpty(title: "Нічого не знайдено") }
-        HStack(alignment: .top, spacing: 12) {
-            ForEach(0..<2, id: \.self) { col in
-                LazyVStack(spacing: 12) {
-                    ForEach(Array(items.enumerated()).filter { $0.offset % 2 == col }, id: \.element.id) { i, p in
-                        ProductTile(product: p, tall: (i / 2 + col) % 2 == 0, inCart: cart[p] ?? 0,
-                                    open: { detailSource = "p\(p.id)"; detail = p }, add: { add(p) }, remove: { remove(p) })
-                            .matchedTransitionSource(id: "p\(p.id)", in: zoom)
-                            .rise(col)
-                            .scrollTransition(.animated(.smooth(duration: 0.3))) { v, phase in
-                                v.scaleEffect(phase.isIdentity ? 1 : 0.95).opacity(phase.isIdentity ? 1 : 0.6)
-                            }
-                            .onAppear { if p.id == items.last?.id { Task { await more() } } }
-                    }
-                }
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 14, alignment: .top), GridItem(.flexible(), alignment: .top)], spacing: 26) {
+            ForEach(items) { p in
+                ShopCard(product: p, inCart: cart[p] ?? 0,
+                         open: { detailSource = "p\(p.id)"; detail = p }, add: { add(p) })
+                    .matchedTransitionSource(id: "p\(p.id)", in: zoom)
+                    .onAppear { if p.id == items.last?.id { Task { await more() } } }
             }
         }
         if loading { ProgressView().frame(maxWidth: .infinity).padding() }
@@ -245,14 +224,14 @@ struct ShopView: View {
             .foregroundStyle(Theme.onAccent)
             .background {
                 // жовта «купюра»: гільйош-розетка й мікродрук, як захисний друк на головній
-                ZStack {
-                    Theme.accent
-                    Guilloche(lines: Theme.onAccent.opacity(0.35), accent: Theme.onAccent.opacity(0.25))
-                        .frame(width: 220, height: 220)
-                        .offset(x: 110)
-                        .opacity(0.5)
-                }
-                .clipShape(.rect(cornerRadius: 20, style: .continuous))
+                Theme.accent
+                    .overlay(alignment: .trailing) {
+                        Guilloche(lines: Theme.onAccent.opacity(0.35), accent: Theme.onAccent.opacity(0.25))
+                            .frame(width: 220, height: 220)
+                            .offset(x: 110)
+                            .opacity(0.5)
+                    }
+                    .clipShape(.rect(cornerRadius: 20, style: .continuous))
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 8)
@@ -291,15 +270,6 @@ struct ShopView: View {
     }
 }
 
-/// Вкладки магазину.
-struct ShopTabs: View {
-    @Binding var selection: ShopView.Tab
-
-    var body: some View {
-        TextTabs(items: ShopView.Tab.allCases.map { ($0, $0.title) }, selection: $selection)
-    }
-}
-
 enum ShopCategory: String, CaseIterable, Identifiable {
     case all, women, men, shoes, bags, accessories, phones, laptops, audio, gaming, appliances, home, wearables, tablets, gadgets
     var id: String { rawValue }
@@ -317,8 +287,8 @@ enum ShopCategory: String, CaseIterable, Identifiable {
         case .wearables: "Годинники"
         case .tablets: "Планшети"
         case .gadgets: "Гаджети"
-        case .women: "Жіноче"
-        case .men: "Чоловіче"
+        case .women: "Жінкам"
+        case .men: "Чоловікам"
         case .shoes: "Взуття"
         case .bags: "Сумки"
         case .accessories: "Аксесуари"
@@ -481,106 +451,6 @@ struct PriceText: View {
     }
 }
 
-/// Картка в мозаїці: фото на папері, назва, ціна й кругла кнопка; висота фото чергується.
-struct ProductTile: View {
-    let product: API.Product
-    let tall: Bool
-    let inCart: Int
-    let open: () -> Void
-    let add: () -> Void
-    let remove: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Button(action: open) {
-                VStack(alignment: .leading, spacing: 8) {
-                    ProductArt(product: product, height: tall ? 190 : 140)
-                    Text(product.title).font(.subheadline.weight(.semibold)).lineLimit(2)
-                        .multilineTextAlignment(.leading).foregroundStyle(Paper.ink)
-                }
-                .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-            HStack(spacing: 8) {
-                PriceText(value: product.price)
-                Spacer(minLength: 0)
-                if inCart > 0 {
-                    HStack(spacing: 0) {
-                        Button(action: remove) { Image(systemName: "minus").frame(width: 30, height: 34) }
-                        Text("\(inCart)").font(.subheadline.weight(.bold)).monospacedDigit()
-                            .contentTransition(.numericText()).frame(minWidth: 14)
-                        Button(action: add) { Image(systemName: "plus").frame(width: 30, height: 34) }
-                    }
-                    .font(.footnote.weight(.bold))
-                    .foregroundStyle(Theme.onAccent)
-                    .background(Theme.accent, in: .capsule)
-                    .buttonStyle(.plain)
-                } else {
-                    Button(action: add) {
-                        Image(systemName: "plus").font(.subheadline.weight(.bold))
-                            .frame(width: 34, height: 34)
-                            .background(Paper.ink, in: .circle)
-                            .foregroundStyle(Paper.card)
-                    }
-                    .buttonStyle(PressScale())
-                    .accessibilityLabel("У кошик")
-                }
-            }
-        }
-        .padding(12)
-        .background(Paper.card, in: .rect(cornerRadius: 24, style: .continuous))
-        .animation(.snappy(duration: 0.2), value: inCart)
-    }
-}
-
-/// Великий вибір дня над мозаїкою: фото праворуч, назва, ціна й жовта дія.
-struct HeroProduct: View {
-    @Environment(AppModel.self) private var model
-    let product: API.Product
-    let inCart: Int
-    let open: () -> Void
-    let add: () -> Void
-
-    private var photoURL: URL? {
-        guard let raw = product.imageUrl, !raw.isEmpty else { return nil }
-        return raw.hasPrefix("http") ? URL(string: raw) : URL(string: raw, relativeTo: model.serverURL)?.absoluteURL
-    }
-
-    var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            if let url = photoURL {
-                AsyncImage(url: url) { phase in
-                    if let image = phase.image { image.resizable().scaledToFit().blendMode(.multiply) }
-                }
-                .frame(width: 175, height: 220)
-            }
-            VStack(alignment: .leading, spacing: 10) {
-                if let l = ProductArt.label(product) {
-                    Text(l).font(.caption.weight(.semibold)).foregroundStyle(Paper.ink.opacity(0.55))
-                }
-                Text(product.title).font(.system(size: 22, weight: .bold)).tracking(-0.4)
-                    .foregroundStyle(Paper.ink).lineLimit(3)
-                    .frame(maxWidth: 150, alignment: .leading)
-                Spacer(minLength: 0)
-                PriceText(value: product.price, size: 22)
-                Button(action: add) {
-                    Text(inCart > 0 ? "У кошику · \(inCart)" : "Додати").font(.subheadline.weight(.bold))
-                        .padding(.horizontal, 20).frame(height: 40)
-                        .background(Theme.accent, in: .capsule)
-                        .foregroundStyle(Theme.onAccent)
-                }
-                .buttonStyle(PressScale())
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-        .padding(18)
-        .frame(height: 270)
-        .background(Paper.card, in: .rect(cornerRadius: 28, style: .continuous))
-        .contentShape(.rect(cornerRadius: 28))
-        .onTapGesture(perform: open)
-    }
-}
-
 struct ProductView: View {
     @Environment(\.dismiss) private var dismiss
     let product: API.Product
@@ -591,26 +461,39 @@ struct ProductView: View {
 
     private var maxQty: Int { max(1, min(product.stock ?? 10, 10)) }
 
+    private func perk(_ icon: String, _ text: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon).font(.system(size: 18, weight: .light)).frame(width: 24)
+            Text(text).font(.subheadline)
+        }
+        .foregroundStyle(Theme.ink.opacity(0.85))
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
-                        ZStack(alignment: .topLeading) {
-                            Paper.card
-                            ProductArt(product: product, size: 110, height: 330)
-                        }
-                        .clipShape(.rect(cornerRadius: 28, style: .continuous))
-                        if let credit = product.imageCredit {
-                            Text(credit).font(.caption2).foregroundStyle(.tertiary).padding(.leading, 4)
-                        }
+                        ShopPhoto(product: product, radius: 26, ratio: 0.9)
+                            .overlay(alignment: .topLeading) {
+                                if let tag = product.tag { ShopTag(text: tag).padding(14) }
+                            }
                     }
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text(product.title).font(.display(26)).tracking(-0.7)
-                        if let d = product.description { Text(d).font(.body).foregroundStyle(.secondary) }
+                    VStack(alignment: .leading, spacing: 8) {
+                        if !product.brand.isEmpty {
+                            Text(product.brand).font(ShopStyle.caps(12, .semibold)).tracking(2.2).textCase(.uppercase)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text(product.shortName).font(.system(size: 28, weight: .medium).width(.expanded)).tracking(0.3)
+                            .foregroundStyle(Theme.ink)
+                        if let code = product.code { Text(code).font(.footnote).foregroundStyle(.tertiary) }
                     }
                     HStack(alignment: .firstTextBaseline) {
-                        PriceText(value: product.price, size: 34, color: Theme.ink)
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
+                                .font(.system(size: 34, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
+                            Text("TAX").font(.system(size: 14, weight: .medium)).tracking(0.8).foregroundStyle(.tertiary)
+                        }
                         Spacer()
                         let n = product.stock ?? 0
                         Text(n > 0 ? "В наявності: \(n)" : "Немає в наявності")
@@ -643,6 +526,12 @@ struct ProductView: View {
                         .buttonStyle(InkButton())
                         Button("Додати в кошик") { add(qty); dismiss() }.buttonStyle(LineButton())
                     }
+                    VStack(alignment: .leading, spacing: 14) {
+                        perk("shippingbox", "Нова пошта · безкоштовно від 3 000 TAX")
+                        perk("arrow.2.squarepath", "Обмін і повернення 14 днів")
+                        perk("checkmark.shield", "Лише оригінал, з гарантією")
+                    }
+                    .padding(.top, 8)
                 }
                 .padding(Theme.gutter)
             }
@@ -753,7 +642,7 @@ struct CartView: View {
                         BrandEmpty(title: "Кошик порожній")
                     } else {
                         Text("Кошик").font(.display(28)).tracking(-0.8)
-                        VStack(spacing: 10) {
+                        VStack(spacing: 0) {
                             ForEach(lines, id: \.product.id) { line in cartLine(line.product, line.qty) }
                         }
                         HStack(alignment: .firstTextBaseline) {
@@ -814,11 +703,14 @@ struct CartView: View {
     }
 
     private func cartLine(_ p: API.Product, _ qty: Int) -> some View {
-        HStack(spacing: 12) {
-            ProductArt(product: p, size: 30, height: 76, showsLabel: false).frame(width: 76)
-            VStack(alignment: .leading, spacing: 6) {
-                Text(p.title).font(.subheadline.weight(.semibold)).lineLimit(2)
-                PriceText(value: p.price * Double(qty), size: 16, color: Theme.ink)
+        HStack(spacing: 14) {
+            ShopPhoto(product: p, radius: 10).frame(width: 58)
+            VStack(alignment: .leading, spacing: 4) {
+                if !p.brand.isEmpty {
+                    Text(p.brand).font(ShopStyle.caps(10.5, .semibold)).tracking(1.3).textCase(.uppercase).lineLimit(1)
+                }
+                Text(p.shortName).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
+                PriceText(value: p.price * Double(qty), size: 16, color: Theme.accent)
             }
             Spacer(minLength: 0)
             HStack(spacing: 0) {
@@ -831,11 +723,10 @@ struct CartView: View {
             }
             .font(.footnote.weight(.bold))
             .foregroundStyle(Theme.ink)
-            .overlay(Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1))
             .buttonStyle(.plain)
         }
-        .padding(10)
-        .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
+        .padding(.vertical, 12)
+        .overlay(alignment: .bottom) { Rectangle().fill(Theme.line).frame(height: 1) }
     }
 
     private func field(_ title: String, text: Binding<String>, content: UITextContentType,

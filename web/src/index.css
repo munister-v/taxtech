@@ -270,10 +270,8 @@
 
 /* Shop cards: soft lift and photo zoom on hover (pointer devices only) */
 @media (hover: hover) {
-  .tt-product-card { transition: transform 180ms ease, border-color 180ms ease, background 180ms ease; }
-  .tt-product-card img { transition: transform 500ms cubic-bezier(.2,.7,.2,1); }
-  .tt-product-card:hover { transform: translateY(-2px); background: #2c2c2e !important; }
-  .tt-product-card:hover img { transform: scale(1.04); }
+  .tt-product-card img, .tt-shop-tile img { transition: transform 600ms cubic-bezier(.2,.7,.2,1); }
+  .tt-product-card:hover img, .tt-shop-tile:hover img { transform: scale(1.04); }
 }
 
 /* ── Promo landing · reference: apple.com/apple-card, dark ───────── */
