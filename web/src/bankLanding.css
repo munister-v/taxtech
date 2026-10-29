@@ -550,10 +550,10 @@
 }
 
 /* Inside tiles: a small live scene on top of each one. Loops run only after the tile has been revealed. */
-.bl-stage { position: relative; display: flex; align-items: center; justify-content: center; height: 128px; margin-bottom: 24px; border-radius: 16px; overflow: hidden; background: radial-gradient(90% 120% at 50% 0%, color-mix(in srgb, var(--tint) 20%, transparent), transparent 70%), #0a0a0c; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
-.bl-stage svg { display: block; }
+.bl-mini { position: relative; display: flex; align-items: center; justify-content: center; height: 128px; margin-bottom: 24px; border-radius: 16px; overflow: hidden; background: radial-gradient(90% 120% at 50% 0%, color-mix(in srgb, var(--tint) 20%, transparent), transparent 70%), #0a0a0c; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.bl-mini svg { display: block; }
 .bl-st-chip { position: absolute; right: 12px; top: 12px; padding: 5px 10px; border-radius: 980px; font-size: 12px; font-weight: 700; letter-spacing: .02em; font-variant-numeric: tabular-nums; color: #14120a; background: var(--tint); box-shadow: 0 6px 18px -6px var(--tint); }
-.bl-tilex:not(.in) .bl-stage * { animation-play-state: paused !important; }
+.bl-tilex:not(.in) .bl-mini * { animation-play-state: paused !important; }
 /* Transfers: a coin runs from you to a friend, the friend's circle lights up with a tick */
 .bl-st-send { gap: 0; padding: 0 22px; }
 .bl-st-av { position: relative; flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-weight: 700; font-size: 16px; color: #fff; background: #1c1c20; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
@@ -591,7 +591,7 @@
 .bl-st-ok svg { width: 38px; height: 38px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 @keyframes bl-frame { 0%, 45% { opacity: 1; } 55%, 85% { opacity: 0; } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .bl-stage * { animation: none !important; }
+  .bl-mini * { animation: none !important; }
   .bl-st-fraud li, .bl-st-blocked, .bl-st-valid { opacity: 1; } .bl-st-track i, .bl-st-ok { display: none; }
 }
 
@@ -679,3 +679,10 @@
   .bl-hood-stats b { font-size: 64px; }
   .bl-hood-stats span { text-align: right; max-width: 11em; }
 }
+
+/* Under the hood: a blueprint feel. Dotted grid in the scenes, numbered tiles, a thin tinted edge on top */
+.bl-mini { background: radial-gradient(rgba(255,255,255,.1) 1px, transparent 1.3px) 0 0 / 14px 14px, radial-gradient(90% 120% at 50% 0%, color-mix(in srgb, var(--tint) 20%, transparent), transparent 70%), #0a0a0c; }
+.bl-tilex::before { content: ""; position: absolute; left: 28px; right: 28px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(90deg, transparent, var(--tint), transparent); opacity: .65; transition: opacity .35s; }
+.bl-tilex:hover::before { opacity: 1; }
+.bl-tilex-n { position: absolute; z-index: 2; left: 42px; top: 42px; font: 600 11px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .12em; color: color-mix(in srgb, var(--tint) 80%, #fff); opacity: .85; }
+@media (max-width: 734px) { .bl-tilex-n { left: 36px; top: 36px; } }

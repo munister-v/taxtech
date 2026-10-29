@@ -89,7 +89,7 @@ const HASHES = ['a3f9', '7c1e', '02bd', 'e84a'];
 
 function Stage({ kind, t }: { kind: Kind; t: (uk: string, en: string) => string }) {
   if (kind === 'ledger') return (
-    <div className="bl-stage bl-st-ledger" aria-hidden>
+    <div className="bl-mini bl-st-ledger" aria-hidden>
       <ul>
         <li style={{ ['--i' as string]: 0 }}><span>{t('Дебет', 'Debit')}</span><b>−1 200</b></li>
         <li style={{ ['--i' as string]: 1 }}><span>{t('Кредит', 'Credit')}</span><b>+1 200</b></li>
@@ -98,19 +98,19 @@ function Stage({ kind, t }: { kind: Kind; t: (uk: string, en: string) => string 
     </div>
   );
   if (kind === 'atomic') return (
-    <div className="bl-stage bl-st-atomic" aria-hidden>
+    <div className="bl-mini bl-st-atomic" aria-hidden>
       {['pending', 'processing', 'completed'].map((x, i) => <span key={x} style={{ ['--i' as string]: i }}>{x}</span>)}
     </div>
   );
   if (kind === 'idem') return (
-    <div className="bl-stage bl-st-send" aria-hidden>
+    <div className="bl-mini bl-st-send" aria-hidden>
       <span className="bl-st-av">Y</span>
       <span className="bl-st-track"><i /><i className="dup" /><em>×2 → ×1</em></span>
       <span className="bl-st-av bl-st-to">M<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
     </div>
   );
   if (kind === 'fraud') return (
-    <div className="bl-stage bl-st-fraud" aria-hidden>
+    <div className="bl-mini bl-st-fraud" aria-hidden>
       <ul>
         {([['Сума', 'Amount'], ['Історія', 'History'], ['Граф', 'Graph']] as const).map(([uk, en], i) => <li key={en} style={{ ['--i' as string]: i }} className={i === 2 ? 'bad' : ''}><span>{t(uk, en)}</span><b>{i === 2 ? '✕' : '✓'}</b></li>)}
       </ul>
@@ -118,24 +118,24 @@ function Stage({ kind, t }: { kind: Kind; t: (uk: string, en: string) => string 
     </div>
   );
   if (kind === 'chain') return (
-    <div className="bl-stage bl-st-chain" aria-hidden>
+    <div className="bl-mini bl-st-chain" aria-hidden>
       {HASHES.map((h, i) => <span key={h} style={{ ['--i' as string]: i }} className={i >= 2 ? 'after' : ''}><small>{i ? HASHES[i - 1] : '0000'}</small><b>{h}</b></span>)}
     </div>
   );
   if (kind === 'hold') return (
-    <div className="bl-stage bl-st-hold" aria-hidden>
+    <div className="bl-mini bl-st-hold" aria-hidden>
       <div className="bl-st-bar"><i /><u /></div>
       <p><span>{t('доступно', 'available')}</span><span>hold</span></p>
     </div>
   );
   if (kind === 'tds') return (
-    <div className="bl-stage bl-st-otp" aria-hidden>
+    <div className="bl-mini bl-st-otp" aria-hidden>
       <div>{['4', '8', '2', '9', '1', '7'].map((d, i) => <b key={i} style={{ ['--i' as string]: i }}>{d}</b>)}</div>
       <span className="bl-st-ttl"><i /></span>
     </div>
   );
   if (kind === 'receipt') return (
-    <div className="bl-stage bl-st-rcpt" aria-hidden>
+    <div className="bl-mini bl-st-rcpt" aria-hidden>
       <div className="bl-st-qr">
         <svg viewBox="0 0 11 11" shapeRendering="crispEdges">
           {[[0, 0], [7, 0], [0, 7]].map(([x, y]) => <path key={x + '' + y} d={`M${x} ${y}h4v4h-4zM${x + 1} ${y + 1}v2h2v-2z`} fillRule="evenodd" />)}
@@ -147,7 +147,7 @@ function Stage({ kind, t }: { kind: Kind; t: (uk: string, en: string) => string 
     </div>
   );
   return (
-    <div className="bl-stage bl-st-face" aria-hidden>
+    <div className="bl-mini bl-st-face" aria-hidden>
       <span className="bl-st-frame"><svg viewBox="0 0 24 24"><path d="M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.6 1.2 4.4 1.2 6 0" /></svg><i /></span>
       <span className="bl-st-ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
     </div>
@@ -490,6 +490,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <ul className="bl-inside-grid">
               {HOOD.map((x, i) => (
                 <li key={x.en[0]} className="bl-tilex bl-rv" style={{ ['--d' as string]: `${(i % 3) * 0.08}s`, ['--tint' as string]: x.tint }}>
+                  <span className="bl-tilex-n" aria-hidden>{String(i + 1).padStart(2, '0')}</span>
                   <Stage kind={x.kind} t={t} />
                   <h3>{t(x.uk[0], x.en[0])}</h3>
                   <p>{t(x.uk[1], x.en[1])}</p>
