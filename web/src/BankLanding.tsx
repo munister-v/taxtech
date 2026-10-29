@@ -5,6 +5,7 @@ import FireScene from './FireScene';
 import TapScene from './TapScene';
 import RomeMap from './RomeMap';
 import HoodMap, { HOOD_PLACES } from './HoodMap';
+import HoodPlatform, { type PlatPhase } from './HoodPlatform';
 import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import FaceFlow from './FaceFlow';
 import { SUN_SPOTS } from './fireData';
@@ -41,38 +42,38 @@ const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
 // "Under the hood": how the bank is built. Every line is taken from the server code (server/backend/services).
 type Kind = 'ledger' | 'atomic' | 'idem' | 'fraud' | 'chain' | 'hold' | 'tds' | 'passkey' | 'receipt';
 const HOOD: { kind: Kind; tint: string; uk: [string, string, string]; en: [string, string, string] }[] = [
-  { kind: 'ledger', tint: '#4fd18b',
-    uk: ['Подвійний запис', 'Кожен переказ дає дві проводки: дебет і кредит. Баланс має сходитися, а наприкінці дня reconcile перевіряє це й шукає проводки-сироти.', 'Σ дебет = Σ кредит'],
-    en: ['Double-entry ledger', 'Every transfer posts two entries, a debit and a credit. The books must balance, and an end-of-day reconcile checks it and flags orphan entries.', 'Σ debit = Σ credit'] },
-  { kind: 'atomic', tint: '#6aa8ff',
-    uk: ['Атомарні перекази', 'Списання, зарахування й перевірка балансу йдуть в одній SQL-транзакції. Перевірка стоїть усередині UPDATE (WHERE balance ≥ amount), тому паралельні запити не можуть піти в мінус.', 'pending → processing → completed'],
-    en: ['Atomic transfers', 'Debit, credit and the balance check run in one SQL transaction. The check sits inside the UPDATE (WHERE balance ≥ amount), so parallel requests cannot overdraw an account.', 'pending → processing → completed'] },
+  { kind: 'passkey', tint: '#ff9f43',
+    uk: ['Passkey на WebAuthn', 'Вхід за Face ID чи Touch ID за стандартом WebAuthn. Resident-ключі бажані, а верифікація користувача обов’язкова в кожній церемонії.', 'WebAuthn · UV required'],
+    en: ['WebAuthn passkeys', 'Sign-in with Face ID or Touch ID through the WebAuthn standard. Resident keys are preferred and user verification is required on every ceremony.', 'WebAuthn · UV required'] },
+  { kind: 'tds', tint: '#5ac8fa',
+    uk: ['3-D Secure', 'Шестицифровий OTP живе 3 хвилини. Після перевірки видається одноразовий токен сесії на 5 хвилин, а платіж споживає його рівно один раз.', 'OTP 180 с · токен 300 с'],
+    en: ['3-D Secure', 'A six-digit OTP lives for 3 minutes. Verifying it issues a one-time session token valid for 5 minutes, and the payment consumes it exactly once.', 'OTP 180 s · token 300 s'] },
   { kind: 'idem', tint: '#ffd400',
     uk: ['Ключі ідемпотентності', 'Тіло запиту канонізується й хешується SHA-256. Той самий ключ і те саме тіло повертають збережену відповідь, той самий ключ з іншим тілом дає конфлікт.', 'new · processing · replay · conflict'],
     en: ['Idempotency keys', 'The request body is canonicalised and hashed with SHA-256. The same key and body replays the saved answer; the same key with a different body is a conflict.', 'new · processing · replay · conflict'] },
   { kind: 'fraud', tint: '#ff6b5e',
     uk: ['Нечіткий антифрод', '28 правил у трьох шарах: 5 за самим переказом, 12 за історією відправника, 11 за парою відправник–одержувач і графом переказів. Свідчення об’єднує Noisy-OR, 1 − ∏(1 − pᵢ); критичний скор блокує переказ до зміни балансів.', '28 правил · Noisy-OR'],
     en: ['Fuzzy fraud engine', '28 rules in three layers: 5 on the transfer alone, 12 on the sender’s history, 11 on the sender–recipient pair and the transfer graph. Evidence is combined by Noisy-OR, 1 − ∏(1 − pᵢ); a critical score blocks the transfer before any balance moves.', '28 rules · Noisy-OR'] },
-  { kind: 'chain', tint: '#b08cff',
-    uk: ['Хеш-ланцюг', 'Кожна транзакція хешується разом із хешем попередньої. Правка історії в обхід застосунку ламає всі наступні ланки, а перевірка це виявляє.', 'SHA-256 · tamper-evident'],
-    en: ['Hash chain', 'Each transaction is hashed together with the previous one’s hash. Editing history behind the app’s back breaks every later link, and a verification pass detects it.', 'SHA-256 · tamper-evident'] },
   { kind: 'hold', tint: '#c7a46f',
     uk: ['Холди авторизації', 'Преавторизація резервує кошти: доступно = баланс − Σ активних холдів. Холд проводиться, знімається або спливає за TTL, від 12 до 72 годин залежно від типу.', 'authorize · capture · release'],
     en: ['Authorization holds', 'Pre-authorisation reserves funds: available = balance − Σ active holds. A hold is captured, released or expires after its TTL, from 12 to 72 hours by type.', 'authorize · capture · release'] },
-  { kind: 'tds', tint: '#5ac8fa',
-    uk: ['3-D Secure', 'Шестицифровий OTP живе 3 хвилини. Після перевірки видається одноразовий токен сесії на 5 хвилин, а платіж споживає його рівно один раз.', 'OTP 180 с · токен 300 с'],
-    en: ['3-D Secure', 'A six-digit OTP lives for 3 minutes. Verifying it issues a one-time session token valid for 5 minutes, and the payment consumes it exactly once.', 'OTP 180 s · token 300 s'] },
-  { kind: 'passkey', tint: '#ff9f43',
-    uk: ['Passkey на WebAuthn', 'Вхід за Face ID чи Touch ID за стандартом WebAuthn. Resident-ключі бажані, а верифікація користувача обов’язкова в кожній церемонії.', 'WebAuthn · UV required'],
-    en: ['WebAuthn passkeys', 'Sign-in with Face ID or Touch ID through the WebAuthn standard. Resident keys are preferred and user verification is required on every ceremony.', 'WebAuthn · UV required'] },
+  { kind: 'atomic', tint: '#6aa8ff',
+    uk: ['Атомарні перекази', 'Списання, зарахування й перевірка балансу йдуть в одній SQL-транзакції. Перевірка стоїть усередині UPDATE (WHERE balance ≥ amount), тому паралельні запити не можуть піти в мінус.', 'pending → processing → completed'],
+    en: ['Atomic transfers', 'Debit, credit and the balance check run in one SQL transaction. The check sits inside the UPDATE (WHERE balance ≥ amount), so parallel requests cannot overdraw an account.', 'pending → processing → completed'] },
+  { kind: 'ledger', tint: '#4fd18b',
+    uk: ['Подвійний запис', 'Кожен переказ дає дві проводки: дебет і кредит. Баланс має сходитися, а наприкінці дня reconcile перевіряє це й шукає проводки-сироти.', 'Σ дебет = Σ кредит'],
+    en: ['Double-entry ledger', 'Every transfer posts two entries, a debit and a credit. The books must balance, and an end-of-day reconcile checks it and flags orphan entries.', 'Σ debit = Σ credit'] },
+  { kind: 'chain', tint: '#b08cff',
+    uk: ['Хеш-ланцюг', 'Кожна транзакція хешується разом із хешем попередньої. Правка історії в обхід застосунку ламає всі наступні ланки, а перевірка це виявляє.', 'SHA-256 · tamper-evident'],
+    en: ['Hash chain', 'Each transaction is hashed together with the previous one’s hash. Editing history behind the app’s back breaks every later link, and a verification pass detects it.', 'SHA-256 · tamper-evident'] },
   { kind: 'receipt', tint: '#e6c35c',
     uk: ['Квитанції з перевіркою', 'TT-XXXX-XXXX-XXXX — це 12 символів base32 від HMAC-SHA256 за видом, посиланням і власником. Без серверного ключа код не підробити, а публічна перевірка показує лише знеособлені реквізити.', 'HMAC-SHA256 · QR'],
     en: ['Verifiable receipts', 'TT-XXXX-XXXX-XXXX is 12 base32 characters of an HMAC-SHA256 over kind, reference and owner. It cannot be forged without the server key, and the public check page shows masked details only.', 'HMAC-SHA256 · QR'] },
 ];
 const HOOD_PHOTO: Record<Kind, string> = {
-  ledger: '/cards/roma-forum.webp', atomic: '/landing/rome-forum-sunset.webp', idem: '/landing/rome-trevi-night.webp',
-  fraud: '/cards/roma-colosseum.webp', chain: '/cards/roma-aqueduct.webp', hold: '/cards/roma-pantheon.webp',
-  tds: '/cards/roma-marble.webp', passkey: '/landing/rome-pantheon-night.webp', receipt: '/cards/roma-colosseum-night.webp',
+  passkey: '/landing/rome-pantheon-night.webp', tds: '/cards/roma-aqueduct.webp', idem: '/landing/rome-forum-sunset.webp',
+  fraud: '/cards/roma-pantheon.webp', hold: '/cards/roma-marble.webp', atomic: '/landing/rome-trevi-night.webp',
+  ledger: '/cards/roma-forum.webp', chain: '/cards/roma-colosseum.webp', receipt: '/cards/roma-colosseum-night.webp',
 };
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 
@@ -239,21 +240,35 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const [sound, setSound] = useState(false);
   useEffect(() => { const disarm = armSound(), f = () => setSound(soundOn()), unsub = onSound(f); f(); return () => { disarm(); unsub(); }; }, []);
   const [menu, setMenu] = useState(false);
-  const [hood, setHood] = useState(0);
+  const [hood, setHood] = useState(0);          // station whose card is shown
+  const [hoodTo, setHoodTo] = useState(0);        // station the train is heading for
+  const [hoodGo, setHoodGo] = useState(false);    // train is between stations
+  const [plat, setPlat] = useState<PlatPhase>('at'); // the big train at the platform: standing, leaving, or waiting to roll in
+  const platT = useRef<number[]>([]);
+  useEffect(() => () => platT.current.forEach(clearTimeout), []);
+  // The big train leaves as the map train sets off and rolls in about two seconds before it arrives.
+  const platDepart = (ms: number) => {
+    platT.current.forEach(clearTimeout); platT.current = [];
+    setPlat('out');
+    platT.current.push(window.setTimeout(() => setPlat('left'), 1500), window.setTimeout(() => setPlat('at'), Math.max(1800, ms - 1900)));
+  };
   const [holder, setHolder] = useState('');
-  const hoodAuto = useRef(true);
   const hoodRef = useRef<HTMLDivElement | null>(null);
-  // The map walks through the nine places on its own while it is on screen, until the visitor picks one.
+  const hoodIdle = useRef<{ since: number; user: number; going?: boolean }>({ since: Date.now(), user: 0 });
+  // The train runs the line by itself while the section is on screen, and waits a while after the visitor picks a station.
   useEffect(() => {
     const el = hoodRef.current;
     if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let seen = false;
     const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; }, { threshold: 0.35 });
     io.observe(el);
-    const id = window.setInterval(() => { if (seen && hoodAuto.current) setHood(h => (h + 1) % HOOD.length); }, 6500);
+    const id = window.setInterval(() => {
+      const q = hoodIdle.current, now = Date.now();
+      if (seen && !q.going && now - q.since > 5200 && now - q.user > 9000) setHoodTo(h => (h + 1) % HOOD.length);
+    }, 600);
     return () => { io.disconnect(); window.clearInterval(id); };
   }, []);
-  const pickHood = (i: number) => { hoodAuto.current = false; setHood(i); };
+  const pickHood = (i: number) => { hoodIdle.current.user = Date.now(); setHoodTo(i); };
   useEffect(() => {
     const root = rootRef.current;
     if (!menu || !root) return;
@@ -493,6 +508,25 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           toast={(
             <div className="bl-toast bl-push bl-toast-pay">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
           )}
+          receipt={(() => {
+            const amt = Number(shop[0]?.price) || 14490;
+            return (
+              <div className="bl-rcpt">
+                <div className="bl-rcpt-head"><img src="/icons/mark-white.svg" alt="" /><span>TaxTech</span><em>{t('Квитанція', 'Receipt')}</em></div>
+                <div className="bl-rcpt-row"><span>Saint Agnes</span></div>
+                <div className="bl-rcpt-sum"><span>TAX</span><b className="bl-count" data-v={amt}>{fmt(amt)}</b></div>
+                <div className="bl-rcpt-dash" />
+                <div className="bl-rcpt-code">
+                  <svg viewBox="0 0 11 11" shapeRendering="crispEdges">
+                    {[[0, 0], [7, 0], [0, 7]].map(([x, y]) => <path key={x + '' + y} d={`M${x} ${y}h4v4h-4zM${x + 1} ${y + 1}v2h2v-2z`} fillRule="evenodd" />)}
+                    {QR_CELLS.map(([c, r]) => <rect key={c + '-' + r} x={c} y={r} width="1" height="1" />)}
+                  </svg>
+                  <div><b>TT-7K2M-9QDA-X4RP</b><span>HMAC-SHA256</span></div>
+                </div>
+                <span className="bl-rcpt-stamp">{t('СПЛАЧЕНО', 'PAID')}</span>
+              </div>
+            );
+          })()}
         />
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
@@ -502,11 +536,14 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <h2 className="bl-h">{t('Під капотом.', 'Under the hood.')}</h2>
             </div>
             <div className="bl-hood bl-rv" ref={hoodRef}>
-              <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} active={hood} onSelect={pickHood} />
+              <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} />
+              <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
+                onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
+                onArrive={i => { hoodIdle.current.going = false; hoodIdle.current.since = Date.now(); setHood(i); setHoodGo(false); }} />
               {(() => {
                 const x = HOOD[hood];
                 return (
-                  <article key={x.kind} className="bl-tilex in" style={{ ['--tint' as string]: x.tint }} aria-live="polite">
+                  <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite">
                     <div className="bl-tx-art" style={{ ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` }}>
                       <svg className="bl-tx-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="currentColor" strokeWidth=".25" /></svg>
                       <span className="bl-tx-num" aria-hidden>{ROMAN[hood]}</span>

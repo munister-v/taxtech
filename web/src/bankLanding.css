@@ -758,3 +758,84 @@
 .bl-final .bl-cta { margin-top: 26px; }
 @media (min-width: 961px) { .bl-final { align-items: center; padding-top: 120px; } .bl-final .bl-h-xl { font-size: clamp(40px, 4.6vw, 72px); } }
 @media (prefers-reduced-motion: reduce) { .bl-final-tilt { animation: none; } .bl-final-card::before { animation: none; } }
+
+/* Tap: a ring fills as the card nears the terminal, and after the tap a receipt prints */
+.bl-tap-charge { position: absolute; left: 47%; top: 52.5%; width: 10%; aspect-ratio: 1; translate: -50% -50%; rotate: -90deg; overflow: visible; pointer-events: none; transition: opacity .3s; }
+.bl-tap-charge circle { fill: none; stroke-linecap: round; }
+.bl-tap-charge .t { stroke: rgba(255,255,255,.22); stroke-width: 1.4; }
+.bl-tap-charge .f { stroke: var(--yellow); stroke-width: 2.6; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--pc, 0)); filter: drop-shadow(0 0 6px rgba(255,212,0,.8)); }
+.bl-tap.hit .bl-tap-charge { opacity: 0; }
+.bl-tap-r { grid-area: 1 / 1; justify-self: end; align-self: center; position: relative; z-index: 2; pointer-events: none; }
+.bl-rcpt { position: relative; width: clamp(280px, 25vw, 340px); padding: 18px 20px 30px; color: #1b1813; background: linear-gradient(180deg, #f8f3e8, #efe8d8); font-family: ui-monospace, "SF Mono", Menlo, monospace; box-shadow: 0 30px 60px -20px rgba(0,0,0,.8);
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+  clip-path: inset(0 0 100% 0); opacity: 0; rotate: 2.5deg; transform-origin: 50% 0; }
+.bl-tap.hit .bl-rcpt { animation: bl-print 1.4s cubic-bezier(.3,.7,.2,1) .55s both; }
+@keyframes bl-print { 0% { clip-path: inset(0 0 100% 0); opacity: 1; translate: 0 -30px; } 100% { clip-path: inset(0 0 0 0); opacity: 1; translate: 0 0; } }
+.bl-rcpt-head { display: flex; align-items: center; gap: 8px; padding-bottom: 12px; border-bottom: 1px dashed rgba(27,24,19,.4); font: 700 13px var(--display), sans-serif; letter-spacing: -.01em; }
+.bl-rcpt-head img { width: 20px; height: 20px; filter: invert(1); }
+.bl-rcpt-head em { margin-left: auto; font-style: normal; font: 500 10px ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; opacity: .6; }
+.bl-rcpt-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 11.5px; opacity: .75; }
+.bl-rcpt-sum { display: flex; align-items: baseline; justify-content: space-between; margin-top: 10px; }
+.bl-rcpt-sum span { font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.bl-rcpt-sum b { font: 700 34px var(--display), sans-serif; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.bl-rcpt-dash { margin: 14px 0; border-top: 1px dashed rgba(27,24,19,.4); }
+.bl-rcpt-code { display: flex; align-items: center; gap: 12px; }
+.bl-rcpt-code svg { flex: none; width: 58px; height: 58px; fill: #1b1813; }
+.bl-rcpt-code div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bl-rcpt-code b { font-size: 11.5px; letter-spacing: .02em; white-space: nowrap; }
+.bl-rcpt-code span { font-size: 10px; letter-spacing: .12em; opacity: .55; }
+.bl-rcpt-stamp { position: absolute; right: 18px; top: 58px; padding: 3px 9px; border: 2px solid #1f9d5c; border-radius: 6px; color: #1f9d5c; font: 800 13px var(--display), sans-serif; letter-spacing: .14em; rotate: -12deg; opacity: 0; }
+.bl-tap.hit .bl-rcpt-stamp { animation: bl-stamp .35s cubic-bezier(.2,1.6,.3,1) 1.7s both; }
+@keyframes bl-stamp { from { opacity: 0; scale: 2.2; } to { opacity: .9; scale: 1; } }
+@media (max-width: 860px) {
+  .bl-tap-r { align-self: start; justify-self: center; margin-top: 92px; }
+  .bl-rcpt { width: 232px; padding: 14px 16px 26px; }
+  .bl-rcpt-sum b { font-size: 28px; }
+  .bl-tap-charge { width: 14%; }
+}
+@media (prefers-reduced-motion: reduce) { .bl-tap.hit .bl-rcpt { animation-duration: .01s; animation-delay: 0s; } .bl-tap.hit .bl-rcpt-stamp { animation-delay: 0s; } }
+
+/* Under the hood: the line, the train, the stops */
+.hm-rail { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.hm-line-bed { display: none; }
+.hm-line { stroke: rgba(8,10,20,.9); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.hm-line-in { stroke: rgba(255,212,0,.28); stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+.hm-done { stroke: var(--yellow); stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 5px rgba(255,212,0,.65)); }
+.hm-car { filter: drop-shadow(0 0 7px rgba(255,212,0,.55)); }
+.hm-pin.pass b { box-shadow: inset 0 0 0 1px var(--yellow); color: var(--yellow); }
+.hm-pin.on b { color: #14100a; }
+.hm-pin.next .hm-ring { animation: hm-pulse 1.6s ease-out infinite; border-color: var(--yellow); }
+.hm-t span { left: 50%; top: -34px; translate: -50% 0; }
+.hm-b span { left: 50%; top: 22px; translate: -50% 0; }
+.bl-hood > .bl-tilex { transition: opacity .35s, filter .35s, translate .35s; }
+.bl-hood > .bl-tilex.go { opacity: .5; filter: saturate(.6); translate: 0 4px; }
+
+/* Platform: a night station under Roman arches, a metro train that rolls in and out in step with the map */
+.bl-plat { grid-column: 1 / -1; position: relative; height: clamp(230px, 26vw, 330px); overflow: hidden; border-radius: 22px; background: #0b0907; box-shadow: inset 0 0 0 1px rgba(199,164,111,.3); isolation: isolate; }
+.bl-plat-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bl-plat-shade { position: absolute; inset: 0; z-index: 4; pointer-events: none; border-radius: inherit; background: linear-gradient(90deg, rgba(0,0,0,.55), transparent 14%, transparent 86%, rgba(0,0,0,.55)), linear-gradient(180deg, rgba(0,0,0,.35), transparent 30%, transparent 78%, rgba(0,0,0,.5)); }
+.bl-plat-train { position: absolute; z-index: 2; left: 2%; width: 96%; bottom: 12%; will-change: transform; filter: drop-shadow(0 16px 20px rgba(0,0,0,.55)); transform: translateX(130%); transition: transform 1.35s cubic-bezier(.65,0,.95,.45) .6s; }
+.bl-plat-train svg { display: block; width: 100%; height: auto; overflow: visible; }
+.bl-plat.at .bl-plat-train { transform: none; transition: transform 1.9s cubic-bezier(.08,.75,.2,1); }
+.bl-plat.left .bl-plat-train { transform: translateX(-130%); transition: none; }
+.bl-plat-door .l, .bl-plat-door .r { transition: transform .55s cubic-bezier(.5,0,.2,1); }
+.bl-plat.at .bl-plat-door .l { transform: translateX(-34px); transition-delay: 1.95s; }
+.bl-plat.at .bl-plat-door .r { transform: translateX(34px); transition-delay: 1.95s; }
+.bl-plat-led { fill: #ff5b4a; transition: fill .2s; }
+.bl-plat.at .bl-plat-led { fill: #2fd07a; transition-delay: 1.95s; }
+.bl-plat-lamp { animation: bl-breathe 3s ease-in-out infinite; }
+.bl-plat-sign { position: absolute; z-index: 3; left: 50%; top: 18px; translate: -50% 0; display: flex; align-items: center; gap: 14px; max-width: calc(100% - 28px); padding: 10px 24px 10px 12px; border-radius: 14px; background: rgba(10,8,5,.88); box-shadow: inset 0 0 0 1px rgba(220,193,149,.55), 0 14px 30px -10px rgba(0,0,0,.8); }
+.bl-plat-sign::before, .bl-plat-sign::after { content: ""; position: absolute; top: -18px; width: 2px; height: 18px; background: rgba(220,193,149,.45); }
+.bl-plat-sign::before { left: 22%; } .bl-plat-sign::after { right: 22%; }
+.bl-plat-line { display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #14100a; font: 700 18px var(--display), sans-serif; }
+.bl-plat-st, .bl-plat-nx { display: flex; align-items: baseline; gap: 12px; min-width: 0; font: 600 clamp(15px, 2vw, 22px) var(--display), sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #fff; white-space: nowrap; }
+.bl-plat-st em { font-style: normal; font-weight: 300; font-size: 1.5em; letter-spacing: .04em; background: linear-gradient(180deg, #fff3d2, var(--gold-l) 60%, #a0824f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bl-plat-nx { color: rgba(255,255,255,.65); font-weight: 500; }
+.bl-plat-nx i { font-style: normal; color: var(--yellow); }
+@media (max-width: 734px) {
+  .bl-plat { height: 190px; }
+  .bl-plat-train { width: 190%; left: -45%; bottom: 10%; }
+  .bl-plat-sign { top: 12px; padding: 8px 16px 8px 10px; gap: 10px; }
+  .bl-plat-line { width: 28px; height: 28px; font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { .bl-plat-train, .bl-plat.at .bl-plat-train, .bl-plat-door .l, .bl-plat-door .r { transition-duration: .01s; transition-delay: 0s; } .bl-plat-lamp { animation: none; } }
