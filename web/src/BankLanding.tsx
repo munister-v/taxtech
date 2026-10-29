@@ -43,32 +43,32 @@ const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
 type Kind = 'ledger' | 'atomic' | 'idem' | 'fraud' | 'chain' | 'hold' | 'tds' | 'passkey' | 'receipt';
 const HOOD: { kind: Kind; tint: string; uk: [string, string, string]; en: [string, string, string] }[] = [
   { kind: 'passkey', tint: '#ff9f43',
-    uk: ['Passkey на WebAuthn', 'Вхід за Face ID чи Touch ID за стандартом WebAuthn. Resident-ключі бажані, а верифікація користувача обов’язкова в кожній церемонії.', 'WebAuthn · UV required'],
-    en: ['WebAuthn passkeys', 'Sign-in with Face ID or Touch ID through the WebAuthn standard. Resident keys are preferred and user verification is required on every ceremony.', 'WebAuthn · UV required'] },
+    uk: ['Passkey на WebAuthn', 'Face ID або Touch ID замість пароля, за стандартом WebAuthn. Приватний ключ ніколи не залишає пристрій, а верифікація користувача обов’язкова при кожному вході.', 'WebAuthn · UV required'],
+    en: ['WebAuthn passkeys', 'Face ID or Touch ID instead of a password, on the WebAuthn standard. The private key never leaves the device, and user verification is required on every sign-in.', 'WebAuthn · UV required'] },
   { kind: 'tds', tint: '#5ac8fa',
-    uk: ['3-D Secure', 'Шестицифровий OTP живе 3 хвилини. Після перевірки видається одноразовий токен сесії на 5 хвилин, а платіж споживає його рівно один раз.', 'OTP 180 с · токен 300 с'],
-    en: ['3-D Secure', 'A six-digit OTP lives for 3 minutes. Verifying it issues a one-time session token valid for 5 minutes, and the payment consumes it exactly once.', 'OTP 180 s · token 300 s'] },
+    uk: ['3-D Secure', 'Шестицифровий одноразовий код живе 3 хвилини. Після підтвердження видається токен сесії на 5 хвилин, і платіж витрачає його рівно один раз.', 'OTP 180 с · токен 300 с'],
+    en: ['3-D Secure', 'A six-digit one-time code lives for 3 minutes. Confirming it issues a session token valid for 5 minutes, and the payment spends it exactly once.', 'OTP 180 s · token 300 s'] },
   { kind: 'idem', tint: '#ffd400',
-    uk: ['Ключі ідемпотентності', 'Тіло запиту канонізується й хешується SHA-256. Той самий ключ і те саме тіло повертають збережену відповідь, той самий ключ з іншим тілом дає конфлікт.', 'new · processing · replay · conflict'],
-    en: ['Idempotency keys', 'The request body is canonicalised and hashed with SHA-256. The same key and body replays the saved answer; the same key with a different body is a conflict.', 'new · processing · replay · conflict'] },
+    uk: ['Ключі ідемпотентності', 'Тіло запиту канонізується й хешується SHA-256. Повтор із тим самим ключем повертає збережену відповідь, а той самий ключ з іншим тілом дає конфлікт. Платіж не списується двічі.', 'new · processing · replay · conflict'],
+    en: ['Idempotency keys', 'The request body is canonicalised and hashed with SHA-256. A retry with the same key returns the saved answer; the same key with a different body is a conflict. A payment is never charged twice.', 'new · processing · replay · conflict'] },
   { kind: 'fraud', tint: '#ff6b5e',
-    uk: ['Нечіткий антифрод', '28 правил у трьох шарах: 5 за самим переказом, 12 за історією відправника, 11 за парою відправник–одержувач і графом переказів. Свідчення об’єднує Noisy-OR, 1 − ∏(1 − pᵢ); критичний скор блокує переказ до зміни балансів.', '28 правил · Noisy-OR'],
-    en: ['Fuzzy fraud engine', '28 rules in three layers: 5 on the transfer alone, 12 on the sender’s history, 11 on the sender–recipient pair and the transfer graph. Evidence is combined by Noisy-OR, 1 − ∏(1 − pᵢ); a critical score blocks the transfer before any balance moves.', '28 rules · Noisy-OR'] },
+    uk: ['Нечіткий антифрод', '28 правил у трьох шарах: сам переказ, історія відправника, а також пара відправник — одержувач із графом переказів. Свідчення об’єднує Noisy-OR, 1 − ∏(1 − pᵢ), а критичний скор блокує переказ до зміни балансів.', '28 правил · Noisy-OR'],
+    en: ['Fuzzy fraud engine', '28 rules in three layers: the transfer itself, the sender’s history, and the sender–recipient pair with the transfer graph. Evidence is combined by Noisy-OR, 1 − ∏(1 − pᵢ), and a critical score blocks the transfer before any balance moves.', '28 rules · Noisy-OR'] },
   { kind: 'hold', tint: '#c7a46f',
     uk: ['Холди авторизації', 'Преавторизація резервує кошти: доступно = баланс − Σ активних холдів. Холд проводиться, знімається або спливає за TTL, від 12 до 72 годин залежно від типу.', 'authorize · capture · release'],
-    en: ['Authorization holds', 'Pre-authorisation reserves funds: available = balance − Σ active holds. A hold is captured, released or expires after its TTL, from 12 to 72 hours by type.', 'authorize · capture · release'] },
+    en: ['Authorization holds', 'Pre-authorisation reserves funds: available = balance − Σ active holds. A hold is captured, released, or expires on its TTL, from 12 to 72 hours depending on type.', 'authorize · capture · release'] },
   { kind: 'atomic', tint: '#6aa8ff',
-    uk: ['Атомарні перекази', 'Списання, зарахування й перевірка балансу йдуть в одній SQL-транзакції. Перевірка стоїть усередині UPDATE (WHERE balance ≥ amount), тому паралельні запити не можуть піти в мінус.', 'pending → processing → completed'],
-    en: ['Atomic transfers', 'Debit, credit and the balance check run in one SQL transaction. The check sits inside the UPDATE (WHERE balance ≥ amount), so parallel requests cannot overdraw an account.', 'pending → processing → completed'] },
+    uk: ['Атомарні перекази', 'Списання, зарахування й перевірка балансу виконуються в одній SQL-транзакції. Умова WHERE balance ≥ amount стоїть усередині самого UPDATE, тож паралельні запити не можуть загнати рахунок у мінус.', 'pending → processing → completed'],
+    en: ['Atomic transfers', 'Debit, credit and the balance check run in one SQL transaction. The condition WHERE balance ≥ amount sits inside the UPDATE itself, so parallel requests cannot push an account below zero.', 'pending → processing → completed'] },
   { kind: 'ledger', tint: '#4fd18b',
-    uk: ['Подвійний запис', 'Кожен переказ дає дві проводки: дебет і кредит. Баланс має сходитися, а наприкінці дня reconcile перевіряє це й шукає проводки-сироти.', 'Σ дебет = Σ кредит'],
-    en: ['Double-entry ledger', 'Every transfer posts two entries, a debit and a credit. The books must balance, and an end-of-day reconcile checks it and flags orphan entries.', 'Σ debit = Σ credit'] },
+    uk: ['Подвійний запис', 'Кожен переказ дає дві проводки, дебет і кредит, і Σ дебету дорівнює Σ кредиту. Наприкінці дня reconcile звіряє книги й шукає проводки-сироти.', 'Σ дебет = Σ кредит'],
+    en: ['Double-entry ledger', 'Every transfer posts two entries, a debit and a credit, and Σ debit equals Σ credit. At the end of the day a reconcile checks the books and looks for orphan entries.', 'Σ debit = Σ credit'] },
   { kind: 'chain', tint: '#b08cff',
-    uk: ['Хеш-ланцюг', 'Кожна транзакція хешується разом із хешем попередньої. Правка історії в обхід застосунку ламає всі наступні ланки, а перевірка це виявляє.', 'SHA-256 · tamper-evident'],
-    en: ['Hash chain', 'Each transaction is hashed together with the previous one’s hash. Editing history behind the app’s back breaks every later link, and a verification pass detects it.', 'SHA-256 · tamper-evident'] },
+    uk: ['Хеш-ланцюг', 'Кожна транзакція хешується разом з хешем попередньої. Правка історії в обхід застосунку ламає всі наступні ланки, і перевірка це виявляє.', 'SHA-256 · tamper-evident'],
+    en: ['Hash chain', 'Each transaction is hashed together with the hash of the one before it. Editing history behind the app’s back breaks every later link, and verification catches it.', 'SHA-256 · tamper-evident'] },
   { kind: 'receipt', tint: '#e6c35c',
     uk: ['Квитанції з перевіркою', 'TT-XXXX-XXXX-XXXX — це 12 символів base32 від HMAC-SHA256 за видом, посиланням і власником. Без серверного ключа код не підробити, а публічна перевірка показує лише знеособлені реквізити.', 'HMAC-SHA256 · QR'],
-    en: ['Verifiable receipts', 'TT-XXXX-XXXX-XXXX is 12 base32 characters of an HMAC-SHA256 over kind, reference and owner. It cannot be forged without the server key, and the public check page shows masked details only.', 'HMAC-SHA256 · QR'] },
+    en: ['Verifiable receipts', 'TT-XXXX-XXXX-XXXX is 12 base32 characters of an HMAC-SHA256 over kind, reference and owner. Without the server key it cannot be forged, and the public check page shows masked details only.', 'HMAC-SHA256 · QR'] },
 ];
 const HOOD_PHOTO: Record<Kind, string> = {
   passkey: '/landing/rome-pantheon-night.webp', tds: '/cards/roma-aqueduct.webp', idem: '/landing/rome-forum-sunset.webp',
@@ -250,7 +250,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const platDepart = (ms: number) => {
     platT.current.forEach(clearTimeout); platT.current = [];
     setPlat('out');
-    platT.current.push(window.setTimeout(() => setPlat('left'), 1500), window.setTimeout(() => setPlat('at'), Math.max(1800, ms - 1900)));
+    platT.current.push(window.setTimeout(() => setPlat('left'), 1500), window.setTimeout(() => setPlat('at'), Math.max(1800, ms - 2600)));
   };
   const [holder, setHolder] = useState('');
   const hoodRef = useRef<HTMLDivElement | null>(null);
@@ -453,10 +453,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <div className="bl-cine-bg" aria-hidden><RomeMap /></div>
           <section id="top" className="bl-hero">
             <div className="bl-wrap bl-hero-in">
-              <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
+              <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(t('Платіть, як у Римі.', 'Pay like Rome.').split(' '))}</h1>
               <div className="bl-cta">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-                <a className="bl-ghost" href="#inside">{t('Під капотом', 'Under the hood')}</a>
+                <a className="bl-ghost" href="#inside">{t('Як це працює', 'How it works')}</a>
               </div>
             </div>
             {/* The debit arrives the way a real one does: a banner from the top (top right on a desktop, like macOS) */}
@@ -533,10 +533,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <section id="inside" className="bl-sec bl-inside">
           <div className="bl-wrap">
             <div className="bl-inside-head bl-rv">
-              <h2 className="bl-h">{t('Під капотом.', 'Under the hood.')}</h2>
+              <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
             <div className="bl-hood bl-rv" ref={hoodRef}>
-              <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} />
+              <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} rose={CARD_ROSETTE} />
               <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
                 onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
                 onArrive={i => { hoodIdle.current.going = false; hoodIdle.current.since = Date.now(); setHood(i); setHoodGo(false); }} />
@@ -571,7 +571,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={{ backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` }} />)}
           </div>
           <div className="bl-wrap bl-center">
-            <h2 className="bl-h bl-rv">{t('Шість облич.', 'Six faces.')}</h2>
+            <h2 className="bl-h bl-rv">{t('Шість облич Рима.', 'Six faces of Rome.')}</h2>
             <div className="bl-rv">
               <FaceFlow count={FINISHES.length} active={FINISHES.findIndex(f => f.id === finish)} onChange={i => setFinish(FINISHES[i].id)}
                 renderCard={i => <Card finish={FINISHES[i].id} />} labelPrev={t('Попередня картка', 'Previous card')} labelNext={t('Наступна картка', 'Next card')} />

@@ -674,7 +674,7 @@
 /* ── Under the hood, Roman edition: tiles are small cards of ours (Rome photo, guilloche rosette, numeral, engraved caps) ── */
 .bl-inside { background: radial-gradient(70% 36% at 50% 0%, rgba(199,164,111,.12), transparent 72%), #000; }
 .bl .bl-inside-head .bl-h { font-weight: 700; letter-spacing: -0.04em; line-height: 1; font-size: clamp(36px, 6.2vw, 84px); white-space: nowrap;
-  background: linear-gradient(180deg, #f6e7c4 0%, var(--gold-l) 46%, #9a7a46 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  background: linear-gradient(180deg, #f6e7c4 0%, var(--gold-l) 46%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .bl-inside-head::after { content: ""; display: block; width: min(320px, 70%); height: 9px; margin: 30px auto 0; background:
   linear-gradient(90deg, transparent, var(--gold)) left center / calc(50% - 14px) 1px no-repeat,
   linear-gradient(90deg, var(--gold), transparent) right center / calc(50% - 14px) 1px no-repeat,
@@ -696,7 +696,7 @@
 .bl-tx-rose { position: absolute; z-index: -2; right: -34%; top: -58%; width: 118%; aspect-ratio: 1; color: var(--gold-l); opacity: .5; mix-blend-mode: screen; animation: bl-rose-turn 120s linear infinite; }
 @keyframes bl-rose-turn { to { transform: rotate(360deg); } }
 .bl-tx-num { position: absolute; left: 20px; top: 14px; font-family: var(--roman); font-weight: 300; font-size: 40px; line-height: 1; letter-spacing: .06em;
-  background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 55%, #a0824f 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.65)); }
+  background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 55%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.65)); }
 .bl-tx-art .bl-mini { width: 100%; height: 128px; margin: 0; border-radius: 14px; background: rgba(8,7,5,.6); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
   box-shadow: inset 0 0 0 1px rgba(220,193,149,.4), 0 14px 30px -14px rgba(0,0,0,.8); }
 .bl-tx-body { position: relative; display: flex; flex: 1; flex-direction: column; padding: 22px 26px 24px; }
@@ -829,7 +829,7 @@
 .bl-plat-sign::before { left: 22%; } .bl-plat-sign::after { right: 22%; }
 .bl-plat-line { display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #14100a; font: 700 18px var(--display), sans-serif; }
 .bl-plat-st, .bl-plat-nx { display: flex; align-items: baseline; gap: 12px; min-width: 0; font: 600 clamp(15px, 2vw, 22px) var(--display), sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #fff; white-space: nowrap; }
-.bl-plat-st em { font-style: normal; font-weight: 300; font-size: 1.5em; letter-spacing: .04em; background: linear-gradient(180deg, #fff3d2, var(--gold-l) 60%, #a0824f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bl-plat-st em { font-style: normal; font-weight: 300; font-size: 1.5em; letter-spacing: .04em; background: linear-gradient(180deg, #fff3d2, var(--gold-l) 60%, #cfa862); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .bl-plat-nx { color: rgba(255,255,255,.65); font-weight: 500; }
 .bl-plat-nx i { font-style: normal; color: var(--yellow); }
 @media (max-width: 734px) {
@@ -839,3 +839,17 @@
   .bl-plat-line { width: 28px; height: 28px; font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .bl-plat-train, .bl-plat.at .bl-plat-train, .bl-plat-door .l, .bl-plat-door .r { transition-duration: .01s; transition-delay: 0s; } .bl-plat-lamp { animation: none; } }
+
+.bl-plat-spill { opacity: 0; transition: opacity .35s; }
+.bl-plat.at .bl-plat-spill { opacity: 1; transition: opacity .8s ease .95s; }
+.bl-plat-ledtx { filter: drop-shadow(0 0 3px rgba(255,176,32,.85)); }
+.bl-plat { height: clamp(250px, 30vw, 380px); }
+.bl-plat-train { bottom: 10%; }
+@media (max-width: 734px) { .bl-plat { height: 210px; } .bl-plat-train { bottom: 9%; } }
+
+.bl-plat-glhost { position: absolute; inset: 0; z-index: 2; }
+.bl-plat-gl { display: block; width: 100%; height: 100%; }
+.bl-plat.gl .bl-plat-train, .bl-plat.gl .bl-plat-bg { display: none; }
+
+/* Hero: the last word in the same gold as the rest of the page */
+.bl-hero h1 .bl-gold { background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 52%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
