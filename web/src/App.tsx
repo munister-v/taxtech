@@ -1,5 +1,7 @@
 import markSvg from './assets/mark.svg?raw';
 import BankLanding from './BankLanding';
+import { initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
+import { setTrLang, tr, trLang } from './appI18n';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
@@ -312,7 +314,8 @@ const API_BASE = (typeof window !== 'undefined' && (window as { ARMY_BANK_BASE?:
 function localeForLang(lang: AppLang): string {
   return lang === 'en' ? 'en-US'
     : lang === 'it' ? 'it-IT'
-    : lang === 'es' ? 'es-ES'
+    : lang === 'de' ? 'de-DE'
+    : lang === 'ru' ? 'ru-RU'
     : 'uk-UA';
 }
 
@@ -364,12 +367,12 @@ function cardTail(masked?: string): string {
 
 const CARD_INDEX_STORAGE_KEY = 'army_bank_selected_card_idx';
 const PROFILE_PHOTO_STORAGE_KEY = 'army_bank_profile_photo';
-const LANGUAGE_STORAGE_KEY = 'army_bank_language';
 const ACTIVE_TAB_STORAGE_KEY = 'army_bank_active_tab';
 const MARKET_TAB_STORAGE_KEY = 'army_bank_market_tab';
 const APP_CONTINUATION_STORAGE_KEY = 'army_bank_recently_active';
 
-type AppLang = 'uk' | 'en' | 'it' | 'es';
+// The same five languages as the landing, and the same saved choice (landingLang.ts).
+type AppLang = LandingLang;
 
 const translations = {
   uk: {
@@ -396,7 +399,7 @@ const translations = {
     no_transactions_yet: 'Транзакцій ще немає',
     topup_or_transfer: 'Поповніть рахунок або зробіть переказ',
     profile_verified: 'Верифікований',
-    profile_name: "Ім'я",
+    profile_name: 'Ім\'я',
     profile_phone: 'Телефон',
     profile_email: 'Email',
     profile_account: 'Рахунок',
@@ -453,7 +456,8 @@ const translations = {
     lang_uk: 'Українська',
     lang_en: 'English',
     lang_it: 'Italiano',
-    lang_es: 'Español',
+    lang_de: 'Deutsch',
+    lang_ru: 'Русский',
     personal_cabinet: 'Особистий кабінет',
     face_id_unavailable: 'Недоступно на цьому пристрої',
     push_notifications: 'Push-сповіщення',
@@ -636,7 +640,7 @@ const translations = {
     copy_success: 'Скопійовано',
     copy_failed: 'Не вдалось скопіювати',
     last_items_badge: 'ОСТАННІ',
-    shipping_name_placeholder: "Прізвище Ім'я По-батькові",
+    shipping_name_placeholder: 'Прізвище Ім\'я По-батькові',
     shipping_address_placeholder: 'м. Київ, вул. Хрещатик 1, кв. 5',
     order_items_suffix: 'поз.',
     due_prefix: 'до',
@@ -739,15 +743,50 @@ const translations = {
     profile_logout: 'Sign out',
     settings_language: 'Language',
     settings_language_sub: 'App interface',
-    settings_notifications: 'Notifications', settings_notif_tx: 'Transactions', settings_notif_security: 'Security', settings_notif_promo: 'Offers & Promotions',
-    settings_limits: 'Budget Limits', settings_limits_sub: 'Monthly spending limit by category', settings_limit_add: 'Add limit', settings_limit_spent: 'spent', settings_limit_of: 'of',
-    settings_pin: 'PIN code', settings_pin_sub: 'To confirm operations', settings_pin_set: 'Set PIN', settings_pin_change: 'Change PIN', settings_pin_clear: 'Remove PIN', settings_pin_active: 'PIN is set',
-    settings_app_info: 'About', settings_version: 'Version', settings_api_status: 'API Status', settings_support: 'Support',
-    dep_title: 'Deposits', dep_open: 'Open deposit', dep_amount: 'Deposit amount', dep_term: 'Term', dep_rate: 'Rate', dep_monthly: 'mo.', dep_interest: 'Interest', dep_maturity: 'Maturity date', dep_days_left: 'days left', dep_auto_renew: 'Auto-renew', dep_close: 'Close deposit', dep_close_early: 'Early withdrawal (no interest)', dep_status_active: 'Active', dep_status_matured: 'Matured', dep_status_closed: 'Closed', dep_status_early: 'Early closed', dep_no_items: 'No active deposits', dep_min_amount: 'Minimum — 500 TAX', dep_accrued: 'Accrued', dep_total_payout: 'Total payout',
+    settings_notifications: 'Notifications',
+    settings_notif_tx: 'Transactions',
+    settings_notif_security: 'Security',
+    settings_notif_promo: 'Offers & Promotions',
+    settings_limits: 'Budget Limits',
+    settings_limits_sub: 'Monthly spending limit by category',
+    settings_limit_add: 'Add limit',
+    settings_limit_spent: 'spent',
+    settings_limit_of: 'of',
+    settings_pin: 'PIN code',
+    settings_pin_sub: 'To confirm operations',
+    settings_pin_set: 'Set PIN',
+    settings_pin_change: 'Change PIN',
+    settings_pin_clear: 'Remove PIN',
+    settings_pin_active: 'PIN is set',
+    settings_app_info: 'About',
+    settings_version: 'Version',
+    settings_api_status: 'API Status',
+    settings_support: 'Support',
+    dep_title: 'Deposits',
+    dep_open: 'Open deposit',
+    dep_amount: 'Deposit amount',
+    dep_term: 'Term',
+    dep_rate: 'Rate',
+    dep_monthly: 'mo.',
+    dep_interest: 'Interest',
+    dep_maturity: 'Maturity date',
+    dep_days_left: 'days left',
+    dep_auto_renew: 'Auto-renew',
+    dep_close: 'Close deposit',
+    dep_close_early: 'Early withdrawal (no interest)',
+    dep_status_active: 'Active',
+    dep_status_matured: 'Matured',
+    dep_status_closed: 'Closed',
+    dep_status_early: 'Early closed',
+    dep_no_items: 'No active deposits',
+    dep_min_amount: 'Minimum — 500 TAX',
+    dep_accrued: 'Accrued',
+    dep_total_payout: 'Total payout',
     lang_uk: 'Ukrainian',
     lang_en: 'English',
     lang_it: 'Italian',
-    lang_es: 'Spanish',
+    lang_de: 'German',
+    lang_ru: 'Russian',
     personal_cabinet: 'Personal banking',
     face_id_unavailable: 'Unavailable on this device',
     push_notifications: 'Push notifications',
@@ -1032,16 +1071,51 @@ const translations = {
     profile_save: 'Salva',
     profile_logout: 'Esci',
     settings_language: 'Lingua',
-    settings_language_sub: "Interfaccia dell'app",
-    settings_notifications: "Notifiche', settings_notif_tx: 'Transazioni', settings_notif_security: 'Sicurezza', settings_notif_promo: 'Offerte",
-    settings_limits: "Limiti di spesa', settings_limits_sub: 'Limite mensile per categoria', settings_limit_add: 'Aggiungi', settings_limit_spent: 'speso', settings_limit_of: 'di",
-    settings_pin: "Codice PIN', settings_pin_sub: 'Per confermare le operazioni', settings_pin_set: 'Imposta PIN', settings_pin_change: 'Cambia PIN', settings_pin_clear: 'Rimuovi PIN', settings_pin_active: 'PIN attivo",
-    settings_app_info: "Info', settings_version: 'Versione', settings_api_status: 'Stato API', settings_support: 'Supporto",
-    dep_title: "Depositi', dep_open: 'Apri deposito', dep_amount: 'Importo', dep_term: 'Durata', dep_rate: 'Tasso', dep_monthly: 'mesi', dep_interest: 'Interessi', dep_maturity: 'Scadenza', dep_days_left: 'giorni rimasti', dep_auto_renew: 'Rinnovo automatico', dep_close: 'Chiudi deposito', dep_close_early: 'Chiusura anticipata (senza interessi)', dep_status_active: 'Attivo', dep_status_matured: 'Scaduto', dep_status_closed: 'Chiuso', dep_status_early: 'Chiuso anticipatamente', dep_no_items: 'Nessun deposito attivo', dep_min_amount: 'Minimo — 500 TAX', dep_accrued: 'Maturato', dep_total_payout: 'Totale rimborso",
+    settings_language_sub: 'Interfaccia dell\'app',
+    settings_notifications: 'Notifiche',
+    settings_notif_tx: 'Transazioni',
+    settings_notif_security: 'Sicurezza',
+    settings_notif_promo: 'Offerte',
+    settings_limits: 'Limiti di spesa',
+    settings_limits_sub: 'Limite mensile per categoria',
+    settings_limit_add: 'Aggiungi',
+    settings_limit_spent: 'speso',
+    settings_limit_of: 'di',
+    settings_pin: 'Codice PIN',
+    settings_pin_sub: 'Per confermare le operazioni',
+    settings_pin_set: 'Imposta PIN',
+    settings_pin_change: 'Cambia PIN',
+    settings_pin_clear: 'Rimuovi PIN',
+    settings_pin_active: 'PIN attivo',
+    settings_app_info: 'Info',
+    settings_version: 'Versione',
+    settings_api_status: 'Stato API',
+    settings_support: 'Supporto',
+    dep_title: 'Depositi',
+    dep_open: 'Apri deposito',
+    dep_amount: 'Importo',
+    dep_term: 'Durata',
+    dep_rate: 'Tasso',
+    dep_monthly: 'mesi',
+    dep_interest: 'Interessi',
+    dep_maturity: 'Scadenza',
+    dep_days_left: 'giorni rimasti',
+    dep_auto_renew: 'Rinnovo automatico',
+    dep_close: 'Chiudi deposito',
+    dep_close_early: 'Chiusura anticipata (senza interessi)',
+    dep_status_active: 'Attivo',
+    dep_status_matured: 'Scaduto',
+    dep_status_closed: 'Chiuso',
+    dep_status_early: 'Chiuso anticipatamente',
+    dep_no_items: 'Nessun deposito attivo',
+    dep_min_amount: 'Minimo — 500 TAX',
+    dep_accrued: 'Maturato',
+    dep_total_payout: 'Totale rimborso',
     lang_uk: 'Ucraino',
     lang_en: 'Inglese',
     lang_it: 'Italiano',
-    lang_es: 'Spagnolo',
+    lang_de: 'Tedesco',
+    lang_ru: 'Russo',
     personal_cabinet: 'Private banking',
     face_id_unavailable: 'Non disponibile su questo dispositivo',
     push_notifications: 'Notifiche push',
@@ -1103,7 +1177,7 @@ const translations = {
     face_id_on: 'Face ID attivato',
     face_id_off: 'Face ID disattivato',
     password_changed: 'Password cambiata con successo',
-    pick_image: "Scegli un'immagine",
+    pick_image: 'Scegli un\'immagine',
     photo_too_large: 'Foto troppo grande (max 3MB)',
     photo_read_error: 'Impossibile leggere la foto',
     photo_updated: 'Foto profilo aggiornata',
@@ -1123,7 +1197,7 @@ const translations = {
     market_title: 'Negozio',
     loading: 'Caricamento…',
     market_empty: 'Negozio vuoto',
-    try_another_query: "Prova un'altra ricerca",
+    try_another_query: 'Prova un\'altra ricerca',
     no_results: 'Nessun risultato',
     products_not_added: 'I prodotti non sono ancora stati aggiunti.',
     orders_empty: 'Nessun ordine',
@@ -1192,7 +1266,7 @@ const translations = {
     analytics_prev_month_suffix: 'rispetto al mese scorso',
     api_health_temporarily_unavailable: 'API temporaneamente non disponibile. Riprova tra qualche secondo.',
     api_health_status_unavailable: 'Stato API non disponibile.',
-    api_health_no_connection: "Nessuna connessione all'API. Controlla la rete o riprova più tardi.",
+    api_health_no_connection: 'Nessuna connessione all\'API. Controlla la rete o riprova più tardi.',
     design_subtitle_gold: 'TaxTech',
     design_subtitle_forest: 'Verde profondo',
     design_subtitle_slate: 'Metallico chiaro',
@@ -1288,299 +1362,663 @@ const translations = {
     dk_login_p2: 'Antifrode e 3-D Secure, come in una banca vera',
     dk_login_p3: 'Nessun denaro reale: tutto per studio e ricerca',
   },
-  es: {
-    user_fallback: 'Usuario',
-    greeting_morning: 'Buenos días',
-    greeting_day: 'Buenas tardes',
-    greeting_evening: 'Buenas noches',
-    greeting_night: 'Buenas noches',
-    tabs_overview: 'Resumen',
-    tabs_operations: 'Operaciones',
-    tabs_cards: 'Tarjetas',
-    tabs_market: 'Tienda',
-    tabs_profile: 'Perfil',
-    quick_topup: 'Recargar',
-    quick_by_card: 'A tarjeta',
-    quick_by_account: 'Por cuenta',
-    quick_market: 'Tienda',
-    balance_total: 'Balance total',
-    cards_mine: 'Mis tarjetas',
-    all: 'Todas',
-    quick_actions: 'Acciones rápidas',
-    recent_activity: 'Actividad reciente',
-    history: 'Historial',
-    no_transactions_yet: 'Aún no hay transacciones',
-    topup_or_transfer: 'Recarga tu cuenta o realiza una transferencia',
-    profile_verified: 'Verificado',
-    profile_name: 'Nombre',
-    profile_phone: 'Teléfono',
-    profile_email: 'Email',
-    profile_account: 'Cuenta',
-    profile_security: 'Seguridad',
-    profile_password: 'Contraseña',
-    profile_change_photo: 'Cambiar foto',
-    profile_remove_photo: 'Eliminar',
-    profile_change_password: 'Cambiar contraseña',
-    profile_current_password: 'Contraseña actual',
-    profile_new_password: 'Nueva contraseña',
-    profile_save: 'Guardar',
-    profile_logout: 'Cerrar sesión',
-    settings_language: 'Idioma',
-    settings_language_sub: 'Interfaz de la app',
-    settings_notifications: 'Notificaciones', settings_notif_tx: 'Transacciones', settings_notif_security: 'Seguridad', settings_notif_promo: 'Ofertas',
-    settings_limits: 'Límites de gasto', settings_limits_sub: 'Límite mensual por categoría', settings_limit_add: 'Agregar', settings_limit_spent: 'gastado', settings_limit_of: 'de',
-    settings_pin: 'Código PIN', settings_pin_sub: 'Para confirmar operaciones', settings_pin_set: 'Establecer PIN', settings_pin_change: 'Cambiar PIN', settings_pin_clear: 'Eliminar PIN', settings_pin_active: 'PIN activo',
-    settings_app_info: 'Acerca de', settings_version: 'Versión', settings_api_status: 'Estado API', settings_support: 'Soporte',
-    dep_title: 'Depósitos', dep_open: 'Abrir depósito', dep_amount: 'Monto', dep_term: 'Plazo', dep_rate: 'Tasa', dep_monthly: 'mes.', dep_interest: 'Intereses', dep_maturity: 'Vencimiento', dep_days_left: 'días restantes', dep_auto_renew: 'Renovación automática', dep_close: 'Cerrar depósito', dep_close_early: 'Cierre anticipado (sin intereses)', dep_status_active: 'Activo', dep_status_matured: 'Vencido', dep_status_closed: 'Cerrado', dep_status_early: 'Cerrado anticipadamente', dep_no_items: 'Sin depósitos activos', dep_min_amount: 'Mínimo — 500 TAX', dep_accrued: 'Acumulado', dep_total_payout: 'Pago total',
-    lang_uk: 'Ucraniano',
-    lang_en: 'Inglés',
-    lang_it: 'Italiano',
-    lang_es: 'Español',
-    personal_cabinet: 'Banca privada',
-    face_id_unavailable: 'No disponible en este dispositivo',
-    push_notifications: 'Notificaciones push',
-    unavailable: 'No disponible',
-    no_change: 'Sin cambios',
-    new_cash_flow: 'Nuevo flujo de caja',
-    no_dynamics: 'Sin dinámica',
-    receipt_opened: 'Recibo abierto',
-    request_error: 'Error de solicitud.',
-    transfer_topup_title: 'Recargar cuenta',
-    transfer_by_card_title: 'Transferencia a tarjeta',
-    transfer_by_account_title: 'Transferencia por cuenta',
-    transfer_card_number: 'Número de tarjeta',
-    transfer_account_number: 'Número de cuenta',
-    transfer_optional_desc: 'Descripción (opcional)',
-    transfer_comment: 'Comentario',
-    amount_label: 'Importe (TAX)',
-    enter_amount: 'Introduce el importe',
-    enter_recipient: 'Introduce el destinatario',
-    session_expired: 'La sesión ha expirado. Inicia sesión de nuevo.',
-    operation_error: 'Error de operación',
-    topup_success: 'Cuenta recargada por',
-    transfer_success: 'Transferencia realizada por',
-    cards_not_issued: 'Aún no hay tarjetas',
-    cards_issue_hint: 'Ve a la sección Tarjetas para emitir tu primera tarjeta.',
-    open_cards: 'Abrir tarjetas',
-    spending_this_month: 'Gastos de este mes',
-    insufficient_spend_data: 'No hay datos suficientes para desglosar gastos.',
-    spend_transfer: 'Transferencias',
-    spend_food: 'Comida',
-    spend_transport: 'Transporte',
-    spend_utility: 'Servicios',
-    spend_shopping: 'Compras',
-    spend_subscription: 'Suscripciones',
-    cards_title: 'Mis tarjetas',
-    card_not_found: 'Tarjeta no encontrada.',
-    pin_change_error: 'Error al cambiar PIN',
-    pin_saved: 'PIN de la tarjeta actualizado',
-    card_blocked: 'Tarjeta bloqueada',
-    card_unblocked: 'Tarjeta desbloqueada',
-    card_closed: 'Tarjeta cerrada',
-    card_active_status: 'Activa',
-    card_frozen_status: 'Congelada',
-    card_design_error: 'Error de diseño de tarjeta',
-    card_details: 'Detalles',
-    account_label: 'Cuenta',
-    new_pin_4_digits: 'Nuevo PIN (4 dígitos)',
-    saving: 'Guardando…',
-    save_pin: 'Guardar PIN',
-    operations_title: 'Operaciones',
-    download_csv: 'Descargar CSV',
-    search_transactions: 'Buscar transacciones...',
-    nothing_found_for: 'No se encontró nada para',
-    download_receipt: 'Descargar recibo',
-    receipt_download_error: 'Error al descargar recibo',
-    download_error: 'Error de descarga',
-    export_error: 'Error de exportación',
-    statement_error: 'Error del extracto',
-    face_id_on: 'Face ID activado',
-    face_id_off: 'Face ID desactivado',
-    password_changed: 'Contraseña cambiada correctamente',
-    pick_image: 'Elige una imagen',
-    photo_too_large: 'La foto es demasiado grande (hasta 3MB)',
-    photo_read_error: 'No se pudo leer la foto',
-    photo_updated: 'Foto de perfil actualizada',
-    photo_upload_error: 'No se pudo subir la foto',
-    photo_removed: 'Foto eliminada',
-    profile_photo_alt: 'Foto de perfil',
-    market_out_of_stock: 'Sin stock',
-    add_to_cart: 'Añadir al carrito',
-    cart_title: 'Carrito',
-    delivery_title: 'Entrega',
-    cart_empty: 'El carrito está vacío',
-    added_to_cart: 'añadido al carrito',
-    checkout_success: '¡Pedido realizado!',
-    checkout_error: 'Error en el pedido',
-    orders_tab: 'Pedidos',
-    invoices_tab: 'Facturas',
-    market_title: 'Tienda',
-    loading: 'Cargando…',
-    market_empty: 'La tienda está vacía',
-    try_another_query: 'Prueba otra búsqueda',
-    no_results: 'No se encontró nada',
-    products_not_added: 'Aún no se han añadido productos.',
-    orders_empty: 'Aún no hay pedidos',
-    invoices_empty: 'Aún no hay facturas',
-    invoices_after_orders: 'Las facturas aparecerán después de realizar pedidos.',
-    invoice_label: 'Factura',
-    order_label: 'Pedido',
-    login_tab: 'Acceso',
-    register_tab: 'Registro',
-    wait_processing: 'Procesando…',
-    login_with_face_id: 'Entrar con Face ID',
-    full_name_label: 'Nombre completo',
-    email_label: 'Email',
-    phone_or_email: 'Teléfono o Email',
-    phone_or_email_placeholder: 'Teléfono o email',
-    password_label: 'Contraseña',
-    forgot_password: '¿Olvidaste la contraseña?',
-    confirm_password: 'Confirmar contraseña',
-    repeat_password: 'Repite la contraseña',
-    sign_in: 'Entrar',
-    create_account: 'Crear cuenta',
-    issue_card: 'Emitir tarjeta',
-    creating: 'Creando...',
-    invalid_credentials: 'Datos incorrectos',
-    registration_error: 'Error de registro',
-    verification_error: 'Error de verificación',
-    face_id_error: 'Error de Face ID',
-    loading_data: 'Cargando datos...',
-    change_pin: 'Cambiar PIN',
-    choose_card_design: 'Elige el diseño de la tarjeta',
-    issue_new_card: 'Emitir nueva tarjeta',
-    applying: 'Aplicando…',
-    apply_design: 'Aplicar diseño',
-    issue_card_full: 'Emitir tarjeta',
-    face_id_transfer_sub: 'Inicio y confirmación de transferencias',
-    in_stock: 'Disponible',
-    next_delivery: 'Siguiente → Entrega',
-    cart_items_count: 'artículos',
-    total_label: 'Total',
-    recipient_label: 'Destinatario',
-    delivery_phone: 'Teléfono',
-    delivery_address: 'Dirección de entrega',
-    pay_total: 'A pagar',
-    place_order: 'Realizar pedido',
-    checkout_processing: 'Realizando pedido…',
-    catalog_tab: 'Catálogo',
-    product_search: 'Buscar productos…',
-    catalog_first_order_hint: 'Realiza tu primer pedido en el catálogo.',
-    receipt_short: 'Recibo',
-    last_items: 'Últimos',
-    card_physical: 'Física',
-    card_virtual: 'Virtual',
-    card_valid_until: 'hasta',
-    card_design_label: 'Diseño',
-    change_label: 'Cambiar',
-    account_activity_month: 'Actividad mensual de la cuenta',
-    operations_short: 'op.',
-    spent_label: 'gastado',
-    account_balance_label: 'Saldo de cuenta',
-    design_action: 'Diseño',
-    freeze_card: 'Congelar',
-    unfreeze_card: 'Descongelar',
-    close_card: 'Cerrar',
-    error_boundary_title: 'Algo salió mal',
-    error_boundary_refresh: 'Recargar página',
-    analytics_prev_month_suffix: 'vs. mes anterior',
-    api_health_temporarily_unavailable: 'La API está temporalmente no disponible. Inténtalo de nuevo en unos segundos.',
-    api_health_status_unavailable: 'Estado de API no disponible.',
-    api_health_no_connection: 'Sin conexión con la API. Revisa tu red o inténtalo más tarde.',
+  de: {
+    user_fallback: 'Nutzer',
+    greeting_morning: 'Guten Morgen',
+    greeting_day: 'Guten Tag',
+    greeting_evening: 'Guten Abend',
+    greeting_night: 'Gute Nacht',
+    tabs_overview: 'Übersicht',
+    tabs_operations: 'Umsätze',
+    tabs_cards: 'Karten',
+    tabs_market: 'Shop',
+    tabs_profile: 'Profil',
+    quick_topup: 'Aufladen',
+    quick_by_card: 'An Karte',
+    quick_by_account: 'An Konto',
+    quick_market: 'Shop',
+    balance_total: 'Gesamtsaldo',
+    cards_mine: 'Meine Karten',
+    all: 'Alle',
+    quick_actions: 'Schnellaktionen',
+    recent_activity: 'Letzte Aktivität',
+    history: 'Verlauf',
+    no_transactions_yet: 'Noch keine Umsätze',
+    topup_or_transfer: 'Laden Sie Ihr Konto auf oder überweisen Sie',
+    profile_verified: 'Verifiziert',
+    profile_name: 'Name',
+    profile_phone: 'Telefon',
+    profile_email: 'E-Mail',
+    profile_account: 'Konto',
+    profile_security: 'Sicherheit',
+    profile_password: 'Passwort',
+    profile_change_photo: 'Foto ändern',
+    profile_remove_photo: 'Entfernen',
+    profile_change_password: 'Passwort ändern',
+    profile_current_password: 'Aktuelles Passwort',
+    profile_new_password: 'Neues Passwort',
+    profile_save: 'Speichern',
+    profile_logout: 'Abmelden',
+    settings_language: 'Sprache',
+    settings_language_sub: 'App-Oberfläche',
+    settings_notifications: 'Mitteilungen',
+    settings_notif_tx: 'Umsätze',
+    settings_notif_security: 'Sicherheit',
+    settings_notif_promo: 'Aktionen und Angebote',
+    settings_limits: 'Budgetlimits',
+    settings_limits_sub: 'Monatliches Ausgabenlimit pro Kategorie',
+    settings_limit_add: 'Limit hinzufügen',
+    settings_limit_spent: 'ausgegeben',
+    settings_limit_of: 'von',
+    settings_pin: 'PIN-Code',
+    settings_pin_sub: 'Zum Bestätigen von Vorgängen',
+    settings_pin_set: 'PIN festlegen',
+    settings_pin_change: 'PIN ändern',
+    settings_pin_clear: 'PIN entfernen',
+    settings_pin_active: 'PIN ist festgelegt',
+    settings_app_info: 'Über die App',
+    settings_version: 'Version',
+    settings_api_status: 'API-Status',
+    settings_support: 'Support',
+    dep_title: 'Einlagen',
+    dep_open: 'Einlage eröffnen',
+    dep_amount: 'Einlagebetrag',
+    dep_term: 'Laufzeit',
+    dep_rate: 'Zinssatz',
+    dep_monthly: 'Mon.',
+    dep_interest: 'Zinsen',
+    dep_maturity: 'Fälligkeit',
+    dep_days_left: 'Tage übrig',
+    dep_auto_renew: 'Automatisch verlängern',
+    dep_close: 'Einlage schließen',
+    dep_close_early: 'Vorzeitig schließen (ohne Zinsen)',
+    dep_status_active: 'Aktiv',
+    dep_status_matured: 'Fällig',
+    dep_status_closed: 'Geschlossen',
+    dep_status_early: 'Vorzeitig geschlossen',
+    dep_no_items: 'Keine aktiven Einlagen',
+    dep_min_amount: 'Mindestbetrag 500 TAX',
+    dep_accrued: 'Aufgelaufen',
+    dep_total_payout: 'Auszahlung',
+    lang_uk: 'Ukrainisch',
+    lang_en: 'Englisch',
+    lang_it: 'Italienisch',
+    lang_de: 'Deutsch',
+    lang_ru: 'Russisch',
+    personal_cabinet: 'Persönliches Banking',
+    face_id_unavailable: 'Auf diesem Gerät nicht verfügbar',
+    push_notifications: 'Push-Mitteilungen',
+    unavailable: 'Nicht verfügbar',
+    no_change: 'Keine Änderung',
+    new_cash_flow: 'Neue Bewegung',
+    no_dynamics: 'Keine Entwicklung',
+    receipt_opened: 'Beleg geöffnet',
+    request_error: 'Anfragefehler.',
+    transfer_topup_title: 'Konto aufladen',
+    transfer_by_card_title: 'Überweisung an Karte',
+    transfer_by_account_title: 'Überweisung an Konto',
+    transfer_card_number: 'Kartennummer',
+    transfer_account_number: 'Kontonummer',
+    transfer_optional_desc: 'Beschreibung (optional)',
+    transfer_comment: 'Kommentar',
+    amount_label: 'Betrag (TAX)',
+    enter_amount: 'Betrag eingeben',
+    enter_recipient: 'Empfänger eingeben',
+    session_expired: 'Sitzung abgelaufen. Bitte erneut anmelden.',
+    operation_error: 'Fehler beim Vorgang',
+    topup_success: 'Konto aufgeladen um',
+    transfer_success: 'Überweisung ausgeführt über',
+    cards_not_issued: 'Noch keine Karten ausgegeben',
+    cards_issue_hint: 'Gehen Sie zu Karten, um Ihre erste Karte auszugeben.',
+    open_cards: 'Karten öffnen',
+    spending_this_month: 'Ausgaben in diesem Monat',
+    insufficient_spend_data: 'Zu wenig Daten für eine Aufschlüsselung.',
+    spend_transfer: 'Überweisungen',
+    spend_food: 'Essen',
+    spend_transport: 'Verkehr',
+    spend_utility: 'Nebenkosten',
+    spend_shopping: 'Einkäufe',
+    spend_subscription: 'Abos',
+    cards_title: 'Meine Karten',
+    card_not_found: 'Karte nicht gefunden.',
+    pin_change_error: 'Fehler beim Ändern der PIN',
+    pin_saved: 'Karten-PIN geändert',
+    card_blocked: 'Karte gesperrt',
+    card_unblocked: 'Karte entsperrt',
+    card_closed: 'Karte geschlossen',
+    card_active_status: 'Aktiv',
+    card_frozen_status: 'Gesperrt',
+    card_design_error: 'Fehler beim Kartendesign',
+    card_details: 'Details',
+    account_label: 'Konto',
+    new_pin_4_digits: 'Neue PIN (4 Ziffern)',
+    saving: 'Wird gespeichert…',
+    save_pin: 'PIN speichern',
+    operations_title: 'Umsätze',
+    download_csv: 'CSV herunterladen',
+    search_transactions: 'Umsätze suchen...',
+    nothing_found_for: 'Nichts gefunden für',
+    download_receipt: 'Beleg herunterladen',
+    receipt_download_error: 'Fehler beim Herunterladen des Belegs',
+    download_error: 'Fehler beim Herunterladen',
+    export_error: 'Exportfehler',
+    statement_error: 'Fehler beim Kontoauszug',
+    face_id_on: 'Face ID aktiviert',
+    face_id_off: 'Face ID deaktiviert',
+    password_changed: 'Passwort erfolgreich geändert',
+    pick_image: 'Bild auswählen',
+    photo_too_large: 'Foto zu groß (max. 3 MB)',
+    photo_read_error: 'Foto konnte nicht gelesen werden',
+    photo_updated: 'Profilfoto aktualisiert',
+    photo_upload_error: 'Foto konnte nicht hochgeladen werden',
+    photo_removed: 'Foto entfernt',
+    profile_photo_alt: 'Profilfoto',
+    market_out_of_stock: 'Nicht vorrätig',
+    add_to_cart: 'In den Warenkorb',
+    cart_title: 'Warenkorb',
+    delivery_title: 'Lieferung',
+    cart_empty: 'Warenkorb ist leer',
+    added_to_cart: 'zum Warenkorb hinzugefügt',
+    checkout_success: 'Bestellung aufgegeben!',
+    checkout_error: 'Fehler bei der Bestellung',
+    orders_tab: 'Bestellungen',
+    invoices_tab: 'Rechnungen',
+    market_title: 'Shop',
+    loading: 'Wird geladen…',
+    market_empty: 'Der Shop ist leer',
+    try_another_query: 'Versuchen Sie eine andere Suche',
+    no_results: 'Nichts gefunden',
+    products_not_added: 'Noch keine Produkte.',
+    orders_empty: 'Noch keine Bestellungen',
+    invoices_empty: 'Noch keine Rechnungen',
+    invoices_after_orders: 'Rechnungen erscheinen nach Ihren Bestellungen.',
+    invoice_label: 'Rechnung',
+    order_label: 'Bestellung',
+    login_tab: 'Anmelden',
+    register_tab: 'Registrieren',
+    wait_processing: 'Wird verarbeitet…',
+    login_with_face_id: 'Mit Face ID anmelden',
+    full_name_label: 'Vollständiger Name',
+    email_label: 'E-Mail',
+    phone_or_email: 'Telefon oder E-Mail',
+    phone_or_email_placeholder: 'Telefon oder E-Mail',
+    password_label: 'Passwort',
+    forgot_password: 'Passwort vergessen?',
+    confirm_password: 'Passwort bestätigen',
+    repeat_password: 'Passwort wiederholen',
+    sign_in: 'Anmelden',
+    create_account: 'Konto erstellen',
+    issue_card: 'Karte ausgeben',
+    creating: 'Wird erstellt...',
+    invalid_credentials: 'Ungültige Zugangsdaten',
+    registration_error: 'Fehler bei der Registrierung',
+    verification_error: 'Fehler bei der Verifizierung',
+    face_id_error: 'Face-ID-Fehler',
+    loading_data: 'Daten werden geladen...',
+    change_pin: 'PIN ändern',
+    choose_card_design: 'Kartendesign wählen',
+    issue_new_card: 'Neue Karte ausgeben',
+    applying: 'Wird angewendet…',
+    apply_design: 'Design übernehmen',
+    issue_card_full: 'Karte ausgeben',
+    face_id_transfer_sub: 'Anmeldung und Bestätigung von Überweisungen',
+    in_stock: 'Vorrätig',
+    next_delivery: 'Weiter → Lieferung',
+    cart_items_count: 'Artikel',
+    total_label: 'Gesamt',
+    recipient_label: 'Empfänger',
+    delivery_phone: 'Telefon',
+    delivery_address: 'Lieferadresse',
+    pay_total: 'Zu zahlen',
+    place_order: 'Bestellung aufgeben',
+    checkout_processing: 'Bestellung läuft…',
+    catalog_tab: 'Katalog',
+    product_search: 'Produkte suchen…',
+    catalog_first_order_hint: 'Geben Sie Ihre erste Bestellung im Katalog auf.',
+    receipt_short: 'Beleg',
+    last_items: 'Letzte',
+    card_physical: 'Physisch',
+    card_virtual: 'Virtuell',
+    card_valid_until: 'bis',
+    card_design_label: 'Design',
+    change_label: 'Ändern',
+    account_activity_month: 'Kontoaktivität im Monat',
+    operations_short: 'Vorg.',
+    spent_label: 'ausgegeben',
+    account_balance_label: 'Kontostand',
+    design_action: 'Design',
+    freeze_card: 'Sperren',
+    unfreeze_card: 'Entsperren',
+    close_card: 'Schließen',
+    error_boundary_title: 'Etwas ist schiefgelaufen',
+    error_boundary_refresh: 'Seite neu laden',
+    analytics_prev_month_suffix: 'ggü. Vormonat',
+    api_health_temporarily_unavailable: 'Die API ist vorübergehend nicht erreichbar. Bitte in ein paar Sekunden erneut versuchen.',
+    api_health_status_unavailable: 'API-Status nicht verfügbar.',
+    api_health_no_connection: 'Keine Verbindung zur API. Prüfen Sie das Netz oder versuchen Sie es später.',
     design_subtitle_gold: 'TaxTech',
-    design_subtitle_forest: 'Verde profundo',
-    design_subtitle_slate: 'Metálico claro',
-    design_subtitle_dark: 'Minimalista oscuro',
-    design_subtitle_florence: 'Cúpula y ciudad antigua',
-    design_subtitle_venice: 'Canales y plaza',
-    design_subtitle_tuscany_hills: 'Campos toscanos',
-    design_subtitle_tuscany_villa: 'Paisaje cálido',
-    today_label: 'Hoy',
-    yesterday_label: 'Ayer',
-    no_new_notifications: 'No hay notificaciones nuevas',
-    demo_pin_unavailable: 'Modo demo: cambio de PIN no disponible',
-    demo_api_unavailable: 'Modo demo: API no conectada',
-    no_card_for_design_change: 'No hay tarjeta para cambiar el diseño',
-    card_design_update_failed: 'No se pudo actualizar el diseño',
-    card_design_updated: 'Diseño de tarjeta actualizado',
-    card_issue_failed: 'No se pudo emitir la tarjeta',
-    new_card_issued: 'Se emitió una nueva tarjeta',
-    card_short_label: 'Tarjeta',
-    confirm_pin: 'Confirmar PIN',
-    pin_mismatch: 'Los PIN no coinciden',
-    choose_style_then_issue: 'Elige un estilo y luego emite una tarjeta virtual',
-    selected_label: 'Seleccionado',
-    cancel_label: 'Cancelar',
-    period_week_short: 'S',
+    design_subtitle_forest: 'Tiefes Grün',
+    design_subtitle_slate: 'Helles Metallic',
+    design_subtitle_dark: 'Dunkel und minimal',
+    design_subtitle_florence: 'Kuppel und Altstadt',
+    design_subtitle_venice: 'Kanäle und Platz',
+    design_subtitle_tuscany_hills: 'Toskanische Felder',
+    design_subtitle_tuscany_villa: 'Warme Landschaft',
+    today_label: 'Heute',
+    yesterday_label: 'Gestern',
+    no_new_notifications: 'Keine neuen Mitteilungen',
+    demo_pin_unavailable: 'Demomodus: PIN-Änderung nicht verfügbar',
+    demo_api_unavailable: 'Demomodus: API nicht verbunden',
+    no_card_for_design_change: 'Keine Karte für einen Designwechsel',
+    card_design_update_failed: 'Design konnte nicht geändert werden',
+    card_design_updated: 'Kartendesign geändert',
+    card_issue_failed: 'Karte konnte nicht ausgegeben werden',
+    new_card_issued: 'Neue Karte ausgegeben',
+    card_short_label: 'Karte',
+    confirm_pin: 'PIN bestätigen',
+    pin_mismatch: 'Die PINs stimmen nicht überein',
+    choose_style_then_issue: 'Stil wählen, dann eine virtuelle Karte ausgeben',
+    selected_label: 'Ausgewählt',
+    cancel_label: 'Abbrechen',
+    period_week_short: 'W',
     period_month_short: 'M',
-    period_year_short: 'A',
-    statement_pdf: 'Extracto PDF',
-    copy_success: 'Copiado',
-    copy_failed: 'No se pudo copiar',
-    last_items_badge: 'ÚLTIMOS',
-    shipping_name_placeholder: 'Nombre completo',
-    shipping_address_placeholder: 'Kyiv, calle Khreshchatyk 1, apto. 5',
-    order_items_suffix: 'art.',
-    due_prefix: 'hasta',
-    passwords_do_not_match: 'Las contraseñas no coinciden',
-    forgot_password_contact_support: 'Contacta al soporte para recuperar tu contraseña',
-    full_name_placeholder: 'Juan Pérez',
-    data_load_failed: 'No se pudieron cargar los datos.',
-    active_cards_metric: 'Tarjetas activas',
+    period_year_short: 'J',
+    statement_pdf: 'Kontoauszug PDF',
+    copy_success: 'Kopiert',
+    copy_failed: 'Kopieren fehlgeschlagen',
+    last_items_badge: 'LETZTE',
+    shipping_name_placeholder: 'Vor- und Nachname',
+    shipping_address_placeholder: 'Kyjiw, Chreschtschatyk 1, Whg. 5',
+    order_items_suffix: 'Pos.',
+    due_prefix: 'bis',
+    passwords_do_not_match: 'Die Passwörter stimmen nicht überein',
+    forgot_password_contact_support: 'Wenden Sie sich an den Support, um Ihr Passwort wiederherzustellen',
+    full_name_placeholder: 'Max Mustermann',
+    data_load_failed: 'Daten konnten nicht geladen werden.',
+    active_cards_metric: 'Aktive Karten',
     cardholder_label: 'Cardholder',
     valid_label: 'Valid',
     transfer_placeholder_card: '4721 •••• •••• ••••',
     transfer_placeholder_account: 'AB-100011',
-    filter_all: 'Todos',
-    filter_income: 'Ingresos',
-    filter_outcome: 'Gastos',
-    notifications_center: 'Notificaciones',
-    balance_history_title: 'Historial de Saldo',
-    achievements_title: 'Logros',
-    achievements_progress: 'completados',
-    insights_title: 'Análisis',
-    tx_note_label: 'Nota',
-    tx_note_placeholder: 'Agregar nota...',
-    tx_note_saved: 'Nota guardada',
-    top_recipients_title: 'Destinatarios frecuentes',
-    mark_all_read: 'Marcar todo como leído',
-    sent_label: 'transferencias',
-    sort_newest: 'Nuevos',
-    sort_oldest: 'Antiguos',
-    sort_amount: 'Monto',
-    dk_search: 'Buscar y comandos',
-    dk_search_ph: 'Busca una página, acción u operación…',
-    dk_group_go: 'Ir a',
-    dk_group_actions: 'Acciones',
-    dk_group_tx: 'Operaciones',
-    dk_no_results: 'Sin resultados',
-    dk_collapse: 'Contraer el menú',
-    dk_expand: 'Expandir el menú',
-    dk_copy_account: 'Copiar el número de cuenta',
-    dk_copied: 'Número de cuenta copiado',
-    dk_days_short: 'd',
-    dk_this_month: 'este mes',
-    dk_hide_balance: 'Ocultar saldo',
-    dk_show_balance: 'Mostrar saldo',
-    dk_total: 'Total',
-    dk_to_navigate: 'navegar',
-    dk_to_open: 'abrir',
-    dk_to_close: 'cerrar',
-    dk_menu: 'Menú',
-    dk_history_chart: 'Evolución del saldo',
-    dk_open: 'Abrir',
-    dk_cat_payment: 'Pagos',
-    dk_cat_savings: 'Ahorros',
-    dk_cat_marketplace: 'Tienda',
-    dk_cat_marketplace_invoice: 'Facturas de la tienda',
-    dk_cat_donation: 'Donaciones',
-    dk_cat_credit: 'Créditos',
-    dk_cat_topup: 'Recargas',
-    dk_cat_other: 'Otro',
-    dk_login_title: 'Un banco educativo para finanzas virtuales',
-    dk_login_p1: 'Tarjetas, transferencias y depósitos — en tokens TAX',
-    dk_login_p2: 'Antifraude y 3-D Secure, como en un banco real',
-    dk_login_p3: 'Sin dinero real: todo para estudio e investigación',
+    filter_all: 'Alle',
+    filter_income: 'Eingänge',
+    filter_outcome: 'Ausgaben',
+    notifications_center: 'Mitteilungen',
+    balance_history_title: 'Saldoverlauf',
+    achievements_title: 'Erfolge',
+    achievements_progress: 'erledigt',
+    insights_title: 'Analysen',
+    tx_note_label: 'Notiz',
+    tx_note_placeholder: 'Notiz hinzufügen...',
+    tx_note_saved: 'Notiz gespeichert',
+    top_recipients_title: 'Häufige Empfänger',
+    mark_all_read: 'Alle als gelesen markieren',
+    sent_label: 'Überweisungen',
+    sort_newest: 'Neueste',
+    sort_oldest: 'Älteste',
+    sort_amount: 'Betrag',
+    dk_search: 'Suche und Befehle',
+    dk_search_ph: 'Seite, Aktion oder Umsatz finden…',
+    dk_group_go: 'Gehe zu',
+    dk_group_actions: 'Aktionen',
+    dk_group_tx: 'Umsätze',
+    dk_no_results: 'Nichts gefunden',
+    dk_collapse: 'Menü einklappen',
+    dk_expand: 'Menü ausklappen',
+    dk_copy_account: 'Kontonummer kopieren',
+    dk_copied: 'Kontonummer kopiert',
+    dk_days_short: 'T',
+    dk_this_month: 'diesen Monat',
+    dk_hide_balance: 'Saldo ausblenden',
+    dk_show_balance: 'Saldo anzeigen',
+    dk_total: 'Gesamt',
+    dk_to_navigate: 'navigieren',
+    dk_to_open: 'öffnen',
+    dk_to_close: 'schließen',
+    dk_menu: 'Menü',
+    dk_history_chart: 'Saldoentwicklung',
+    dk_open: 'Öffnen',
+    dk_cat_payment: 'Zahlungen',
+    dk_cat_savings: 'Ersparnisse',
+    dk_cat_marketplace: 'Shop',
+    dk_cat_marketplace_invoice: 'Shop-Rechnungen',
+    dk_cat_donation: 'Spenden',
+    dk_cat_credit: 'Kredite',
+    dk_cat_topup: 'Aufladungen',
+    dk_cat_other: 'Sonstiges',
+    dk_login_title: 'Eine Lernbank für virtuelle Finanzen',
+    dk_login_p1: 'Karten, Überweisungen und Einlagen — in TAX-Token',
+    dk_login_p2: 'Betrugsschutz und 3-D Secure wie bei einer echten Bank',
+    dk_login_p3: 'Kein echtes Geld: alles für Lernen und Forschung',
+  },
+  ru: {
+    user_fallback: 'Пользователь',
+    greeting_morning: 'Доброе утро',
+    greeting_day: 'Добрый день',
+    greeting_evening: 'Добрый вечер',
+    greeting_night: 'Доброй ночи',
+    tabs_overview: 'Обзор',
+    tabs_operations: 'Операции',
+    tabs_cards: 'Карты',
+    tabs_market: 'Магазин',
+    tabs_profile: 'Профиль',
+    quick_topup: 'Пополнить',
+    quick_by_card: 'На карту',
+    quick_by_account: 'По счёту',
+    quick_market: 'Магазин',
+    balance_total: 'Общий баланс',
+    cards_mine: 'Мои карты',
+    all: 'Все',
+    quick_actions: 'Быстрые действия',
+    recent_activity: 'Последняя активность',
+    history: 'История',
+    no_transactions_yet: 'Операций пока нет',
+    topup_or_transfer: 'Пополните счёт или сделайте перевод',
+    profile_verified: 'Верифицирован',
+    profile_name: 'Имя',
+    profile_phone: 'Телефон',
+    profile_email: 'Email',
+    profile_account: 'Счёт',
+    profile_security: 'Безопасность',
+    profile_password: 'Пароль',
+    profile_change_photo: 'Сменить фото',
+    profile_remove_photo: 'Удалить',
+    profile_change_password: 'Сменить пароль',
+    profile_current_password: 'Текущий пароль',
+    profile_new_password: 'Новый пароль',
+    profile_save: 'Сохранить',
+    profile_logout: 'Выйти из аккаунта',
+    settings_language: 'Язык',
+    settings_language_sub: 'Интерфейс приложения',
+    settings_notifications: 'Уведомления',
+    settings_notif_tx: 'Операции',
+    settings_notif_security: 'Безопасность',
+    settings_notif_promo: 'Акции и предложения',
+    settings_limits: 'Бюджетные лимиты',
+    settings_limits_sub: 'Месячный лимит расходов по категории',
+    settings_limit_add: 'Добавить лимит',
+    settings_limit_spent: 'потрачено',
+    settings_limit_of: 'из',
+    settings_pin: 'PIN-код',
+    settings_pin_sub: 'Для подтверждения операций',
+    settings_pin_set: 'Установить PIN',
+    settings_pin_change: 'Сменить PIN',
+    settings_pin_clear: 'Удалить PIN',
+    settings_pin_active: 'PIN установлен',
+    settings_app_info: 'О приложении',
+    settings_version: 'Версия',
+    settings_api_status: 'Статус API',
+    settings_support: 'Поддержка',
+    dep_title: 'Депозиты',
+    dep_open: 'Открыть депозит',
+    dep_amount: 'Сумма депозита',
+    dep_term: 'Срок',
+    dep_rate: 'Ставка',
+    dep_monthly: 'мес.',
+    dep_interest: 'Начисления',
+    dep_maturity: 'Дата окончания',
+    dep_days_left: 'дней осталось',
+    dep_auto_renew: 'Автопролонгация',
+    dep_close: 'Закрыть депозит',
+    dep_close_early: 'Досрочное закрытие (без процентов)',
+    dep_status_active: 'Активный',
+    dep_status_matured: 'Завершён',
+    dep_status_closed: 'Закрыт',
+    dep_status_early: 'Закрыт досрочно',
+    dep_no_items: 'У вас нет активных депозитов',
+    dep_min_amount: 'Минимальная сумма — 500 TAX',
+    dep_accrued: 'Начислено',
+    dep_total_payout: 'К выплате',
+    lang_uk: 'Украинский',
+    lang_en: 'Английский',
+    lang_it: 'Итальянский',
+    lang_de: 'Немецкий',
+    lang_ru: 'Русский',
+    personal_cabinet: 'Личный кабинет',
+    face_id_unavailable: 'Недоступно на этом устройстве',
+    push_notifications: 'Push-уведомления',
+    unavailable: 'Недоступно',
+    no_change: 'Без изменений',
+    new_cash_flow: 'Новое движение средств',
+    no_dynamics: 'Без динамики',
+    receipt_opened: 'Чек открыт',
+    request_error: 'Ошибка запроса.',
+    transfer_topup_title: 'Пополнить счёт',
+    transfer_by_card_title: 'Перевод на карту',
+    transfer_by_account_title: 'Перевод по счёту',
+    transfer_card_number: 'Номер карты',
+    transfer_account_number: 'Номер счёта',
+    transfer_optional_desc: 'Описание (необязательно)',
+    transfer_comment: 'Комментарий',
+    amount_label: 'Сумма (TAX)',
+    enter_amount: 'Укажите сумму',
+    enter_recipient: 'Укажите получателя',
+    session_expired: 'Сессия завершилась. Войдите снова.',
+    operation_error: 'Ошибка операции',
+    topup_success: 'Счёт пополнен на',
+    transfer_success: 'Перевод выполнен на',
+    cards_not_issued: 'Карты ещё не выпущены',
+    cards_issue_hint: 'Перейдите в раздел «Карты», чтобы выпустить первую карту.',
+    open_cards: 'Открыть карты',
+    spending_this_month: 'Расходы в этом месяце',
+    insufficient_spend_data: 'Недостаточно данных для разбивки расходов.',
+    spend_transfer: 'Переводы',
+    spend_food: 'Еда',
+    spend_transport: 'Транспорт',
+    spend_utility: 'Коммунальные',
+    spend_shopping: 'Покупки',
+    spend_subscription: 'Подписки',
+    cards_title: 'Мои карты',
+    card_not_found: 'Карта не найдена.',
+    pin_change_error: 'Ошибка смены PIN',
+    pin_saved: 'PIN карты изменён',
+    card_blocked: 'Карта заморожена',
+    card_unblocked: 'Карта разморожена',
+    card_closed: 'Карта закрыта',
+    card_active_status: 'Активна',
+    card_frozen_status: 'Заморожена',
+    card_design_error: 'Ошибка дизайна карты',
+    card_details: 'Детали',
+    account_label: 'Счёт',
+    new_pin_4_digits: 'Новый PIN (4 цифры)',
+    saving: 'Сохранение…',
+    save_pin: 'Сохранить PIN',
+    operations_title: 'Операции',
+    download_csv: 'Скачать CSV',
+    search_transactions: 'Поиск операций...',
+    nothing_found_for: 'Ничего не найдено по запросу',
+    download_receipt: 'Скачать чек',
+    receipt_download_error: 'Ошибка загрузки чека',
+    download_error: 'Ошибка загрузки',
+    export_error: 'Ошибка экспорта',
+    statement_error: 'Ошибка выписки',
+    face_id_on: 'Face ID включён',
+    face_id_off: 'Face ID выключен',
+    password_changed: 'Пароль успешно изменён',
+    pick_image: 'Выберите изображение',
+    photo_too_large: 'Фото слишком большое (до 3 МБ)',
+    photo_read_error: 'Не удалось прочитать фото',
+    photo_updated: 'Фото профиля обновлено',
+    photo_upload_error: 'Не удалось загрузить фото',
+    photo_removed: 'Фото удалено',
+    profile_photo_alt: 'Фото профиля',
+    market_out_of_stock: 'Нет в наличии',
+    add_to_cart: 'В корзину',
+    cart_title: 'Корзина',
+    delivery_title: 'Доставка',
+    cart_empty: 'Корзина пуста',
+    added_to_cart: 'добавлено в корзину',
+    checkout_success: 'Заказ оформлен!',
+    checkout_error: 'Ошибка оформления',
+    orders_tab: 'Заказы',
+    invoices_tab: 'Инвойсы',
+    market_title: 'Магазин',
+    loading: 'Загрузка…',
+    market_empty: 'Магазин пуст',
+    try_another_query: 'Попробуйте другой запрос',
+    no_results: 'Ничего не найдено',
+    products_not_added: 'Товары ещё не добавлены.',
+    orders_empty: 'Заказов пока нет',
+    invoices_empty: 'Инвойсов пока нет',
+    invoices_after_orders: 'Инвойсы появятся после оформления заказов.',
+    invoice_label: 'Инвойс',
+    order_label: 'Заказ',
+    login_tab: 'Вход',
+    register_tab: 'Регистрация',
+    wait_processing: 'Обработка…',
+    login_with_face_id: 'Войти с Face ID',
+    full_name_label: 'Полное имя',
+    email_label: 'Email',
+    phone_or_email: 'Телефон или Email',
+    phone_or_email_placeholder: 'Телефон или email',
+    password_label: 'Пароль',
+    forgot_password: 'Забыли пароль?',
+    confirm_password: 'Подтвердите пароль',
+    repeat_password: 'Повторите пароль',
+    sign_in: 'Войти',
+    create_account: 'Создать аккаунт',
+    issue_card: 'Выпустить',
+    creating: 'Создание...',
+    invalid_credentials: 'Неверные данные',
+    registration_error: 'Ошибка регистрации',
+    verification_error: 'Ошибка верификации',
+    face_id_error: 'Ошибка Face ID',
+    loading_data: 'Загрузка данных...',
+    change_pin: 'Сменить PIN',
+    choose_card_design: 'Выберите дизайн карты',
+    issue_new_card: 'Выпуск новой карты',
+    applying: 'Применение…',
+    apply_design: 'Применить дизайн',
+    issue_card_full: 'Выпустить карту',
+    face_id_transfer_sub: 'Вход и подтверждение переводов',
+    in_stock: 'В наличии',
+    next_delivery: 'Далее → Доставка',
+    cart_items_count: 'товаров',
+    total_label: 'Итого',
+    recipient_label: 'Получатель',
+    delivery_phone: 'Телефон',
+    delivery_address: 'Адрес доставки',
+    pay_total: 'К оплате',
+    place_order: 'Оформить заказ',
+    checkout_processing: 'Оформление…',
+    catalog_tab: 'Каталог',
+    product_search: 'Поиск товаров…',
+    catalog_first_order_hint: 'Оформите первый заказ в каталоге.',
+    receipt_short: 'Чек',
+    last_items: 'Последних',
+    card_physical: 'Физическая',
+    card_virtual: 'Виртуальная',
+    card_valid_until: 'до',
+    card_design_label: 'Дизайн',
+    change_label: 'Изменить',
+    account_activity_month: 'Активность счёта за месяц',
+    operations_short: 'оп.',
+    spent_label: 'расходов',
+    account_balance_label: 'Баланс счёта',
+    design_action: 'Дизайн',
+    freeze_card: 'Заморозить',
+    unfreeze_card: 'Разморозить',
+    close_card: 'Закрыть',
+    error_boundary_title: 'Что-то пошло не так',
+    error_boundary_refresh: 'Обновить страницу',
+    analytics_prev_month_suffix: 'к прошлому месяцу',
+    api_health_temporarily_unavailable: 'API временно недоступно. Попробуйте через несколько секунд.',
+    api_health_status_unavailable: 'Статус API недоступен.',
+    api_health_no_connection: 'Нет соединения с API. Проверьте сеть или попробуйте позже.',
+    design_subtitle_gold: 'TaxTech',
+    design_subtitle_forest: 'Глубокий зелёный',
+    design_subtitle_slate: 'Светлый металлик',
+    design_subtitle_dark: 'Тёмный минимализм',
+    design_subtitle_florence: 'Купол и старый город',
+    design_subtitle_venice: 'Каналы и площадь',
+    design_subtitle_tuscany_hills: 'Тосканские поля',
+    design_subtitle_tuscany_villa: 'Тёплый пейзаж',
+    today_label: 'Сегодня',
+    yesterday_label: 'Вчера',
+    no_new_notifications: 'Новых уведомлений нет',
+    demo_pin_unavailable: 'Демо-режим: смена PIN недоступна',
+    demo_api_unavailable: 'Демо-режим: API не подключено',
+    no_card_for_design_change: 'Нет карты для смены дизайна',
+    card_design_update_failed: 'Не удалось обновить дизайн',
+    card_design_updated: 'Дизайн карты обновлён',
+    card_issue_failed: 'Не удалось выпустить карту',
+    new_card_issued: 'Новая карта выпущена',
+    card_short_label: 'Карта',
+    confirm_pin: 'Подтвердить PIN',
+    pin_mismatch: 'PIN-коды не совпадают',
+    choose_style_then_issue: 'Выберите стиль, затем выпустите виртуальную карту',
+    selected_label: 'Выбрано',
+    cancel_label: 'Отмена',
+    period_week_short: 'Н',
+    period_month_short: 'М',
+    period_year_short: 'Г',
+    statement_pdf: 'Выписка PDF',
+    copy_success: 'Скопировано',
+    copy_failed: 'Не удалось скопировать',
+    last_items_badge: 'ПОСЛЕДНИЕ',
+    shipping_name_placeholder: 'Фамилия Имя Отчество',
+    shipping_address_placeholder: 'г. Киев, ул. Крещатик 1, кв. 5',
+    order_items_suffix: 'поз.',
+    due_prefix: 'до',
+    passwords_do_not_match: 'Пароли не совпадают',
+    forgot_password_contact_support: 'Обратитесь в поддержку для восстановления пароля',
+    full_name_placeholder: 'Иван Петров',
+    data_load_failed: 'Не удалось загрузить данные.',
+    active_cards_metric: 'Активные карты',
+    cardholder_label: 'Cardholder',
+    valid_label: 'Valid',
+    transfer_placeholder_card: '4721 •••• •••• ••••',
+    transfer_placeholder_account: 'AB-100011',
+    filter_all: 'Все',
+    filter_income: 'Поступления',
+    filter_outcome: 'Расходы',
+    notifications_center: 'Уведомления',
+    balance_history_title: 'Динамика баланса',
+    achievements_title: 'Достижения',
+    achievements_progress: 'выполнено',
+    insights_title: 'Аналитика',
+    tx_note_label: 'Заметка',
+    tx_note_placeholder: 'Добавить заметку...',
+    tx_note_saved: 'Заметка сохранена',
+    top_recipients_title: 'Частые получатели',
+    mark_all_read: 'Прочитать все',
+    sent_label: 'переводов',
+    sort_newest: 'Новые',
+    sort_oldest: 'Старые',
+    sort_amount: 'Сумма',
+    dk_search: 'Поиск и команды',
+    dk_search_ph: 'Найти страницу, действие или операцию…',
+    dk_group_go: 'Перейти',
+    dk_group_actions: 'Действия',
+    dk_group_tx: 'Операции',
+    dk_no_results: 'Ничего не найдено',
+    dk_collapse: 'Свернуть меню',
+    dk_expand: 'Развернуть меню',
+    dk_copy_account: 'Скопировать номер счёта',
+    dk_copied: 'Номер счёта скопирован',
+    dk_days_short: 'д',
+    dk_this_month: 'за месяц',
+    dk_hide_balance: 'Скрыть баланс',
+    dk_show_balance: 'Показать баланс',
+    dk_total: 'Итого',
+    dk_to_navigate: 'навигация',
+    dk_to_open: 'открыть',
+    dk_to_close: 'закрыть',
+    dk_menu: 'Меню',
+    dk_history_chart: 'Динамика баланса',
+    dk_open: 'Открыть',
+    dk_cat_payment: 'Оплаты',
+    dk_cat_savings: 'Накопления',
+    dk_cat_marketplace: 'Магазин',
+    dk_cat_marketplace_invoice: 'Счета магазина',
+    dk_cat_donation: 'Донаты',
+    dk_cat_credit: 'Кредиты',
+    dk_cat_topup: 'Пополнения',
+    dk_cat_other: 'Другое',
+    dk_login_title: 'Учебный банк для виртуальных финансов',
+    dk_login_p1: 'Карты, переводы и депозиты — в токенах TAX',
+    dk_login_p2: 'Антифрод и 3-D Secure, как в настоящем банке',
+    dk_login_p3: 'Никаких реальных денег: всё для учёбы и исследований',
   },
 } as const;
 
@@ -1688,21 +2126,11 @@ function setProfilePhoto(value: string) {
 }
 
 function getStoredLanguage(): AppLang {
-  try {
-    const raw = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-    if (raw === 'uk' || raw === 'en' || raw === 'it' || raw === 'es') return raw;
-  } catch {
-    // ignore storage errors
-  }
-  return 'uk';
+  return initialLandingLang();
 }
 
 function setStoredLanguage(value: AppLang) {
-  try {
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, value);
-  } catch {
-    // ignore storage errors
-  }
+  saveLandingLang(value);
 }
 
 function markAppContinuation() {
@@ -2138,6 +2566,30 @@ type CardDesignOption = {
   subtitle?: string;
 };
 
+// Achievement titles come from the server in Ukrainian; the app shows them in the chosen language by id.
+const ACH_TITLES: Record<string, [string, string]> = {
+  first_tx: ['Перша операція', 'First transaction'],
+  tx_10: ['10 операцій', '10 transactions'],
+  tx_50: ['50 операцій', '50 transactions'],
+  first_donate: ['Перший донат', 'First donation'],
+  donate_1k: ['Донат 1 000 TAX', 'Donated 1,000 TAX'],
+  donate_10k: ['Меценат', 'Patron'],
+  first_goal: ['Перша ціль', 'First goal'],
+  goals_3: ['Три цілі', 'Three goals'],
+  saver_1k: ['Накопичувач', 'Saver'],
+  saver_10k: ['Великий заощаджувач', 'Big saver'],
+  family: ['Близькі поруч', 'Close ones nearby'],
+  transfer_5: ['Активний', 'Active sender'],
+};
+const achTitle = (a: { id: string; title: string }) => (ACH_TITLES[a.id] ? tr(...ACH_TITLES[a.id]) : a.title);
+
+// English names of the card designs (the list below keeps the Ukrainian ones); shown through tr().
+const DESIGN_TITLE_EN: Record<string, string> = {
+  'Колізей': 'Colosseum', 'Колізей уночі': 'Colosseum at night', 'Пантеон': 'Pantheon', 'Форум': 'Forum', 'Акведук': 'Aqueduct',
+  'Мармур': 'Marble', 'Папір': 'Paper', 'Попіл': 'Ash', 'Графіт': 'Graphite', 'Чорний': 'Black', 'Сталь': 'Steel', 'Туман': 'Mist',
+  'Вугілля': 'Charcoal', 'Срібло': 'Silver',
+};
+
 const CARD_DESIGN_OPTIONS: CardDesignOption[] = [
   { design: 'roma_colosseum', variant: 'roma_colosseum', title: 'Колізей', subtitle: 'Фото: Wilfredor · CC0' },
   { design: 'roma_colosseum_night', variant: 'roma_colosseum_night', title: 'Колізей уночі', subtitle: 'Фото: John Samuel · CC BY-SA 4.0' },
@@ -2231,23 +2683,23 @@ function CardBack({ bg, image, expiry, name, last4, revealed, toast }: {
     }}>
       {image && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3)', transform: 'scale(1.04)' }} />}
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
-      <div style={{ position: 'relative', height: '15%', minHeight: 22, marginTop: '7%', background: 'linear-gradient(180deg, #202022, #0c0c0d)', boxShadow: '0 1px 0 rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 14px' }}><span style={{ ...cap, fontSize: 9 }}>↩ закрити</span></div>
+      <div style={{ position: 'relative', height: '15%', minHeight: 22, marginTop: '7%', background: 'linear-gradient(180deg, #202022, #0c0c0d)', boxShadow: '0 1px 0 rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 14px' }}><span style={{ ...cap, fontSize: 9 }}>{tr('↩ закрити', '↩ close')}</span></div>
       <div style={{ position: 'relative', flex: 1, minHeight: 0, padding: '9px 16px 11px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <span style={cap}>CVV2</span>
-          <button onClick={copy(revealed?.cvv, 'CVV скопійовано ✓')} style={{ ...chip, width: 84, flexShrink: 0, border: '1px solid rgba(255,255,255,0.14)' }}>
+          <button onClick={copy(revealed?.cvv, tr('CVV скопійовано ✓', 'CVV copied ✓'))} style={{ ...chip, width: 84, flexShrink: 0, border: '1px solid rgba(255,255,255,0.14)' }}>
             <span style={{ fontSize: 14, letterSpacing: 3 }}>{revealed?.cvv || '•••'}</span>{revealed && copyIcon}
           </button>
         </div>
         <div>
-          <div style={{ ...cap, marginBottom: 4 }}>Номер картки</div>
-          <button onClick={copy(revealed?.card_number.replace(/\s/g, ''), 'Номер скопійовано ✓')} style={{ ...chip, width: '100%' }}>
+          <div style={{ ...cap, marginBottom: 4 }}>{tr('Номер картки', 'Card number')}</div>
+          <button onClick={copy(revealed?.card_number.replace(/\s/g, ''), tr('Номер скопійовано ✓', 'Number copied ✓'))} style={{ ...chip, width: '100%' }}>
             <span style={{ fontSize: 13, letterSpacing: 1.6, whiteSpace: 'nowrap' }}>{number}</span>{revealed && copyIcon}
           </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
-          <div><div style={cap}>Дійсна до</div><div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#fff', marginTop: 2 }}>{expiry}</div></div>
-          <div style={{ flex: 1, minWidth: 0 }}><div style={cap}>Власник</div><div style={{ fontSize: 11, fontWeight: 700, color: '#fff', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div></div>
+          <div><div style={cap}>{tr('Дійсна до', 'Valid until')}</div><div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#fff', marginTop: 2 }}>{expiry}</div></div>
+          <div style={{ flex: 1, minWidth: 0 }}><div style={cap}>{tr('Власник', 'Holder')}</div><div style={{ fontSize: 11, fontWeight: 700, color: '#fff', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div></div>
         </div>
       </div>
     </div>
@@ -2442,7 +2894,7 @@ function BalanceHistoryChart() {
           </div>
           <div style={{ textAlign: 'right', fontSize: 13, fontWeight: 600, color: isUp ? '#5fd68a' : '#ff8d80', ...T.num }}>
             {isUp ? '↑ +' : '↓ '}{fmtInt(diff)}{fmtDec(diff)}
-            <div style={{ fontSize: 11, fontWeight: 500, color: text.dim, marginTop: 3 }}>за 14 днів</div>
+            <div style={{ fontSize: 11, fontWeight: 500, color: text.dim, marginTop: 3 }}>{tr('за 14 днів', 'over 14 days')}</div>
           </div>
         </div>
         <div style={{ position: 'relative' }}>
@@ -2725,7 +3177,7 @@ function ThreeDSModal({
   }, [timeLeft]);
 
   async function verify() {
-    if (otp.length !== 6) { setError('Введіть 6-значний код'); return; }
+    if (otp.length !== 6) { setError(tr('Введіть 6-значний код', 'Enter the 6-digit code')); return; }
     setLoading(true); setError('');
     const token = localStorage.getItem('army_bank_token');
     try {
@@ -2735,10 +3187,10 @@ function ThreeDSModal({
         body: JSON.stringify({ challenge_id: challenge.challenge_id, otp_code: otp }),
       });
       const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Помилка верифікації');
+      if (!j.ok) throw new Error(j.error || tr('Помилка верифікації', 'Verification error'));
       onVerified(j.data.session_token);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Помилка');
+      setError(e instanceof Error ? e.message : tr('Помилка', 'Error'));
     } finally {
       setLoading(false);
     }
@@ -2783,7 +3235,7 @@ function ThreeDSModal({
           </div>
           <div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255, 0.6)', letterSpacing: 1 }}>VISA SECURE</div>
-            <div style={{ fontSize: 13, color: '#ffffff', fontWeight: 600 }}>Підтвердження платежу</div>
+            <div style={{ fontSize: 13, color: '#ffffff', fontWeight: 600 }}>{tr('Підтвердження платежу', 'Payment confirmation')}</div>
           </div>
           <div style={{ flex: 1 }} />
           <div style={{
@@ -2806,7 +3258,7 @@ function ThreeDSModal({
             border: '1px solid transparent',
             padding: '14px 16px', marginBottom: 20,
           }}>
-            <div style={{ fontSize: 11, color: 'rgba(215,215,215, 0.5)', letterSpacing: 1, marginBottom: 4 }}>СУМА ПЕРЕКАЗУ</div>
+            <div style={{ fontSize: 11, color: 'rgba(215,215,215, 0.5)', letterSpacing: 1, marginBottom: 4 }}>{tr('СУМА ПЕРЕКАЗУ', 'TRANSFER AMOUNT')}</div>
             <div style={{ fontSize: 26, fontWeight: 700, color: '#ebebeb', letterSpacing: -0.5 }}>
               {amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })}{'\u00a0TAX'}
             </div>
@@ -2818,7 +3270,7 @@ function ThreeDSModal({
           </div>
 
           <div style={{ fontSize: 13, color: 'rgba(215,215,215, 0.7)', marginBottom: 6, lineHeight: 1.4 }}>
-            Для підтвердження введіть одноразовий код, надісланий на номер{' '}
+            {tr('Для підтвердження введіть одноразовий код, надісланий на номер', 'To confirm, enter the one-time code sent to')}{' '}
             <span style={{ color: '#ebebeb', fontWeight: 600 }}>{challenge.masked_phone}</span>
           </div>
 
@@ -2830,7 +3282,7 @@ function ThreeDSModal({
           }}>
             <span style={{ fontSize: 14 }}>🧪</span>
             <div>
-              <div style={{ fontSize: 10, color: 'rgba(171,171,171, 0.7)', letterSpacing: 0.8 }}>ДЕМО-РЕЖИМ</div>
+              <div style={{ fontSize: 10, color: 'rgba(171,171,171, 0.7)', letterSpacing: 0.8 }}>{tr('ДЕМО-РЕЖИМ', 'DEMO MODE')}</div>
               <div style={{ fontSize: 13, color: '#ababab', fontWeight: 600, fontFamily: '"SF Mono", monospace', letterSpacing: 3 }}>
                 {challenge.demo_otp}
               </div>
@@ -2864,7 +3316,7 @@ function ThreeDSModal({
 
           {/* Timer */}
           <div style={{ textAlign: 'center', marginBottom: 16, fontSize: 12, color: expired ? '#989898' : 'rgba(215,215,215, 0.45)' }}>
-            {expired ? '⚠ Код прострочено' : `Код дійсний: ${mm}:${ss}`}
+            {expired ? tr('⚠ Код прострочено', '⚠ Code expired') : `${tr('Код дійсний', 'Code valid for')}: ${mm}:${ss}`}
           </div>
 
           {error && (
@@ -2883,7 +3335,7 @@ function ThreeDSModal({
                 color: 'rgba(215,215,215, 0.7)', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
               }}
             >
-              Скасувати
+              {tr('Скасувати', 'Cancel')}
             </button>
             <button
               onClick={verify}
@@ -2899,13 +3351,13 @@ function ThreeDSModal({
                 fontFamily: 'inherit',
               }}
             >
-              {loading ? '…' : 'Підтвердити'}
+              {loading ? '…' : tr('Підтвердити', 'Confirm')}
             </button>
           </div>
 
           {/* Powered by */}
           <div style={{ textAlign: 'center', marginTop: 16, fontSize: 10, color: 'rgba(172,172,172, 0.3)', letterSpacing: 0.5 }}>
-            3-D Secure · навчальний банк TaxTech
+            {tr('3-D Secure · навчальний банк TaxTech', '3-D Secure · TaxTech learning bank')}
           </div>
         </div>
       </div>
@@ -2958,7 +3410,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
           body: JSON.stringify({ amount: amtNum, recipient: recipient.trim() }),
         });
         const j = await r.json();
-        if (!j.ok) throw new Error(j.error || 'Помилка 3DS');
+        if (!j.ok) throw new Error(j.error || tr('Помилка 3DS', '3DS error'));
         setTdsChallenge(j.data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : t('operation_error'));
@@ -3084,7 +3536,7 @@ function TransferModal({ mode, onClose }: { mode: TransferMode; onClose: () => v
           <button type="submit" className="tt-primary" disabled={loading || !(amtNum > 0)}>
             {loading ? '…' : amtNum > 0 ? `${cfg.title} · ${amtNum.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TAX` : cfg.title}
           </button>
-          {mode !== 'topup' && <p className="tt-hint">Переказ підтверджується одноразовим кодом 3-D Secure.</p>}
+          {mode !== 'topup' && <p className="tt-hint">{tr('Переказ підтверджується одноразовим кодом 3-D Secure.', 'The transfer is confirmed with a one-time 3-D Secure code.')}</p>}
         </form>
       </div>
     </div>
@@ -3112,10 +3564,10 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
   const commission = dir === 'buy' ? amtNum * SPREAD : amtNum * rate * SPREAD;
 
   async function handleExchange() {
-    if (!amtNum || amtNum <= 0) { toast('Введіть суму'); return; }
+    if (!amtNum || amtNum <= 0) { toast(tr('Введіть суму', 'Enter an amount')); return; }
     setLoading(true);
     await new Promise(r => setTimeout(r, 900));
-    toast(`✅ ${dir === 'buy' ? `Куплено ${fxAmt.toFixed(4)} ${currency} за ${amtNum.toFixed(2)}\u00a0TAX` : `Продано ${amtNum.toFixed(4)} ${currency} → ${fxAmt.toFixed(2)}\u00a0TAX`}`);
+    toast(`✅ ${dir === 'buy' ? `${tr('Куплено', 'Bought')} ${fxAmt.toFixed(4)} ${currency} · ${amtNum.toFixed(2)}\u00a0TAX` : `${tr('Продано', 'Sold')} ${amtNum.toFixed(4)} ${currency} → ${fxAmt.toFixed(2)}\u00a0TAX`}`);
     setLoading(false); onClose();
   }
 
@@ -3125,12 +3577,12 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
       <div className="tt-sheet" style={{ position: 'relative', width: '100%', maxWidth: 500, margin: '0 auto', background: '#1f1f1f', borderRadius: '28px 28px 0 0', padding: '24px 24px max(env(safe-area-inset-bottom,20px),24px)', boxShadow: '0 -20px 60px rgba(0,0,0, 0.5)' }}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255, 0.1)', margin: '0 auto 20px' }} />
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: text.primary }}>Обмін валюти</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: text.primary }}>{tr('Обмін валюти', 'Currency exchange')}</div>
           <div style={{ flex: 1 }} />
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: 'none', cursor: 'pointer', color: text.muted, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
         <div style={{ display: 'flex', background: 'rgba(36,36,36, 0.6)', borderRadius: 14, padding: 4, marginBottom: 20 }}>
-          {([['buy', 'Купити'] as const, ['sell', 'Продати'] as const]).map(([d, label]) => (
+          {([['buy', tr('Купити', 'Buy')] as const, ['sell', tr('Продати', 'Sell')] as const]).map(([d, label]) => (
             <button key={d} onClick={() => setDir(d)} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: dir === d ? `${goldDark}` : 'transparent', color: dir === d ? '#242424' : text.muted, fontWeight: dir === d ? 700 : 500, fontSize: 13 }}>{label}</button>
           ))}
         </div>
@@ -3144,27 +3596,27 @@ function FxExchangeModal({ rates, onClose }: { rates: FxRate[]; onClose: () => v
           ))}
         </div>
         <div style={{ marginBottom: 16 }}>
-          <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{dir === 'buy' ? `Сума в токенах TAX` : `Сума в ${currency}`}</label>
+          <label style={{ fontSize: 12, color: text.muted, display: 'block', marginBottom: 6 }}>{dir === 'buy' ? tr('Сума в токенах TAX', 'Amount in TAX tokens') : `${tr('Сума в', 'Amount in')} ${currency}`}</label>
           <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, color: text.primary, fontSize: 22, fontWeight: 600, outline: 'none', textAlign: 'right' }} />
         </div>
         {amtNum > 0 && (
           <div style={{ background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 14, padding: '14px 16px', marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: text.muted }}>Ви отримаєте</span>
+              <span style={{ fontSize: 12, color: text.muted }}>{tr('Ви отримаєте', 'You get')}</span>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#a9a9a9' }}>{dir === 'buy' ? `${fxAmt.toFixed(4)} ${currency}` : `${fxAmt.toFixed(2)}\u00a0TAX`}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: text.muted }}>Курс</span>
+              <span style={{ fontSize: 12, color: text.muted }}>{tr('Курс', 'Rate')}</span>
               <span style={{ fontSize: 13, color: text.secondary }}>{dir === 'buy' ? `1 ${currency} = ${buyRate.toFixed(4)}\u00a0TAX` : `1 ${currency} = ${sellRate.toFixed(4)}\u00a0TAX`}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 12, color: text.muted }}>Комісія банку (1.5%)</span>
+              <span style={{ fontSize: 12, color: text.muted }}>{tr('Комісія банку (1.5%)', 'Bank fee (1.5%)')}</span>
               <span style={{ fontSize: 12, color: text.muted }}>{commission.toFixed(2)}{'\u00a0TAX'}</span>
             </div>
           </div>
         )}
         <button onClick={handleExchange} disabled={loading || !amtNum} style={{ width: '100%', padding: '16px', borderRadius: 16, border: 'none', cursor: loading || !amtNum ? 'default' : 'pointer', background: loading || !amtNum ? 'rgba(51,51,51, 0.4)' : `${goldDark}`, color: loading || !amtNum ? text.dim : '#242424', fontSize: 16, fontWeight: 700, fontFamily: 'inherit' }}>
-          {loading ? '⏳ Виконується…' : `${dir === 'buy' ? 'Купити' : 'Продати'} ${currency}`}
+          {loading ? tr('⏳ Виконується…', '⏳ In progress…') : `${dir === 'buy' ? tr('Купити', 'Buy') : tr('Продати', 'Sell')} ${currency}`}
         </button>
       </div>
     </div>
@@ -3187,17 +3639,17 @@ function MonthlyFinanceSummary({ transactions }: { transactions: TxItem[] }) {
   const net = income - expenses;
   const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
   const expensesDelta = prevExpenses > 0 ? ((expenses - prevExpenses) / prevExpenses * 100) : 0;
-  const monthName = now.toLocaleDateString(lang === 'uk' ? 'uk-UA' : lang === 'en' ? 'en-US' : lang === 'it' ? 'it-IT' : 'es-ES', { month: 'long' });
+  const monthName = now.toLocaleDateString(localeForLang(lang), { month: 'long' });
   const items = [
-    { label: 'Дохід', value: `${fmtInt(income)}\u00a0TAX`, color: '#a9a9a9', icon: <TrendUpIcon color="#a9a9a9" /> },
-    { label: 'Витрати', value: `${fmtInt(expenses)}\u00a0TAX`, color: income > 0 && expenses > income ? '#888888' : text.secondary, icon: <TrendDownIcon color={income > 0 && expenses > income ? '#888888' : text.secondary} />, sub: prevExpenses > 0 ? `${expensesDelta >= 0 ? '+' : ''}${expensesDelta.toFixed(0)}% vs минулий міс.` : undefined },
-    { label: 'Баланс', value: `${net >= 0 ? '+' : '−'}${fmtInt(Math.abs(net))}\u00a0TAX`, color: net >= 0 ? '#a9a9a9' : '#888888', icon: <WalletIcon color={net >= 0 ? '#a9a9a9' : '#888888'} /> },
-    { label: 'Заощадження', value: `${savingsRate}%`, color: savingsRate >= 20 ? '#a9a9a9' : savingsRate >= 10 ? gold : text.secondary, icon: <BankIcon color={savingsRate >= 20 ? '#a9a9a9' : savingsRate >= 10 ? gold : text.secondary} /> },
+    { label: tr('Дохід', 'Income'), value: `${fmtInt(income)}\u00a0TAX`, color: '#a9a9a9', icon: <TrendUpIcon color="#a9a9a9" /> },
+    { label: tr('Витрати', 'Expenses'), value: `${fmtInt(expenses)}\u00a0TAX`, color: income > 0 && expenses > income ? '#888888' : text.secondary, icon: <TrendDownIcon color={income > 0 && expenses > income ? '#888888' : text.secondary} />, sub: prevExpenses > 0 ? `${expensesDelta >= 0 ? '+' : ''}${expensesDelta.toFixed(0)}% ${tr('до минулого місяця', 'vs last month')}` : undefined },
+    { label: tr('Баланс', 'Balance'), value: `${net >= 0 ? '+' : '−'}${fmtInt(Math.abs(net))}\u00a0TAX`, color: net >= 0 ? '#a9a9a9' : '#888888', icon: <WalletIcon color={net >= 0 ? '#a9a9a9' : '#888888'} /> },
+    { label: tr('Заощадження', 'Savings'), value: `${savingsRate}%`, color: savingsRate >= 20 ? '#a9a9a9' : savingsRate >= 10 ? gold : text.secondary, icon: <BankIcon color={savingsRate >= 20 ? '#a9a9a9' : savingsRate >= 10 ? gold : text.secondary} /> },
   ];
   if (!income && !expenses) return null;
   return (
     <div style={{ padding: dk ? 0 : '20px 22px 0' }}>
-      <div style={dk ? { ...dkTitle, marginBottom: 16, textTransform: 'capitalize' } : { ...sectionLabel, paddingLeft: 0, paddingRight: 0, marginBottom: 12 }}>Фінансовий звіт · {monthName}</div>
+      <div style={dk ? { ...dkTitle, marginBottom: 16, textTransform: 'capitalize' } : { ...sectionLabel, paddingLeft: 0, paddingRight: 0, marginBottom: 12 }}>{tr('Фінансовий звіт', 'Financial report')} · {monthName}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {items.map(({ label, value, color, icon, sub }) => (
           <div key={label} style={{ ...glassCard(), padding: '14px 16px' }}>
@@ -3232,8 +3684,8 @@ function CurrencyRatesBar({ onRatesLoaded, onExchange }: { onRatesLoaded?: (r: F
   return (
     <div style={{ padding: dk ? 0 : '20px 22px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-        <div style={dk ? { ...dkTitle, flex: 1 } : { ...sectionLabel, paddingLeft: 0, paddingRight: 0, flex: 1 }}>Курси НБУ</div>
-        {onExchange && <button onClick={onExchange} className={dk ? 'kp-btn' : undefined} style={dk ? { height: 36, padding: '0 14px', fontSize: 13 } : { fontSize: 12, color: gold, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>{dk ? 'Обміняти' : '💱 Обміняти'}</button>}
+        <div style={dk ? { ...dkTitle, flex: 1 } : { ...sectionLabel, paddingLeft: 0, paddingRight: 0, flex: 1 }}>{tr('Курси НБУ', 'NBU rates')}</div>
+        {onExchange && <button onClick={onExchange} className={dk ? 'kp-btn' : undefined} style={dk ? { height: 36, padding: '0 14px', fontSize: 13 } : { fontSize: 12, color: gold, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>{dk ? tr('Обміняти', 'Exchange') : tr('💱 Обміняти', '💱 Exchange')}</button>}
       </div>
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
         {rates.map(r => (
@@ -3282,10 +3734,10 @@ function SavingsGoalsMini() {
         body: JSON.stringify({ amount, idempotency_key: idempotencyKey }),
       });
       const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Помилка');
-      toast('Внесок зараховано ✓');
+      if (!j.ok) throw new Error(j.error || tr('Помилка', 'Error'));
+      toast(tr('Внесок зараховано ✓', 'Contribution added ✓'));
       setContributeId(null); setContributeAmt(''); load();
-    } catch (e: unknown) { toast(e instanceof Error ? e.message : 'Помилка'); }
+    } catch (e: unknown) { toast(e instanceof Error ? e.message : tr('Помилка', 'Error')); }
   };
 
   const createGoal = async () => {
@@ -3299,10 +3751,10 @@ function SavingsGoalsMini() {
         body: JSON.stringify({ title: newTitle.trim(), target_amount: target, idempotency_key: idempotencyKey }),
       });
       const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Помилка');
-      toast('Ціль створено ✓');
+      if (!j.ok) throw new Error(j.error || tr('Помилка', 'Error'));
+      toast(tr('Ціль створено ✓', 'Goal created ✓'));
       setShowCreate(false); setNewTitle(''); setNewTarget(''); load();
-    } catch (e: unknown) { toast(e instanceof Error ? e.message : 'Помилка'); }
+    } catch (e: unknown) { toast(e instanceof Error ? e.message : tr('Помилка', 'Error')); }
     finally { setCreating(false); }
   };
 
@@ -3316,31 +3768,31 @@ function SavingsGoalsMini() {
   return (
     <div style={{ padding: dk ? 0 : '20px 22px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <div style={dk ? dkTitle : { ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>Цілі заощаджень</div>
+        <div style={dk ? dkTitle : { ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>{tr('Цілі заощаджень', 'Savings goals')}</div>
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
           background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
           borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
-        }}>+ Нова</button>
+        }}>{tr('+ Нова', '+ New')}</button>
       </div>
 
       {showCreate && (
         <div style={{ ...glassCard(), padding: '14px 16px', marginBottom: 10 }}>
-          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Назва цілі"
+          <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={tr('Назва цілі', 'Goal name')}
             style={{ width: '100%', padding: '9px 12px', marginBottom: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
-          <input value={newTarget} onChange={e => setNewTarget(e.target.value)} placeholder="Сума, TAX" type="text" inputMode="decimal"
+          <input value={newTarget} onChange={e => setNewTarget(e.target.value)} placeholder={tr('Сума, TAX', 'Amount, TAX')} type="text" inputMode="decimal"
             style={{ width: '100%', padding: '9px 12px', marginBottom: 10, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           <button onClick={createGoal} disabled={creating} style={{
             width: '100%', padding: '10px', fontSize: 13, fontWeight: 600,
             background: `${gold}`, color: '#161616',
             border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
-          }}>{creating ? '…' : 'Створити'}</button>
+          }}>{creating ? '…' : tr('Створити', 'Create')}</button>
         </div>
       )}
 
       {goals.length === 0 && !showCreate && (
         <div style={{ fontSize: 13, color: text.muted, textAlign: 'center', padding: '18px 0' }}>
-          Немає активних цілей
+          {tr('Немає активних цілей', 'No active goals')}
         </div>
       )}
 
@@ -3361,17 +3813,17 @@ function SavingsGoalsMini() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: isContributing ? 10 : 0 }}>
               <span style={{ color: text.muted, fontSize: 11 }}>{fmtInt(goal.current_amount)}{'\u00a0TAX'}</span>
-              <span style={{ color: text.muted, fontSize: 11 }}>з {fmtInt(goal.target_amount)}{'\u00a0TAX'}</span>
+              <span style={{ color: text.muted, fontSize: 11 }}>{tr('з', 'of')} {fmtInt(goal.target_amount)}{'\u00a0TAX'}</span>
             </div>
             {!isContributing ? (
               <button onClick={() => { setContributeId(goal.id); setContributeAmt(''); }} style={{
                 marginTop: 8, width: '100%', padding: '7px', fontSize: 12, fontWeight: 600,
                 background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
                 borderRadius: 8, cursor: 'pointer', color: gold, fontFamily: 'inherit',
-              }}>Поповнити</button>
+              }}>{tr('Поповнити', 'Top up')}</button>
             ) : (
               <div style={{ display: 'flex', gap: 8 }}>
-                <input value={contributeAmt} onChange={e => setContributeAmt(e.target.value)} placeholder="Сума" type="text" inputMode="decimal"
+                <input value={contributeAmt} onChange={e => setContributeAmt(e.target.value)} placeholder={tr('Сума', 'Amount')} type="text" inputMode="decimal"
                   style={{ flex: 1, padding: '8px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 8, color: '#d8d8d8', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
                 <button onClick={() => contribute(goal.id)} style={{
                   padding: '8px 14px', fontSize: 12, fontWeight: 600,
@@ -3394,7 +3846,8 @@ function SavingsGoalsMini() {
 
 // ── Recurring payments section ────────────────────────────────────────────────
 interface RecurringTx { id: number; title: string; amount: number; tx_type: string; recipient_account?: string; frequency: string; next_run_date?: string; is_active: boolean; }
-const FREQ_LABELS: Record<string, string> = { daily: 'Щодня', weekly: 'Щотижня', biweekly: 'Раз на 2 тижні', monthly: 'Щомісяця', quarterly: 'Щокварталу' };
+// [Ukrainian, English]; shown through tr() so they follow the language.
+const FREQ_LABELS: Record<string, [string, string]> = { daily: ['Щодня', 'Daily'], weekly: ['Щотижня', 'Weekly'], biweekly: ['Раз на 2 тижні', 'Every 2 weeks'], monthly: ['Щомісяця', 'Monthly'], quarterly: ['Щокварталу', 'Quarterly'] };
 function RecurringSection() {
   const token = localStorage.getItem('army_bank_token');
   const { toast } = useApp();
@@ -3421,7 +3874,7 @@ function RecurringSection() {
       const j = await r.json();
       if (!j.ok) throw new Error(j.error);
       load();
-    } catch (e: unknown) { toast(e instanceof Error ? e.message : 'Помилка'); }
+    } catch (e: unknown) { toast(e instanceof Error ? e.message : tr('Помилка', 'Error')); }
   };
 
   const remove = async (id: number) => {
@@ -3442,10 +3895,10 @@ function RecurringSection() {
         body: JSON.stringify({ title: form.title.trim(), amount, tx_type: 'transfer', recipient_account: form.recipient_account.trim() || undefined, frequency: form.frequency, idempotency_key: idempotencyKey }),
       });
       const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Помилка');
-      toast('Регулярний платіж створено ✓');
+      if (!j.ok) throw new Error(j.error || tr('Помилка', 'Error'));
+      toast(tr('Регулярний платіж створено ✓', 'Recurring payment created ✓'));
       setShowCreate(false); setForm({ title: '', amount: '', recipient_account: '', frequency: 'monthly' }); load();
-    } catch (e: unknown) { toast(e instanceof Error ? e.message : 'Помилка'); }
+    } catch (e: unknown) { toast(e instanceof Error ? e.message : tr('Помилка', 'Error')); }
     finally { setCreating(false); }
   };
 
@@ -3454,31 +3907,31 @@ function RecurringSection() {
   return (
     <div style={{ padding: '24px 22px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>Регулярні платежі</div>
+        <div style={{ ...sectionLabel, paddingLeft: 0, paddingRight: 0 }}>{tr('Регулярні платежі', 'Recurring payments')}</div>
         <button onClick={() => setShowCreate(v => !v)} style={{
           padding: '5px 12px', fontSize: 11, fontWeight: 600, color: gold,
           background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`,
           borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
-        }}>+ Новий</button>
+        }}>{tr('+ Новий', '+ New')}</button>
       </div>
 
       {showCreate && (
         <div style={{ ...glassCard(), padding: '16px', marginBottom: 12 }}>
-          <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Назва платежу" style={inputStyle} />
-          <input value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="Сума, TAX" type="text" inputMode="decimal" style={inputStyle} />
-          <input value={form.recipient_account} onChange={e => setForm(f => ({ ...f, recipient_account: e.target.value }))} placeholder="Рахунок отримувача (необов'язково)" style={inputStyle} />
+          <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder={tr('Назва платежу', 'Payment name')} style={inputStyle} />
+          <input value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder={tr('Сума, TAX', 'Amount, TAX')} type="text" inputMode="decimal" style={inputStyle} />
+          <input value={form.recipient_account} onChange={e => setForm(f => ({ ...f, recipient_account: e.target.value }))} placeholder={tr('Рахунок отримувача (необов\'язково)', 'Recipient\'s account (optional)')} style={inputStyle} />
           <select value={form.frequency} onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))} style={{ ...inputStyle, marginBottom: 12 }}>
-            {Object.entries(FREQ_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            {Object.entries(FREQ_LABELS).map(([k, v]) => <option key={k} value={k}>{tr(v[0], v[1])}</option>)}
           </select>
           <button onClick={create} disabled={creating} style={{ width: '100%', padding: '10px', fontSize: 13, fontWeight: 600, background: `${gold}`, color: '#161616', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
-            {creating ? '…' : 'Створити'}
+            {creating ? '…' : tr('Створити', 'Create')}
           </button>
         </div>
       )}
 
       {list.length === 0 && !showCreate && (
         <div style={{ ...glassCard(), padding: '20px 16px', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: text.muted }}>Немає регулярних платежів</div>
+          <div style={{ fontSize: 13, color: text.muted }}>{tr('Немає регулярних платежів', 'No recurring payments')}</div>
         </div>
       )}
 
@@ -3490,20 +3943,20 @@ function RecurringSection() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: text.secondary, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.title}</div>
                 <div style={{ fontSize: 11, color: text.muted }}>
-                  {FREQ_LABELS[rec.frequency] || rec.frequency}
-                  {rec.next_run_date && ` · наступний ${rec.next_run_date}`}
+                  {FREQ_LABELS[rec.frequency] ? tr(...FREQ_LABELS[rec.frequency]) : rec.frequency}
+                  {rec.next_run_date && ` · ${tr('наступний', 'next')} ${rec.next_run_date}`}
                 </div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: text.secondary, fontFeatureSettings: '"tnum"' }}>{fmtInt(rec.amount)}{'\u00a0TAX'}</div>
-                <div style={{ fontSize: 10, color: rec.is_active ? '#a9a9a9' : 'rgba(126,126,126, 0.7)', marginTop: 2 }}>{rec.is_active ? 'Активний' : 'Призупинено'}</div>
+                <div style={{ fontSize: 10, color: rec.is_active ? '#a9a9a9' : 'rgba(126,126,126, 0.7)', marginTop: 2 }}>{rec.is_active ? tr('Активний', 'Active') : tr('Призупинено', 'Paused')}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
               <button onClick={() => toggle(rec.id, rec.is_active)} style={{ flex: 1, padding: '7px', fontSize: 12, fontWeight: 600, background: rec.is_active ? 'rgba(172,172,172, 0.08)' : 'rgba(180,180,180, 0.12)', border: `1px solid ${rec.is_active ? 'rgba(172,172,172, 0.18)' : 'rgba(180,180,180, 0.3)'}`, borderRadius: 8, cursor: 'pointer', color: rec.is_active ? text.muted : '#a9a9a9', fontFamily: 'inherit' }}>
-                {rec.is_active ? 'Призупинити' : 'Активувати'}
+                {rec.is_active ? tr('Призупинити', 'Pause') : tr('Активувати', 'Activate')}
               </button>
-              <button onClick={() => remove(rec.id)} style={{ padding: '7px 12px', fontSize: 12, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 8, cursor: 'pointer', color: 'rgba(110,110,110, 0.8)', fontFamily: 'inherit' }}>Видалити</button>
+              <button onClick={() => remove(rec.id)} style={{ padding: '7px 12px', fontSize: 12, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 8, cursor: 'pointer', color: 'rgba(110,110,110, 0.8)', fontFamily: 'inherit' }}>{tr('Видалити', 'Delete')}</button>
             </div>
           </div>
         ))}
@@ -3533,16 +3986,16 @@ function computeHealth(transactions: TxItem[], account: AccountInfo) {
   const balanceScore = Math.min(100, (balance / 50000) * 100);
   const activityScore = Math.min(100, monthTx.length * 5);
   const score = Math.round(savingsRate * 0.5 + balanceScore * 0.3 + activityScore * 0.2);
-  const label = score >= 80 ? 'Відмінно' : score >= 60 ? 'Добре' : score >= 40 ? 'Задовільно' : 'Потребує уваги';
+  const label = score >= 80 ? tr('Відмінно', 'Excellent') : score >= 60 ? tr('Добре', 'Good') : score >= 40 ? tr('Задовільно', 'Fair') : tr('Потребує уваги', 'Needs attention');
   const tips = [
-    income > 0 && expenses / income > 0.8 && 'Витрати перевищують 80% доходу — розгляньте бюджет',
-    balance < 1000 && 'Підтримуйте резервний фонд від 5 000 TAX',
-    monthTx.length < 3 && 'Мало активності — використовуйте картку для кешбеку',
+    income > 0 && expenses / income > 0.8 && tr('Витрати перевищують 80% доходу — розгляньте бюджет', 'Spending is over 80% of income — consider a budget'),
+    balance < 1000 && tr('Підтримуйте резервний фонд від 5 000 TAX', 'Keep a reserve of at least 5,000 TAX'),
+    monthTx.length < 3 && tr('Мало активності — використовуйте картку для кешбеку', 'Little activity — use your card to earn cashback'),
   ].filter(Boolean) as string[];
   return { score, label, tips, parts: [
-    { label: 'Заощадження', val: Math.round(savingsRate) },
-    { label: 'Баланс', val: Math.round(balanceScore) },
-    { label: 'Активність', val: Math.round(activityScore) },
+    { label: tr('Заощадження', 'Savings'), val: Math.round(savingsRate) },
+    { label: tr('Баланс', 'Balance'), val: Math.round(balanceScore) },
+    { label: tr('Активність', 'Activity'), val: Math.round(activityScore) },
   ] };
 }
 
@@ -3554,7 +4007,7 @@ function DesktopHealth({ transactions, account }: { transactions: TxItem[]; acco
   const R = 54, C = 2 * Math.PI * R;
   return (
     <div style={{ height: '100%' }}>
-      <div style={{ ...T.h3, fontSize: 18, color: text.primary, marginBottom: 20 }}>Фінансовий рейтинг</div>
+      <div style={{ ...T.h3, fontSize: 18, color: text.primary, marginBottom: 20 }}>{tr('Фінансовий рейтинг', 'Financial score')}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <div style={{ position: 'relative', width: 128, height: 128, flexShrink: 0 }}>
           <svg viewBox="0 0 128 128" width="128" height="128" role="img" aria-label={`${score} / 100`} style={{ transform: 'rotate(-90deg)' }}>
@@ -3564,7 +4017,7 @@ function DesktopHealth({ transactions, account }: { transactions: TxItem[]; acco
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 38, fontWeight: 300, color: text.primary, letterSpacing: -1.5, lineHeight: 1, ...T.num }}>{score}</span>
-            <span style={{ fontSize: 12, color: text.dim, marginTop: 3 }}>з 100</span>
+            <span style={{ fontSize: 12, color: text.dim, marginTop: 3 }}>{tr('з 100', 'of 100')}</span>
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -3617,11 +4070,11 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1, color: text.primary, letterSpacing: -0.8, ...T.num }}>{score}</div>
-            <div style={{ fontSize: 10, color: text.muted, marginTop: 3 }}>зі 100</div>
+            <div style={{ fontSize: 10, color: text.muted, marginTop: 3 }}>{tr('зі 100', 'of 100')}</div>
           </div>
         </div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 11, color: text.muted, letterSpacing: 1, marginBottom: 6 }}>ФІНАНСОВИЙ РЕЙТИНГ</div>
+          <div style={{ fontSize: 11, color: text.muted, letterSpacing: 1, marginBottom: 6 }}>{tr('ФІНАНСОВИЙ РЕЙТИНГ', 'FINANCIAL SCORE')}</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 11px', borderRadius: 999, background: `${level.color}22`, color: level.color, fontSize: 13, fontWeight: 600 }}>
             <span style={{ display: 'inline-flex', width: 15, height: 15 }}>{level.icon}</span>
             <span>{level.label}</span>
@@ -3630,9 +4083,9 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginBottom: tips.length ? 16 : 0 }}>
         {[
-          { label: 'Заощадження', val: Math.round(savingsRate) },
-          { label: 'Баланс', val: Math.round(balanceScore) },
-          { label: 'Активність', val: Math.round(activityScore) },
+          { label: tr('Заощадження', 'Savings'), val: Math.round(savingsRate) },
+          { label: tr('Баланс', 'Balance'), val: Math.round(balanceScore) },
+          { label: tr('Активність', 'Activity'), val: Math.round(activityScore) },
         ].map(({ label, val }) => (
           <div key={label}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: text.muted, marginBottom: 5 }}>
@@ -3664,13 +4117,13 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
 // ─── Budget Planner (localStorage) ────────────────────────────────────────
 const BUDGET_KEY = 'army_bank_budget_v1';
 const BUDGET_CATEGORIES = [
-  { key: 'food', label: 'Їжа', icon: '🛒' },
-  { key: 'transport', label: 'Транспорт', icon: '🚗' },
-  { key: 'entertainment', label: 'Розваги', icon: '🎭' },
-  { key: 'health', label: 'Здоров\'я', icon: '💊' },
-  { key: 'shopping', label: 'Шопінг', icon: '🛍️' },
-  { key: 'utilities', label: 'Комунальні', icon: '🏠' },
-  { key: 'other', label: 'Інше', icon: '📦' },
+  { key: 'food', label: ['Їжа', 'Food'], icon: '🛒' },
+  { key: 'transport', label: ['Транспорт', 'Transport'], icon: '🚗' },
+  { key: 'entertainment', label: ['Розваги', 'Entertainment'], icon: '🎭' },
+  { key: 'health', label: ['Здоров\'я', 'Health'], icon: '💊' },
+  { key: 'shopping', label: ['Шопінг', 'Shopping'], icon: '🛍️' },
+  { key: 'utilities', label: ['Комунальні', 'Utilities'], icon: '🏠' },
+  { key: 'other', label: ['Інше', 'Other'], icon: '📦' },
 ];
 
 function txToCategory(tx: TxItem): string {
@@ -3717,8 +4170,8 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
   return (
     <div style={{ margin: '0 22px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: text.secondary }}>Бюджет на місяць</div>
-        <div style={{ fontSize: 11, color: text.muted }}>{dayOfMonth}/{daysInMonth} дн.</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: text.secondary }}>{tr('Бюджет на місяць', 'Monthly budget')}</div>
+        <div style={{ fontSize: 11, color: text.muted }}>{dayOfMonth}/{daysInMonth} {tr('дн.', 'days')}</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {BUDGET_CATEGORIES.map(cat => {
@@ -3737,28 +4190,28 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
                 </span>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: text.primary }}>{cat.label}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: text.primary }}>{tr(cat.label[0], cat.label[1])}</span>
                     {limit > 0 && (
                       <span style={{ fontSize: 12, color: pct >= 100 ? '#757575' : text.secondary, fontWeight: 600 }}>
                         {spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'} / {limit.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'}
                       </span>
                     )}
-                    {limit === 0 && <span style={{ fontSize: 11, color: text.dim }}>{spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'} цього місяця</span>}
+                    {limit === 0 && <span style={{ fontSize: 11, color: text.dim }}>{spentAmt.toLocaleString('uk-UA', { maximumFractionDigits: 0 })}{'\u00a0TAX'} {tr('цього місяця', 'this month')}</span>}
                   </div>
                 </div>
                 <button onClick={() => { setEditing(isEditing ? null : cat.key); setEditVal(limit > 0 ? String(limit) : ''); }}
                   style={{ background: 'none', border: 'none', color: gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: '2px 6px' }}>
-                  {isEditing ? '✕' : limit > 0 ? 'Змінити' : '+ Ліміт'}
+                  {isEditing ? '✕' : limit > 0 ? tr('Змінити', 'Change') : tr('+ Ліміт', '+ Limit')}
                 </button>
               </div>
               {isEditing && (
                 <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                   <input type="text" inputMode="decimal" value={editVal} onChange={e => setEditVal(e.target.value)}
-                    placeholder="Ліміт TAX"
+                    placeholder={tr('Ліміт TAX', 'Limit, TAX')}
                     style={{ flex: 1, padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255, 0.1)', border: `1px solid ${bg.border}`, color: text.primary, fontSize: 14, outline: 'none' }} />
                   <button onClick={() => { const v = parseFloat(editVal.replace(',', '.')); if (v > 0) saveBudget(cat.key, v); }}
                     style={{ padding: '8px 14px', borderRadius: 10, border: 'none', background: '#a9a9a9', color: '#ffffff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    ОК
+                    {tr('ОК', 'OK')}
                   </button>
                 </div>
               )}
@@ -3767,8 +4220,8 @@ function BudgetPlanner({ transactions }: { transactions: TxItem[] }) {
                   <div style={{ background: 'rgba(255,255,255, 0.1)', borderRadius: 4, height: 5, overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${pct}%`, borderRadius: 4, background: `${barColor}`, transition: 'width 0.6s' }} />
                   </div>
-                  {pace > 1.2 && <div style={{ fontSize: 10, color: '#afafaf', marginTop: 4 }}>Темп витрат вищий за плановий</div>}
-                  {pct >= 100 && <div style={{ fontSize: 10, color: '#757575', marginTop: 4 }}>Ліміт вичерпано</div>}
+                  {pace > 1.2 && <div style={{ fontSize: 10, color: '#afafaf', marginTop: 4 }}>{tr('Темп витрат вищий за плановий', 'Spending faster than planned')}</div>}
+                  {pct >= 100 && <div style={{ fontSize: 10, color: '#757575', marginTop: 4 }}>{tr('Ліміт вичерпано', 'Limit reached')}</div>}
                 </>
               )}
             </div>
@@ -3807,7 +4260,7 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
 
   function shareLink() {
     if (navigator.share) {
-      navigator.share({ title: 'TaxTech', text: 'Навчальний банк TaxTech: картки, депозити й перекази на віртуальних гривнях', url: link });
+      navigator.share({ title: 'TaxTech', text: tr('Навчальний банк TaxTech: картки, депозити й перекази на віртуальних гривнях', 'TaxTech learning bank: cards, deposits and transfers in a virtual currency'), url: link });
     } else {
       copyLink();
     }
@@ -3822,22 +4275,22 @@ function ReferralWidget({ user }: { user: UserInfo | null }) {
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: text.secondary }}>Запросити друга</div>
-          <div style={{ fontSize: 12, color: text.muted }}>Поділіться TaxTech з одногрупниками</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: text.secondary }}>{tr('Запросити друга', 'Invite a friend')}</div>
+          <div style={{ fontSize: 12, color: text.muted }}>{tr('Поділіться TaxTech з одногрупниками', 'Share TaxTech with your classmates')}</div>
         </div>
       </div>
       <div style={{ background: 'rgba(0,0,0, 0.2)', borderRadius: 12, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, marginBottom: 2 }}>ВАШ КОД</div>
+          <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, marginBottom: 2 }}>{tr('ВАШ КОД', 'YOUR CODE')}</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: gold, letterSpacing: 2 }}>{code}</div>
         </div>
         <button onClick={copyLink} style={{ padding: '7px 14px', borderRadius: 10, border: `1px solid transparent`, background: copied ? 'rgba(169,169,169, 0.15)' : 'rgba(171,171,171, 0.1)', color: copied ? '#a9a9a9' : gold, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
-          {copied ? '✓ Скопійовано' : 'Копіювати'}
+          {copied ? tr('✓ Скопійовано', '✓ Copied') : tr('Копіювати', 'Copy')}
         </button>
       </div>
       <button onClick={shareLink} style={{ width: '100%', padding: '12px', borderRadius: 14, border: 'none', background: 'rgba(171,171,171, 0.25)', color: gold, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8a3 3 0 100-6 3 3 0 000 6zM6 15a3 3 0 100-6 3 3 0 000 6zM18 22a3 3 0 100-6 3 3 0 000 6zM8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-        Поділитися посиланням
+        {tr('Поділитися посиланням', 'Share the link')}
       </button>
     </div>
   );
@@ -4006,10 +4459,10 @@ function OverviewScreen() {
     try {
       const r = await fetch(`/api/cards/${c.id}/reveal`, { headers: { Authorization: `Bearer ${token}` } });
       const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Помилка');
+      if (!j.ok) throw new Error(j.error || tr('Помилка', 'Error'));
       setOvRevealed(j.data);
       setOvFlipped(true);
-    } catch (e) { toast(e instanceof Error ? e.message : 'Помилка'); }
+    } catch (e) { toast(e instanceof Error ? e.message : tr('Помилка', 'Error')); }
     finally { setOvRevealing(false); }
   }
 
@@ -4094,7 +4547,7 @@ function OverviewScreen() {
                           {/* Front */}
                           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                             <PremiumCard {...c} style={{ width: '100%' }} />
-                            {!ovFlipped && <div style={{ position: 'absolute', bottom: 10, right: 12, fontSize: 9, color: 'rgba(255,255,255, 0.5)', pointerEvents: 'none' }}>{ovRevealing ? '…' : '👁 перевернути'}</div>}
+                            {!ovFlipped && <div style={{ position: 'absolute', bottom: 10, right: 12, fontSize: 9, color: 'rgba(255,255,255, 0.5)', pointerEvents: 'none' }}>{ovRevealing ? '…' : tr('👁 перевернути', '👁 flip')}</div>}
                           </div>
                           {/* Back */}
                             <CardBack bg={v.bg} image={v.image} expiry={c.expiry} name={c.name} last4={c.number} revealed={ovRevealed} toast={toast} />
@@ -4222,7 +4675,7 @@ function OverviewScreen() {
               <svg key="shop" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8h12l1 13H5L6 8Zm3 0V6a3 3 0 0 1 6 0v2" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
               <svg key="bell" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10 21a2 2 0 004 0" stroke="#d8d8d8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>,
             ].map((icon, i) => (
-              <button key={i} aria-label={i === 0 ? 'Магазин' : 'Сповіщення'} onClick={() => i === 0 ? goTo('market') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', boxShadow: '0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+              <button key={i} aria-label={i === 0 ? tr('Магазин', 'Shop') : tr('Сповіщення', 'Notifications')} onClick={() => i === 0 ? goTo('market') : openNotificationsPanel()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', boxShadow: '0 2px 6px rgba(0,0,0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
 
                 {icon}
                 {i === 1 && unreadCount > 0 && <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#888888', border: '1.5px solid rgba(18,18,18, 0.9)' }} />}
@@ -4233,14 +4686,14 @@ function OverviewScreen() {
           <BalanceBlock visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)} balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'} />
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
             <div>
-              <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 5 }}>Цього місяця</div>
+              <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 5 }}>{tr('Цього місяця', 'This month')}</div>
               <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.4, color: flowNet >= 0 ? '#5fd68a' : '#ff8d80', ...T.num }}>
                 {flowNetSign}{fmtInt(Math.abs(flowNet))}<span style={{ fontSize: 14, fontWeight: 500, opacity: 0.7 }}>{fmtDec(Math.abs(flowNet))}</span>
                 <span style={{ fontSize: 12, fontWeight: 500, color: text.dim, marginLeft: 5 }}>TAX</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 5 }}>Картки</div>
+              <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 5 }}>{tr('Картки', 'Cards')}</div>
               <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.4, color: text.primary, ...T.num }}>{cards.length}</div>
             </div>
           </div>
@@ -4405,10 +4858,10 @@ function CardsScreen() {
     try {
       const r = await fetch(`/api/cards/${c.id}/reveal`, { headers: { Authorization: `Bearer ${token}` } });
       const j = await r.json();
-      if (!j.ok) throw new Error(j.error || 'Помилка');
+      if (!j.ok) throw new Error(j.error || tr('Помилка', 'Error'));
       setRevealed(j.data);
       setFlipped(true);
-    } catch (e: unknown) { toast(e instanceof Error ? e.message : 'Помилка'); }
+    } catch (e: unknown) { toast(e instanceof Error ? e.message : tr('Помилка', 'Error')); }
     finally { setRevealing(false); }
   }
 
@@ -4480,20 +4933,20 @@ function CardsScreen() {
   async function setPrimaryCard() {
     if (apiCards.length === 0) { toast(t('demo_api_unavailable')); return; }
     const c = apiCards[safeIdx];
-    if (c.is_primary) { toast('Ця картка вже є головною'); return; }
+    if (c.is_primary) { toast(tr('Ця картка вже є головною', 'This card is already the main one')); return; }
     const token = localStorage.getItem('army_bank_token');
     try {
       const r = await fetch(`/api/cards/${c.id}/set_primary`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}` } });
       const j = await r.json();
       if (!r.ok || !j.ok) throw new Error(j.message || t('operation_error'));
-      toast('Головну картку змінено ✓');
+      toast(tr('Головну картку змінено ✓', 'Main card changed ✓'));
       refreshDashboard();
     } catch (e: unknown) { toast(e instanceof Error ? e.message : t('operation_error')); }
   }
 
   async function topupCard() {
     const amount = parseFloat(topupAmount.replace(',', '.'));
-    if (!amount || amount <= 0) { toast('Введіть суму'); return; }
+    if (!amount || amount <= 0) { toast(tr('Введіть суму', 'Enter an amount')); return; }
     if (apiCards.length === 0) { toast(t('demo_api_unavailable')); return; }
     const c = apiCards[safeIdx];
     const token = localStorage.getItem('army_bank_token');
@@ -4507,7 +4960,7 @@ function CardsScreen() {
       });
       const j = await r.json();
       if (!r.ok || !j.ok) throw new Error(j.message || t('operation_error'));
-      toast(`Картку •• ${card.number} поповнено на ${amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })}\u00a0TAX ✓`);
+      toast(`${tr('Картку поповнено', 'Card topped up')} •• ${card.number} · ${amount.toLocaleString(localeForLang(trLang()), { minimumFractionDigits: 2 })}\u00a0TAX ✓`);
       setTopupModal(false);
       setTopupAmount('');
       refreshDashboard();
@@ -4590,10 +5043,10 @@ function CardsScreen() {
               <div style={{ ...T.h1, color: text.primary, marginBottom: 8 }}>{t('cards_title')}</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
-                  {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
+                  {cards.length} {cards.length === 1 ? tr('картка', 'card') : tr('картки', 'cards')}
                 </div>
                 <div style={{ padding: '7px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: '#c5c5c5', fontWeight: 600 }}>
-                  {activeCardsCount} активних
+                  {activeCardsCount} {tr('активних', 'active')}
                 </div>
               </div>
             </div>
@@ -4641,7 +5094,7 @@ function CardsScreen() {
                     {/* Front */}
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                       <PremiumCard {...c} style={{ width: '100%' }} balance={c.balance} isPrimary={c.isPrimary} />
-                      {!flipped && <div style={{ position: 'absolute', bottom: 12, right: 14, fontSize: 9, color: 'rgba(255,255,255, 0.54)', pointerEvents: 'none', letterSpacing: 0.5, textTransform: 'uppercase' }}>{revealing ? '…' : 'Реквізити'}</div>}
+                      {!flipped && <div style={{ position: 'absolute', bottom: 12, right: 14, fontSize: 9, color: 'rgba(255,255,255, 0.54)', pointerEvents: 'none', letterSpacing: 0.5, textTransform: 'uppercase' }}>{revealing ? '…' : tr('Реквізити', 'Details')}</div>}
                     </div>
                     {/* Back */}
                       <CardBack bg={v.bg} image={v.image} expiry={c.expiry} name={c.name} last4={c.number} revealed={revealed} toast={toast} />
@@ -4691,7 +5144,7 @@ function CardsScreen() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, gap: 10 }}>
             <div style={{ fontSize: 12, color: text.muted }}>
-              {t('card_design_label')}: <span style={{ color: text.secondary, fontWeight: 600 }}>{currentDesignOption?.title || 'Classic Gold'}</span>
+              {t('card_design_label')}: <span style={{ color: text.secondary, fontWeight: 600 }}>{currentDesignOption ? tr(currentDesignOption.title, DESIGN_TITLE_EN[currentDesignOption.title] ?? currentDesignOption.title) : 'Classic Gold'}</span>
             </div>
             <button
               onClick={() => openDesignModal('current')}
@@ -4707,7 +5160,7 @@ function CardsScreen() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
-                  {card?.isPrimary ? 'Баланс рахунку (головна картка)' : 'Баланс картки'}
+                  {card?.isPrimary ? tr('Баланс рахунку (головна картка)', 'Account balance (main card)') : tr('Баланс картки', 'Card balance')}
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: -0.4, color: text.primary, fontFeatureSettings: '"tnum"' }}>
                   {formatUah(card?.balance ?? 0)}
@@ -4717,18 +5170,18 @@ function CardsScreen() {
                 {!card?.isPrimary && card?.statusRaw === 'active' && (
                   <button onClick={() => setTopupModal(true)} style={{
                     ...docPill, height: 34, padding: '0 14px', fontSize: 12.5,
-                  }}>Поповнити</button>
+                  }}>{tr('Поповнити', 'Top up')}</button>
                 )}
                 {!card?.isPrimary && card?.statusRaw !== 'closed' && (
                   <button onClick={setPrimaryCard} style={{
                     ...docPill, height: 34, padding: '0 14px', fontSize: 12.5, color: text.secondary, border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(255,255,255,0.05)',
-                  }}>Зробити головною</button>
+                  }}>{tr('Зробити головною', 'Make main')}</button>
                 )}
               </div>
             </div>
             {card?.isPrimary && (
               <div style={{ fontSize: 11, color: text.dim, marginTop: 6 }}>
-                Всі перекази на/з рахунку прив'язані до цієї картки
+                {tr("Всі перекази на/з рахунку прив'язані до цієї картки", 'All transfers to and from the account go through this card')}
               </div>
             )}
           </div>
@@ -4917,15 +5370,15 @@ function CardsScreen() {
                   style={{ width: '100%' }}
                 />
                 <div>
-                  <div style={{ fontSize: 12.5, fontWeight: 700, color: text.primary }}>{opt.title}</div>
-                  <div style={{ fontSize: 11, color: text.muted }}>{opt.subtitleKey ? t(opt.subtitleKey) : opt.subtitle}</div>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, color: text.primary }}>{tr(opt.title, DESIGN_TITLE_EN[opt.title] ?? opt.title)}</div>
+                  <div style={{ fontSize: 11, color: text.muted }}>{opt.subtitleKey ? t(opt.subtitleKey) : tr(opt.subtitle ?? '', (opt.subtitle ?? '').replace(/^Фото:/, 'Photo:').replace(' · фото:', ' · photo:').replace('Храм Сатурна', 'Temple of Saturn').replace('Аква Клавдія', 'Aqua Claudia').replace('Каррара', 'Carrara'))}</div>
                 </div>
               </button>
             ))}
           </div>
 
           <div style={{ marginTop: 14, fontSize: 12, color: text.muted }}>
-            {t('selected_label')}: <span style={{ color: text.secondary, fontWeight: 700 }}>{activeDesignOption.title}</span>
+            {t('selected_label')}: <span style={{ color: text.secondary, fontWeight: 700 }}>{tr(activeDesignOption.title, DESIGN_TITLE_EN[activeDesignOption.title] ?? activeDesignOption.title)}</span>
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
@@ -4963,11 +5416,11 @@ function CardsScreen() {
           border: '1px solid transparent', borderBottom: 'none',
         }}>
           <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
-          <div style={{ fontSize: 18, fontWeight: 700, color: text.primary, marginBottom: 4 }}>Поповнити картку</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: text.primary, marginBottom: 4 }}>{tr('Поповнити картку', 'Top up card')}</div>
           <div style={{ fontSize: 12, color: text.muted, marginBottom: 20 }}>
-            {card?.name} •• {card?.number} · Поточний баланс: {formatUah(card?.balance ?? 0)}
+            {card?.name} •• {card?.number} · {tr('Поточний баланс', 'Current balance')}: {formatUah(card?.balance ?? 0)}
           </div>
-          <div style={{ fontSize: 11, color: text.muted, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.8 }}>Сума поповнення</div>
+          <div style={{ fontSize: 11, color: text.muted, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.8 }}>{tr('Сума поповнення', 'Top-up amount')}</div>
           <input
             type="text" inputMode="decimal"
             value={topupAmount} onChange={e => setTopupAmount(e.target.value)}
@@ -4975,7 +5428,7 @@ function CardsScreen() {
             style={{ width: '100%', padding: '13px 14px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 12, color: text.primary, fontSize: 20, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 6 }}
           />
           <div style={{ fontSize: 11, color: text.dim, marginBottom: 20 }}>
-            Баланс рахунку: {formatUah(Number(account?.balance || 0))}
+            {tr('Баланс рахунку', 'Account balance')}: {formatUah(Number(account?.balance || 0))}
           </div>
           <button
             onClick={topupCard} disabled={topupLoading || !topupAmount}
@@ -4983,7 +5436,7 @@ function CardsScreen() {
               width: '100%', padding: '14px', borderRadius: 16, border: 'none', fontSize: 15, fontWeight: 700,
               background: (!topupAmount || topupLoading) ? 'rgba(95,95,95, 0.3)' : `${goldDark}`,
               color: text.primary, cursor: (!topupAmount || topupLoading) ? 'default' : 'pointer', fontFamily: 'inherit',
-            }}>{topupLoading ? 'Обробка...' : 'Поповнити'}</button>
+            }}>{topupLoading ? tr('Обробка...', 'Processing...') : tr('Поповнити', 'Top up')}</button>
         </div>
       </div>
     )}
@@ -5123,7 +5576,7 @@ function DepositsSection() {
         headers: { 'Idempotency-Key': idempotencyKey },
         body: JSON.stringify({ amount: amt, term_months: termMonths, auto_renew: autoRenew, idempotency_key: idempotencyKey }),
       });
-      toast(`✓ Депозит ${amt.toLocaleString('uk-UA')}\u00a0TAX відкрито`);
+      toast(`✓ ${tr('Депозит відкрито', 'Deposit opened')}: ${amt.toLocaleString(localeForLang(trLang()))}\u00a0TAX`);
       setShowCreate(false); setAmount('');
       setAutoRenew(false);
       load();
@@ -5141,7 +5594,7 @@ function DepositsSection() {
         body: JSON.stringify({ early, idempotency_key: idempotencyKey }),
       });
       const payout = data?.payout ?? 0;
-      toast(`✓ Депозит закрито. Виплачено ${Number(payout).toLocaleString('uk-UA')}\u00a0TAX`);
+      toast(`✓ ${tr('Депозит закрито. Виплачено', 'Deposit closed. Paid out')} ${Number(payout).toLocaleString(localeForLang(trLang()))}\u00a0TAX`);
       load();
     } catch (e: unknown) { toast(e instanceof Error ? e.message : t('operation_error')); }
     finally { setClosing(null); }
@@ -5240,7 +5693,7 @@ function DepositsSection() {
             boxShadow: showCreate ? 'none' : '0 12px 28px rgba(56,56,56, 0.22)',
           }}
         >
-          {showCreate ? '✕ Скасувати' : `+ ${t('dep_open')}`}
+          {showCreate ? tr('✕ Скасувати', '✕ Cancel') : `+ ${t('dep_open')}`}
         </button>
       </div>
 
@@ -5275,7 +5728,7 @@ function DepositsSection() {
                     }}
                   >
                     {m} {t('dep_monthly')}<br />
-                    <span style={{ fontSize: 10, opacity: 0.7 }}>{DEPOSIT_RATES[m]}% р.</span>
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>{DEPOSIT_RATES[m]}% {tr('р.', 'p.a.')}</span>
                   </button>
                 ))}
               </div>
@@ -5289,7 +5742,7 @@ function DepositsSection() {
               </div>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8, textAlign: 'right' }}>{t('dep_rate')}</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: text.secondary, textAlign: 'right' }}>{DEPOSIT_RATES[termMonths]}% р.а.</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: text.secondary, textAlign: 'right' }}>{DEPOSIT_RATES[termMonths]}% {tr('р.а.', 'p.a.')}</div>
               </div>
             </div>
 
@@ -5352,7 +5805,7 @@ function DepositsSection() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: text.primary }}>{dep.description || `${t('dep_title')} ${dep.term_months}${t('dep_monthly')}`}</div>
-                      <div style={{ fontSize: 12, color: text.muted, marginTop: 2 }}>{dep.interest_rate}% р.а. · {matDate}</div>
+                      <div style={{ fontSize: 12, color: text.muted, marginTop: 2 }}>{dep.interest_rate}% {tr('р.а.', 'p.a.')} · {matDate}</div>
                     </div>
                     <div style={{ padding: '7px 12px', borderRadius: 999, background: `${statusColor}16`, border: `1px solid ${statusColor}30`, fontSize: 11, fontWeight: 700, color: statusColor, flexShrink: 0, letterSpacing: 0.2 }}>
                       {depStatusLabel(dep.status)}
@@ -5361,7 +5814,7 @@ function DepositsSection() {
 
                   <div style={metricGridStyle}>
                     <div style={metricCellStyle}>
-                      <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8 }}>ТІЛО</div>
+                      <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.8 }}>{tr('ТІЛО', 'PRINCIPAL')}</div>
                       <div style={{ fontSize: 18, fontWeight: 700, color: text.primary, marginTop: 4 }}>{formatUah(Number(dep.amount), lang)}</div>
                     </div>
                     <div style={{ ...metricCellStyle, textAlign: 'right' }}>
@@ -5536,38 +5989,71 @@ function CreditsSection() {
       genericError: 'Errore',
       creditLine: 'Prestito {months} mesi · {rate}% annuo',
     },
-    es: {
-      title: 'Créditos',
-      subtitle: 'Crédito al consumo',
-      activeSuffix: 'activos',
-      toggleOpen: 'Solicitar crédito',
-      amountLabel: 'Importe del crédito',
+    de: {
+      title: 'Kredite',
+      subtitle: 'Konsumentenkredit',
+      activeSuffix: 'aktiv',
+      toggleOpen: 'Kredit beantragen',
+      amountLabel: 'Kreditbetrag',
       amountPlaceholder: '1.000 – 500.000 TAX',
-      termLabel: 'Plazo',
-      monthlyPayment: 'CUOTA MENSUAL',
-      totalCost: 'COSTE TOTAL',
-      purposePlaceholder: 'Destino (opcional)',
-      submit: 'Solicitar crédito',
-      noCredits: 'No tienes créditos activos',
-      statusActive: 'Activo',
-      statusClosed: 'Pagado',
-      progressPaid: 'pagado',
-      remaining: 'Pendiente',
-      paymentPerMonth: 'Pago/mes',
-      nextPayment: 'Siguiente',
-      overdue: 'Atrasado {days} días',
-      payInstallment: 'Pagar cuota',
-      repayFull: 'Liquidar',
-      minAmount: 'El importe mínimo es 1.000 TAX',
-      maxAmount: 'El importe máximo es 500.000 TAX',
-      serverNoResponse: 'El servidor no responde. Inténtalo de nuevo en un momento',
-      createSuccess: 'Crédito emitido',
-      repaySuccess: 'Crédito liquidado',
-      paymentSuccess: 'Pago aplicado',
-      serverError: 'Error del servidor',
-      networkError: 'Error de red',
-      genericError: 'Error',
-      creditLine: 'Crédito {months} meses · {rate}% anual',
+      termLabel: 'Laufzeit',
+      monthlyPayment: 'MONATSRATE',
+      totalCost: 'GESAMTKOSTEN',
+      purposePlaceholder: 'Zweck (optional)',
+      submit: 'Kredit beantragen',
+      noCredits: 'Sie haben keine aktiven Kredite',
+      statusActive: 'Aktiv',
+      statusClosed: 'Getilgt',
+      progressPaid: 'getilgt',
+      remaining: 'Restschuld',
+      paymentPerMonth: 'Monatlich',
+      nextPayment: 'Nächste',
+      overdue: '{days} Tage überfällig',
+      payInstallment: 'Rate zahlen',
+      repayFull: 'Vollständig tilgen',
+      minAmount: 'Mindestbetrag 1.000 TAX',
+      maxAmount: 'Höchstbetrag 500.000 TAX',
+      serverNoResponse: 'Der Server antwortet nicht. Bitte gleich erneut versuchen',
+      createSuccess: 'Kredit ausgezahlt',
+      repaySuccess: 'Kredit getilgt',
+      paymentSuccess: 'Zahlung eingegangen',
+      serverError: 'Serverfehler',
+      networkError: 'Netzwerkfehler',
+      genericError: 'Fehler',
+      creditLine: 'Kredit {months} Mon. · {rate}% p. a.',
+    },
+    ru: {
+      title: 'Кредиты',
+      subtitle: 'Потребительское кредитование',
+      activeSuffix: 'активных',
+      toggleOpen: 'Оформить кредит',
+      amountLabel: 'Сумма кредита',
+      amountPlaceholder: '1 000 – 500 000 TAX',
+      termLabel: 'Срок',
+      monthlyPayment: 'ЕЖЕМЕСЯЧНЫЙ ПЛАТЁЖ',
+      totalCost: 'ПОЛНАЯ СТОИМОСТЬ',
+      purposePlaceholder: 'Цель (необязательно)',
+      submit: 'Оформить кредит',
+      noCredits: 'У вас нет активных кредитов',
+      statusActive: 'Активный',
+      statusClosed: 'Погашен',
+      progressPaid: 'погашено',
+      remaining: 'Остаток',
+      paymentPerMonth: 'Платёж/мес',
+      nextPayment: 'Следующий',
+      overdue: 'Просрочка {days} дн.',
+      payInstallment: 'Внести платёж',
+      repayFull: 'Погасить полностью',
+      minAmount: 'Минимальная сумма — 1 000 TAX',
+      maxAmount: 'Максимальная сумма — 500 000 TAX',
+      serverNoResponse: 'Сервер не ответил. Попробуйте чуть позже',
+      createSuccess: 'Кредит выдан',
+      repaySuccess: 'Кредит погашен',
+      paymentSuccess: 'Платёж принят',
+      serverError: 'Ошибка сервера',
+      networkError: 'Ошибка сети',
+      genericError: 'Ошибка',
+      creditLine: 'Кредит {months} мес · {rate}% годовых',
     },
   }[lang]), [lang]);
 
@@ -5704,7 +6190,7 @@ function CreditsSection() {
               <div style={{ display: 'flex', gap: 8 }}>
                 {CREDIT_TERMS.map(mo => (
                   <button key={mo} type="button" onClick={() => setTerm(mo)} style={{ flex: 1, padding: '10px 0', borderRadius: 12, border: `1.5px solid ${term === mo ? '#787878' : bg.border}`, background: term === mo ? 'rgba(120,120,120, 0.14)' : 'rgba(255,255,255, 0.1)', color: term === mo ? '#cacaca' : text.muted, fontSize: 12, fontWeight: term === mo ? 700 : 500, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    {mo}м<div style={{ fontSize: 10, marginTop: 2 }}>{CREDIT_RATES[mo]}%</div>
+                    {mo}{tr('м', 'm')}<div style={{ fontSize: 10, marginTop: 2 }}>{CREDIT_RATES[mo]}%</div>
                   </button>
                 ))}
               </div>
@@ -5785,14 +6271,14 @@ interface DocRecord {
   meta?: { period?: string; count?: number };
 }
 
-function DocSeal({ doc, lang }: { doc: DocRecord; lang: string }) {
+function DocSeal({ doc, lang }: { doc: DocRecord; lang: AppLang }) {
   const uk = lang === 'uk';
   const [copied, setCopied] = useState(false);
   const copy = () => { navigator.clipboard?.writeText(doc.code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); }).catch(() => {}); };
   return (
     <div style={{ border: '1px solid rgba(255,212,0,0.30)', borderRadius: 22, padding: '16px 16px 14px', marginBottom: 22, textAlign: 'center',
       background: 'linear-gradient(180deg, rgba(255,212,0,0.07), rgba(255,212,0,0.015))', boxShadow: 'inset 0 0 0 3px rgba(255,212,0,0.03)' }}>
-      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 2.2, color: gold, marginBottom: 12 }}>{uk ? 'ПЕРЕВІРКА · QR' : 'VERIFY · QR'}</div>
+      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 2.2, color: gold, marginBottom: 12 }}>{tr('ПЕРЕВІРКА · QR', 'VERIFY · QR')}</div>
       <div style={{ position: 'relative', width: 164, height: 164, margin: '0 auto', background: '#fff', borderRadius: 16, boxShadow: '0 8px 22px rgba(0,0,0,0.35)' }}>
         <img src={apiUrl(`/api/qr/${doc.code}.svg`)} alt="QR" width={136} height={136} style={{ position: 'absolute', inset: 14, imageRendering: 'pixelated' }} />
         {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([x, y]) => (
@@ -5802,23 +6288,22 @@ function DocSeal({ doc, lang }: { doc: DocRecord; lang: string }) {
             borderRadius: `${!x && !y ? 5 : 0}px ${x && !y ? 5 : 0}px ${x && y ? 5 : 0}px ${!x && y ? 5 : 0}px` }} />
         ))}
       </div>
-      <div style={{ marginTop: 12, fontSize: 11, letterSpacing: 1, color: text.muted }}>{uk ? 'Код документа' : 'Document code'}</div>
+      <div style={{ marginTop: 12, fontSize: 11, letterSpacing: 1, color: text.muted }}>{tr('Код документа', 'Document code')}</div>
       <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 17, fontWeight: 700, letterSpacing: 1.2, color: text.primary, margin: '3px 0 8px' }}>{doc.code}</div>
       <div style={{ fontSize: 12, color: text.muted, lineHeight: 1.45, marginBottom: 12 }}>
-        {uk ? 'Скануйте QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.'
-            : 'Scan the QR or enter the code on the verification page: it checks the document against the ledger and shows no personal data.'}
+        {tr('Скануйте QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.', 'Scan the QR or enter the code on the verification page: it checks the document against the ledger and shows no personal data.')}
       </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
         <a href={doc.verify_url} target="_blank" rel="noopener noreferrer" style={{ ...docPill, textDecoration: 'none', color: '#161616', background: gold, border: 'none' }}>
-          {uk ? 'Перевірити онлайн' : 'Verify online'}
+          {tr('Перевірити онлайн', 'Verify online')}
         </a>
-        <button onClick={copy} style={docPill}>{copied ? (uk ? 'Скопійовано' : 'Copied') : (uk ? 'Код' : 'Code')}</button>
+        <button onClick={copy} style={docPill}>{copied ? tr('Скопійовано', 'Copied') : tr('Код', 'Code')}</button>
       </div>
     </div>
   );
 }
 
-function DocumentsSheet({ onClose, lang }: { onClose: () => void; lang: string }) {
+function DocumentsSheet({ onClose, lang }: { onClose: () => void; lang: AppLang }) {
   const uk = lang === 'uk';
   const [docs, setDocs] = useState<DocRecord[] | null>(null);
   const [open, setOpen] = useState<DocRecord | null>(null);
@@ -5833,24 +6318,24 @@ function DocumentsSheet({ onClose, lang }: { onClose: () => void; lang: string }
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172,0.25)', margin: '0 auto 18px' }} />
         {open ? (
           <>
-            <button onClick={() => setOpen(null)} style={{ ...docPill, height: 32, marginBottom: 14 }}>← {uk ? 'Документи' : 'Documents'}</button>
+            <button onClick={() => setOpen(null)} style={{ ...docPill, height: 32, marginBottom: 14 }}>← {tr('Документи', 'Documents')}</button>
             <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{open.title}</div>
-            <div style={{ fontSize: 12, color: text.muted, marginBottom: 16 }}>{new Date(open.created_at.replace(' ', 'T') + 'Z').toLocaleString(uk ? 'uk-UA' : 'en-GB')}</div>
+            <div style={{ fontSize: 12, color: text.muted, marginBottom: 16 }}>{new Date(open.created_at.replace(' ', 'T') + 'Z').toLocaleString(localeForLang(lang))}</div>
             <DocSeal doc={open} lang={lang} />
           </>
         ) : (
           <>
-            <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{uk ? 'Мої документи' : 'My documents'}</div>
-            <div style={{ fontSize: 12, color: text.muted, marginBottom: 14 }}>{uk ? 'Квитанції й виписки з кодом і QR для перевірки' : 'Receipts and statements with a code and QR to verify'}</div>
+            <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{tr('Мої документи', 'My documents')}</div>
+            <div style={{ fontSize: 12, color: text.muted, marginBottom: 14 }}>{tr('Квитанції й виписки з кодом і QR для перевірки', 'Receipts and statements with a code and QR to verify')}</div>
             <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
               {(['all', 'receipt', 'statement'] as const).map(k => (
                 <button key={k} onClick={() => setKind(k)} style={{ ...docPill, height: 32, opacity: kind === k ? 1 : 0.55 }}>
-                  {k === 'all' ? (uk ? 'Усі' : 'All') : k === 'receipt' ? (uk ? 'Квитанції' : 'Receipts') : (uk ? 'Виписки' : 'Statements')}
+                  {k === 'all' ? tr('Усі', 'All') : k === 'receipt' ? tr('Квитанції', 'Receipts') : tr('Виписки', 'Statements')}
                 </button>
               ))}
             </div>
             {docs === null && <div style={{ color: text.muted, fontSize: 13, padding: 16 }}>…</div>}
-            {docs !== null && rows.length === 0 && <div style={{ color: text.muted, fontSize: 13, padding: '20px 4px' }}>{uk ? 'Документів поки немає' : 'No documents yet'}</div>}
+            {docs !== null && rows.length === 0 && <div style={{ color: text.muted, fontSize: 13, padding: '20px 4px' }}>{tr('Документів поки немає', 'No documents yet')}</div>}
             {rows.map((d, i) => (
               <button key={d.id} onClick={() => setOpen(d)} style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 12, padding: '12px 2px', background: 'none', border: 'none',
                 borderTop: i ? '1px solid rgba(255,255,255,0.06)' : 'none', color: 'inherit', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
@@ -6058,7 +6543,7 @@ function OperationsScreen() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
             </svg>
-            {lang === 'uk' ? 'Документи' : 'Docs'}
+            {tr('Документи', 'Docs')}
           </button>
         </div>
         <div style={{ position: 'relative' }}>
@@ -6330,7 +6815,8 @@ function OperationsScreen() {
             const D = ({ uk: { date: 'Дата', kind: 'Категорія', who: 'Рахунок', no: 'Номер операції', done: 'Виконано' },
               en: { date: 'Date', kind: 'Category', who: 'Account', no: 'Operation no.', done: 'Completed' },
               it: { date: 'Data', kind: 'Categoria', who: 'Conto', no: 'N. operazione', done: 'Eseguita' },
-              es: { date: 'Fecha', kind: 'Categoría', who: 'Cuenta', no: 'N.º de operación', done: 'Completada' } } as Record<string, Record<string, string>>)[lang] || {};
+              de: { date: 'Datum', kind: 'Kategorie', who: 'Konto', no: 'Vorgangsnr.', done: 'Ausgeführt' },
+              ru: { date: 'Дата', kind: 'Категория', who: 'Счёт', no: 'Номер операции', done: 'Выполнено' } } as Record<string, Record<string, string>>)[lang] || {};
             const kind = ({ transfer: t('spend_transfer'), food: t('spend_food'), transport: t('spend_transport'), utility: t('spend_utility'), shopping: t('spend_shopping'), subscription: t('spend_subscription'), income: t('filter_income') } as Record<string, string>)[cat] || cat;
             const when = new Date(tx.created_at);
             const dateStr = isNaN(when.getTime()) ? tx.created_at.slice(0, 10) : when.toLocaleDateString(localeForLang(lang), { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + fmtTime(tx.created_at, lang);
@@ -6563,7 +7049,7 @@ function ProfileScreen() {
       const j2 = await r2.json();
       if (j2.ok) setLimits(j2.data);
       setNewLimitAmt('');
-      toast('✓ Ліміт встановлено');
+      toast(tr('✓ Ліміт встановлено', '✓ Limit set'));
     } catch (e) { toast(e instanceof Error ? e.message : t('operation_error')); }
     finally { setLimitsLoading(false); }
   }
@@ -6572,12 +7058,12 @@ function ProfileScreen() {
     const tk = localStorage.getItem('army_bank_token');
     await fetch(`/api/budget-limits/${tx_type}`, { method: 'DELETE', headers: { Authorization: `Bearer ${tk}` } });
     setLimits(prev => prev.filter(l => l.tx_type !== tx_type));
-    toast('✓ Ліміт видалено');
+    toast(tr('✓ Ліміт видалено', '✓ Limit removed'));
   }
 
   async function setPin(e: React.FormEvent) {
     e.preventDefault();
-    if (pinInput.length < 4) { toast('Мінімум 4 цифри'); return; }
+    if (pinInput.length < 4) { toast(tr('Мінімум 4 цифри', 'At least 4 digits')); return; }
     setPinLoading(true);
     try {
       const tk = localStorage.getItem('army_bank_token');
@@ -6589,7 +7075,7 @@ function ProfileScreen() {
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || t('operation_error'));
       setPinStatus(true); setShowPinForm(false); setPinInput('');
-      toast('✓ PIN встановлено');
+      toast(tr('✓ PIN встановлено', '✓ PIN set'));
     } catch (e) { toast(e instanceof Error ? e.message : t('operation_error')); }
     finally { setPinLoading(false); }
   }
@@ -6598,7 +7084,7 @@ function ProfileScreen() {
     const tk = localStorage.getItem('army_bank_token');
     const r = await fetch('/api/auth/pin', { method: 'DELETE', headers: { Authorization: `Bearer ${tk}` } });
     const j = await r.json();
-    if (j.ok) { setPinStatus(false); toast('✓ PIN видалено'); }
+    if (j.ok) { setPinStatus(false); toast(tr('✓ PIN видалено', '✓ PIN removed')); }
   }
 
   const [changingPwd, setChangingPwd] = useState(false);
@@ -6680,7 +7166,8 @@ function ProfileScreen() {
     { value: 'uk', label: t('lang_uk') },
     { value: 'en', label: t('lang_en') },
     { value: 'it', label: t('lang_it') },
-    { value: 'es', label: t('lang_es') },
+    { value: 'de', label: t('lang_de') },
+    { value: 'ru', label: t('lang_ru') },
   ];
 
   const section = (children: React.ReactNode) => (
@@ -7018,10 +7505,10 @@ function ProfileScreen() {
                 borderRadius: 16, opacity: a.done ? 1 : 0.72, transition: 'opacity 0.3s',
               }}>
                 <div style={{ width: 34, height: 34, borderRadius: 12, background: a.done ? 'rgba(169,169,169, 0.14)' : 'rgba(172,172,172, 0.08)', border: `1px solid ${a.done ? 'rgba(169,169,169, 0.22)' : 'rgba(172,172,172, 0.12)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: a.done ? '#c5c5c5' : gold, fontSize: 11, fontWeight: 800, letterSpacing: 0.6 }}>
-                  {a.title.split(/\s+/).slice(0, 2).map(part => part[0]).join('').slice(0, 2).toUpperCase()}
+                  {achTitle(a).split(/\s+/).slice(0, 2).map(part => part[0]).join('').slice(0, 2).toUpperCase()}
                 </div>
                 <div style={{ fontSize: 11.5, color: a.done ? text.secondary : text.muted, lineHeight: 1.35, fontWeight: a.done ? 600 : 500 }}>
-                  {a.title}
+                  {achTitle(a)}
                 </div>
               </div>
             ))}
@@ -7060,15 +7547,6 @@ interface CartItem { product: Product; qty: number; size?: string; }
 const cartKey = (i: CartItem) => `${i.product.id}|${i.size || ''}`;
 const isShopProduct = (p: Product) => String(p.slug || '').startsWith('munister-');
 
-/** Dispatch is promised within two working days: say the actual date. */
-function dispatchBy(lang: string): string {
-  const d = new Date();
-  let left = 2;
-  while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-  while (left > 0) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) left--; }
-  return d.toLocaleDateString(lang === 'uk' ? 'uk-UA' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-
 const shipErrStyle: React.CSSProperties = { borderColor: '#d0594a' };
 function ShipError({ text: msg }: { text: string }) {
   return <div role="alert" style={{ marginTop: 5, fontSize: 12, color: '#e07a6c' }}>{msg}</div>;
@@ -7078,14 +7556,14 @@ function ShipError({ text: msg }: { text: string }) {
 function validateShipping(name: string, phone: string, addr: string, uk: boolean): { name?: string; phone?: string; address?: string } {
   const e: { name?: string; phone?: string; address?: string } = {};
   const n = name.trim();
-  if (!n) e.name = uk ? 'Вкажіть імʼя та прізвище одержувача' : 'Enter the recipient\u2019s full name';
-  else if (n.length < 2 || !/^[\p{L}][\p{L}\s'’.\-]*$/u.test(n)) e.name = uk ? 'Лише літери, щонайменше 2' : 'Letters only, at least 2';
+  if (!n) e.name = tr('Вкажіть імʼя та прізвище одержувача', 'Enter the recipient\u2019s full name');
+  else if (n.length < 2 || !/^[\p{L}][\p{L}\s'’.\-]*$/u.test(n)) e.name = tr('Лише літери, щонайменше 2', 'Letters only, at least 2');
   const digits = phone.replace(/\D/g, '');
   const p = (phone.trim().startsWith('+') ? '+' : '') + digits;
-  if (!phone.trim()) e.phone = uk ? 'Вкажіть номер телефону' : 'Enter a phone number';
-  else if (!/^\+?\d{9,15}$/.test(p) || (p.startsWith('0') && p.length !== 10)) e.phone = uk ? 'Невірний номер, приклад: +380 50 123 45 67' : 'Invalid number, e.g. +380 50 123 45 67';
-  if (!addr.trim()) e.address = uk ? 'Вкажіть адресу або відділення Нової пошти' : 'Enter an address or a Nova Poshta branch';
-  else if (addr.trim().length < 8) e.address = uk ? 'Додайте місто, вулицю й номер (мінімум 8 символів)' : 'Add the city, street and number (8+ characters)';
+  if (!phone.trim()) e.phone = tr('Вкажіть номер телефону', 'Enter a phone number');
+  else if (!/^\+?\d{9,15}$/.test(p) || (p.startsWith('0') && p.length !== 10)) e.phone = tr('Невірний номер, приклад: +380 50 123 45 67', 'Invalid number, e.g. +380 50 123 45 67');
+  if (!addr.trim()) e.address = tr('Вкажіть адресу або відділення Нової пошти', 'Enter an address or a Nova Poshta branch');
+  else if (addr.trim().length < 8) e.address = tr('Додайте місто, вулицю й номер (мінімум 8 символів)', 'Add the city, street and number (8+ characters)');
   return e;
 }
 
@@ -7166,7 +7644,7 @@ function ShopHeading({ title, sub, action, onAction }: { title: string; sub?: st
   );
 }
 
-function ShopHero({ lang, onShop }: { lang: string; onShop: () => void }) {
+function ShopHero({ lang, onShop }: { lang: AppLang; onShop: () => void }) {
   const uk = lang === 'uk';
   return (
     <div style={{ position: 'relative', borderRadius: 24, overflow: 'hidden', minHeight: 400, background: '#1c1c1e', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
@@ -7174,15 +7652,15 @@ function ShopHero({ lang, onShop }: { lang: string; onShop: () => void }) {
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,7,0.08) 0%, rgba(8,8,7,0.12) 38%, rgba(8,8,7,0.82) 100%)' }} />
       <div style={{ position: 'relative', padding: '0 22px 22px' }}>
         <div style={{ fontFamily: SHOP_FONT, fontWeight: 500, fontSize: 38, lineHeight: 1.04, letterSpacing: '0.02em', textTransform: 'uppercase', color: SHOP_CREAM }}>
-          {uk ? 'Осінь' : 'Autumn'}<br /><span style={{ color: SHOP_TAN }}>{uk ? 'вже тут' : 'has arrived'}</span>
+          {tr('Осінь', 'Autumn')}<br /><span style={{ color: SHOP_TAN }}>{tr('вже тут', 'has arrived')}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 20, flexWrap: 'wrap' }}>
           <button onClick={onShop} style={{ ...shopCaps(12, 0.18), fontWeight: 600, height: 48, padding: '0 26px', borderRadius: 14, border: 'none', background: SHOP_CREAM, color: SHOP_INK, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-            {uk ? 'До каталогу' : 'Shop now'}<ShopIcon n="arrow" size={15} />
+            {tr('До каталогу', 'Shop now')}<ShopIcon n="arrow" size={15} />
           </button>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(247,245,240,0.82)' }}>
             <ShopIcon n="taxpay" size={18} />
-            {uk ? 'Оплата TaxPay в один дотик' : 'Pay in one tap with TaxPay'}
+            {tr('Оплата TaxPay в один дотик', 'Pay in one tap with TaxPay')}
           </div>
         </div>
       </div>
@@ -7190,13 +7668,13 @@ function ShopHero({ lang, onShop }: { lang: string; onShop: () => void }) {
   );
 }
 
-function ShopTrustRow({ lang }: { lang: string }) {
+function ShopTrustRow({ lang }: { lang: AppLang }) {
   const uk = lang === 'uk';
   const items: { icon: ShopIconName; label: string }[] = [
-    { icon: 'truck', label: uk ? 'Нова пошта' : 'Nova Poshta' },
-    { icon: 'shield', label: uk ? '100% оригінал' : '100% original' },
-    { icon: 'swap', label: uk ? 'Обмін 14 днів' : '14-day exchange' },
-    { icon: 'taxpay', label: uk ? 'Оплата TaxPay' : 'Pay with TaxPay' },
+    { icon: 'shield', label: tr('Дослідницька вітрина', 'Research storefront') },
+    { icon: 'bag', label: tr('Ціни в TAX', 'Prices in TAX') },
+    { icon: 'swap', label: tr('Нічого не відправляється', 'Nothing is shipped') },
+    { icon: 'taxpay', label: tr('Оплата TaxPay', 'Pay with TaxPay') },
   ];
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '18px 12px', padding: '20px 4px', borderTop: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
@@ -7210,11 +7688,11 @@ function ShopTrustRow({ lang }: { lang: string }) {
   );
 }
 
-function ShopCategoryTiles({ lang, onPick }: { lang: string; onPick: (k: string) => void }) {
+function ShopCategoryTiles({ lang, onPick }: { lang: AppLang; onPick: (k: string) => void }) {
   const uk = lang === 'uk';
   const tiles = [
-    { k: 'women', img: '/shop/cat-women.webp', label: uk ? 'Жінкам' : 'Women', sub: uk ? 'Сукні · верхній одяг · взуття' : 'Dresses · outerwear · shoes' },
-    { k: 'men', img: '/shop/cat-men.webp', label: uk ? 'Чоловікам' : 'Men', sub: uk ? 'Сорочки · поло · костюми' : 'Shirts · polos · suits' },
+    { k: 'women', img: '/shop/cat-women.webp', label: tr('Жінкам', 'Women'), sub: tr('Сукні · верхній одяг · взуття', 'Dresses · outerwear · shoes') },
+    { k: 'men', img: '/shop/cat-men.webp', label: tr('Чоловікам', 'Men'), sub: tr('Сорочки · поло · костюми', 'Shirts · polos · suits') },
   ];
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -7238,7 +7716,7 @@ function ShopCategoryTiles({ lang, onPick }: { lang: string; onPick: (k: string)
 function ShopProductCard({ p, onOpen, onAdd, compact }: { p: Product; onOpen: () => void; onAdd: () => void; compact: boolean }) {
   const { t, lang } = usePreferences();
   const out = p.stock !== undefined && p.stock <= 0;
-  const tag = p.badge || (p.stock === 1 ? (lang === 'uk' ? 'Остання одиниця' : 'Last piece') : '');
+  const tag = p.badge || (p.stock === 1 ? tr('Остання одиниця', 'Last piece') : '');
   const brand = productBrand(p);
   return (
     <div className="tt-product-card" onClick={onOpen} style={{ cursor: 'pointer', minWidth: 0 }}>
@@ -7338,8 +7816,6 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
   const [sizesTry, setSizesTry] = useState(0);
   const [size, setSize] = useState('');
   const [qty, setQty] = useState(1);
-  const [ships, setShips] = useState('');
-  useEffect(() => setShips(dispatchBy(lang)), [lang]);
   useEffect(() => {
     if (!shopItem) return;
     let off = false;
@@ -7354,17 +7830,12 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
   const sizeLeft = size ? (sizes?.find(x => x.size === size)?.available ?? 0) : (product.stock ?? 10);
   const maxQty = Math.max(1, Math.min(10, sizeLeft || 1, product.stock ?? 10));
   const qtyNow = Math.min(qty, maxQty);
-  const orderTotal = product.price * qtyNow;
-  const FREE_FROM = 3000;
   const loadingSizes = shopItem && sizes === null && !sizesErr;
   const canAdd = !out && !loadingSizes && !sizesErr && (!needsSize || Boolean(size));
   const perks: { icon: ShopIconName; label: string }[] = [
-    { icon: 'truck', label: orderTotal >= FREE_FROM
-        ? (uk ? 'Нова пошта · безкоштовна доставка для цього замовлення' : 'Nova Poshta · free delivery on this order')
-        : (uk ? `Нова пошта · безкоштовно від 3 000 TAX, ще ${fmtInt(FREE_FROM - orderTotal)}` : `Nova Poshta · free from 3 000 TAX, ${fmtInt(FREE_FROM - orderTotal)} to go`) },
-    { icon: 'bag', label: uk ? `Відправка за 1–2 робочі дні${ships ? ` · до ${ships}` : ''}` : `Ships within 1–2 working days${ships ? ` · by ${ships}` : ''}` },
-    { icon: 'swap', label: uk ? 'Обмін і повернення 14 днів' : '14 days to exchange or return' },
-    { icon: 'shield', label: uk ? 'Лише оригінал, з гарантією' : 'Original only, guaranteed' },
+    { icon: 'taxpay', label: tr('Оплата в TAX через TaxPay, без реальних грошей', 'Paid in TAX with TaxPay, no real money') },
+    { icon: 'bag', label: tr('Тестове замовлення: нічого не відправляється', 'A test order: nothing is shipped') },
+    { icon: 'shield', label: tr('Дослідницька вітрина TaxTech', 'A TaxTech research storefront') },
   ];
   const stepSt: React.CSSProperties = { width: 44, height: '100%', border: 'none', background: 'transparent', color: text.primary, fontSize: 20, cursor: 'pointer', fontFamily };
   const info = (
@@ -7390,14 +7861,14 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
       {!out && shopItem && (
         <div style={{ marginBottom: 18 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ ...shopCaps(11, 0.16), color: text.muted }}>{uk ? 'Розмір' : 'Size'}</span>
+            <span style={{ ...shopCaps(11, 0.16), color: text.muted }}>{tr('Розмір', 'Size')}</span>
             {size && <span style={{ fontSize: 12, color: text.primary }}>{size}</span>}
           </div>
-          {loadingSizes && <div style={{ fontSize: 13, color: text.muted }}>{uk ? 'Завантажуємо розміри…' : 'Loading sizes…'}</div>}
+          {loadingSizes && <div style={{ fontSize: 13, color: text.muted }}>{tr('Завантажуємо розміри…', 'Loading sizes…')}</div>}
           {sizesErr && (
             <div style={{ fontSize: 13, color: text.muted }}>
-              {uk ? 'Не вдалося завантажити розміри. ' : 'Could not load sizes. '}
-              <button onClick={() => setSizesTry(n => n + 1)} style={{ background: 'none', border: 'none', color: gold, cursor: 'pointer', fontFamily, fontSize: 13, padding: 0 }}>{uk ? 'Спробувати ще' : 'Try again'}</button>
+              {tr('Не вдалося завантажити розміри. ', 'Could not load sizes. ')}
+              <button onClick={() => setSizesTry(n => n + 1)} style={{ background: 'none', border: 'none', color: gold, cursor: 'pointer', fontFamily, fontSize: 13, padding: 0 }}>{tr('Спробувати ще', 'Try again')}</button>
             </div>
           )}
           {needsSize && (
@@ -7407,7 +7878,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
                 const on = size === x.size;
                 return (
                   <button key={x.size} disabled={gone} aria-pressed={on} onClick={() => { setSize(x.size); setQty(1); }}
-                    title={gone ? (uk ? 'Немає в наявності' : 'Out of stock') : `${x.available} ${uk ? 'шт.' : 'pcs'}`}
+                    title={gone ? tr('Немає в наявності', 'Out of stock') : `${x.available} ${tr('шт.', 'pcs')}`}
                     style={{
                       position: 'relative', minWidth: 48, height: 44, padding: '0 14px', borderRadius: 12, fontFamily, fontSize: 14, fontWeight: 500,
                       border: `1px solid ${on ? SHOP_CREAM : 'rgba(255,255,255,0.18)'}`,
@@ -7423,14 +7894,14 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
           )}
           {size && sizeLeft > 0 && sizeLeft <= 2 && (
             <div style={{ marginTop: 10, fontSize: 12.5, color: '#e8a33d' }}>
-              {sizeLeft === 1 ? (uk ? `Остання одиниця в розмірі ${size}` : `Last piece in ${size}`) : (uk ? `Лишилось ${sizeLeft} шт. у розмірі ${size}` : `Only ${sizeLeft} left in ${size}`)}
+              {sizeLeft === 1 ? (tr('Остання одиниця в розмірі {size}', 'Last piece in {size}').replace('{size}', size)) : (tr('Лишилось {n} шт. у розмірі {size}', 'Only {n} left in {size}').replace('{n}', String(sizeLeft)).replace('{size}', size))}
             </div>
           )}
         </div>
       )}
       <div style={{ display: 'flex', gap: 10, marginTop: desktop ? 'auto' : 0 }}>
         {!out && (
-          <div role="group" aria-label={uk ? 'Кількість' : 'Quantity'} style={{ display: 'flex', alignItems: 'stretch', height: 54, flexShrink: 0, borderRadius: 14, border: '1px solid rgba(255,255,255,0.18)' }}>
+          <div role="group" aria-label={tr('Кількість', 'Quantity')} style={{ display: 'flex', alignItems: 'stretch', height: 54, flexShrink: 0, borderRadius: 14, border: '1px solid rgba(255,255,255,0.18)' }}>
             <button aria-label="−" disabled={qtyNow <= 1} onClick={() => setQty(Math.max(1, qtyNow - 1))} style={{ ...stepSt, opacity: qtyNow <= 1 ? 0.35 : 1 }}>−</button>
             <span style={{ minWidth: 28, display: 'grid', placeItems: 'center', fontSize: 15, fontWeight: 600, color: text.primary, ...T.num }}>{qtyNow}</span>
             <button aria-label="+" disabled={qtyNow >= maxQty} onClick={() => setQty(Math.min(maxQty, qtyNow + 1))} style={{ ...stepSt, opacity: qtyNow >= maxQty ? 0.35 : 1 }}>+</button>
@@ -7448,7 +7919,7 @@ function ProductDetailDrawer({ product, onClose, onAddToCart }: { product: Produ
         >
           {out ? t('market_out_of_stock')
             : loadingSizes ? '…'
-            : needsSize && !size ? (uk ? 'Оберіть розмір' : 'Select a size')
+            : needsSize && !size ? tr('Оберіть розмір', 'Select a size')
             : <><ShopIcon n="bag-plus" size={19} />{t('add_to_cart')}{qtyNow > 1 ? ` · ${qtyNow}` : ''}</>}
         </button>
       </div>
@@ -7959,7 +8430,7 @@ function MarketplaceScreen() {
           <div>
             <div style={{ ...shopCaps(isMobileMarket ? 22 : 26, 0.34), color: text.primary, lineHeight: 1 }}>Saint Agnes</div>
             <a href="https://shop.munister.com.ua" target="_blank" rel="noreferrer" style={{ ...shopCaps(10, 0.2), display: 'inline-block', marginTop: 9, color: text.muted, textDecoration: 'none' }}>
-              {lang === 'uk' ? 'Магазин · оплата TAX' : 'Shop · pay with TAX'} <span style={{ color: gold }}>↗</span>
+              {tr('Магазин · оплата TAX', 'Shop · pay with TAX')} <span style={{ color: gold }}>↗</span>
             </a>
           </div>
           {isMobileMarket && (
@@ -7995,7 +8466,7 @@ function MarketplaceScreen() {
         <div style={{ padding: isMobileMarket ? '20px 20px 0' : '24px 32px 0', display: 'flex', flexDirection: 'column', gap: 26 }}>
           <ShopHero lang={lang} onShop={() => gridTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
           <ShopTrustRow lang={lang} />
-          <ShopHeading title={lang === 'uk' ? 'Колекції' : 'Shop by'} sub={lang === 'uk' ? 'Оригінальні бренди з Європи' : 'Original European labels'} />
+          <ShopHeading title={tr('Колекції', 'Shop by')} sub={tr('Архів магазину, ціни в TAX', 'From the archive, priced in TAX')} />
           <ShopCategoryTiles lang={lang} onPick={k => { setCategory(k); window.setTimeout(() => gridTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }} />
         </div>
       )}
@@ -8003,8 +8474,8 @@ function MarketplaceScreen() {
       {tab === 'catalog' && (
         <div ref={gridTopRef} style={{ padding: isMobileMarket ? '28px 20px 0' : '34px 32px 0', scrollMarginTop: 12 }}>
           <ShopHeading
-            title={category ? ((SHOP_CATEGORIES.find(c => c.k === category) || SHOP_CATEGORIES[0])[lang === 'uk' ? 'uk' : 'en']) : (lang === 'uk' ? 'Добірка' : 'The edit')}
-            sub={category || search ? undefined : (lang === 'uk' ? 'Обране цього тижня' : 'Chosen this week')}
+            title={category ? (() => { const c = SHOP_CATEGORIES.find(x => x.k === category) || SHOP_CATEGORIES[0]; return tr(c.uk, c.en); })() : tr('Добірка', 'The edit')}
+            sub={category || search ? undefined : tr('Обране цього тижня', 'Chosen this week')}
           />
           <div data-no-tab-swipe="true" style={{ display: 'flex', gap: 22, overflowX: 'auto', marginTop: 14, scrollbarWidth: 'none', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             {SHOP_CATEGORIES.map(c => (
@@ -8013,7 +8484,7 @@ function MarketplaceScreen() {
                 background: 'none', border: 'none', marginBottom: -1,
                 borderBottom: `2px solid ${category === c.k ? gold : 'transparent'}`,
                 color: category === c.k ? text.primary : text.muted, transition: 'color .15s, border-color .15s',
-              }}>{lang === 'uk' ? c.uk : c.en}</button>
+              }}>{tr(c.uk, c.en)}</button>
             ))}
           </div>
         </div>
@@ -8039,7 +8510,7 @@ function MarketplaceScreen() {
               {hasMore && (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 22px 8px' }}>
                   <button onClick={loadMoreProducts} disabled={loadingMore} style={{ ...shopCaps(12, 0.16), fontWeight: 600, height: 48, padding: '0 30px', borderRadius: 14, border: '1px solid rgba(247,245,240,0.28)', background: 'transparent', color: text.primary, cursor: 'pointer' }}>
-                    {loadingMore ? t('loading') : (lang === 'uk' ? 'Показати ще' : 'Show more')}
+                    {loadingMore ? t('loading') : tr('Показати ще', 'Show more')}
                   </button>
                 </div>
               )}
@@ -8379,7 +8850,7 @@ function DesktopCartPanel({ cart, onQtyChange, onRemove, onCheckout, checkingOut
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <button onClick={() => setStep('cart')} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', color: gold, cursor: 'pointer', fontFamily, fontSize: 12, padding: 0, marginBottom: 4 }}>
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke={gold} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              Назад
+              {tr('Назад', 'Back')}
             </button>
             <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{t('delivery_title')}</div>
             <div>
@@ -9401,8 +9872,8 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
 
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><RomanSeal size={52} /></div>
-          <h1 className="ap-auth-title">{mode === 'login' ? 'Увійдіть у TaxTech' : 'Відкрийте рахунок'}</h1>
-          <p className="ap-auth-sub">{mode === 'login' ? 'Телефон або email і пароль.' : 'Хвилина — і рахунок у TAX готовий.'}</p>
+          <h1 className="ap-auth-title">{mode === 'login' ? tr('Увійдіть у TaxTech', 'Sign in to TaxTech') : tr('Відкрийте рахунок', 'Open an account')}</h1>
+          <p className="ap-auth-sub">{mode === 'login' ? tr('Телефон або email і пароль.', 'Phone or email, and your password.') : tr('Хвилина — і рахунок у TAX готовий.', 'A minute, and your TAX account is ready.')}</p>
         </div>
 
         <div>
@@ -9548,9 +10019,9 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 28, fontSize: 15, color: '#86868b' }}>
-          {mode === 'login' ? 'Ще немає рахунку? ' : 'Вже є рахунок? '}
+          {mode === 'login' ? tr('Ще немає рахунку? ', 'No account yet? ') : tr('Вже є рахунок? ', 'Already have an account? ')}
           <button type="button" className="ap-link" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); setConfirmPass(''); }}>
-            {mode === 'login' ? 'Відкрити' : 'Увійти'} <span aria-hidden>›</span>
+            {mode === 'login' ? tr('Відкрити', 'Open one') : tr('Увійти', 'Sign in')} <span aria-hidden>›</span>
           </button>
         </div>
       </div>
@@ -9609,9 +10080,12 @@ export default function App({ initialAuthView }: { initialAuthView?: 'login' | '
     }
   }, []);
 
+  // Inline tr('…', '…') strings read the language from here; set it before the tree renders.
+  setTrLang(lang);
   useEffect(() => {
     document.documentElement.lang = lang;
-  }, [lang]);
+    if (authed) document.title = `TaxTech · ${translations[lang].personal_cabinet}`;
+  }, [lang, authed]);
 
   const setLang = React.useCallback((nextLang: AppLang) => {
     setStoredLanguage(nextLang);
@@ -9846,11 +10320,12 @@ export default function App({ initialAuthView }: { initialAuthView?: 'login' | '
   }
 
   if (!authed) {
-    return <LoginScreen key={authView} initialMode={authView === 'register' ? 'register' : 'login'} onBack={() => setAuthView('promo')} onLogin={() => {
+    // Sign-in sits outside the banking layout but still needs the chosen language.
+    return <PreferencesCtx.Provider value={preferencesCtx}><LoginScreen key={authView} initialMode={authView === 'register' ? 'register' : 'login'} onBack={() => setAuthView('promo')} onLogin={() => {
       markAppContinuation();  // prevent splash replay on next open
       setLoadingData(true);   // show spinner immediately, skip empty-screen flash
       setAuthed(true);
-    }} />;
+    }} /></PreferencesCtx.Provider>;
   }
 
   if (isDesktop) {
