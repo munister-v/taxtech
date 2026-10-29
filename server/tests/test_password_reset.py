@@ -18,7 +18,8 @@ def reset_on(app):
     return app
 
 
-def test_forgot_disabled_by_default(client):
+def test_forgot_disabled_by_default(app, client):
+    app.config['AUTH_RESET_SHOW_CODE'] = False   # локальний .env може вмикати прапорець
     _register(client, email='off@example.com', phone='+380997770003')
     r = client.post('/api/auth/password/forgot', json={'identity': 'off@example.com'})
     assert r.status_code == 503

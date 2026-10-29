@@ -9562,8 +9562,9 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
 }
 
 // ─── App root ─────────────────────────────────────────────────
-export default function App() {
+export default function App({ initialAuthView }: { initialAuthView?: 'login' | 'register' } = {}) {
   const [authView, setAuthView] = useState<'promo' | 'login' | 'register'>(() => {
+    if (initialAuthView) return initialAuthView;
     try {
       if (location.hash === '#login') return 'login';
       if (location.hash === '#register') return 'register';

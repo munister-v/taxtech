@@ -48,6 +48,21 @@ export default function FireScene({ src, ratio, focusX = 0.5, focusY = 0.4, spot
     const em = spots.filter(s => s[2] * s[3] > 3).map(s => ({ x: s[0] / 100, y: (s[1] + s[3] * 0.25) / 100, w: s[2] / 100 }));
     type P = { x: number; y: number; vx: number; vy: number; life: number; age: number; r: number; hue: number; ph: number };
     const ps: P[] = [];
+    // Glow sprites, one per hue step, drawn once: a gradient per spark per frame was the costliest part of the scene.
+    const SPR = 64, HUES = 6;
+    const sprites = Array.from({ length: HUES }, (_, j) => {
+      const hue = 22 + (26 * j) / (HUES - 1);
+      const c = document.createElement('canvas'); c.width = c.height = SPR;
+      const g2 = c.getContext('2d')!, m = SPR / 2;
+      const g = g2.createRadialGradient(m, m, 0, m, m, m);
+      g.addColorStop(0, `hsla(${hue},100%,72%,1)`);
+      g.addColorStop(0.2, `hsla(${hue},100%,58%,.6)`);
+      g.addColorStop(1, `hsla(${hue},100%,50%,0)`);
+      g2.fillStyle = g; g2.fillRect(0, 0, SPR, SPR);
+      g2.fillStyle = `hsla(${hue},100%,88%,.95)`;
+      g2.beginPath(); g2.arc(m, m, m * 0.15, 0, 6.2832); g2.fill();
+      return c;
+    });
     let visible = true, raf = 0, last = performance.now();
     const spawn = () => {
       const e = em[(Math.random() * em.length) | 0];
@@ -55,13 +70,13 @@ export default function FireScene({ src, ratio, focusX = 0.5, focusY = 0.4, spot
       ps.push({ x: (e.x + (Math.random() - 0.5) * e.w) * w, y: e.y * h, vx: (Math.random() - 0.35) * 0.12, vy: -(0.07 + Math.random() * 0.2), life: 2400 + Math.random() * 3800, age: 0, r: 1 + Math.random() * 2.8, hue: 22 + Math.random() * 26, ph: Math.random() * 6.28 });
     };
     const tick = (now: number) => {
-      raf = requestAnimationFrame(tick);
+      raf = visible ? requestAnimationFrame(tick) : 0;   // off screen the loop stops until the scene is back
       const dt = Math.min(48, now - last); last = now;
-      if (!visible) return;
       for (let i = 0; i < 3 && ps.length < embers; i++) if (Math.random() < 0.7) spawn();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 1;
       for (let i = ps.length - 1; i >= 0; i--) {
         const p = ps[i];
         p.age += dt;
@@ -72,17 +87,15 @@ export default function FireScene({ src, ratio, focusX = 0.5, focusY = 0.4, spot
         const k = p.age / p.life;
         const a = Math.sin(Math.PI * Math.min(1, k * 1.15)) * (0.55 + 0.45 * Math.sin(p.ph * 6));
         const r = p.r * (w / 1400 + 0.6) * (1 - k * 0.5);
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 5);
-        g.addColorStop(0, `hsla(${p.hue},100%,72%,${Math.max(0, a)})`);
-        g.addColorStop(0.2, `hsla(${p.hue},100%,58%,${Math.max(0, a) * 0.6})`);
-        g.addColorStop(1, `hsla(${p.hue},100%,50%,0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(p.x, p.y, r * 5, 0, 6.2832); ctx.fill();
-        ctx.fillStyle = `hsla(${p.hue},100%,88%,${Math.max(0, a) * 0.95})`;
-        ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0.7, r * 0.75), 0, 6.2832); ctx.fill();
+        const R = r * 5;
+        ctx.globalAlpha = Math.max(0, Math.min(1, a));
+        ctx.drawImage(sprites[Math.min(HUES - 1, Math.round(((p.hue - 22) / 26) * (HUES - 1)))], p.x - R, p.y - R, R * 2, R * 2);
       }
     };
-    const io = new IntersectionObserver(es => { visible = es[0]?.isIntersecting ?? true; }, { threshold: 0 });
+    const io = new IntersectionObserver(es => {
+      visible = es[es.length - 1]?.isIntersecting ?? true;
+      if (visible && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    }, { threshold: 0 });
     io.observe(host);
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); io.disconnect(); ro.disconnect(); };

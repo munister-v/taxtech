@@ -2,6 +2,10 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "The Saint Agnes autumn edit. Priced in TAX, paid with the card from this page.": "L'autunno di Saint Agnes. Prezzi in TAX, si paga con la carta di questa pagina.",
+    "Autumn · lookbook": "Autunno · lookbook",
+    "Sound on": "Attiva l'audio",
+    "Sound off": "Disattiva l'audio",
     'now': 'ora',
     'Debit': 'Addebito',
     'Balance': 'Saldo',
@@ -25,11 +29,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Visit the shop': 'Visita il negozio',
     'Your card is waiting.': 'La tua carta ti aspetta.',
     'Questions.': 'Domande.',
-    'TaxTech research: phone or cloud for AI tasks': 'Ricerca TaxTech: telefono o cloud per i compiti di IA',
     'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.':
       'TaxTech è la banca didattica di un laboratorio di finanza digitale. TAX è un token virtuale: non è denaro né moneta elettronica e non si cambia in grivnie né in altra valuta. Non ci sono pagamenti, carte o conti reali; i numeri delle carte iniziano con 0000. La piattaforma non è certificata EMVCo, PCI DSS o FIDO. Face ID è un marchio di Apple Inc.',
     'Photos': 'Foto',
-    'Research': 'Ricerca',
     'Roman Forum': 'Foro Romano',
     'Aperitivo': 'Aperitivo',
     'Pantheon': 'Pantheon',
@@ -44,6 +46,10 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "The Saint Agnes autumn edit. Priced in TAX, paid with the card from this page.": "Die Herbstauswahl von Saint Agnes. Preise in TAX, bezahlt mit der Karte von dieser Seite.",
+    "Autumn · lookbook": "Herbst · Lookbook",
+    "Sound on": "Ton an",
+    "Sound off": "Ton aus",
     'now': 'jetzt',
     'Debit': 'Abbuchung',
     'Balance': 'Saldo',
@@ -67,11 +73,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Visit the shop': 'Zum Shop',
     'Your card is waiting.': 'Deine Karte wartet.',
     'Questions.': 'Fragen.',
-    'TaxTech research: phone or cloud for AI tasks': 'TaxTech-Forschung: Smartphone oder Cloud für KI-Aufgaben',
     'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.':
       'TaxTech ist die Lernbank eines Labors für digitale Finanzen. TAX ist ein virtueller Token: weder Geld noch E-Geld, nicht in Hrywnja oder eine andere Währung umtauschbar. Es gibt keine echten Zahlungen, Karten oder Konten; Kartennummern beginnen mit 0000. Die Plattform ist nicht nach EMVCo, PCI DSS oder FIDO zertifiziert. Face ID ist eine Marke von Apple Inc.',
     'Photos': 'Fotos',
-    'Research': 'Forschung',
     'Roman Forum': 'Forum Romanum',
     'Aperitivo': 'Aperitivo',
     'Pantheon': 'Pantheon',
@@ -86,6 +90,10 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "The Saint Agnes autumn edit. Priced in TAX, paid with the card from this page.": "Осень от Saint Agnes. Цены в TAX, платите картой с этой страницы.",
+    "Autumn · lookbook": "Осень · лукбук",
+    "Sound on": "Включить звук",
+    "Sound off": "Выключить звук",
     'now': 'сейчас',
     'Debit': 'Списание',
     'Balance': 'Остаток',
@@ -109,11 +117,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Visit the shop': 'В магазин',
     'Your card is waiting.': 'Ваша карта ждёт.',
     'Questions.': 'Вопросы.',
-    'TaxTech research: phone or cloud for AI tasks': 'Исследование TaxTech: телефон или облако для задач ИИ',
     'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.':
       'TaxTech — учебный банк лаборатории цифровых финансов. TAX — виртуальный токен: это не деньги и не электронные деньги, он не обменивается на гривну или другую валюту. Реальных платежей, карт и счетов нет; номера карт начинаются с 0000. Платформа не сертифицирована EMVCo, PCI DSS или FIDO. Face ID — товарный знак Apple Inc.',
     'Photos': 'Фото',
-    'Research': 'Исследование',
     'Roman Forum': 'Римский форум',
     'Aperitivo': 'Аперитив',
     'Pantheon': 'Пантеон',

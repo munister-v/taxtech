@@ -4,15 +4,15 @@ import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, sav
 import FireScene from './FireScene';
 import TapScene from './TapScene';
 import RomeMap from './RomeMap';
+import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import FaceFlow from './FaceFlow';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
 // guilloche rosette and engraved medallions as the app, the Rome card photos from web/public/cards/ and live
-// Saint Agnes products. Black and signal yellow like the app, a cream section like the shop. Research: docs/RESEARCH.md.
+// Saint Agnes products. Black and signal yellow like the app, a cream section like the shop.
 
-const DOCS_URL = 'https://github.com/munister-v/taxtech/blob/main/docs/RESEARCH.md';
 const SHOP_URL = 'https://shop.munister.com.ua/';
 // Same rates and formula as server/backend/services/deposit_service.py and credit_service.py.
 // Hand-picked Saint Agnes pieces, in this order (coat, teddy jacket, tweed cardigan, check jacket).
@@ -117,6 +117,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
   const [scrolled, setScrolled] = useState(false);
+  const [sound, setSound] = useState(false);
+  useEffect(() => { const disarm = armSound(), f = () => setSound(soundOn()), unsub = onSound(f); f(); return () => { disarm(); unsub(); }; }, []);
   const [menu, setMenu] = useState(false);
   const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
@@ -155,16 +157,29 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     const photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
     const hero = root.querySelector<HTMLElement>('.bl-hero');
     let raf = 0;
-    // Photos drift slower than the page (parallax), the hero lets go as you leave it, a gold hairline tracks progress.
+    // Photos drift slower than the page (parallax), the hero lets go as you leave it.
+    // Each frame reads every box first and only then writes, so the browser lays the page out once per frame.
+    let lastClock = '', lastStop = -1;
     const frame = () => {
       raf = 0;
       const box = root.getBoundingClientRect();
-      const max = root.scrollHeight - root.clientHeight;
-      root.style.setProperty('--sp', (max > 0 ? root.scrollTop / max : 0).toFixed(4));
+      const top = root.scrollTop;
+      const romeTop = rome ? rome.getBoundingClientRect().top : 0;
+      const romeH = rome ? rome.offsetHeight : 0;
+      const heroH = hero ? hero.offsetHeight : 0;
+      const drift = still ? [] : photos.map(el => {
+        const r = el.parentElement?.getBoundingClientRect();
+        if (!r || r.bottom < box.top - 150 || r.top > box.bottom + 150) return null;
+        return { el, d: (r.top + r.height / 2) - (box.top + box.height / 2), lim: el.offsetHeight * (el.classList.contains('bl-hero-photo') ? 0.04 : 0.08) };
+      });
       if (rome) {
         const n = DAY.length;
-        const p = clamp(-(rome.getBoundingClientRect().top - box.top) / Math.max(1, rome.offsetHeight - root.clientHeight));
+        const p = clamp(-(romeTop - box.top) / Math.max(1, romeH - root.clientHeight));
         const s = p * n;
+        // Each new stop on the evening is a payment: the terminal chimes (once the visitor has turned sound on).
+        const stop = p > 0 && p < 1 ? Math.min(n - 1, Math.floor(s)) : -1;
+        if (stop > lastStop && stop >= 0) chime(0.55);
+        lastStop = stop;
         rome.style.setProperty('--ry', `${((p - 0.5) * 52).toFixed(2)}deg`);
         romeLayers.forEach((el, i) => {
           el.style.setProperty('--o', (i === 0 ? 1 : clamp((s - (i - 0.35)) / 0.7)).toFixed(3));
@@ -177,22 +192,20 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         });
         if (clockEl) {
           const m = Math.round(CLOCK_FROM + p * (CLOCK_TO - CLOCK_FROM));
-          clockEl.textContent = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+          const txt = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+          if (txt !== lastClock) { clockEl.textContent = txt; lastClock = txt; }
         }
       }
       if (still) return;
-      for (const el of photos) {
-        const sec = el.parentElement;
-        if (!sec) continue;
-        const r = sec.getBoundingClientRect();
-        if (r.bottom < box.top - 150 || r.top > box.bottom + 150) continue;
-        const lim = el.offsetHeight * (el.classList.contains('bl-hero-photo') ? 0.04 : 0.08);
-        const d = (r.top + r.height / 2) - (box.top + box.height / 2);
-        el.style.setProperty('--py', `${Math.max(-lim, Math.min(lim, -d * 0.1)).toFixed(1)}px`);
-      }
-      if (hero) hero.style.setProperty('--hp', Math.max(0, Math.min(1, root.scrollTop / (hero.offsetHeight * 0.75))).toFixed(3));
+      for (const q of drift) if (q) q.el.style.setProperty('--py', `${Math.max(-q.lim, Math.min(q.lim, -q.d * 0.1)).toFixed(1)}px`);
+      if (hero) hero.style.setProperty('--hp', Math.max(0, Math.min(1, top / (heroH * 0.75))).toFixed(3));
     };
-    const onScroll = () => { setScrolled(root.scrollTop > 10); if (!raf) raf = requestAnimationFrame(frame); };
+    let wasScrolled = false;
+    const onScroll = () => {
+      const now = root.scrollTop > 10;
+      if (now !== wasScrolled) { wasScrolled = now; setScrolled(now); }
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
     root.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     frame();
@@ -250,6 +263,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               {langSwitch}
               <button type="button" className="bl-nav-in-btn" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
               <button type="button" className="bl-pill bl-pill-sm" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open account')}</button>
+              <button type="button" className={`bl-snd${sound ? ' on' : ''}`} aria-pressed={sound} aria-label={sound ? t('Вимкнути звук', 'Sound off') : t('Увімкнути звук', 'Sound on')} title={sound ? t('Вимкнути звук', 'Sound off') : t('Увімкнути звук', 'Sound on')} onClick={toggleSound}>
+                <svg viewBox="0 0 24 24" aria-hidden><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />{sound ? <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.6 7.6 0 0 1 0 11" /> : <path d="M16 9.5l5 5M21 9.5l-5 5" />}</svg>
+              </button>
               <button type="button" className="bl-burger" aria-label={t('Меню', 'Menu')} aria-expanded={menu} onClick={() => setMenu(v => !v)}>
                 <svg viewBox="0 0 24 24" aria-hidden>{menu ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 9h16M4 15h16" />}</svg>
               </button>
@@ -274,8 +290,11 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-wrap bl-hero-in">
               <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
             </div>
-            <div className="bl-hero-pay" aria-hidden>
+            {/* The debit arrives the way a real one does: a banner from the top (top right on a desktop, like macOS) */}
+            <div className="bl-hero-push" aria-hidden>
               <div className="bl-toast bl-push bl-toast-loop">{push('Roma · Colosseo', 850, 23150)}</div>
+            </div>
+            <div className="bl-hero-pay" aria-hidden>
               <div className="bl-hero-card"><Card finish="guilloche" /></div>
             </div>
           </section>
@@ -343,21 +362,36 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
-        {/* ── Saint Agnes: the shoot, the pieces ── */}
-        <section id="shop" className="bl-scene bl-shopscene">
-          <div className="bl-photo bl-photo-shop" style={{ backgroundImage: 'url(/shop/hero-autumn.webp)' }} aria-hidden />
-          <div className="bl-wrap bl-center">
-            <h2 className="bl-h bl-h-xl bl-rv">{t('Одягайтесь за TAX.', 'Dress in TAX.')}</h2>
-            <div className="bl-shop bl-rv">
-              {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map(p => (
-                <a key={p.id} className="bl-prod" href={SHOP_URL} target="_blank" rel="noreferrer">
-                  <div className="bl-prod-img" style={p.image_url ? { backgroundImage: `url(${p.image_url})` } : undefined} />
-                  <span>{p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : ' '}</span>
-                  <b>{p.price ? `${fmt(Number(p.price))} TAX` : ' '}</b>
-                </a>
-              ))}
+        {/* ── Saint Agnes: a cream lookbook page like the shop itself; the shoot on the left, four pieces priced in TAX ── */}
+        <section id="shop" className="bl-shopx">
+          <div className="bl-wrap">
+            <div className="bl-shopx-head bl-rv">
+              <p className="bl-shopx-kick">Saint Agnes × TaxTech</p>
+              <h2 className="bl-h bl-h-xl">{t('Одягайтесь за TAX.', 'Dress in TAX.')}</h2>
+              <p className="bl-shopx-sub">{t('Осінь від Saint Agnes. Ціни в TAX, платите карткою з цієї сторінки.', 'The Saint Agnes autumn edit. Priced in TAX, paid with the card from this page.')}</p>
             </div>
-            <div className="bl-cta bl-rv"><a className="bl-pill" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}</a></div>
+            <div className="bl-shopx-grid">
+              <a className="bl-shopx-look bl-rv" href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="Saint Agnes">
+                <img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" />
+                <span className="bl-shopx-tag">{t('Осінь · лукбук', 'Autumn · lookbook')}</span>
+                <div className="bl-toast bl-push bl-shopx-paid">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
+              </a>
+              <div className="bl-shopx-list">
+                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map((p, i) => {
+                  const name = p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : '';
+                  const brand = name.match(/\s([A-Z0-9][A-Z0-9 .&'-]+)$/)?.[1] || '';
+                  return (
+                    <a key={p.id} className="bl-shopx-item bl-rv" style={{ ['--d' as string]: `${(0.08 * i).toFixed(2)}s` }} href={SHOP_URL} target="_blank" rel="noreferrer">
+                      <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}</div>
+                      <small>{brand || '\u00a0'}</small>
+                      <span>{(brand ? name.slice(0, -brand.length) : name).trim() || '\u00a0'}</span>
+                      <b>{p.price ? <>{fmt(Number(p.price))} <em>TAX</em></> : '\u00a0'}</b>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="bl-shopx-foot bl-rv"><a className="bl-pill bl-pill-dark" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')} ›</a></div>
           </div>
         </section>
 
@@ -383,7 +417,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                   {g.items.map(it => <details key={it.q.en}><summary>{it.q[lang]}</summary><p>{it.a[lang]}</p></details>)}
                 </div>
               ))}
-              <a className="bl-more" href={DOCS_URL} target="_blank" rel="noreferrer">{t('Дослідження TaxTech: телефон чи хмара для ІІ-задач', 'TaxTech research: phone or cloud for AI tasks')} ›</a>
             </div>
           </div>
         </section>
@@ -394,7 +427,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
             <div className="bl-foot-row">
               <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
-              <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}<a href={DOCS_URL} target="_blank" rel="noreferrer">{t('Дослідження', 'Research')}</a><a href="https://github.com/munister-v/taxtech" target="_blank" rel="noreferrer">GitHub</a></nav>
+              <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>
               {langSwitch}
             </div>
           </div>

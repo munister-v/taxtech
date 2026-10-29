@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { chime } from './paySound';
 
 type Props = { src: string; tapText: string; paidText: string; toast: ReactNode };
 
@@ -35,7 +36,9 @@ export default function TapScene({ src, tapText, paidText, toast }: Props) {
       const k = Math.min(1, p / 0.5);
       s.style.setProperty('--pz', (1 + 0.95 * k * k * (3 - 2 * k) + 0.25 * Math.max(0, p - 0.5) * 2).toFixed(3));
       s.style.setProperty('--pd', (0.12 + 0.5 * p).toFixed(3));
-      s.classList.toggle('hit', p >= 0.5);
+      const hit = p >= 0.5;
+      if (hit && !s.classList.contains('hit')) chime();
+      s.classList.toggle('hit', hit);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
     const onResize = () => { fit(); onScroll(); };
