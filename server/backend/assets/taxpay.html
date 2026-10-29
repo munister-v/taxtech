@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex, nofollow">
+<title>TaxPay</title>
+<style>
+  :root {
+    --bg: #000; --sheet: #0f0f11; --card: #17171a; --line: rgba(255,255,255,.08);
+    --ink: #f5f5f7; --muted: #8e8e93; --dim: #5c5c61; --yellow: #ffd400; --red: #ff453a; --green: #30d158;
+    --ease: cubic-bezier(.2,.8,.2,1); --spring: cubic-bezier(.34,1.4,.64,1);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: var(--bg); color: var(--ink); min-height: 100%; }
+  body {
+    font: 15px/1.45 ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; display: flex; justify-content: center;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  }
+  .glow { position: fixed; inset: -30vh -20vw auto; height: 70vh; pointer-events: none; z-index: 0;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(255,212,0,.16), transparent 70%); filter: blur(20px); }
+  main { position: relative; z-index: 1; width: 100%; max-width: 440px; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 6px 2px 22px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; font-size: 18px; }
+  .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--yellow); color: #000; display: grid; place-items: center;
+    font-weight: 900; font-size: 15px; box-shadow: 0 6px 24px -6px rgba(255,212,0,.6); }
+  .secure { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+  .secure svg { width: 13px; height: 13px; }
+
+  .card { position: relative; border-radius: 26px; padding: 22px; overflow: hidden; isolation: isolate;
+    background: linear-gradient(135deg, #1d1d20 0%, #0d0d0f 100%); border: 1px solid var(--line); }
+  .card::before { content: ""; position: absolute; inset: -40%; z-index: -1; opacity: .55;
+    background: conic-gradient(from 0deg, transparent 0 70%, rgba(255,212,0,.35) 80%, transparent 90%);
+    animation: spin 9s linear infinite; }
+  .card::after { content: ""; position: absolute; inset: 1px; border-radius: 25px; z-index: -1; background: linear-gradient(135deg, #1b1b1e, #0c0c0e); }
+  @keyframes spin { to { transform: rotate(1turn); } }
+  .merchant { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px;
+    text-transform: uppercase; letter-spacing: .14em; }
+  .merchant b { color: var(--ink); font-weight: 600; letter-spacing: .3em; }
+  .amount { margin-top: 26px; font-size: 46px; font-weight: 700; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .amount small { font-size: 18px; color: var(--muted); font-weight: 600; letter-spacing: 0; margin-left: 6px; }
+  .ref { margin-top: 10px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; gap: 12px; }
+  .timer { font-variant-numeric: tabular-nums; color: var(--yellow); }
+
+  .items { margin-top: 14px; background: var(--sheet); border: 1px solid var(--line); border-radius: 22px; padding: 6px 16px; }
+  .item { display: flex; gap: 12px; align-items: center; padding: 12px 0; }
+  .item + .item { border-top: 1px solid var(--line); }
+  .thumb { width: 48px; height: 60px; border-radius: 10px; background: #222 center/cover no-repeat; flex: none; }
+  .item .t { flex: 1; min-width: 0; }
+  .item .b { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+  .item .n { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item .s { font-size: 12px; color: var(--dim); }
+  .item .p { font-variant-numeric: tabular-nums; font-size: 14px; white-space: nowrap; }
+  .ship { padding: 12px 0 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+  .panel { margin-top: 14px; background: var(--sheet); border: 1px solid var(--line); border-radius: 22px; padding: 18px; }
+  .acct { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: #2a2a2e; display: grid; place-items: center; font-weight: 700; }
+  .acct .who { flex: 1; min-width: 0; }
+  .acct .who div:first-child { font-weight: 600; }
+  .acct .who div:last-child, .bal span { color: var(--muted); font-size: 13px; }
+  .bal { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .bal span { display: block; font-weight: 400; }
+  .low { color: var(--red) !important; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 0 0 6px 4px; }
+  input { width: 100%; height: 50px; border-radius: 14px; border: 1px solid var(--line); background: #1c1c1f; color: var(--ink);
+    padding: 0 14px; font: inherit; font-size: 16px; outline: none; transition: border-color .2s; }
+  input:focus { border-color: rgba(255,212,0,.6); }
+  .field + .field { margin-top: 12px; }
+  .hint { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  .hint a, .links a { color: var(--yellow); text-decoration: none; }
+
+  .pay { margin-top: 16px; width: 100%; height: 58px; border: 0; border-radius: 18px; background: var(--yellow); color: #000;
+    font: inherit; font-size: 17px; font-weight: 700; letter-spacing: -.01em; cursor: pointer; position: relative; overflow: hidden;
+    transition: transform .25s var(--spring), opacity .2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .pay:active { transform: scale(.97); }
+  .pay[disabled] { opacity: .45; cursor: default; }
+  .pay::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%); animation: sheen 3.2s 1s infinite; }
+  .pay[disabled]::after { display: none; }
+  @keyframes sheen { 60%, 100% { transform: translateX(100%); } }
+  .spinner { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid rgba(0,0,0,.25); border-top-color: #000; animation: spin .7s linear infinite; }
+  .cancel { margin-top: 10px; width: 100%; height: 48px; border: 0; background: transparent; color: var(--muted); font: inherit; cursor: pointer; }
+  .err { margin-top: 12px; color: var(--red); font-size: 14px; text-align: center; min-height: 1px; }
+  .links { margin-top: 12px; display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .switch { background: none; border: 0; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; padding: 0; }
+
+  .state { text-align: center; padding: 70px 10px 30px; }
+  .state h1 { font-size: 26px; letter-spacing: -.02em; margin-top: 22px; }
+  .state p { color: var(--muted); margin-top: 8px; }
+  .ring { width: 92px; height: 92px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: rgba(48,209,88,.12);
+    animation: pop .6s var(--spring) both; }
+  .ring svg { width: 46px; height: 46px; stroke: var(--green); stroke-width: 3; fill: none; stroke-dasharray: 40; stroke-dashoffset: 40;
+    animation: draw .5s .25s var(--ease) forwards; }
+  .ring.bad { background: rgba(255,69,58,.12); } .ring.bad svg { stroke: var(--red); }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .fade { animation: fade .45s var(--ease) both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px); } }
+  .skeleton { height: 180px; border-radius: 26px; background: linear-gradient(90deg, #111 0%, #1b1b1e 50%, #111 100%);
+    background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .foot { margin-top: 22px; text-align: center; color: var(--dim); font-size: 12px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .ring svg { stroke-dashoffset: 0; } }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<main>
+  <header>
+    <div class="brand"><div class="mark">T</div>TaxPay</div>
+    <div class="secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secured by TaxTech</div>
+  </header>
+  <div id="app"><div class="skeleton"></div></div>
+  <p class="foot">Payment in TAX from your TaxTech account · bank.munister.com.ua</p>
+</main>
+<script>
+(function () {
+  var token = location.pathname.split('/').filter(Boolean).pop() || '';
+  var app = document.getElementById('app');
+  var S = null, mode = 'login', busy = false, err = '', timer = null;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function money(n) { return Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  function cookie(name) { var m = document.cookie.match('(?:^|; )' + name + '=([^;]*)'); return m ? decodeURIComponent(m[1]) : ''; }
+  function bearer() { try { return localStorage.getItem('army_bank_token') || ''; } catch (e) { return ''; } }
+  function api(path, body) {
+    var h = { 'Content-Type': 'application/json' };
+    var b = bearer();
+    if (b) h.Authorization = 'Bearer ' + b; else if (cookie('kp_csrf')) h['X-CSRF-Token'] = cookie('kp_csrf');
+    return fetch(path, { method: body ? 'POST' : 'GET', headers: h, credentials: 'same-origin', body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Unexpected response' }; }).then(function (d) { d._status = r.status; return d; }); })
+      .catch(function () { return { ok: false, error: 'No connection. Check the network and try again.' }; });
+  }
+  function go(url) { if (url) location.replace(url); }
+
+  function load() {
+    return api('/api/taxpay/sessions/' + encodeURIComponent(token)).then(function (d) {
+      if (!d.ok) { S = null; render(d.error || 'Payment not found'); return; }
+      S = d.data; render();
+    });
+  }
+
+  function tick() {
+    clearInterval(timer);
+    timer = setInterval(function () {
+      if (!S || S.status !== 'open') return clearInterval(timer);
+      S.expires_in = Math.max(0, S.expires_in - 1);
+      var el = document.getElementById('timer');
+      if (el) el.textContent = clock(S.expires_in);
+      if (S.expires_in === 0) { S.status = 'expired'; render(); }
+    }, 1000);
+  }
+  function clock(s) { var m = Math.floor(s / 60), r = s % 60; return m + ':' + (r < 10 ? '0' : '') + r; }
+
+  function state(ok, title, text, btn) {
+    return '<div class="state fade"><div class="ring' + (ok ? '' : ' bad') + '"><svg viewBox="0 0 24 24">' +
+      (ok ? '<path d="M5 12.5l4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/>' : '<path d="M7 7l10 10M17 7L7 17" stroke-linecap="round"/>') +
+      '</svg></div><h1>' + esc(title) + '</h1><p>' + esc(text) + '</p>' + (btn || '') + '</div>';
+  }
+
+  function render(fatal) {
+    if (fatal || !S) { app.innerHTML = state(false, 'Payment unavailable', fatal || 'This payment link is not valid.'); return; }
+    if (S.status === 'paid') {
+      app.innerHTML = state(true, 'Paid', money(S.amount) + ' TAX sent to ' + S.merchant + '. Returning you to the shop…');
+      setTimeout(function () { go(S.return_url); }, 1600);
+      return;
+    }
+    if (S.status === 'expired' || S.status === 'cancelled') {
+      var back = S.cancel_url || S.return_url;
+      app.innerHTML = state(false, S.status === 'expired' ? 'Time is up' : 'Payment cancelled',
+        S.status === 'expired' ? 'The 30 minutes to pay have passed and nothing was charged. Place the order again in the shop.' : 'Nothing was charged.',
+        back ? '<button class="pay" style="margin-top:28px" onclick="location.replace(\'' + esc(back) + '\')">Back to ' + esc(S.merchant) + '</button>' : '');
+      return;
+    }
+
+    var items = (S.items || []).map(function (it) {
+      return '<div class="item"><div class="thumb"' + (it.image ? ' style="background-image:url(\'' + esc(it.image) + '\')"' : '') + '></div>' +
+        '<div class="t"><div class="b">' + esc(it.brand) + '</div><div class="n">' + esc(it.title) + '</div><div class="s">' +
+        (it.size ? 'Size ' + esc(it.size) + ' · ' : '') + 'Qty ' + esc(it.qty) + '</div></div>' +
+        '<div class="p">' + money(it.price * it.qty) + '</div></div>';
+    }).join('');
+
+    var me = S.me, panel;
+    if (me) {
+      var short = me.balance < S.amount;
+      panel = '<div class="panel fade"><div class="acct"><div class="avatar">' + esc((me.name || '?').trim().charAt(0).toUpperCase()) + '</div>' +
+        '<div class="who"><div>' + esc(me.name || 'TaxTech account') + '</div><div>Account ' + esc(me.account) + '</div></div>' +
+        '<div class="bal' + (short ? ' low' : '') + '">' + money(me.balance) + ' TAX<span>available</span></div></div>' +
+        '<button class="pay" id="pay"' + (short || busy ? ' disabled' : '') + '>' + (busy ? '<span class="spinner"></span>' : 'Pay ' + money(S.amount) + ' TAX') + '</button>' +
+        (short ? '<div class="err">Not enough TAX on this account.</div>' : '<div class="err" id="err">' + esc(err) + '</div>') +
+        '<div class="links"><button class="switch" id="switch">Use another account</button><a href="/" target="_blank" rel="noopener">Open TaxTech</a></div></div>';
+    } else {
+      panel = '<form class="panel fade" id="login" autocomplete="on"><p class="hint">Sign in to your TaxTech account to pay. No account? <a href="/#register" target="_blank" rel="noopener">Open one in a minute</a>.</p>' +
+        '<div class="field"><label for="id">E-mail or phone</label><input id="id" name="username" autocomplete="username" inputmode="email" required></div>' +
+        '<div class="field"><label for="pw">Password</label><input id="pw" name="password" type="password" autocomplete="current-password" required></div>' +
+        '<button class="pay" type="submit"' + (busy ? ' disabled' : '') + '>' + (busy ? '<span class="spinner"></span>' : 'Sign in and continue') + '</button>' +
+        '<div class="err" id="err">' + esc(err) + '</div></form>';
+    }
+
+    app.innerHTML =
+      '<section class="card fade"><div class="merchant"><span>Pay to</span><b>' + esc(S.merchant) + '</b></div>' +
+      '<div class="amount">' + money(S.amount) + '<small>TAX</small></div>' +
+      '<div class="ref"><span>Order ' + esc(S.reference) + '</span><span>Expires in <span class="timer" id="timer">' + clock(S.expires_in) + '</span></span></div></section>' +
+      '<section class="items fade">' + items + (S.shipping ? '<div class="ship">Delivery · ' + esc(S.shipping) + '</div>' : '') + '</section>' +
+      panel + '<button class="cancel" id="cancel">Cancel and return to the shop</button>';
+
+    var payBtn = document.getElementById('pay');
+    if (payBtn) payBtn.onclick = pay;
+    var sw = document.getElementById('switch');
+    if (sw) sw.onclick = function () {
+      try { localStorage.removeItem('army_bank_token'); } catch (e) {}
+      api('/api/auth/logout', {}).then(function () { S.me = null; err = ''; render(); });
+    };
+    var f = document.getElementById('login');
+    if (f) f.onsubmit = function (e) { e.preventDefault(); login(document.getElementById('id').value, document.getElementById('pw').value); };
+    document.getElementById('cancel').onclick = cancel;
+    tick();
+  }
+
+  function login(identity, password) {
+    if (busy) return; busy = true; err = ''; render();
+    api('/api/auth/login', { identity: identity.trim(), password: password, use_cookie: true, remember: true }).then(function (d) {
+      busy = false;
+      if (!d.ok) { err = d.error || 'Wrong e-mail, phone or password.'; render(); return; }
+      try { localStorage.removeItem('army_bank_token'); } catch (e) {}
+      load();
+    });
+  }
+
+  function pay() {
+    if (busy) return; busy = true; err = ''; render();
+    api('/api/taxpay/sessions/' + encodeURIComponent(token) + '/pay', {}).then(function (d) {
+      busy = false;
+      if (d.ok) { S.status = 'paid'; S.return_url = d.redirect || S.return_url; if (navigator.vibrate) navigator.vibrate(18); render(); return; }
+      if (d._status === 401) { S.me = null; err = 'Your session has ended, please sign in again.'; render(); return; }
+      err = d.error || 'The payment was declined.'; load();
+    });
+  }
+
+  function cancel() {
+    api('/api/taxpay/sessions/' + encodeURIComponent(token) + '/cancel', {}).then(function (d) {
+      if (d.ok && d.redirect) go(d.redirect); else load();
+    });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

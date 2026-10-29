@@ -35,6 +35,7 @@ from .routes.research_routes import research_bp
 from .routes.marketplace_routes import marketplace_bp
 from .routes.three_ds_routes import three_ds_bp
 from .routes.passkey_routes import passkey_bp
+from .routes.taxpay_routes import taxpay_bp
 
 API_VERSION = '1.0.0'
 SERVICE_NAME = 'TaxTech Sandbox Bank'
@@ -168,6 +169,7 @@ def create_app() -> Flask:
     app.register_blueprint(marketplace_bp, url_prefix=prefix + '/api/marketplace')
     app.register_blueprint(three_ds_bp, url_prefix=prefix + '/api/3ds')
     app.register_blueprint(passkey_bp, url_prefix=prefix + '/api/auth/passkey')
+    app.register_blueprint(taxpay_bp, url_prefix=prefix or None)
 
     @app.get(prefix + '/api')
     @app.get(prefix + '/api/')

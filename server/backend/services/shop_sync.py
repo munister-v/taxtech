@@ -136,6 +136,20 @@ def push_paid(conn: Any, order_id: int, tx_id: int | None = None) -> bool:
     return False
 
 
+def check_stock(items: list[dict[str, int]]) -> dict[int, int] | None:
+    """Живий залишок у магазині: {shop_product_id: доступно}. None - магазин не відповів."""
+    ok, data = post('/api/integrations/taxtech/stock', {'items': items}, timeout=5)
+    if not ok or not data.get('ok'):
+        return None
+    out: dict[int, int] = {}
+    for it in data.get('items') or []:
+        try:
+            out[int(it['product_id'])] = int(it['available'])
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
 def sync_pending(conn: Any) -> int:
     """Повторна відправка тих, що не дійшли (cron)."""
     rows = conn.execute(

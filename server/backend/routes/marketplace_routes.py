@@ -1132,6 +1132,44 @@ def pay_invoice(invoice_number: str):
     return jsonify(response_payload)
 
 
+def _shop_stock_shortage(product_ids: list[int], requested: dict[int, int]) -> str | None:
+    """Живий залишок товарів SAINT AGNES перед списанням.
+
+    Локальний stock оновлює імпорт фіду, а продають ту саму річ і на сайті магазину,
+    тож питаємо магазин напряму і заодно оновлюємо свою копію. Магазин недоступний -
+    покладаємось на локальний залишок, як і раніше.
+    """
+    placeholders = ', '.join(['%s'] * len(product_ids))
+    with get_connection() as conn:
+        rows = conn.execute(
+            f'SELECT id, slug, title FROM marketplace_products WHERE id IN ({placeholders})', tuple(product_ids),
+        ).fetchall() or []
+    shop_items = []
+    by_shop_id: dict[int, dict[str, Any]] = {}
+    for r in rows:
+        sid = shop_sync._shop_product_id(r.get('slug'))
+        if sid:
+            shop_items.append({'product_id': sid, 'qty': requested.get(int(r['id']), 0)})
+            by_shop_id[sid] = dict(r)
+    if not shop_items:
+        return None
+    live = shop_sync.check_stock(shop_items)
+    if live is None:
+        return None
+    with get_connection() as conn:
+        for sid, avail in live.items():
+            row = by_shop_id.get(sid)
+            if row is not None:
+                conn.execute('UPDATE marketplace_products SET stock = %s WHERE id = %s', (max(0, int(avail)), int(row['id'])))
+    for it in shop_items:
+        avail = live.get(it['product_id'])
+        if avail is not None and avail < it['qty']:
+            title = by_shop_id[it['product_id']].get('title') or 'позиція'
+            return (f"«{title}» закінчився в магазині." if avail <= 0
+                    else f"«{title}»: у магазині лишилось {avail} шт.")
+    return None
+
+
 @marketplace_bp.post('/checkout')
 @auth_required
 def checkout():
@@ -1207,6 +1245,10 @@ def _checkout_impl():
     product_ids = sorted(requested.keys())
     placeholders = ', '.join(['%s'] * len(product_ids))
     suffix = get_returning_id_suffix()
+
+    shortage = _shop_stock_shortage(product_ids, requested)
+    if shortage:
+        return api_error(shortage, 409)
 
     with get_connection() as conn:
         _expire_overdue_invoices(conn)
