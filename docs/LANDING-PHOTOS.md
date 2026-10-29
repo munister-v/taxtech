@@ -1,51 +1,50 @@
 # Фото для лендингу
 
-Лендинг (`web/src/BankLanding.tsx`) зроблено в мові Saint Agnes: кремовий папір, Jost великими літерами,
-фото на всю ширину з темною вуаллю. Кожне місце для фото вже чекає на файл: покладіть його в
-`web/public/landing/` під потрібним ім’ям, зберіть і викладіть фронтенд. Доки файлу немає, показується фото
-з картки Roma.
+Лендинг (`web/src/BankLanding.tsx`) темний, у дусі Apple: великий текст по центру, багато повітря. Карти
+намальовано в CSS, тож фото потрібні лише для чотирьох повноекранних вставок. Кожна вставка вже чекає на файл:
+покладіть його в `web/public/landing/` під потрібним ім’ям, зберіть і викладіть фронтенд. Доки файлу немає,
+вставка лишається чистим темним полем.
 
-Загальний стиль для всіх кадрів: тепле природне світло, кремово-пісочна й чорна гама з мідними акцентами
-(як `#f7f5f0`, `#171714`, `#e8b98a`), спокійні дорослі люди 28–45 років, одяг у дусі Saint Agnes (верблюже
-пальто, твід, кашемір, чорний пуховик), без логотипів реальних банків і брендів на екранах, без тексту в кадрі.
-На телефоні в кадрі допускається лише розмитий світлий екран.
+Загальний стиль серії: темні, художні, кінематографічні кадри Рима та Італії. Глибокі тіні, мало світла,
+теплі бурштинові й медові відблиски (`#c7a46f`), холодний синій «knight» (`#1c2740`) у тінях, легке плівкове
+зерно, жодного тексту, логотипів і впізнаваних облич. Над кожним кадром лежить темний градієнт, а низ
+перекриває текст, тож нижня третина кадру має бути спокійною й темною.
 
-| Файл | Розмір | Де стоїть | Важливо для композиції |
+| Файл | Розмір | Де стоїть | Композиція |
 |---|---|---|---|
-| `hero.webp` | 2400×1350 (16:9) | перший екран, на всю ширину | людина праворуч від центру: ліва третина темна й спокійна, там текст; на телефоні кадр обрізається до вертикалі по центру-праворуч |
-| `save.webp` | 1600×1000 (16:10) | плитка «Депозити» | низ кадру темніший, там заголовок і кнопка |
-| `borrow.webp` | 1600×1000 (16:10) | плитка «Кредит» | так само, низ темніший |
-| `security.webp` | 2400×1000 (12:5) | банер «Захищено на кожному кроці» | ліва половина темна, людина праворуч |
+| `hero.webp` | 2400×1600 | перший екран, за заголовком і карткою | центр кадру темний і рівний (там текст і картка), світло по краях |
+| `rome.webp` | 2400×1350 | «Платіть одним поглядом» | текст унизу по центру; головний об’єкт у верхніх двох третинах |
+| `night.webp` | 2400×1600 | «Безпека» | текст і три плитки по центру; кадр майже чорний, світло лише по краях |
+| `coast.webp` | 2400×1600 | фінальний заклик «Ваша картка чекає» | текст по центру; широкий спокійний горизонт |
 
 ## Промпти
 
 **hero.webp**
-> Editorial fashion photograph, a woman in her thirties in a camel wool coat walking down a quiet Roman street at
-> golden hour, holding a phone with a blank softly glowing screen, travertine walls and arches behind her, subject on
-> the right third, the left third falls into deep warm shadow, cream, sand and black palette with copper highlights,
-> 50mm, shallow depth of field, natural light, no text, no logos, 16:9
+> Dark cinematic fine-art photograph of the Colosseum at blue hour, seen through a stone archway, deep shadows,
+> only the upper arches catching warm amber light, the centre of the frame calm and nearly black, cold navy sky,
+> subtle film grain, Roman travertine texture, no people, no text, 3:2
 
-**save.webp**
-> Editorial photograph, a man in a cream cashmere sweater sitting by a tall window in a calm stone-walled apartment
-> in Rome, morning light, a cup of coffee and a closed notebook on a travertine table, relaxed and unhurried,
-> warm sand and cream palette, darker lower third, no text, no logos, 16:10
+**rome.webp**
+> Dark fine-art photograph of a narrow Roman street at night after rain, cobblestones reflecting a single warm
+> street lamp, an ivy-covered ochre facade fading into shadow, a lone figure seen from behind far away,
+> chiaroscuro, honey and deep blue tones, film grain, lower third dark and empty, no text, 16:9
 
-**borrow.webp**
-> Editorial photograph, a young couple in tweed and black wool coats standing in the doorway of an empty light-filled
-> apartment with arched windows, keys in hand, warm natural light, cream and charcoal palette, darker lower third,
-> no text, no logos, 16:10
+**night.webp**
+> Dark moody photograph of a classical marble statue in a Roman museum at night, lit by a single narrow beam of
+> warm light from the side, the rest of the frame falling into black, velvet shadows, museum stillness,
+> fine-art, film grain, no text, 3:2
 
-**security.webp**
-> Editorial photograph at night, a woman in a black down jacket under a Roman stone arch, face lit softly by a phone
-> held close, the rest of the frame in deep shadow, subject on the right, the left half almost black, warm amber
-> street light, cinematic, no text, no logos, 12:5
+**coast.webp**
+> Dark cinematic photograph of the Amalfi coast at dusk from a high terrace, the last honey-coloured light on the
+> cliffs, the sea turning deep navy, tiny warm lights of a village, a quiet empty horizon across the middle of the
+> frame, film grain, no people, no text, 3:2
 
 ## Як додати
 
 ```bash
-cp ~/Downloads/hero.webp web/public/landing/hero.webp   # і так для save, borrow, security
+cp ~/Downloads/hero.webp web/public/landing/hero.webp   # і так для rome, night, coast
 cd web && npm run build
 ```
 
-Далі викладається лише `server/frontend/` (див. `server/README.md`, розділ про розгортання). Фото краще
-стискати у WebP з якістю 80–85: перший екран має важити до ~400 КБ.
+Далі викладається лише `server/frontend/` (див. `server/README.md`, розділ про розгортання). WebP з якістю
+80–85, перший екран до ~400 КБ.
