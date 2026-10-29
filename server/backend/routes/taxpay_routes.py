@@ -30,11 +30,13 @@ from .marketplace_routes import (
     _ensure_schema as _ensure_market_schema,
     _generate_unique_invoice_number,
     _now_sql,
+    _safe_add_column,
 )
 
 taxpay_bp = Blueprint('taxpay', __name__)
 
 SESSION_TTL = 30 * 60
+PROCESSING_STALE = 120
 PAGE = Path(__file__).resolve().parent.parent / 'assets' / 'taxpay.html'
 _schema_ready = False
 
@@ -74,6 +76,7 @@ def _ensure_schema() -> None:
             """
         )
         conn.execute('CREATE INDEX IF NOT EXISTS idx_taxpay_sessions_ref ON taxpay_sessions(merchant_ref)')
+        _safe_add_column(conn, 'taxpay_sessions', 'processing_ts INTEGER')
     _schema_ready = True
 
 
@@ -91,6 +94,12 @@ def _load(conn: Any, token: str) -> dict[str, Any] | None:
     if s['status'] == 'open' and int(s['expires_ts']) < time.time():
         conn.execute("UPDATE taxpay_sessions SET status = 'expired' WHERE id = %s AND status = 'open'", (s['id'],))
         s['status'] = 'expired'
+    # A worker that died between taking the session and finishing leaves it
+    # 'processing' for good. The capture itself is one transaction, so a session
+    # still 'processing' after two minutes never moved money: open it again.
+    if s['status'] == 'processing' and int(s.get('processing_ts') or 0) < time.time() - PROCESSING_STALE:
+        conn.execute("UPDATE taxpay_sessions SET status = 'open' WHERE id = %s AND status = 'processing'", (s['id'],))
+        s['status'] = 'open'
     return s
 
 
@@ -199,6 +208,48 @@ def merchant_session_status(token: str):
                     'taxtech_order': int(s.get('order_id') or 0), 'tx_id': int(s.get('payment_tx_id') or 0)})
 
 
+@taxpay_bp.post('/api/taxpay/merchant/sessions/<token>/refund')
+def merchant_refund(token: str):
+    """The shop cancelled a paid order: put the money back on the buyer's account.
+
+    One transaction (credit, ledger row, order/invoice/authorization/session
+    marked refunded) and idempotent: asking again for a refunded session is ok.
+    """
+    if not shop_sync.verify(token.encode(), request.headers.get('X-TaxTech-Timestamp', ''), request.headers.get('X-TaxTech-Signature', '')):
+        return api_error('Підпис недійсний.', 401)
+    _ensure_schema()
+    with get_connection() as conn:
+        s = _load(conn, token)
+        if not s:
+            return api_error('Сесію не знайдено.', 404)
+        if s['status'] == 'refunded':
+            return jsonify({'ok': True, 'status': 'refunded'})
+        if s['status'] != 'paid' or not s.get('order_id'):
+            return api_error('Платіж не оплачено, повертати нічого.', 409)
+        # Claim it: a parallel second request gets rowcount 0.
+        claim = conn.execute("UPDATE taxpay_sessions SET status = 'refunded' WHERE id = %s AND status = 'paid'", (s['id'],))
+        if getattr(claim, 'rowcount', 0) == 0:
+            return jsonify({'ok': True, 'status': 'refunded'})
+        order = conn.execute(
+            'SELECT account_id, total_amount, invoice_number FROM marketplace_orders WHERE id = %s', (int(s['order_id']),),
+        ).fetchone()
+        if not order:
+            raise LookupError('order')
+        amount = round(float(order['total_amount']), 2)
+        conn.execute('UPDATE accounts SET balance = balance + %s WHERE id = %s', (amount, int(order['account_id'])))
+        conn.execute(
+            'INSERT INTO transactions(account_id, tx_type, direction, amount, description, related_account) VALUES (%s, %s, %s, %s, %s, %s)',
+            (int(order['account_id']), 'marketplace_refund', 'in', amount, f"TaxPay refund · {s['merchant_name']} {s['merchant_ref']}", 'TAXTECH-MARKET'),
+        )
+        conn.execute("UPDATE marketplace_orders SET status = 'refunded' WHERE id = %s", (int(s['order_id']),))
+        conn.execute("UPDATE marketplace_invoices SET status = 'refunded' WHERE order_id = %s", (int(s['order_id']),))
+        conn.execute(
+            "UPDATE marketplace_payment_authorizations SET status = 'refunded', reversed_at = " + _now_sql() + " WHERE order_id = %s",
+            (int(s['order_id']),),
+        )
+    return jsonify({'ok': True, 'status': 'refunded', 'amount': amount})
+
+
 # ── Buyer side ───────────────────────────────────────────────────────────────
 
 @taxpay_bp.get('/pay/<token>')
@@ -262,7 +313,7 @@ def session_pay(token: str):
             return api_error('Час на оплату минув. Поверніться в магазин і оформіть замовлення ще раз.'
                              if s['status'] == 'expired' else 'Платіж скасовано.', 409)
         # Захоплюємо сесію: другий паралельний натиск отримає rowcount 0.
-        cur = conn.execute("UPDATE taxpay_sessions SET status = 'processing' WHERE id = %s AND status = 'open'", (s['id'],))
+        cur = conn.execute("UPDATE taxpay_sessions SET status = 'processing', processing_ts = %s WHERE id = %s AND status = 'open'", (int(time.time()), s['id']))
         if getattr(cur, 'rowcount', 0) == 0:
             return api_error('Платіж уже обробляється.', 409)
 
