@@ -36,12 +36,12 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
 const gold        = '#FFD400';   // сигнальний жовтий - колір токена TAX
 const goldDark    = '#C9A800';
 const goldLight   = '#FFE566';
-// Apple dark system palette: black canvas, #1c1c1e tiles, no hairlines on tiles.
+// Apple dark system palette: black canvas, #171614 tiles, no hairlines on tiles.
 const bg = {
-  card:   '#1c1c1e',
-  card2:  '#161617',
-  border: 'transparent',
-  hover:  '#2c2c2e',
+  card:   '#171614',
+  card2:  '#12110f',
+  border: 'rgba(220,193,149,0.14)',
+  hover:  '#242220',
 };
 const text = {
   primary:   '#f5f5f7',
@@ -57,15 +57,20 @@ const mobileDockInset = `calc(${mobileTabBarOffset} + 8px)`;
 const mobileDockInsetCompact = `calc(${mobileTabBarOffset} - 6px)`;
 
 // ─── Type scale helpers ───────────────────────────────────────
+const DISPLAY = '"Jost", "Futura", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const GOLD_TEXT: React.CSSProperties = {
+  background: 'linear-gradient(180deg, #fff3d2, #dcc195 52%, #cfa862)',
+  WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'transparent',
+};
 const T = {
   /** 36px display — balance hero */
-  hero:    { fontSize: 40, fontWeight: 600, letterSpacing: -1.4, lineHeight: 1.08 } as React.CSSProperties,
+  hero:    { fontFamily: DISPLAY, fontSize: 40, fontWeight: 400, letterSpacing: -0.6, lineHeight: 1.08 } as React.CSSProperties,
   /** 28px screen title */
-  h1:      { fontSize: 34, fontWeight: 700, letterSpacing: -0.9, lineHeight: 1.12 } as React.CSSProperties,
+  h1:      { fontFamily: DISPLAY, fontSize: 36, fontWeight: 500, letterSpacing: -0.3, lineHeight: 1.12 } as React.CSSProperties,
   /** 22px section heading */
-  h2:      { fontSize: 24, fontWeight: 600, letterSpacing: -0.5, lineHeight: 1.2 } as React.CSSProperties,
+  h2:      { fontFamily: DISPLAY, fontSize: 25, fontWeight: 500, letterSpacing: -0.2, lineHeight: 1.2 } as React.CSSProperties,
   /** 17px card/panel title */
-  h3:      { fontSize: 19, fontWeight: 600, letterSpacing: -0.35, lineHeight: 1.25 } as React.CSSProperties,
+  h3:      { fontFamily: DISPLAY, fontSize: 20, fontWeight: 500, letterSpacing: 0, lineHeight: 1.25 } as React.CSSProperties,
   /** 15px body large */
   bodyLg:  { fontSize: 17, fontWeight: 400, lineHeight: 1.45, letterSpacing: -0.2 } as React.CSSProperties,
   /** 14px body default */
@@ -93,9 +98,9 @@ const glassCard = (extra?: React.CSSProperties): React.CSSProperties => {
 };
 // Поверхня панелі: м'який вертикальний градієнт, світлий верхній край і глибока тінь замість обводки
 const ENGRAVED_FRAME: React.CSSProperties = {
-  border: '1px solid rgba(255,255,255,0.05)',
-  background: 'linear-gradient(180deg, #222225 0%, #19191b 100%)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 30px -16px rgba(0,0,0,0.75)',
+  border: '1px solid transparent',
+  background: 'linear-gradient(180deg, #1c1b19 0%, #141311 100%) padding-box, linear-gradient(158deg, rgba(220,193,149,0.46), rgba(255,255,255,0.07) 26%, rgba(255,255,255,0.04) 68%, rgba(199,164,111,0.30)) border-box',
+  boxShadow: 'inset 0 1px 0 rgba(255,244,214,0.07), 0 18px 34px -18px rgba(0,0,0,0.85)',
 };
 const glassCardMobile = (extra?: React.CSSProperties): React.CSSProperties => ({
   ...extra,
@@ -2191,7 +2196,7 @@ function Toast({ msg }: { msg: string }) {
       left: '50%', transform: 'translateX(-50%)',
       zIndex: 9999, pointerEvents: 'none',
       padding: '12px 18px', borderRadius: 18,
-      background: '#1c1c1e',
+      background: '#171614',
       backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
       border: '1px solid transparent',
       color: text.primary, ...T.sm, fontWeight: 500,
@@ -2476,13 +2481,13 @@ const CARD_VARIANTS: Record<CardVariant, {
   badgePlate: string;
 }> = {
   gold: {
-    bg: '#ffffff',
-    text: '#000000', muted: 'rgba(0,0,0, 0.55)',
+    bg: 'radial-gradient(120% 90% at 85% 0%, #2b2417 0%, #0e0c09 55%, #070605 100%)',
+    text: '#f4e6c3', muted: 'rgba(244,230,195, 0.5)',
     shimmer: 'transparent',
     overlay: 'transparent',
-    numberPlate: 'rgba(0,0,0, 0.06)',
-    bottomPlate: 'rgba(0,0,0, 0.06)',
-    badgePlate: 'rgba(0,0,0, 0.06)',
+    numberPlate: 'rgba(255,255,255, 0.1)',
+    bottomPlate: 'rgba(255,255,255, 0.1)',
+    badgePlate: 'rgba(255,255,255, 0.1)',
   },
   emerald: {
     bg: '#d9d9d9',
@@ -2586,7 +2591,7 @@ const achTitle = (a: { id: string; title: string }) => (ACH_TITLES[a.id] ? tr(..
 // English names of the card designs (the list below keeps the Ukrainian ones); shown through tr().
 const DESIGN_TITLE_EN: Record<string, string> = {
   'Колізей': 'Colosseum', 'Колізей уночі': 'Colosseum at night', 'Пантеон': 'Pantheon', 'Форум': 'Forum', 'Акведук': 'Aqueduct',
-  'Мармур': 'Marble', 'Папір': 'Paper', 'Попіл': 'Ash', 'Графіт': 'Graphite', 'Чорний': 'Black', 'Сталь': 'Steel', 'Туман': 'Mist',
+  'Мармур': 'Marble', 'Аурей': 'Aureus', 'Папір': 'Paper', 'Попіл': 'Ash', 'Графіт': 'Graphite', 'Чорний': 'Black', 'Сталь': 'Steel', 'Туман': 'Mist',
   'Вугілля': 'Charcoal', 'Срібло': 'Silver',
 };
 
@@ -2597,7 +2602,7 @@ const CARD_DESIGN_OPTIONS: CardDesignOption[] = [
   { design: 'roma_forum', variant: 'roma_forum', title: 'Форум', subtitle: 'Храм Сатурна · фото: Nicholas Hartmann · CC BY-SA 4.0' },
   { design: 'roma_aqueduct', variant: 'roma_aqueduct', title: 'Акведук', subtitle: 'Аква Клавдія · фото: Mario2912 · CC BY-SA 4.0' },
   { design: 'roma_marmor', variant: 'roma_marmor', title: 'Мармур', subtitle: 'Каррара · фото: Solarence · CC BY-SA 4.0' },
-  { design: 'gold', variant: 'gold', title: 'Папір', subtitleKey: 'design_subtitle_gold' },
+  { design: 'gold', variant: 'gold', title: 'Аурей', subtitleKey: 'design_subtitle_gold' },
   { design: 'forest', variant: 'emerald', title: 'Попіл', subtitleKey: 'design_subtitle_forest' },
   { design: 'slate', variant: 'platinum', title: 'Графіт', subtitleKey: 'design_subtitle_slate' },
   { design: 'dark', variant: 'obsidian', title: 'Чорний', subtitleKey: 'design_subtitle_dark' },
@@ -2713,13 +2718,14 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
   const tt = translations[getStoredLanguage()];
   const patId = `g-${variant}`;
   const hasPhoto = Boolean(v.image);
-  const lightText = v.text.toLowerCase() === '#ffffff';
-  const titleShadow = hasPhoto ? '0 1px 3px rgba(0,0,0, 0.62)' : '0 1px 1px rgba(0,0,0, 0.2)';
+  const hex = v.text.replace('#', '');
+  const lightText = hex.length === 6 && (parseInt(hex.slice(0, 2), 16) * 299 + parseInt(hex.slice(2, 4), 16) * 587 + parseInt(hex.slice(4, 6), 16) * 114) / 1000 > 150;
+  const titleShadow = hasPhoto ? '0 1px 3px rgba(0,0,0, 0.62)' : lightText ? '0 1px 1px rgba(0,0,0, 0.5)' : '0 1px 1px rgba(0,0,0, 0.2)';
   return (
     <div style={{
       position: 'relative', aspectRatio: '1.586 / 1', borderRadius: 22, containerType: 'inline-size',
       background: v.bg,
-      boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55), 0 6px 16px -8px rgba(0,0,0, 0.4), inset 0 0 0 1px rgba(255,255,255, 0.12)',
+      boxShadow: `0 20px 40px -12px rgba(0,0,0, 0.55), 0 6px 16px -8px rgba(0,0,0, 0.4), inset 0 0 0 1px ${lightText && !hasPhoto ? 'rgba(220,193,149, 0.3)' : 'rgba(255,255,255, 0.12)'}`,
       color: v.text, overflow: 'hidden',
       fontFamily: '"SF Pro Display", -apple-system, system-ui',
       ...style,
@@ -2737,6 +2743,12 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
         }} />
       )}
       <div style={{ position: 'absolute', inset: 0, background: v.overlay }} />
+      {!hasPhoto && (
+        <svg aria-hidden viewBox="0 0 100 100" style={{ position: 'absolute', right: '-16%', top: '-46%', width: '92%', pointerEvents: 'none', opacity: lightText ? 0.34 : 0.14 }}>
+          <path d={CARD_ROSETTE} fill="none" stroke={lightText ? '#c7a46f' : '#000'} strokeWidth=".26" />
+          <circle cx="50" cy="50" r="47.5" fill="none" stroke={lightText ? '#c7a46f' : '#000'} strokeWidth=".3" />
+        </svg>
+      )}
       <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: CARD_GRAIN, backgroundSize: '180px 180px', opacity: hasPhoto ? 0.16 : 0.22, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
       <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'linear-gradient(118deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 26%, rgba(255,255,255,0) 44%, rgba(255,255,255,0) 66%, rgba(255,255,255,0.08) 100%)', mixBlendMode: lightText ? 'soft-light' : 'overlay', pointerEvents: 'none' }} />
       <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), inset 1px 0 0 rgba(255,255,255,0.14), inset 0 -1px 0 rgba(0,0,0,0.45), inset -1px 0 0 rgba(0,0,0,0.25)', pointerEvents: 'none', zIndex: 3 }} />
@@ -2756,7 +2768,7 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span aria-hidden style={{ width: 'clamp(20px, 7cqw, 30px)', height: 'clamp(20px, 7cqw, 30px)', color: v.text, display: 'inline-grid' }} dangerouslySetInnerHTML={{ __html: markSvg.replace('<svg ', '<svg style="width:100%;height:100%" ') }} />
-            <span style={{ fontSize: 'max(14px, 4.4cqw)', fontWeight: 500, letterSpacing: 0.5, textShadow: titleShadow }}>
+            <span style={{ fontFamily: DISPLAY, fontSize: 'max(14px, 4.4cqw)', fontWeight: 500, letterSpacing: 0.5, textShadow: titleShadow }}>
               Tax<span style={{ fontWeight: 300 }}>Tech</span>
             </span>
           </div>
@@ -2780,7 +2792,7 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
           background: 'transparent',
         }}>
           <div>
-            <div style={{ fontSize: 'max(12px, 3.6cqw)', fontWeight: 600, letterSpacing: 0.4, textShadow: titleShadow }}>{name}</div>
+            <div style={{ fontFamily: DISPLAY, fontSize: 'max(12px, 3.5cqw)', fontWeight: 500, letterSpacing: '0.14em', textShadow: titleShadow }}>{name}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ textAlign: 'right' }}>
@@ -3075,7 +3087,7 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <span style={{ ...T.caption, color: text.muted }}>{t('balance_total')}</span>
+        <span style={{ fontFamily: DISPLAY, fontSize: 11, fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--kp-gold)' }}>{t('balance_total')}</span>
         <button onClick={onToggle} style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {visible
             ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" stroke={text.muted} strokeWidth="1.6" /><circle cx="12" cy="12" r="3" stroke={text.muted} strokeWidth="1.6" /></svg>
@@ -3084,10 +3096,10 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
         </button>
       </div>
       <div style={{ position: 'relative' }}>
-        <div style={{ ...T.num, fontSize: 46, fontWeight: 300, letterSpacing: -1.8, color: text.primary, lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: 4 }}>
-          <span style={{ fontSize: 26, fontWeight: 600, color: gold, letterSpacing: -0.5 }}>TAX</span>
-          <span style={{ fontWeight: 500, background: 'linear-gradient(180deg, #ffffff 30%, #a9a9b2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 6px 22px rgba(255,212,0,0.18))' }}>{visible ? fmtInt(balance) : '• • • • • • •'}</span>
-          <span style={{ fontSize: 24, fontWeight: 300, color: 'rgba(235,235,235, 0.38)', letterSpacing: -0.5 }}>{visible ? fmtDec(balance) : ''}</span>
+        <div style={{ ...T.num, fontFamily: DISPLAY, fontSize: 48, fontWeight: 300, letterSpacing: -0.5, color: text.primary, lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <span style={{ fontSize: 22, fontWeight: 500, color: gold, letterSpacing: '0.12em' }}>TAX</span>
+          <span style={{ ...GOLD_TEXT, filter: 'drop-shadow(0 6px 22px rgba(255,212,0,0.18))' }}>{visible ? fmtInt(balance) : '• • • • • • •'}</span>
+          <span style={{ fontSize: 24, fontWeight: 300, color: 'rgba(235,235,235, 0.38)' }}>{visible ? fmtDec(balance) : ''}</span>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
@@ -4079,7 +4091,7 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
   const savingsRate = parts[0].val, balanceScore = parts[1].val, activityScore = parts[2].val;
 
   const level = score >= 80 ? { label: levelLabel, color: '#4fd18b', icon: <TrophyIcon color="#4fd18b" /> }
-    : score >= 60 ? { label: levelLabel, color: '#b6d94c', icon: <CheckBadgeIcon color="#b6d94c" /> }
+    : score >= 60 ? { label: levelLabel, color: '#dcc195', icon: <CheckBadgeIcon color="#dcc195" /> }
     : score >= 40 ? { label: levelLabel, color: '#FFD400', icon: <ChartIcon color="#FFD400" /> }
     : { label: levelLabel, color: '#ff7a6b', icon: <AlertIcon color="#ff7a6b" /> };
 
@@ -4681,7 +4693,7 @@ function OverviewScreen() {
           ...glassCard({
             padding: '18px 18px 16px',
             borderRadius: 28,
-            background: '#1c1c1e',
+            background: '#171614',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.24)',
           }),
           position: 'relative',
@@ -4726,13 +4738,13 @@ function OverviewScreen() {
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: '#1c1c1e' }) }}>
+        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: '#171614' }) }}>
           {cardSection}
         </div>
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: '#1c1c1e' }) }}>
+        <div style={{ ...glassCard({ padding: '18px 16px 16px', borderRadius: 24, background: '#171614' }) }}>
           {quickActionsSection}
         </div>
       </div>
@@ -4762,7 +4774,7 @@ function OverviewScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
         <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
-          background: '#1c1c1e',
+          background: '#171614',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0',
           padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
@@ -5056,7 +5068,7 @@ function CardsScreen() {
           ...glassCard({
             padding: '18px 18px 16px',
             borderRadius: 26,
-            background: '#1c1c1e',
+            background: '#171614',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.22)',
           }),
           position: 'relative',
@@ -5302,7 +5314,7 @@ function CardsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(4px)' }} />
         <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 480,
-          background: '#1c1c1e',
+          background: '#171614',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -5352,7 +5364,7 @@ function CardsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.62)', backdropFilter: 'blur(4px)' }} />
         <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 620,
-          background: '#1c1c1e',
+          background: '#171614',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '24px 20px calc(22px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -5435,7 +5447,7 @@ function CardsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.6)', backdropFilter: 'blur(4px)' }} />
         <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 480,
-          background: '#1c1c1e',
+          background: '#171614',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none',
@@ -5494,15 +5506,16 @@ const MEDALLION_TICKS = Array.from({ length: 60 }, (_, i) => {
 }).join('');
 // Велика гільошна розетка для шапок: тло, що не заважає читанню
 const HERO_ROSETTE = rosettePaths(26, 8, 0.2, 0.06, 46, 110).join('');
+const CARD_ROSETTE = rosettePaths(22, 7, 0.22, 0.07, 46, 100).join('');
 function HeroRosette({ size = 280, style }: { size?: number; style?: React.CSSProperties }) {
   return (
     <>
       <div aria-hidden="true" style={{ position: 'absolute', right: -size * 0.3, top: -size * 0.35, width: size * 0.95, height: size * 0.95, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,212,0,0.30), rgba(255,170,0,0.08) 55%, transparent 72%)', filter: 'blur(18px)', pointerEvents: 'none', ...style }} />
-      <div aria-hidden="true" style={{ position: 'absolute', left: -size * 0.35, bottom: -size * 0.45, width: size * 0.9, height: size * 0.9, borderRadius: '50%', background: 'radial-gradient(circle, rgba(90,120,255,0.22), transparent 68%)', filter: 'blur(22px)', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', left: -size * 0.35, bottom: -size * 0.45, width: size * 0.9, height: size * 0.9, borderRadius: '50%', background: 'radial-gradient(circle, rgba(199,164,111,0.16), transparent 68%)', filter: 'blur(22px)', pointerEvents: 'none' }} />
       <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={{ position: 'absolute', right: -size * 0.28, top: -size * 0.3, opacity: 0.16, pointerEvents: 'none', ...style }}>
-        <path d={HERO_ROSETTE} fill="none" stroke={gold} strokeWidth="0.18" />
-        <circle cx="50" cy="50" r="47" fill="none" stroke={gold} strokeWidth="0.25" />
-        <circle cx="50" cy="50" r="14" fill="none" stroke={gold} strokeWidth="0.25" />
+        <path d={HERO_ROSETTE} fill="none" stroke="#dcc195" strokeWidth="0.18" />
+        <circle cx="50" cy="50" r="47" fill="none" stroke="#dcc195" strokeWidth="0.25" />
+        <circle cx="50" cy="50" r="14" fill="none" stroke="#dcc195" strokeWidth="0.25" />
       </svg>
     </>
   );
@@ -5643,7 +5656,7 @@ function DepositsSection() {
   };
 
   const panelStyle: React.CSSProperties = {
-    background: '#1c1c1e',
+    background: '#171614',
     border: '1px solid transparent',
     borderRadius: 26,
     overflow: 'hidden',
@@ -6084,7 +6097,7 @@ function CreditsSection() {
 
   const activeCredits = credits.filter(c => c.status === 'active').length;
   const panelStyle: React.CSSProperties = {
-    background: '#1c1c1e',
+    background: '#171614',
     border: '1px solid transparent',
     borderRadius: 26,
     overflow: 'hidden',
@@ -6338,7 +6351,7 @@ function DocumentsSheet({ onClose, lang }: { onClose: () => void; lang: AppLang 
   return createPortal(
     <div className="tt-overlay" style={{ position: 'fixed', inset: 0, zIndex: 310, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }} />
-      <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{ position: 'relative', width: '100%', maxWidth: 520, background: '#1c1c1e',
+      <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{ position: 'relative', width: '100%', maxWidth: 520, background: '#171614',
         borderRadius: '24px 24px 0 0', padding: '14px 20px calc(24px + env(safe-area-inset-bottom,0px))', maxHeight: '92vh', overflowY: 'auto' }}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172,0.25)', margin: '0 auto 18px' }} />
         {open ? (
@@ -6542,7 +6555,7 @@ function OperationsScreen() {
           ...glassCard({
             padding: '18px 18px 16px',
             borderRadius: 26,
-            background: '#1c1c1e',
+            background: '#171614',
             boxShadow: '0 20px 42px rgba(0,0,0, 0.2)',
           }),
           position: 'relative',
@@ -6631,7 +6644,7 @@ function OperationsScreen() {
     const opsChart = (
     <>
       <div style={{ padding: '0 18px 18px' }}>
-        <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: '#1c1c1e' }) }}>
+        <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: '#171614' }) }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
             <div>
               <div style={{ ...sectionLabel, padding: 0, marginBottom: 4 }}>{t('spending_this_month')}</div>
@@ -6697,7 +6710,7 @@ function OperationsScreen() {
         const SPEND_LABELS: Record<string, string> = { transfer: t('spend_transfer'), food: t('spend_food'), transport: t('spend_transport'), utility: t('spend_utility'), shopping: t('spend_shopping'), subscription: t('spend_subscription'), income: t('filter_income') };
         return (
           <div style={{ padding: '0 18px 18px' }}>
-            <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: '#1c1c1e' }) }}>
+            <div style={{ padding: 20, ...glassCard({ borderRadius: 24, background: '#171614' }) }}>
               <div style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>{t('filter_outcome')}</div>
               {rows.map(({ cat, pct, amt }) => {
                 const s = CAT_STYLES[cat];
@@ -6755,7 +6768,7 @@ function OperationsScreen() {
             <span style={{ ...T.caption, color: text.muted }}>{g.group}</span>
             {net !== 0 && <span style={{ fontSize: 12, color: text.dim, ...T.num }}>{net > 0 ? '+' : '−'}{fmtInt(net)}{fmtDec(net)}</span>}
           </div>
-          <div style={{ background: '#1c1c1e', borderRadius: 22, overflow: 'hidden' }}>
+          <div style={{ background: '#171614', borderRadius: 22, overflow: 'hidden' }}>
             {g.items.map((item, i) => {
               const s = CAT_STYLES[item.cat];
               const open = () => { if (item.txId) { setSelectedTxId(item.txId); const tx = transactions.find(tx => tx.id === item.txId); setTxNote(tx?.note ?? ''); } };
@@ -6826,7 +6839,7 @@ function OperationsScreen() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
         <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
-          background: '#1c1c1e',
+          background: '#171614',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
           borderRadius: '24px 24px 0 0', padding: '14px 20px calc(28px + env(safe-area-inset-bottom,0px))',
           border: '1px solid transparent', borderBottom: 'none', maxHeight: '92vh', overflowY: 'auto',
@@ -7196,7 +7209,7 @@ function ProfileScreen() {
   ];
 
   const section = (children: React.ReactNode) => (
-    <div style={{ breakInside: 'avoid', background: '#1c1c1e', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14)' }}>
+    <div style={{ breakInside: 'avoid', background: '#171614', border: `1px solid ${bg.border}`, borderRadius: 22, overflow: 'hidden', margin: '0 18px 14px', boxShadow: '0 16px 34px rgba(0,0,0, 0.14)' }}>
       {children}
     </div>
   );
@@ -7210,7 +7223,7 @@ function ProfileScreen() {
           ...glassCard({
             padding: '22px 18px 18px',
             borderRadius: 28,
-            background: '#1c1c1e',
+            background: '#171614',
             boxShadow: '0 22px 44px rgba(0,0,0, 0.22)',
           }),
           position: 'relative',
@@ -7672,7 +7685,7 @@ function ShopHeading({ title, sub, action, onAction }: { title: string; sub?: st
 function ShopHero({ lang, onShop }: { lang: AppLang; onShop: () => void }) {
   const uk = lang === 'uk';
   return (
-    <div style={{ position: 'relative', borderRadius: 24, overflow: 'hidden', minHeight: 400, background: '#1c1c1e', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+    <div style={{ position: 'relative', borderRadius: 24, overflow: 'hidden', minHeight: 400, background: '#171614', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
       <img src="/shop/hero-autumn.webp" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '36% 30%' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,7,0.08) 0%, rgba(8,8,7,0.12) 38%, rgba(8,8,7,0.82) 100%)' }} />
       <div style={{ position: 'relative', padding: '0 22px 22px' }}>
@@ -7706,7 +7719,7 @@ function ShopTrustRow({ lang }: { lang: AppLang }) {
       {items.map(i => (
         <div key={i.label} style={{ display: 'flex', alignItems: 'center', gap: 11, color: text.secondary, minWidth: 0 }}>
           <span style={{ display: 'inline-flex', flexShrink: 0, color: text.secondary }}><ShopIcon n={i.icon} size={22} /></span>
-          <span style={{ ...shopCaps(11, 0.13), whiteSpace: 'nowrap' }}>{i.label}</span>
+          <span style={{ ...shopCaps(11, 0.1), minWidth: 0, lineHeight: 1.35, overflowWrap: 'anywhere' }}>{i.label}</span>
         </div>
       ))}
     </div>
@@ -7722,7 +7735,7 @@ function ShopCategoryTiles({ lang, onPick }: { lang: AppLang; onPick: (k: string
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {tiles.map(c => (
-        <button key={c.k} onClick={() => onPick(c.k)} className="tt-shop-tile" style={{ position: 'relative', aspectRatio: '3 / 4', borderRadius: 20, overflow: 'hidden', border: 'none', padding: 0, cursor: 'pointer', background: '#1c1c1e', textAlign: 'left', fontFamily: 'inherit' }}>
+        <button key={c.k} onClick={() => onPick(c.k)} className="tt-shop-tile" style={{ position: 'relative', aspectRatio: '3 / 4', borderRadius: 20, overflow: 'hidden', border: 'none', padding: 0, cursor: 'pointer', background: '#171614', textAlign: 'left', fontFamily: 'inherit' }}>
           <img src={c.img} alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,8,7,0) 45%, rgba(8,8,7,0.8) 100%)' }} />
           <div style={{ position: 'absolute', left: 14, right: 14, bottom: 14, color: SHOP_CREAM }}>
@@ -8056,7 +8069,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
         onClick={e => e.stopPropagation()}
         style={{
         position: 'relative',
-        background: '#1c1c1e',
+        background: '#171614',
         backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
         borderRadius: '28px 28px 0 0',
         padding: '18px 18px env(safe-area-inset-bottom, 0px)',
@@ -8119,7 +8132,7 @@ function CartDrawer({ cart, onClose, onQtyChange, onRemove, onCheckout, checking
               <div style={{
                 margin: '0 -18px',
                 padding: '16px 18px calc(18px + env(safe-area-inset-bottom, 0px))',
-                background: '#1c1c1e',
+                background: '#171614',
                 borderTop: '1px solid transparent',
                 boxShadow: '0 -20px 38px rgba(0,0,0, 0.22)',
               }}>
@@ -8597,7 +8610,7 @@ function MarketplaceScreen() {
                 const tone = toneOf(o.status);
                 return (
                 <div key={o.id} style={{
-                  background: '#1c1c1e',
+                  background: '#171614',
                   border: `1px solid transparent`,
                   borderRadius: 18,
                   padding: '14px 16px',
@@ -8641,7 +8654,7 @@ function MarketplaceScreen() {
                 const tone = toneOf(inv.status);
                 return (
                 <div key={inv.invoice_number} style={{
-                  background: '#1c1c1e',
+                  background: '#171614',
                   border: `1px solid transparent`,
                   borderRadius: 16,
                   padding: '14px 16px',
@@ -8714,9 +8727,9 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
       <div style={{
         position: 'relative',
         pointerEvents: 'auto',
-        background: '#1c1c1e',
-        borderTop: '1px solid transparent',
-        boxShadow: '0 -8px 32px rgba(0,0,0, 0.28)',
+        background: 'linear-gradient(180deg, #171614, #0d0c0b)',
+        borderTop: '1px solid rgba(220,193,149,0.22)',
+        boxShadow: '0 -8px 32px rgba(0,0,0, 0.4)',
         backdropFilter: 'blur(28px) saturate(190%)',
         WebkitBackdropFilter: 'blur(28px) saturate(190%)',
       }}>
@@ -8733,8 +8746,8 @@ function TabBar({ active, onChange }: { active: TabKey; onChange: (k: TabKey) =>
             height: tabButtonHeight,
             left: `calc(${activeIdx * 20}% + 6px)`,
             width: 'calc(20% - 12px)',
-            background: 'rgba(255,255,255, 0.1)',
-            border: '1px solid transparent',
+            background: 'linear-gradient(180deg, rgba(220,193,149,0.2), rgba(220,193,149,0.06))',
+            border: '1px solid rgba(220,193,149,0.28)',
             borderRadius: 14,
             transition: 'left 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
             boxShadow: 'none',
@@ -9016,23 +9029,26 @@ function DesktopSidebar({ active, onChange, collapsed, onToggle }: { active: Tab
       transition: 'width 0.32s var(--kp-ease)',
       display: 'flex', flexDirection: 'column',
       padding: '22px 14px 18px',
-      borderRight: '1px solid var(--kp-line)',
-      background: 'rgba(9,9,10, 0.62)',
+      borderRight: '1px solid rgba(220,193,149,0.14)',
+      background: 'linear-gradient(180deg, rgba(20,18,14,0.9), rgba(8,8,7,0.94))',
       backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
-      position: 'relative', zIndex: 20,
+      position: 'relative', zIndex: 20, overflow: 'hidden',
     }}>
+      <svg aria-hidden viewBox="0 0 100 100" style={{ position: 'absolute', left: -150, bottom: -90, width: 420, opacity: 0.1, pointerEvents: 'none' }}>
+        <path d={CARD_ROSETTE} fill="none" stroke="#dcc195" strokeWidth=".2" />
+      </svg>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: collapsed ? '0 0 0 6px' : '0 8px', height: 44, marginBottom: 22, overflow: 'hidden' }}>
         <BrandMark size={40} radiusValue={12} />
         {!collapsed && (
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '0.02em', color: text.primary, lineHeight: 1.1 }}>TaxTech</div>
-            <div style={{ fontSize: 12, color: text.dim, marginTop: 3 }}>{t('personal_cabinet')}</div>
+            <div style={{ fontFamily: DISPLAY, fontSize: 19, fontWeight: 500, letterSpacing: '0.04em', color: text.primary, lineHeight: 1.1 }}>Tax<span style={{ fontWeight: 300 }}>Tech</span></div>
+            <div style={{ fontFamily: DISPLAY, fontSize: 10.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--kp-gold)', marginTop: 4 }}>{t('personal_cabinet')}</div>
           </div>
         )}
       </div>
 
       <nav aria-label={t('dk_menu')} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {tabs.map(tb => {
+        {tabs.map((tb, ti) => {
           const isActive = tb.k === active;
           return (
             <button
@@ -9047,15 +9063,16 @@ function DesktopSidebar({ active, onChange, collapsed, onToggle }: { active: Tab
                 height: 48, padding: collapsed ? 0 : '0 14px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 borderRadius: 14, border: 'none',
-                background: isActive ? 'var(--kp-fill-2)' : 'transparent',
-                color: isActive ? 'var(--kp-ink)' : 'var(--kp-muted)',
-                fontFamily, fontSize: 15, fontWeight: isActive ? 600 : 500, letterSpacing: -0.15,
+                background: isActive ? 'linear-gradient(90deg, rgba(220,193,149,0.16), rgba(220,193,149,0.03))' : 'transparent',
+                color: isActive ? 'var(--kp-gold-l)' : 'var(--kp-muted)',
+                fontFamily: DISPLAY, fontSize: 15.5, fontWeight: isActive ? 500 : 400, letterSpacing: '0.02em',
                 cursor: 'pointer', textAlign: 'left',
               }}
             >
-              {isActive && <span aria-hidden style={{ position: 'absolute', left: collapsed ? 6 : -14, top: 13, bottom: 13, width: 3, borderRadius: 3, background: 'var(--kp-ink)' }} />}
-              {tb.icon(isActive ? '#f4f4f5' : 'rgba(212,212,216,0.62)')}
-              {!collapsed && <span style={{ whiteSpace: 'nowrap' }}>{tb.label}</span>}
+              {isActive && <span aria-hidden style={{ position: 'absolute', left: collapsed ? 6 : -14, top: 11, bottom: 11, width: 3, borderRadius: 3, background: 'linear-gradient(180deg, #fff3d2, #ffd400)', boxShadow: '0 0 14px rgba(255,212,0,0.55)' }} />}
+              {tb.icon(isActive ? '#ffd400' : 'rgba(212,212,216,0.62)')}
+              {!collapsed && <span style={{ whiteSpace: 'nowrap', flex: 1 }}>{tb.label}</span>}
+              {!collapsed && <span aria-hidden style={{ fontFamily: DISPLAY, fontSize: 10.5, letterSpacing: '0.12em', color: isActive ? 'var(--kp-gold)' : 'var(--kp-dim)' }}>{['I', 'II', 'III', 'IV', 'V', 'VI'][ti]}</span>}
             </button>
           );
         })}
@@ -9302,8 +9319,8 @@ function DesktopTopbar({ tab, onOpenPalette }: { tab: TabKey; onOpenPalette: () 
     <header style={{
       position: 'sticky', top: 0, zIndex: 30, height: 76,
       display: 'flex', alignItems: 'center', gap: 16, padding: '0 40px',
-      background: 'rgba(11,11,12, 0.72)', backdropFilter: 'blur(22px) saturate(150%)', WebkitBackdropFilter: 'blur(22px) saturate(150%)',
-      borderBottom: '1px solid var(--kp-line)',
+      background: 'rgba(8,8,7, 0.74)', backdropFilter: 'blur(22px) saturate(150%)', WebkitBackdropFilter: 'blur(22px) saturate(150%)',
+      borderBottom: '1px solid transparent', borderImage: 'linear-gradient(90deg, rgba(220,193,149,0.34), rgba(255,255,255,0.06) 40%, rgba(220,193,149,0.2)) 1',
     }}>
       <button onClick={onOpenPalette} className="kp-hover" aria-label={t('dk_search')} aria-keyshortcuts="Control+K Meta+K" style={{
         flex: '0 1 460px', height: 46, display: 'flex', alignItems: 'center', gap: 12, padding: '0 14px 0 16px',
@@ -9317,8 +9334,8 @@ function DesktopTopbar({ tab, onOpenPalette }: { tab: TabKey; onOpenPalette: () 
       <div style={{ flex: 1 }} />
       {tab !== 'overview' && account && (
         <div className="kp-fade" style={{ display: 'flex', alignItems: 'baseline', gap: 6, padding: '0 6px', ...T.num }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: gold }}>TAX</span>
-          <span style={{ fontSize: 18, fontWeight: 600, color: text.primary, letterSpacing: -0.4 }}>{fmtInt(account.balance)}</span>
+          <span style={{ fontFamily: DISPLAY, fontSize: 13, fontWeight: 500, letterSpacing: '0.1em', color: gold }}>TAX</span>
+          <span style={{ fontFamily: DISPLAY, fontSize: 20, fontWeight: 400, color: text.primary }}>{fmtInt(account.balance)}</span>
           <span style={{ fontSize: 13, color: 'var(--kp-dim)' }}>{fmtDec(account.balance)}</span>
         </div>
       )}
@@ -9491,9 +9508,14 @@ function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, vis
   return (
     <section className={`kp-card kp-rise ${span}`} style={{ padding: '30px 36px 30px', overflow: 'hidden', ['--i' as string]: 0 }}>
       <div aria-hidden className="kp-hero-fx" />
+      <svg aria-hidden viewBox="0 0 100 100" style={{ position: 'absolute', right: -190, top: -230, width: 600, opacity: 0.14, pointerEvents: 'none' }}>
+        <path d={HERO_ROSETTE} fill="none" stroke="#dcc195" strokeWidth=".16" />
+        <circle cx="50" cy="50" r="47" fill="none" stroke="#dcc195" strokeWidth=".22" />
+        <circle cx="50" cy="50" r="12" fill="none" stroke="#dcc195" strokeWidth=".22" />
+      </svg>
 
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 26 }}>
-        <div style={{ fontSize: 16, color: text.muted }}>{greeting}, <span style={{ color: text.primary, fontWeight: 600 }}>{firstName}</span></div>
+        <div style={{ fontFamily: DISPLAY, fontSize: 17, color: text.muted, letterSpacing: '0.02em' }}>{greeting}, <span style={{ ...GOLD_TEXT, fontWeight: 500 }}>{firstName}</span></div>
         <div style={{ flex: 1 }} />
         {accountNumber && accountNumber !== '—' && (
           <button
@@ -9508,15 +9530,15 @@ function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, vis
 
       <div style={{ position: 'relative' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: text.muted }}>{t('balance_total')}</span>
+          <span style={{ fontFamily: DISPLAY, fontSize: 12, fontWeight: 500, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--kp-gold)' }}>{t('balance_total')}</span>
           <button onClick={onToggle} className="kp-hover" aria-label={visible ? t('dk_hide_balance') : t('dk_show_balance')} aria-pressed={!visible} style={{ width: 30, height: 30, borderRadius: 9, border: 'none', background: 'transparent', color: 'var(--kp-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Ico n={visible ? 'eye' : 'eyeOff'} size={17} />
           </button>
         </div>
         <div style={{ ...T.num, display: 'flex', alignItems: 'baseline', gap: 12, lineHeight: 1, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 28, fontWeight: 600, color: gold, letterSpacing: -0.4 }}>TAX</span>
-          <span style={{ fontSize: 'clamp(52px, 5.4vw, 84px)', fontWeight: 300, letterSpacing: '-0.045em', color: text.primary }}>{visible ? fmtInt(shown) : '• • • • •'}</span>
-          {visible && <span style={{ fontSize: 'clamp(26px, 2.4vw, 38px)', fontWeight: 300, color: 'var(--kp-dim)', letterSpacing: -0.5 }}>{fmtDec(shown)}</span>}
+          <span style={{ fontFamily: DISPLAY, fontSize: 26, fontWeight: 500, color: gold, letterSpacing: '0.12em' }}>TAX</span>
+          <span style={{ ...GOLD_TEXT, fontFamily: DISPLAY, fontSize: 'clamp(56px, 6vw, 96px)', fontWeight: 300, letterSpacing: '-0.02em' }}>{visible ? fmtInt(shown) : '• • • • •'}</span>
+          {visible && <span style={{ fontFamily: DISPLAY, fontSize: 'clamp(26px, 2.4vw, 38px)', fontWeight: 300, color: 'var(--kp-dim)' }}>{fmtDec(shown)}</span>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 18 }}>
           <span style={{
@@ -9601,7 +9623,7 @@ function SpendDonut({ rows, span = '' }: { rows: { label: string; value: number 
   const [on, setOn] = useState(false);
   useEffect(() => { const id = requestAnimationFrame(() => setOn(true)); return () => cancelAnimationFrame(id); }, []);
   const total = rows.reduce((s, r) => s + r.value, 0);
-  const ramp = ['#f4f4f5', '#b4b4ba', '#85858c', '#5f5f66', '#45454b', '#323237'];
+  const ramp = ['#ffd400', '#dcc195', '#c7a46f', '#8f7a52', '#5f5340', '#3d382f'];
   const R = 52, C = 2 * Math.PI * R;
   let acc = 0;
   return (
@@ -9871,8 +9893,8 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
   }
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '0 16px', height: 54, background: '#1c1c1e',
-    border: '1px solid #2c2c2e', borderRadius: 12,
+    width: '100%', padding: '0 16px', height: 54, background: '#171614',
+    border: '1px solid #242220', borderRadius: 12,
     color: '#f5f5f7', fontSize: 17, outline: 'none', fontFamily, boxSizing: 'border-box',
     transition: 'border-color 0.15s, background 0.15s',
     WebkitAppearance: 'none',

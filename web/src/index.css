@@ -17,6 +17,10 @@
 /* ── Токени десктопного інтерфейсу ─────────────────────────────────────── */
 :root {
   --kp-yellow: #ffd400;
+  --kp-gold: #c7a46f;
+  --kp-gold-l: #dcc195;
+  --kp-gold-grad: linear-gradient(180deg, #fff3d2, #dcc195 52%, #cfa862);
+  --kp-display: "Jost", "Futura", ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
   --kp-ink: #f5f5f7;
   --kp-ink-2: #d4d4d8;
   --kp-muted: #8e8e93;
@@ -41,7 +45,7 @@
     @apply antialiased;
     background:
       radial-gradient(900px 520px at 8% -6%, rgba(255, 212, 0, 0.08), transparent 62%),
-      radial-gradient(820px 640px at 100% 42%, rgba(80, 110, 255, 0.07), transparent 62%),
+      radial-gradient(820px 640px at 100% 42%, rgba(199, 164, 111, 0.06), transparent 62%),
       #000;
     background-attachment: fixed;
     color: var(--kp-ink-2);
@@ -68,22 +72,31 @@
   /* Тло сцени: тихе холодне сяйво зверху й знизу, без кольорових плям */
   .kp-stage {
     background:
-      #000;
+      radial-gradient(900px 560px at 6% -8%, rgba(255, 212, 0, 0.07), transparent 64%),
+      radial-gradient(760px 620px at 100% 100%, rgba(199, 164, 111, 0.07), transparent 66%),
+      #050504;
   }
 
-  /* Панель: плоска поверхня з тонким світловим краєм */
+  /* Панель: тепла чорна поверхня, золота волосяна рамка, кутові мітки як на гравюрі */
   .kp-card {
     position: relative;
     border-radius: 22px;
     border: 1px solid transparent;
-    border-color: rgba(255,255,255,0.05);
-    background: linear-gradient(180deg, #222225 0%, #19191b 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 30px -16px rgba(0,0,0,0.75);
-    transition: border-color 0.25s var(--kp-ease), background 0.25s var(--kp-ease);
+    background:
+      linear-gradient(180deg, #1c1b19 0%, #141311 100%) padding-box,
+      linear-gradient(158deg, rgba(220,193,149,0.46), rgba(255,255,255,0.07) 26%, rgba(255,255,255,0.04) 68%, rgba(199,164,111,0.30)) border-box;
+    box-shadow: inset 0 1px 0 rgba(255,244,214,0.07), 0 18px 34px -18px rgba(0,0,0,0.85);
+    transition: box-shadow 0.25s var(--kp-ease);
   }
   .kp-card:hover {
-    border-color: rgba(255,255,255,0.09);
+    box-shadow: inset 0 1px 0 rgba(255,244,214,0.1), 0 22px 40px -18px rgba(0,0,0,0.9), 0 0 0 1px rgba(220,193,149,0.1);
   }
+  .kp-card::before, .kp-card::after {
+    content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none; opacity: 0.7;
+    border: 0 solid var(--kp-gold);
+  }
+  .kp-card::before { left: 9px; top: 9px; border-top-width: 1px; border-left-width: 1px; border-top-left-radius: 7px; }
+  .kp-card::after { right: 9px; bottom: 9px; border-bottom-width: 1px; border-right-width: 1px; border-bottom-right-radius: 7px; }
   /* Герой десктопу: золоте сяйво + точкова сітка замість орнаменту */
   .kp-hero-fx {
     position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
@@ -93,21 +106,24 @@
   }
   .kp-hero-fx::after {
     content: ''; position: absolute; inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1.4px);
-    background-size: 22px 22px;
-    -webkit-mask-image: radial-gradient(55% 65% at 100% 0%, #000 0%, transparent 75%);
-    mask-image: radial-gradient(55% 65% at 100% 0%, #000 0%, transparent 75%);
+    background: url(/landing/colosseum-dawn.webp) right bottom / auto 78% no-repeat;
+    opacity: 0.3; mix-blend-mode: screen; filter: sepia(0.85) saturate(0.7) contrast(1.05);
+    -webkit-mask-image: linear-gradient(90deg, transparent 52%, rgba(0,0,0,0.7) 80%, #000 100%), linear-gradient(0deg, #000 30%, transparent 92%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+    mask-image: linear-gradient(90deg, transparent 52%, rgba(0,0,0,0.7) 80%, #000 100%), linear-gradient(0deg, #000 30%, transparent 92%);
   }
   .kp-day {
-    padding: 14px 14px 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
-    text-transform: uppercase; color: var(--kp-dim);
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 14px 6px; font-family: var(--kp-display); font-size: 12px; font-weight: 500; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--kp-gold);
   }
+  .kp-day::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(199,164,111,0.4), transparent); }
   .kp-row .kp-row-go { opacity: 0; transform: translateX(-4px); transition: opacity 0.18s var(--kp-ease), transform 0.18s var(--kp-ease); }
   .kp-row:hover .kp-row-go { opacity: 1; transform: none; }
   .kp-card-flat {
     border-radius: 18px;
-    border: 1px solid transparent;
-    background: var(--kp-fill);
+    border: 1px solid rgba(220,193,149,0.14);
+    background: linear-gradient(180deg, rgba(255,244,214,0.045), rgba(255,244,214,0.02));
   }
 
   /* Інтерактивні поверхні: у інлайн-стилів немає :hover, тому класи */
@@ -146,7 +162,7 @@
     font-size: 15px;
     font-weight: 500;
     letter-spacing: -0.2px;
-    border: 1px solid transparent;
+    border: 1px solid rgba(220, 193, 149, 0.16);
     background: var(--kp-fill);
     color: var(--kp-ink);
     cursor: pointer;
@@ -155,21 +171,22 @@
   }
   .kp-btn:hover {
     background: var(--kp-fill-2);
-    border-color: transparent;
+    border-color: rgba(220, 193, 149, 0.4);
   }
   .kp-btn:active {
     transform: scale(0.97);
   }
   .kp-btn-primary {
-    background: var(--kp-yellow);
-    border-color: transparent;
+    background: linear-gradient(180deg, #ffe45a 0%, #ffd400 52%, #e6b800 100%);
+    border-color: rgba(255, 244, 190, 0.5);
     color: #17140a;
-    box-shadow: 0 10px 28px -12px rgba(255, 212, 0, 0.55);
+    font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 10px 28px -12px rgba(255, 212, 0, 0.6);
   }
   .kp-btn-primary:hover {
-    background: #ffdf33;
-    border-color: transparent;
-    box-shadow: 0 14px 34px -12px rgba(255, 212, 0, 0.7);
+    background: linear-gradient(180deg, #ffeb7a 0%, #ffdc1a 52%, #f0c000 100%);
+    border-color: rgba(255, 244, 190, 0.7);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 14px 34px -12px rgba(255, 212, 0, 0.75);
   }
 
   .kp-kbd {
@@ -542,7 +559,7 @@
 
 /* ── Forms & sheets in the cabinet (Apple sheet language) ───────── */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.tt-sheet { background: #1c1c1e !important; border: 0 !important; box-shadow: 0 -10px 60px rgba(0,0,0,.6) !important; }
+.tt-sheet { background: linear-gradient(180deg, #1c1b19, #121110) padding-box, linear-gradient(158deg, rgba(220,193,149,0.5), rgba(255,255,255,0.06) 30%, rgba(199,164,111,0.28)) border-box !important; border: 1px solid transparent !important; box-shadow: 0 -10px 60px rgba(0,0,0,.6) !important; }
 .tt-overlay { background: rgba(0,0,0,0.6) !important; backdrop-filter: blur(14px) saturate(140%) !important; -webkit-backdrop-filter: blur(14px) saturate(140%) !important; }
 @media (min-width: 768px) {
   .tt-overlay { align-items: center !important; padding: 24px; }
@@ -555,8 +572,8 @@
 .tt-app select, .tt-app textarea,
 .tt-sheet input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),
 .tt-sheet select, .tt-sheet textarea {
-  background-color: rgba(118,118,128,0.24) !important;
-  border: 1px solid transparent !important;
+  background-color: rgba(255,244,214,0.055) !important;
+  border: 1px solid rgba(220,193,149,0.16) !important;
   border-radius: 12px !important;
   color: #f5f5f7 !important;
   font-size: 16px !important;
@@ -566,19 +583,19 @@
 .tt-app input::placeholder, .tt-sheet input::placeholder, .tt-app textarea::placeholder { color: #6e6e73 !important; }
 .tt-app input:focus, .tt-app select:focus, .tt-app textarea:focus,
 .tt-sheet input:focus, .tt-sheet select:focus, .tt-sheet textarea:focus {
-  outline: none !important; box-shadow: 0 0 0 2px rgba(255,212,0,0.85) !important; background-color: rgba(118,118,128,0.32) !important;
+  outline: none !important; box-shadow: 0 0 0 1px rgba(255,212,0,0.9), 0 0 18px rgba(255,212,0,0.18) !important; border-color: rgba(255,212,0,0.6) !important; background-color: rgba(255,244,214,0.08) !important;
 }
 
 /* Transfer: big centred amount like Apple Cash */
 .tt-amount { display: flex; align-items: baseline; justify-content: center; gap: 10px; padding: 18px 0 6px; cursor: text; }
-.tt-sheet .tt-amount input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not(.x1):not(.x2) { all: unset; font-size: 64px !important; border: 0 !important; border-radius: 0 !important; font-weight: 600; letter-spacing: -0.04em; color: #f5f5f7; text-align: right; min-width: .6em; max-width: 7.5em; font-variant-numeric: tabular-nums; caret-color: #ffd400; background: none !important; box-shadow: none !important; min-height: 0 !important; }
+.tt-sheet .tt-amount input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not(.x1):not(.x2) { all: unset; font-family: var(--kp-display); font-size: 68px !important; border: 0 !important; border-radius: 0 !important; font-weight: 400; letter-spacing: -0.02em; color: #f5f5f7; text-align: right; min-width: .6em; max-width: 7.5em; font-variant-numeric: tabular-nums; caret-color: #ffd400; background: none !important; box-shadow: none !important; min-height: 0 !important; }
 .tt-sheet .tt-amount input::placeholder { color: #48484a !important; }
 .tt-sheet .tt-amount input:focus { box-shadow: none !important; background: none !important; }
-.tt-amount em { font-style: normal; font-size: 28px; font-weight: 600; color: #ffd400; }
+.tt-amount em { font-style: normal; font-family: var(--kp-display); font-size: 26px; font-weight: 500; letter-spacing: .12em; color: #ffd400; }
 .tt-quick { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-.tt-quick button { font: inherit; font-size: 15px; font-weight: 500; color: #f5f5f7; background: rgba(118,118,128,0.24); border: 0; border-radius: 980px; padding: 8px 16px; cursor: pointer; font-variant-numeric: tabular-nums; }
-.tt-quick button:hover { background: rgba(118,118,128,0.36); }
-.tt-quick button.on { background: #ffd400; color: #000; }
+.tt-quick button { font: inherit; font-size: 15px; font-weight: 500; color: #f5f5f7; background: rgba(255,244,214,0.06); border: 1px solid rgba(220,193,149,0.18); border-radius: 980px; padding: 8px 16px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.tt-quick button:hover { background: rgba(255,244,214,0.12); border-color: rgba(220,193,149,0.4); }
+.tt-quick button.on { background: linear-gradient(180deg, #ffe45a, #ffd400 55%, #e6b800); border-color: rgba(255,244,190,0.5); color: #000; }
 .tt-field { display: grid; gap: 6px; }
 .tt-field label { font-size: 13px; font-weight: 500; color: #8e8e93; padding-left: 4px; }
 .tt-field input { width: 100%; padding: 0 14px; height: 50px; box-sizing: border-box; font-family: inherit; }
