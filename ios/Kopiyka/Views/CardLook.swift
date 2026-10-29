@@ -170,6 +170,11 @@ struct CardSurface: View {
             shape.fill(LinearGradient(colors: [.white.opacity(look.color.isLight ? 0.30 : 0.14), .clear],
                                       startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.6)))
             shape.strokeBorder(.white.opacity(look.material == .glass ? 0.45 : 0.18), lineWidth: look.material == .glass ? 1.2 : 0.75)
+            // гравійована рамка всередині краю: тонка лінія
+            if look.pattern == .guilloche {
+                RoundedRectangle(cornerRadius: max(corner - 5, 4), style: .continuous)
+                    .strokeBorder(look.text.opacity(0.16), lineWidth: 0.5).padding(5)
+            }
         }
         .clipShape(shape)
     }
@@ -241,19 +246,20 @@ struct CardPatternLayer: View {
             }
         case .guilloche:
             Canvas { ctx, size in
-                let center = CGPoint(x: size.width * 0.78, y: size.height * 0.62)
-                let r = size.height * 0.62
-                for k in 0..<18 {
-                    var p = Path()
-                    let phase = Double(k) / 18 * .pi * 2
-                    for i in 0...360 {
-                        let t = Double(i) / 360 * .pi * 2
-                        let rr = r * (0.72 + 0.28 * cos(7 * t + phase))
-                        let pt = CGPoint(x: center.x + rr * cos(t), y: center.y + rr * sin(t))
-                        i == 0 ? p.move(to: pt) : p.addLine(to: pt)
-                    }
-                    ctx.stroke(p, with: .color(ink.opacity(0.11)), lineWidth: 0.6)
-                }
+                // головна розетка праворуч, мала ліворуч-вгорі: два центри дають муар на перетині
+                let main = CGPoint(x: size.width * 0.78, y: size.height * 0.60)
+                let r = size.height * 0.68
+                Engraving.rosette(in: &ctx, center: main, radius: r, curves: 30, lobes: 7, depth: 0.26, second: 0.07,
+                                  steps: 300, color: ink.opacity(0.10), width: 0.45)
+                Engraving.rosette(in: &ctx, center: main, radius: r * 0.52, curves: 18, lobes: 5, depth: 0.22, second: 0.06,
+                                  steps: 200, color: ink.opacity(0.14), width: 0.4)
+                Engraving.rings(in: &ctx, center: main, from: r * 0.06, to: r * 0.2, count: 6, color: ink.opacity(0.16))
+                let small = CGPoint(x: size.width * 0.12, y: size.height * 0.18)
+                Engraving.rosette(in: &ctx, center: small, radius: size.height * 0.34, curves: 16, lobes: 6, depth: 0.24,
+                                  second: 0.06, steps: 160, color: ink.opacity(0.08), width: 0.4)
+                // смуги плетених хвиль уздовж верху й низу
+                Engraving.band(in: &ctx, y: 6, width: size.width, height: 9, lines: 6, color: ink.opacity(0.10))
+                Engraving.band(in: &ctx, y: size.height - 15, width: size.width, height: 9, lines: 6, color: ink.opacity(0.10))
             }
         case .microprint:
             Canvas { ctx, size in

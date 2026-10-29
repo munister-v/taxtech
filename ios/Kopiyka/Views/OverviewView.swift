@@ -460,42 +460,54 @@ struct Card<Content: View>: View {
     }
 }
 
-/// Рядок операції: вид у сірому колі, назва, час, сума праворуч.
-struct ActivityRow: View {
+/// Значок виду операції: гравійований медальйон. Надходження смарагдові, покупки золоті, перекази сталеві.
+struct TxGlyph: View {
     let tx: API.Transaction
+    var size: CGFloat = 46
 
     private var symbol: String {
         switch tx.txType {
-        case "payment": "bag"
+        case "payment": "bag.fill"
         case "topup": "plus"
         case "transfer": tx.isIncome ? "arrow.down.left" : "arrow.up.right"
         default: tx.isIncome ? "arrow.down" : "arrow.up"
         }
     }
 
-    /// Колір виду: надходження зелені, покупки теплі, перекази сині.
     private var tint: Color {
-        if tx.isIncome { return .green }
+        if tx.isIncome { return Color(red: 0.20, green: 0.78, blue: 0.50) }
         switch tx.txType {
-        case "payment": return .orange
-        case "transfer": return .blue
-        default: return .orange
+        case "payment": return Theme.accent
+        case "transfer": return Color(red: 0.35, green: 0.56, blue: 0.95)
+        default: return Color(red: 0.88, green: 0.62, blue: 0.25)
         }
     }
 
+    var body: some View { GuillocheBadge(symbol: symbol, tint: tint, size: size) }
+}
+
+/// Рядок операції: значок, назва у два рядки, час, сума праворуч з підписом TAX.
+struct ActivityRow: View {
+    let tx: API.Transaction
+
     var body: some View {
         let row = TransactionRow(tx: tx)
-        HStack(spacing: 12) {
-            GuillocheBadge(symbol: symbol, tint: tint, size: 44)
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 14) {
+            TxGlyph(tx: tx)
+            VStack(alignment: .leading, spacing: 3) {
                 Text(row.title).font(.body.weight(.medium)).lineLimit(2)
                 Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Locale(identifier: "uk_UA"))))
                     .font(.footnote).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
-            Text((tx.isIncome ? "+" : "−") + OverviewView.compactCents(tx.amount))
-                .font(.body.weight(tx.isIncome ? .bold : .semibold)).monospacedDigit()
-                .foregroundStyle(tx.isIncome ? Color.green : Theme.ink.opacity(0.85))
+            VStack(alignment: .trailing, spacing: 1) {
+                Text((tx.isIncome ? "+" : "−") + tx.amount.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
+                    .font(.system(.title3, design: .serif).weight(.semibold)).monospacedDigit()
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                    .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
+                Text("TAX").font(.system(size: 9.5, weight: .bold)).tracking(1.6).foregroundStyle(Theme.tint.opacity(0.7))
+            }
+            .fixedSize(horizontal: true, vertical: false)
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)

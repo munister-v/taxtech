@@ -26,6 +26,9 @@ SECRET_KEY = os.getenv('SECRET_KEY') or 'kopiyka-sandbox-dev-secret-key'
 TOKEN_TTL_HOURS = int(os.getenv('TOKEN_TTL_HOURS') or '720')  # 30 днів за замовчуванням
 DEBUG = (os.getenv('DEBUG') or '0') == '1'
 
+# Публічна адреса банку для посилань перевірки в QR-кодах документів. Порожньо - адреса поточного запиту.
+PUBLIC_BASE_URL = (os.getenv('PUBLIC_BASE_URL') or '').strip().rstrip('/')
+
 # Базовий шлях при розміщенні за проксі (наприклад /kopiyka). За замовчуванням — корінь.
 BASE_PATH = (os.getenv('BASE_PATH') or '').rstrip('/')
 

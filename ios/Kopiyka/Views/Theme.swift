@@ -101,15 +101,25 @@ extension View {
 
 // MARK: Поверхні
 
-/// Плоска поверхня з тонкою лінією.
+/// Поверхня-гравюра: тепле світло зліва вгорі, золота рамка, що гасне до кутів, і тонка внутрішня лінія.
 struct Surface<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
-            .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(Theme.ink.opacity(0.07), lineWidth: Theme.hairline))
+            .background {
+                ZStack {
+                    Theme.surface
+                    LinearGradient(colors: [Theme.accent.opacity(0.08), .clear],
+                                   startPoint: .topLeading, endPoint: UnitPoint(x: 0.65, y: 0.45))
+                }
+            }
+            .clipShape(.rect(cornerRadius: 22, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(
+                LinearGradient(colors: [Theme.accent.opacity(0.55), Theme.ink.opacity(0.07), Theme.accent.opacity(0.30)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.8))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Theme.accent.opacity(0.10), lineWidth: 0.5).padding(4).allowsHitTesting(false))
     }
 }
 
@@ -154,11 +164,14 @@ struct BlockTitle: View {
 /// Тонка роздільна лінія між рядками поверхні.
 struct Rule: View {
     var body: some View {
-        Rectangle().fill(Theme.line).frame(height: Theme.hairline).padding(.leading, 16)
+        Rectangle()
+            .fill(LinearGradient(colors: [Theme.accent.opacity(0.0), Theme.accent.opacity(0.32), Theme.accent.opacity(0.0)],
+                                 startPoint: .leading, endPoint: .trailing))
+            .frame(height: Theme.hairline).padding(.horizontal, 16)
     }
 }
 
-/// Головна дія: чорна плитка з контрастним текстом.
+/// Головна дія: золота фольга. Світло-темно-світла заливка, гравійована штриховка, блік згори й тонка внутрішня лінія.
 struct InkButton: ButtonStyle {
     @Environment(\.isEnabled) private var enabled
 
@@ -168,12 +181,31 @@ struct InkButton: ButtonStyle {
             .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
-            .background(Theme.accent, in: .capsule)
-            .opacity(enabled ? (configuration.isPressed ? 0.8 : 1) : 0.35)
+            .background {
+                ZStack {
+                    Capsule().fill(LinearGradient(stops: [
+                        .init(color: Color(red: 1.0, green: 0.90, blue: 0.38), location: 0),
+                        .init(color: Theme.accent, location: 0.45),
+                        .init(color: Color(red: 0.93, green: 0.74, blue: 0.0), location: 1),
+                    ], startPoint: .top, endPoint: .bottom))
+                    Canvas { ctx, sz in
+                        Engraving.band(in: &ctx, y: 0, width: sz.width, height: sz.height, lines: 7,
+                                       color: Color.black.opacity(0.07), lineWidth: 0.4)
+                    }
+                    .clipShape(.capsule)
+                    Capsule().strokeBorder(
+                        LinearGradient(colors: [.white.opacity(0.85), .white.opacity(0.0), Color.black.opacity(0.18)],
+                                       startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                    Capsule().strokeBorder(Color.black.opacity(0.10), lineWidth: 0.5).padding(3)
+                }
+            }
+            .shadow(color: Theme.accent.opacity(configuration.isPressed ? 0.12 : 0.28), radius: 12, y: 5)
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .opacity(enabled ? 1 : 0.35)
     }
 }
 
-/// Другорядна дія: лише контур.
+/// Другорядна дія: гравійований контур - зовнішня лінія й тонка внутрішня.
 struct LineButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -181,8 +213,13 @@ struct LineButton: ButtonStyle {
             .foregroundStyle(Theme.ink)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .overlay(Capsule().strokeBorder(Theme.ink.opacity(0.2), lineWidth: 1))
-            .opacity(configuration.isPressed ? 0.6 : 1)
+            .background(Theme.surface.opacity(0.6), in: .capsule)
+            .overlay(Capsule().strokeBorder(
+                LinearGradient(colors: [Theme.accent.opacity(0.7), Theme.ink.opacity(0.16), Theme.accent.opacity(0.45)],
+                               startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1))
+            .overlay(Capsule().strokeBorder(Theme.ink.opacity(0.07), lineWidth: 0.5).padding(3))
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .opacity(configuration.isPressed ? 0.75 : 1)
     }
 }
 

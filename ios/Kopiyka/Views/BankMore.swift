@@ -353,8 +353,17 @@ struct StatementsView: View {
     @State private var to = Date.now
     @State private var preview: URL?
     @State private var screen = Screen()
+    @State private var all: [API.Transaction] = []
 
     enum Period: Hashable { case month, previous, quarter, year, custom }
+
+    /// Операції вибраного періоду: від початку першого дня до кінця останнього.
+    private var inRange: [API.Transaction] {
+        let cal = Calendar.current
+        let start = cal.startOfDay(for: from)
+        let end = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: to)) ?? to
+        return all.filter { $0.date >= start && $0.date < end }
+    }
 
     private var range: String { "from_date=\(BankText.isoDay(from))&to_date=\(BankText.isoDay(to))" }
     private var title: String { "\(BankText.date(BankText.isoDay(from))) - \(BankText.date(BankText.isoDay(to)))" }
@@ -371,17 +380,51 @@ struct StatementsView: View {
                         DatePicker("По", selection: $to, in: from...Date.now, displayedComponents: .date).padding(14)
                     }
                 }
+                let rows = inRange
+                let income = rows.filter(\.isIncome).reduce(0) { $0 + $1.amount }
+                let spent = rows.filter { !$0.isIncome }.reduce(0) { $0 + $1.amount }
                 HeroPanel {
-                    HeroCaption("Виписка за період")
-                    Text(title).font(.title3.weight(.semibold)).padding(.top, 6)
+                    GuillocheRibbon(label: "ВИПИСКА · STATE TAX UNIVERSITY")
+                        .padding(.bottom, 14)
+                    Text(title).font(.footnote.weight(.semibold)).tracking(0.4).foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                    Text("Витрачено").font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 14)
+                    Text(Format.short(spent))
+                        .font(.system(size: 44, weight: .semibold, design: .serif)).monospacedDigit()
+                        .minimumScaleFactor(0.5).lineLimit(1).frame(maxWidth: .infinity)
+                    Perforation().padding(.top, 14)
+                    HStack(alignment: .top, spacing: 12) {
+                        summary("Надійшло", Format.short(income), tint: .green)
+                        summary("Операцій", "\(rows.count)")
+                        summary("Різниця", (income - spent >= 0 ? "+" : "−") + Format.short(abs(income - spent)))
+                    }
+                    .padding(.top, 6)
+                    Microprint().padding(.top, 16)
+                }
+                if !rows.isEmpty {
+                    BlockTitle("Операції періоду", trailing: "\(rows.count)")
+                    Surface {
+                        ForEach(Array(rows.prefix(8).enumerated()), id: \.element.id) { i, tx in
+                            if i > 0 { Rule() }
+                            ActivityRow(tx: tx)
+                        }
+                    }
+                    if rows.count > 8 {
+                        Text("і ще \(rows.count - 8) у виписці")
+                            .font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
+                    }
                 }
                 VStack(spacing: 10) {
                     Button { open("transactions/statement?\(range)", "Виписка \(BankText.isoDay(from)) - \(BankText.isoDay(to)).pdf") } label: {
-                        Label("Переглянути виписку", systemImage: "doc.richtext")
+                        Label("Виписка PDF", systemImage: "doc.richtext")
                     }
                     .buttonStyle(InkButton())
                     Button { open("transactions/export?\(range)", "Операції \(BankText.isoDay(from)) - \(BankText.isoDay(to)).csv") } label: {
                         Label("Таблиця операцій", systemImage: "tablecells")
+                    }
+                    .buttonStyle(LineButton())
+                    NavigationLink { DocumentsView() } label: {
+                        Label("Мої документи і QR-коди", systemImage: "qrcode")
                     }
                     .buttonStyle(LineButton())
                 }
@@ -395,7 +438,17 @@ struct StatementsView: View {
         .navigationTitle("Виписки")
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: period) { apply() }
+        .task { all = (try? await model.api.history(.init())) ?? [] }
         .quickLookPreview($preview)
+    }
+
+    private func summary(_ title: String, _ value: String, tint: Color = Theme.ink) -> some View {
+        VStack(spacing: 3) {
+            Text(value).font(.system(.headline, design: .serif)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+                .foregroundStyle(tint)
+            Text(title.uppercased()).font(.system(size: 9.5, weight: .bold)).tracking(1.3).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private func apply() {

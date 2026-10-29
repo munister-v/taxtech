@@ -9,7 +9,12 @@ struct KopiykaApp: App {
         WindowGroup {
             RootView()
                 .environment(model)
-                .task { await model.refresh() }
+                .task {
+                    #if DEBUG && targetEnvironment(simulator)
+                    await model.debugSignIn()
+                    #endif
+                    await model.refresh()
+                }
         }
         .modelContainer(for: Expense.self)
     }

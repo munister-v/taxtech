@@ -89,6 +89,9 @@ struct OperationsView: View {
                 NavigationLink { StatementsView() } label: { RoundGlyph(symbol: "doc.text") }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Виписки")
+                NavigationLink { DocumentsView() } label: { RoundGlyph(symbol: "qrcode") }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Мої документи")
                 NavigationLink { AnalyticsView() } label: { RoundGlyph(symbol: "chart.bar") }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Аналітика")
@@ -246,16 +249,9 @@ struct OperationsView: View {
             ForEach(days, id: \.day) { day in
                 VStack(alignment: .leading, spacing: 8) {
                     let net = day.items.reduce(0) { $0 + ($1.isIncome ? $1.amount : -$1.amount) }
-                    HStack {
-                        Text(BankText.dayTitle(day.day))
-                        Spacer()
-                        Text((net >= 0 ? "+" : "−") + OverviewView.compactCents(abs(net)))
-                            .monospacedDigit()
-                            .foregroundStyle(net >= 0 ? Color.green : Color.secondary)
-                    }
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
+                    DayRibbon(title: BankText.dayTitle(day.day),
+                              trailing: (net >= 0 ? "+" : "−") + OverviewView.compactCents(abs(net)),
+                              positive: net >= 0)
                     Surface {
                         ForEach(Array(day.items.enumerated()), id: \.element.id) { i, tx in
                             if i > 0 { Rule() }

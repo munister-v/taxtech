@@ -661,3 +661,7 @@
 @media (max-width: 734px) {
   .ap-stack { padding-top: 96px; }
 }
+
+/* Рядок операції: легке натискання без стрибків розкладки */
+.kp-tx-row { transition: background 0.15s ease; -webkit-tap-highlight-color: transparent; }
+.kp-tx-row:active { background: rgba(255,255,255, 0.05); }

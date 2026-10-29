@@ -268,6 +268,7 @@ class StatementService:
         to_date: str | None = None,
         report_type: str = 'detailed',
         order_id: str | None = None,
+        verify_root: str | None = None,
     ) -> bytes:
         """Повертає байти PDF-виписки для user_id за вказаний період."""
         report_type = (report_type or 'detailed').strip().lower()
@@ -308,8 +309,23 @@ class StatementService:
             f'{len(txs)} транз.{order_part}',
         )
 
+        from .document_service import DocumentService, KIND_STATEMENT
+        dsvc = DocumentService()
+        doc_meta = {
+            'from_date': from_date or '', 'to_date': to_date or '', 'period': period_str, 'report_type': report_type,
+            'count': len(txs), 'total_in': round(float(summary.get('total_in') or 0), 2),
+            'total_out': round(float(summary.get('total_out') or 0), 2),
+        }
+        doc = dsvc.issue(
+            user_id, KIND_STATEMENT, f'{from_date or ""}|{to_date or ""}|{report_type}',
+            title=f'{_REPORT_TYPE_LABELS[report_type]} · {period_str}',
+            digest=dsvc.statement_digest(self._accounts, account, doc_meta),
+            amount=float(summary.get('total_out') or 0), direction='out', meta=doc_meta,
+        )
+
         _ensure_fonts()
         return self._build_pdf(
+            doc=doc, root=verify_root,
             account=account,
             user=user,
             txs=txs,
@@ -320,12 +336,12 @@ class StatementService:
             order_id=order_id,
         )
 
-    def generate_receipt(self, user_id: int, tx_id: int) -> bytes:
+    def generate_receipt(self, user_id: int, tx_id: int, verify_root: str | None = None) -> bytes:
         """Повертає байти PDF-чека для одної транзакції."""
-        receipt = self.generate_receipt_with_meta(user_id, tx_id)
+        receipt = self.generate_receipt_with_meta(user_id, tx_id, verify_root)
         return receipt['pdf_bytes']
 
-    def generate_receipt_with_meta(self, user_id: int, tx_id: int) -> dict:
+    def generate_receipt_with_meta(self, user_id: int, tx_id: int, verify_root: str | None = None) -> dict:
         """Повертає PDF + метадані чека (tx, filename)."""
         account = self._accounts.get_account_by_user_id(user_id)
         if not account:
@@ -341,8 +357,20 @@ class StatementService:
         tx_dict = dict(tx)
         filename = self.build_receipt_filename(tx_dict)
 
+        from .document_service import DocumentService, KIND_RECEIPT
+        from .integrity_service import IntegrityService
+        record_hash = IntegrityService().hashes_for([{**tx_dict, 'account_id': tx_dict.get('account_id') or account['id']}]).get(int(tx_dict['id']), '')
+        sign = '+' if str(tx_dict.get('direction')) == 'in' else '−'
+        doc = DocumentService().issue(
+            user_id, KIND_RECEIPT, str(tx_id),
+            title=str(tx_dict.get('description') or _TX_TYPE_LABELS.get(tx_dict.get('tx_type'), 'Операція')),
+            digest=record_hash, amount=float(tx_dict.get('amount') or 0), direction=str(tx_dict.get('direction') or 'out'),
+            meta={'tx_type': _TX_TYPE_LABELS.get(tx_dict.get('tx_type'), tx_dict.get('tx_type') or 'Операція'),
+                  'tx_date': str(tx_dict.get('created_at') or ''), 'sign': sign},
+        )
+
         _ensure_fonts()
-        pdf_bytes = self._build_receipt(account, user, tx_dict)
+        pdf_bytes = self._build_receipt(account, user, tx_dict, doc=doc, root=verify_root)
 
         self._features.add_audit_log(
             user_id,
@@ -354,6 +382,7 @@ class StatementService:
             'pdf_bytes': pdf_bytes,
             'tx': tx_dict,
             'filename': filename,
+            'document': doc,
         }
 
     # ──────────────────────────────────────────────────────────────────────
@@ -399,6 +428,31 @@ class StatementService:
             return f'по {to_date}'
         return 'весь час'
 
+    def _verify_block(self, doc: dict | None, root: str | None, width: float):
+        """Блок «Перевірка документа»: QR із посиланням, код і пояснення."""
+        if not doc:
+            return None
+        from .document_service import qr_drawing, verify_url
+        url = verify_url(doc['code'], root)
+        label = ParagraphStyle('vl', fontName=_f(), fontSize=7.4, leading=10.5, textColor=_MUTED)
+        code = ParagraphStyle('vc', fontName=_f(True), fontSize=11, leading=14, textColor=_STEEL)
+        link = ParagraphStyle('vu', fontName='Courier', fontSize=6.3, leading=8.6, textColor=_MUTED)
+        t = Table(
+            [[qr_drawing(url, 24 * mm),
+              [Paragraph('ПЕРЕВІРКА ДОКУМЕНТА', ParagraphStyle('vh', fontName=_f(True), fontSize=7.4, leading=10, textColor=_GOLD)),
+               Paragraph(doc['code'], code),
+               Paragraph('Скануйте QR або відкрийте адресу: документ звіряється з реєстром TaxTech.', label),
+               Paragraph(url, link)]]],
+            colWidths=[27 * mm, width - 27 * mm],
+        )
+        t.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOX', (0, 0), (-1, -1), 0.5, _GOLD),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6), ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 5), ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        return t
+
     def _money(self, value: float) -> str:
         # 1 234,56 TAX - пробіл між тисячами, кома перед копійками
         return f'{float(value):,.2f}'.replace(',', ' ').replace('.', ',') + ' TAX'
@@ -406,11 +460,11 @@ class StatementService:
     # ──────────────────────────────────────────────────────────────────────
     # Receipt PDF
     # ──────────────────────────────────────────────────────────────────────
-    def _build_receipt(self, account: dict, user: dict, tx: dict) -> bytes:
+    def _build_receipt(self, account: dict, user: dict, tx: dict, doc: dict | None = None, root: str | None = None) -> bytes:
         """Генерує A6 PDF квитанцію для однієї транзакції."""
         buf = io.BytesIO()
         width, height = 105 * mm, 190 * mm   # A6, подовжений під токен і хеш запису
-        doc = SimpleDocTemplate(
+        pdf_doc = SimpleDocTemplate(
             buf,
             pagesize=(width, height),
             leftMargin=0,
@@ -535,6 +589,12 @@ class StatementService:
         ]))
         story.append(det_t)
 
+        block = self._verify_block(doc, root, width - 22 * mm)
+        if block is not None:
+            story.append(Spacer(1, 5))
+            story.append(Table([[block]], colWidths=[width - 22 * mm], style=TableStyle([
+                ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0)]), hAlign='CENTER'))
+
         # ── Footer ───────────────────────────────────────────────────────────
         story.append(Spacer(1, 4))
         story.append(HRFlowable(width='100%', thickness=0.4, color=_LIGHT, spaceAfter=3))
@@ -553,7 +613,7 @@ class StatementService:
         ]))
         story.append(ft)
 
-        doc.build(story)
+        pdf_doc.build(story)
         return buf.getvalue()
 
     # ──────────────────────────────────────────────────────────────────────
@@ -569,9 +629,11 @@ class StatementService:
         to_date: str | None,
         report_type: str,
         order_id: str | None,
+        doc: dict | None = None,
+        root: str | None = None,
     ) -> bytes:
         buf = io.BytesIO()
-        doc = SimpleDocTemplate(
+        pdf_doc = SimpleDocTemplate(
             buf,
             pagesize=A4,
             rightMargin=16 * mm,
@@ -582,6 +644,7 @@ class StatementService:
 
         styles = getSampleStyleSheet()
         story = []
+        verify_doc, doc = doc, pdf_doc
 
         story.append(self._header_table(account, user, from_date, to_date, report_type, order_id))
         story.append(Spacer(1, 4 * mm))
@@ -624,6 +687,10 @@ class StatementService:
             ))
 
         story.append(Spacer(1, 5 * mm))
+        block = self._verify_block(verify_doc, root, A4[0] - 32 * mm)
+        if block is not None:
+            story.append(block)
+            story.append(Spacer(1, 3 * mm))
         story.append(HRFlowable(width='100%', thickness=0.6, color=_LIGHT, spaceAfter=2 * mm))
         now_str = datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M UTC')
         story.append(Paragraph(

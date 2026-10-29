@@ -77,6 +77,17 @@ final class AppModel {
         lastIdentity = email.trimmingCharacters(in: .whitespaces)
     }
 
+    #if DEBUG && targetEnvironment(simulator)
+    /// Лише для налагодження в симуляторі: вхід за аргументами запуску
+    /// `-debugLoginEmail <пошта> -debugLoginPassword <пароль>`. Пароль у збірку не потрапляє.
+    func debugSignIn() async {
+        let d = UserDefaults.standard
+        guard let email = d.string(forKey: "debugLoginEmail"), let password = d.string(forKey: "debugLoginPassword") else { return }
+        try? await signIn(email: email, password: password)
+        bankUnlocked = true
+    }
+    #endif
+
     func register(name: String, phone: String, email: String, password: String) async throws {
         adopt(try await api.register(name: name, phone: phone, email: email, password: password))
         lastIdentity = email.trimmingCharacters(in: .whitespaces)

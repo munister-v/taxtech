@@ -138,6 +138,14 @@ const sectionLabel: React.CSSProperties = {
   ...T.caption, color: text.dim, padding: '0 6px 10px',
 };
 
+// Кнопка-таблетка для виписки й експорту: іконка + підпис
+const docPill: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 7, height: 38, padding: '0 16px', borderRadius: 100,
+  background: 'linear-gradient(180deg, rgba(255,229,102,0.16), rgba(255,212,0,0.06))',
+  border: '1px solid rgba(255,212,0,0.38)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), inset 0 0 0 3px rgba(255,212,0,0.04)',
+  color: gold, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+};
+
 // Заголовок панелі на десктопі
 const dkTitle: React.CSSProperties = { ...T.h3, fontSize: 18, color: text.primary };
 
@@ -5146,6 +5154,64 @@ function CardsScreen() {
 // ─── Operations screen ────────────────────────────────────────
 type TxCat = 'income' | 'food' | 'transport' | 'utility' | 'shopping' | 'transfer' | 'subscription';
 
+// ── Гравійований медальйон: розетка гільйошу, подвійне кільце, мікрошкала ──
+function rosettePaths(curves: number, lobes: number, depth: number, second: number, r: number, steps = 96): string[] {
+  const out: string[] = [];
+  for (let k = 0; k < curves; k++) {
+    const phase = (k / curves) * Math.PI * 2;
+    let d = '';
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * Math.PI * 2;
+      const rr = r * (1 - depth - second + depth * Math.cos(lobes * t + phase) + second * Math.cos((lobes * 2) * t - phase));
+      d += (i ? 'L' : 'M') + (50 + rr * Math.cos(t)).toFixed(1) + ' ' + (50 + rr * Math.sin(t)).toFixed(1);
+    }
+    out.push(d);
+  }
+  return out;
+}
+const MEDALLION_ROSETTE = rosettePaths(10, 6, 0.2, 0.06, 45).join('');
+const MEDALLION_TICKS = Array.from({ length: 60 }, (_, i) => {
+  const a = (i / 60) * Math.PI * 2, long = i % 5 === 0, r0 = 48.6, r1 = long ? 44.6 : 46;
+  return `M${(50 + r0 * Math.cos(a)).toFixed(1)} ${(50 + r0 * Math.sin(a)).toFixed(1)}L${(50 + r1 * Math.cos(a)).toFixed(1)} ${(50 + r1 * Math.sin(a)).toFixed(1)}`;
+}).join('');
+let medallionSeq = 0;
+function Medallion({ tint, size = 42, children }: { tint: string; size?: number; children?: React.ReactNode }) {
+  const [id] = useState(() => `md${++medallionSeq}`);
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
+        <defs>
+          <radialGradient id={`${id}f`} cx="30%" cy="25%" r="85%">
+            <stop offset="0" stopColor={tint} stopOpacity="0.42" />
+            <stop offset="1" stopColor={tint} stopOpacity="0.1" />
+          </radialGradient>
+          <linearGradient id={`${id}r`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor={tint} />
+            <stop offset="0.3" stopColor="#fff" stopOpacity="0.9" />
+            <stop offset="0.55" stopColor={tint} stopOpacity="0.35" />
+            <stop offset="0.8" stopColor="#fff" stopOpacity="0.7" />
+            <stop offset="1" stopColor={tint} />
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="49" fill={`url(#${id}f)`} />
+        <path d={MEDALLION_ROSETTE} fill="none" stroke={tint} strokeOpacity="0.32" strokeWidth="0.5" />
+        <path d={MEDALLION_TICKS} fill="none" stroke={tint} strokeOpacity="0.45" strokeWidth="0.6" />
+        <circle cx="50" cy="50" r="26" fill={tint} fillOpacity="0.2" />
+        <circle cx="50" cy="50" r="26" fill="none" stroke="#fff" strokeOpacity="0.35" strokeWidth="0.8" />
+        <circle cx="50" cy="50" r="49" fill="none" stroke={`url(#${id}r)`} strokeWidth="1.8" />
+        <circle cx="50" cy="50" r="45.5" fill="none" stroke={tint} strokeOpacity="0.35" strokeWidth="0.6" />
+      </svg>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.4))' }}>{children}</div>
+    </div>
+  );
+}
+const MEDALLION_TINT: Record<string, string> = {
+  income: '#4fd18b', food: '#e0a043', transport: '#6f9bff', utility: '#c9b24a', shopping: '#FFD400', transfer: '#7aa6ff', subscription: '#b48cff',
+};
+function recolorIcon(icon: React.ReactNode, color: string): React.ReactNode {
+  return React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<Record<string, unknown>>, { children: React.Children.map((icon as React.ReactElement<{ children?: React.ReactNode }>).props.children, (c) => React.isValidElement(c) ? React.cloneElement(c as React.ReactElement<Record<string, unknown>>, { stroke: color }) : c) }) : icon;
+}
+
 const CAT_STYLES: Record<TxCat, { bg: string; color: string; icon: React.ReactNode }> = {
   income:       { bg: 'rgba(169,169,169, 0.12)', color: '#a9a9a9', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M6 16l6 6 6-6" stroke="#a9a9a9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg> },
   food:         { bg: 'rgba(177,177,177, 0.12)', color: '#b1b1b1', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 2v8a3 3 0 006 0V2M9 2v6M18 2c-2 0-3 2-3 5s1 5 3 5v8" stroke="#b1b1b1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg> },
@@ -5252,16 +5318,17 @@ function DepositsSection() {
   };
   const metricGridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+    gridTemplateColumns: 'minmax(0, 1fr)',
     gap: 1,
-    background: 'rgba(255,255,255, 0.1)',
+    background: 'rgba(255,255,255, 0.06)',
     borderRadius: 18,
     overflow: 'hidden',
     marginBottom: 14,
   };
   const metricCellStyle: React.CSSProperties = {
-    background: 'rgba(18,18,18, 0.14)',
-    padding: '14px 12px',
+    background: '#232325',
+    padding: '13px 16px',
+    display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12,
   };
   const actionBtnBase: React.CSSProperties = {
     flex: 1,
@@ -5672,15 +5739,16 @@ function CreditsSection() {
   };
   const metricGridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+    gridTemplateColumns: 'minmax(0, 1fr)',
     gap: 1,
-    background: 'rgba(255,255,255, 0.1)',
+    background: 'rgba(255,255,255, 0.06)',
     borderRadius: 18,
     overflow: 'hidden',
   };
   const metricCellStyle: React.CSSProperties = {
-    background: 'rgba(18,18,18, 0.14)',
-    padding: '14px 12px',
+    background: '#232325',
+    padding: '13px 16px',
+    display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12,
   };
 
   async function load() {
@@ -5855,6 +5923,101 @@ function CreditsSection() {
   );
 }
 
+// ─── Документи: QR-печатка й сховище ──────────────────────────
+interface DocRecord {
+  id: number; kind: 'receipt' | 'statement'; ref: string; code: string; title: string;
+  amount?: number | null; direction?: string | null; created_at: string; verify_url: string;
+  meta?: { period?: string; count?: number };
+}
+
+function DocSeal({ doc, lang }: { doc: DocRecord; lang: string }) {
+  const uk = lang === 'uk';
+  const [copied, setCopied] = useState(false);
+  const copy = () => { navigator.clipboard?.writeText(doc.code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1600); }).catch(() => {}); };
+  return (
+    <div style={{ border: '1px solid rgba(255,212,0,0.30)', borderRadius: 22, padding: '16px 16px 14px', marginBottom: 22, textAlign: 'center',
+      background: 'linear-gradient(180deg, rgba(255,212,0,0.07), rgba(255,212,0,0.015))', boxShadow: 'inset 0 0 0 3px rgba(255,212,0,0.03)' }}>
+      <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: 2.2, color: gold, marginBottom: 12 }}>{uk ? 'ПЕРЕВІРКА · QR' : 'VERIFY · QR'}</div>
+      <div style={{ position: 'relative', width: 164, height: 164, margin: '0 auto', background: '#fff', borderRadius: 16, boxShadow: '0 8px 22px rgba(0,0,0,0.35)' }}>
+        <img src={apiUrl(`/api/qr/${doc.code}.svg`)} alt="QR" width={136} height={136} style={{ position: 'absolute', inset: 14, imageRendering: 'pixelated' }} />
+        {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([x, y]) => (
+          <span key={`${x}${y}`} style={{ position: 'absolute', width: 15, height: 15, [x ? 'right' : 'left']: 5, [y ? 'bottom' : 'top']: 5,
+            borderTop: y ? 'none' : `3px solid ${gold}`, borderBottom: y ? `3px solid ${gold}` : 'none',
+            borderLeft: x ? 'none' : `3px solid ${gold}`, borderRight: x ? `3px solid ${gold}` : 'none',
+            borderRadius: `${!x && !y ? 5 : 0}px ${x && !y ? 5 : 0}px ${x && y ? 5 : 0}px ${!x && y ? 5 : 0}px` }} />
+        ))}
+      </div>
+      <div style={{ marginTop: 12, fontSize: 11, letterSpacing: 1, color: text.muted }}>{uk ? 'Код документа' : 'Document code'}</div>
+      <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 17, fontWeight: 700, letterSpacing: 1.2, color: text.primary, margin: '3px 0 8px' }}>{doc.code}</div>
+      <div style={{ fontSize: 12, color: text.muted, lineHeight: 1.45, marginBottom: 12 }}>
+        {uk ? 'Скануйте QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.'
+            : 'Scan the QR or enter the code on the verification page: it checks the document against the ledger and shows no personal data.'}
+      </div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+        <a href={doc.verify_url} target="_blank" rel="noopener noreferrer" style={{ ...docPill, textDecoration: 'none', color: '#161616', background: gold, border: 'none' }}>
+          {uk ? 'Перевірити онлайн' : 'Verify online'}
+        </a>
+        <button onClick={copy} style={docPill}>{copied ? (uk ? 'Скопійовано' : 'Copied') : (uk ? 'Код' : 'Code')}</button>
+      </div>
+    </div>
+  );
+}
+
+function DocumentsSheet({ onClose, lang }: { onClose: () => void; lang: string }) {
+  const uk = lang === 'uk';
+  const [docs, setDocs] = useState<DocRecord[] | null>(null);
+  const [open, setOpen] = useState<DocRecord | null>(null);
+  const [kind, setKind] = useState<'all' | 'receipt' | 'statement'>('all');
+  useEffect(() => { apiRequest<DocRecord[]>('/api/documents').then(setDocs).catch(() => setDocs([])); }, []);
+  const rows = (docs || []).filter(d => kind === 'all' || d.kind === kind);
+  return createPortal(
+    <div className="tt-overlay" style={{ position: 'fixed', inset: 0, zIndex: 310, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }} />
+      <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{ position: 'relative', width: '100%', maxWidth: 520, background: '#1c1c1e',
+        borderRadius: '24px 24px 0 0', padding: '14px 20px calc(24px + env(safe-area-inset-bottom,0px))', maxHeight: '92vh', overflowY: 'auto' }}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172,0.25)', margin: '0 auto 18px' }} />
+        {open ? (
+          <>
+            <button onClick={() => setOpen(null)} style={{ ...docPill, height: 32, marginBottom: 14 }}>← {uk ? 'Документи' : 'Documents'}</button>
+            <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{open.title}</div>
+            <div style={{ fontSize: 12, color: text.muted, marginBottom: 16 }}>{new Date(open.created_at.replace(' ', 'T') + 'Z').toLocaleString(uk ? 'uk-UA' : 'en-GB')}</div>
+            <DocSeal doc={open} lang={lang} />
+          </>
+        ) : (
+          <>
+            <div style={{ ...T.h3, color: text.primary, marginBottom: 4 }}>{uk ? 'Мої документи' : 'My documents'}</div>
+            <div style={{ fontSize: 12, color: text.muted, marginBottom: 14 }}>{uk ? 'Квитанції й виписки з кодом і QR для перевірки' : 'Receipts and statements with a code and QR to verify'}</div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+              {(['all', 'receipt', 'statement'] as const).map(k => (
+                <button key={k} onClick={() => setKind(k)} style={{ ...docPill, height: 32, opacity: kind === k ? 1 : 0.55 }}>
+                  {k === 'all' ? (uk ? 'Усі' : 'All') : k === 'receipt' ? (uk ? 'Квитанції' : 'Receipts') : (uk ? 'Виписки' : 'Statements')}
+                </button>
+              ))}
+            </div>
+            {docs === null && <div style={{ color: text.muted, fontSize: 13, padding: 16 }}>…</div>}
+            {docs !== null && rows.length === 0 && <div style={{ color: text.muted, fontSize: 13, padding: '20px 4px' }}>{uk ? 'Документів поки немає' : 'No documents yet'}</div>}
+            {rows.map((d, i) => (
+              <button key={d.id} onClick={() => setOpen(d)} style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 12, padding: '12px 2px', background: 'none', border: 'none',
+                borderTop: i ? '1px solid rgba(255,255,255,0.06)' : 'none', color: 'inherit', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
+                <span style={{ width: 40, height: 40, borderRadius: 20, flexShrink: 0, display: 'grid', placeItems: 'center', color: d.kind === 'receipt' ? '#34c759' : gold,
+                  border: `1px solid ${d.kind === 'receipt' ? 'rgba(52,199,89,0.45)' : 'rgba(255,212,0,0.45)'}`, background: 'rgba(255,255,255,0.04)' }}>
+                  {d.kind === 'receipt' ? '✓' : '≡'}
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', fontSize: 14, color: text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.title}</span>
+                  <span style={{ display: 'block', fontSize: 11.5, color: text.muted, fontFamily: 'ui-monospace, Menlo, monospace', marginTop: 2 }}>{d.code}</span>
+                </span>
+                {d.amount != null && <span style={{ fontSize: 14, color: d.direction === 'in' ? '#34c759' : text.primary, ...T.num }}>{d.direction === 'in' ? '+' : '−'}{d.amount.toLocaleString('uk-UA', { minimumFractionDigits: 2 })}</span>}
+              </button>
+            ))}
+          </>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function OperationsScreen() {
   const opsWide = useWindowWidth() >= 1180;
   const layout = useLayout();
@@ -5868,6 +6031,15 @@ function OperationsScreen() {
   const [dlReceipt, setDlReceipt] = useState<number | null>(null);
   const [dlExport, setDlExport] = useState(false);
   const [selectedTxId, setSelectedTxId] = useState<number | null>(null);
+  const [sealDoc, setSealDoc] = useState<DocRecord | null>(null);
+  const [docsOpen, setDocsOpen] = useState(false);
+  useEffect(() => {
+    setSealDoc(null);
+    if (selectedTxId == null) return;
+    let live = true;
+    apiRequest<DocRecord>(`/api/documents/receipt/${selectedTxId}`).then(d => { if (live) setSealDoc(d); }).catch(() => {});
+    return () => { live = false; };
+  }, [selectedTxId]);
   const [txNote, setTxNote] = useState('');
   const [savingNote, setSavingNote] = useState(false);
   const token = localStorage.getItem('army_bank_token');
@@ -5946,7 +6118,7 @@ function OperationsScreen() {
   }
 
   // Build tx groups from real API data (or fallback to static)
-  const STATIC_GROUPS: { group: string; items: { txId?: number; title: string; subtitle: string; amount: string; positive?: boolean; cat: TxCat }[] }[] = [
+  const STATIC_GROUPS: { group: string; items: { txId?: number; title: string; subtitle: string; amount: string; value?: number; positive?: boolean; cat: TxCat }[] }[] = [
     { group: t('today_label'), items: [
       { title: 'Income • FOP', subtitle: '14:32', amount: '+84 200,00', positive: true, cat: 'income' },
       { title: 'Silpo', subtitle: `12:18 • ${t('card_short_label')} •• 0001`, amount: '-1 247,50', cat: 'food' },
@@ -5983,7 +6155,8 @@ function OperationsScreen() {
           txId: tx.id,
           title: tx.description,
           subtitle: fmtTime(tx.created_at, lang) + (tx.related_account ? ` • ${tx.related_account}` : ''),
-          amount: (tx.direction === 'in' ? '+' : '-') + fmtInt(tx.amount) + fmtDec(tx.amount),
+          amount: (tx.direction === 'in' ? '+' : '−') + fmtInt(tx.amount) + fmtDec(tx.amount),
+          value: tx.amount,
           positive: tx.direction === 'in',
           cat: txToCat(tx as TxItem),
         })),
@@ -6010,28 +6183,28 @@ function OperationsScreen() {
           position: 'relative',
           overflow: 'hidden',
         }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14, gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 11, color: text.muted, letterSpacing: 0.6, marginBottom: 4 }}>{t('operations_title')}</div>
-            <div style={{ ...T.h1, color: text.primary }}>{t('operations_title')}</div>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={downloadExport} disabled={dlExport} title={t('download_csv')} style={{ width: 36, height: 36, borderRadius: 10, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: gold }}>
-              {dlExport ? <span style={{ fontSize: 16 }}>…</span> : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 4h12l4 4v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z" stroke={gold} strokeWidth="1.6" strokeLinejoin="round"/>
-                  <path d="M14 4v5h5M7 13h10M7 17h7" stroke={gold} strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-              )}
-            </button>
-            <button onClick={downloadStatement} title={t('statement_pdf')} style={{ width: 36, height: 36, borderRadius: 10, background: bg.card, border: `1px solid ${bg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: gold }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke={gold} strokeWidth="1.6" strokeLinejoin="round"/>
-                <path d="M14 2v6h6" stroke={gold} strokeWidth="1.6" strokeLinejoin="round"/>
-                <path d="M9 14h6M9 18h4" stroke={gold} strokeWidth="1.6" strokeLinecap="round"/>
-              </svg>
-            </button>
-          </div>
+        <div style={{ ...T.h1, color: text.primary, marginBottom: 14 }}>{t('operations_title')}</div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+          <button onClick={downloadStatement} style={docPill}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
+              <path d="M14 2v6h6M9 14h6M9 18h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {t('statement_pdf')}
+          </button>
+          <button onClick={downloadExport} disabled={dlExport} style={{ ...docPill, opacity: dlExport ? 0.6 : 1 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.7"/>
+              <path d="M3 10h18M9 10v10" stroke="currentColor" strokeWidth="1.7"/>
+            </svg>
+            {dlExport ? '…' : 'CSV'}
+          </button>
+          <button onClick={() => setDocsOpen(true)} style={docPill}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+            </svg>
+            {lang === 'uk' ? 'Документи' : 'Docs'}
+          </button>
         </div>
         <div style={{ position: 'relative' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', opacity: 0.5 }}><circle cx="11" cy="11" r="7" stroke="#d8d8d8" strokeWidth="1.8" /><path d="M20 20l-3-3" stroke="#d8d8d8" strokeWidth="1.8" strokeLinecap="round" /></svg>
@@ -6209,42 +6382,43 @@ function OperationsScreen() {
           {searchQuery ? `${t('nothing_found_for')} «${searchQuery}»` : t('no_transactions_yet')}
         </div>
       )}
-      {txGroups.map((g, gi) => (
-        <div key={gi} style={{ padding: '4px 18px 12px' }}>
-          <div style={{ ...sectionLabel }}>{g.group}</div>
-          <div style={{ background: '#1c1c1e', border: `1px solid ${bg.border}`, borderRadius: 20, overflow: 'hidden', boxShadow: '0 14px 30px rgba(0,0,0, 0.12)' }}>
+      {txGroups.map((g, gi) => {
+        const net = g.items.reduce((sum, it) => sum + (it.positive ? 1 : -1) * (it.value ?? 0), 0);
+        return (
+        <div key={gi} style={{ padding: '4px 18px 14px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', padding: '0 6px 8px' }}>
+            <span style={{ ...T.caption, color: text.muted }}>{g.group}</span>
+            {net !== 0 && <span style={{ fontSize: 12, color: text.dim, ...T.num }}>{net > 0 ? '+' : '−'}{fmtInt(net)}{fmtDec(net)}</span>}
+          </div>
+          <div style={{ background: '#1c1c1e', borderRadius: 22, overflow: 'hidden' }}>
             {g.items.map((item, i) => {
               const s = CAT_STYLES[item.cat];
+              const open = () => { if (item.txId) { setSelectedTxId(item.txId); const tx = transactions.find(tx => tx.id === item.txId); setTxNote(tx?.note ?? ''); } };
               return (
                 <Fragment key={i}>
                   <div
-                    onClick={() => { if (item.txId) { setSelectedTxId(item.txId); const tx = transactions.find(tx => tx.id === item.txId); setTxNote(tx?.note ?? ''); } }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', cursor: item.txId ? 'pointer' : 'default' }}>
-                    <div style={{
-                      width: 36, height: 36, borderRadius: 10, background: s.bg,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      border: `1px solid ${s.color}22`,
-                    }}>{s.icon}</div>
+                    role={item.txId ? 'button' : undefined}
+                    onClick={open}
+                    className="kp-tx-row"
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', cursor: item.txId ? 'pointer' : 'default' }}>
+                    <Medallion tint={MEDALLION_TINT[item.cat] || '#FFD400'} size={46}>{recolorIcon(s.icon, MEDALLION_TINT[item.cat] || '#FFD400')}</Medallion>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ ...T.body, fontWeight: 500, color: text.secondary, marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
-                      <div style={{ ...T.sm, color: text.muted }}>{item.subtitle}</div>
+                      <div style={{ ...T.body, fontWeight: 500, color: text.primary, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}>{item.title}</div>
+                      <div style={{ ...T.sm, color: text.muted, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle}</div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ ...T.body, fontWeight: 600, color: item.positive ? '#a9a9a9' : text.secondary, ...T.num }}>{item.amount} TAX</div>
-                      {item.txId ? (
-                        <button onClick={e => { e.stopPropagation(); downloadReceipt(item.txId!); }} disabled={dlReceipt === item.txId} title={t('download_receipt')} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: goldLight }}>{dlReceipt === item.txId ? '…' : <ReceiptIcon size={14} color={goldLight} />}</button>
-                      ) : (
-                        <Chevron size={12} color="rgba(215,215,215, 0.3)" />
-                      )}
+                    <div style={{ flexShrink: 0, textAlign: 'right', fontSize: 16, fontWeight: 600, letterSpacing: -0.2, color: item.positive ? '#5fd68a' : text.primary, ...T.num }}>
+                      {item.amount}
+                      <div style={{ fontSize: 11, fontWeight: 500, color: text.dim, letterSpacing: 0.4, marginTop: 2 }}>TAX</div>
                     </div>
                   </div>
-                  {i < g.items.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 16px 0 64px' }} />}
+                  {i < g.items.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.06)', margin: '0 16px 0 72px' }} />}
                 </Fragment>
               );
             })}
           </div>
         </div>
-      ))}
+        );
+      })}
 
     </>
     );
@@ -6282,27 +6456,62 @@ function OperationsScreen() {
     </ContentWrap>
 
     {/* Transaction detail sheet */}
-    {selectedTxId && selectedTxData && (
+    {selectedTxId && selectedTxData && createPortal(
       <div className="tt-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setSelectedTxId(null)}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0, 0.55)', backdropFilter: 'blur(4px)' }} />
         <div className="tt-sheet" onClick={e => e.stopPropagation()} style={{
           position: 'relative', width: '100%', maxWidth: 520,
           background: '#1c1c1e',
           backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: '24px 24px 0 0', padding: '28px 24px calc(32px + env(safe-area-inset-bottom,0px))',
-          border: '1px solid transparent', borderBottom: 'none',
+          borderRadius: '24px 24px 0 0', padding: '14px 20px calc(28px + env(safe-area-inset-bottom,0px))',
+          border: '1px solid transparent', borderBottom: 'none', maxHeight: '92vh', overflowY: 'auto',
         }}>
-          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 20px' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
-            {(() => { const s = CAT_STYLES[txToCat(selectedTxData)]; return <div style={{ width: 44, height: 44, borderRadius: 14, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>; })()}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: text.primary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedTxData.description}</div>
-              <div style={{ fontSize: 12, color: text.muted, marginTop: 3 }}>{fmtTime(selectedTxData.created_at, lang)}</div>
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: selectedTxData.direction === 'in' ? '#a9a9a9' : text.primary, fontFeatureSettings: '"tnum"', flexShrink: 0 }}>
-              {selectedTxData.direction === 'in' ? '+' : '-'}{fmtInt(selectedTxData.amount)}{fmtDec(selectedTxData.amount)} TAX
-            </div>
-          </div>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(172,172,172, 0.25)', margin: '0 auto 22px' }} />
+          {(() => {
+            const tx = selectedTxData;
+            const cat = txToCat(tx);
+            const s = CAT_STYLES[cat];
+            const incoming = tx.direction === 'in';
+            const D = ({ uk: { date: 'Дата', kind: 'Категорія', who: 'Рахунок', no: 'Номер операції', done: 'Виконано' },
+              en: { date: 'Date', kind: 'Category', who: 'Account', no: 'Operation no.', done: 'Completed' },
+              it: { date: 'Data', kind: 'Categoria', who: 'Conto', no: 'N. operazione', done: 'Eseguita' },
+              es: { date: 'Fecha', kind: 'Categoría', who: 'Cuenta', no: 'N.º de operación', done: 'Completada' } } as Record<string, Record<string, string>>)[lang] || {};
+            const kind = ({ transfer: t('spend_transfer'), food: t('spend_food'), transport: t('spend_transport'), utility: t('spend_utility'), shopping: t('spend_shopping'), subscription: t('spend_subscription'), income: t('filter_income') } as Record<string, string>)[cat] || cat;
+            const when = new Date(tx.created_at);
+            const dateStr = isNaN(when.getTime()) ? tx.created_at.slice(0, 10) : when.toLocaleDateString(localeForLang(lang), { day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + fmtTime(tx.created_at, lang);
+            const rows: [string, string][] = [[D.date, dateStr], [D.kind, kind]];
+            if (tx.related_account) rows.push([D.who, String(tx.related_account)]);
+            rows.push([D.no, '№ ' + String(tx.id).padStart(8, '0')]);
+            return (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><Medallion tint={MEDALLION_TINT[cat] || '#FFD400'} size={72}>{recolorIcon(s.icon, MEDALLION_TINT[cat] || '#FFD400')}</Medallion></div>
+                  <div style={{ fontSize: 15, color: text.muted, lineHeight: 1.35, overflowWrap: 'anywhere', padding: '0 8px' }}>{tx.description}</div>
+                  <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1, marginTop: 8, color: incoming ? '#5fd68a' : text.primary, ...T.num }}>
+                    {incoming ? '+' : '−'}{fmtInt(tx.amount)}<span style={{ fontSize: 20, color: text.muted }}>{fmtDec(tx.amount)}</span>
+                    <span style={{ fontSize: 15, fontWeight: 600, color: text.muted, marginLeft: 6, letterSpacing: 0.4 }}>TAX</span>
+                  </div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '4px 11px', borderRadius: 100, background: 'rgba(95,214,138, 0.12)', color: '#5fd68a', fontSize: 12, fontWeight: 600 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    {D.done}
+                  </div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255, 0.05)', borderRadius: 18, padding: '4px 16px', marginBottom: 18 }}>
+                  {rows.map(([k, v], i) => (
+                    <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, padding: '12px 0', borderTop: i ? '1px solid rgba(255,255,255, 0.06)' : 'none' }}>
+                      <span style={{ fontSize: 13, color: text.muted, flexShrink: 0 }}>{k}</span>
+                      <span style={{ fontSize: 14, color: text.secondary, textAlign: 'right', overflowWrap: 'anywhere', ...T.num }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => downloadReceipt(tx.id)} disabled={dlReceipt === tx.id} style={{ ...docPill, width: '100%', justifyContent: 'center', height: 48, marginBottom: 22, fontSize: 14, color: '#161616', border: '1px solid rgba(255,255,255,0.35)', background: 'linear-gradient(180deg, #FFE566 0%, #FFD400 48%, #E6B800 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7), inset 0 0 0 3px rgba(0,0,0,0.05), 0 8px 22px rgba(255,212,0,0.22)', opacity: dlReceipt === tx.id ? 0.6 : 1 }}>
+                  <ReceiptIcon size={16} color="#161616" />
+                  {dlReceipt === tx.id ? '…' : t('download_receipt')}
+                </button>
+                {sealDoc && <DocSeal doc={sealDoc} lang={lang} />}
+              </>
+            );
+          })()}
           <label style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, display: 'block', marginBottom: 8 }}>{t('tx_note_label')}</label>
           <textarea
             value={txNote}
@@ -6320,8 +6529,10 @@ function OperationsScreen() {
             </button>
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     )}
+    {docsOpen && <DocumentsSheet onClose={() => setDocsOpen(false)} lang={lang} />}
     </>
   );
 }

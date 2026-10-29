@@ -461,6 +461,7 @@ def export_statement_pdf():
             to_date=to_date,
             report_type=report_type,
             order_id=order_id,
+            verify_root=request.url_root,
         )
         account = service.get_main_account(g.current_user['id'])
         fname   = svc.build_statement_filename(
@@ -554,7 +555,7 @@ def export_receipt_pdf(tx_id: int):
     """
     try:
         from ..services.statement_service import StatementService
-        receipt   = StatementService().generate_receipt_with_meta(g.current_user['id'], tx_id)
+        receipt   = StatementService().generate_receipt_with_meta(g.current_user['id'], tx_id, verify_root=request.url_root)
         pdf_bytes = receipt['pdf_bytes']
         filename  = receipt['filename']
         return Response(

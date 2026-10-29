@@ -11,69 +11,99 @@ struct TransactionDetailView: View {
     @State private var receipt: URL?
     @State private var preview: URL?
     @State private var copied = false
+    @State private var document: API.DocumentRecord?
 
     var body: some View {
         NavigationStack {
-            LabForm {
-                Section {
-                    VStack(spacing: 6) {
-                        Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
-                            .font(Theme.balance(38)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
-                        Text(TransactionRow(tx: tx).title).foregroundStyle(.secondary)
+            ScrollView {
+                VStack(spacing: 20) {
+                    HeroPanel {
+                        GuillocheRibbon(label: "КВИТАНЦІЯ · TAXTECH").padding(.bottom, 16)
+                        VStack(spacing: 10) {
+                            TxGlyph(tx: tx, size: 76)
+                            Text(TransactionRow(tx: tx).title)
+                                .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
+                                .font(.system(size: 42, weight: .semibold, design: .serif)).monospacedDigit()
+                                .minimumScaleFactor(0.5).lineLimit(1)
+                                .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
+                            Label("Виконано", systemImage: "checkmark.seal.fill")
+                                .font(.caption.weight(.bold)).tracking(0.8).foregroundStyle(.green)
+                                .padding(.horizontal, 12).padding(.vertical, 6)
+                                .background(Color.green.opacity(0.14), in: .capsule)
+                                .overlay(Capsule().strokeBorder(Color.green.opacity(0.4), lineWidth: 0.6))
+                        }
+                        .frame(maxWidth: .infinity)
+                        Perforation().padding(.top, 14)
+                        VStack(spacing: 0) {
+                            LeaderRow(title: "Вид", value: BankText.type(tx.txType))
+                            LeaderRow(title: "Коли", value: tx.date.formatted(date: .long, time: .shortened))
+                            if let r = tx.relatedAccount { LeaderRow(title: tx.isIncome ? "Від" : "Кому", value: r) }
+                            LeaderRow(title: "Номер операції", value: "№ " + String(format: "%08d", tx.id))
+                        }
+                        .padding(.horizontal, -18)
+                        Microprint().padding(.top, 8)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .listRowBackground(Color.clear)
-                }
-                Section {
-                    Line("Вид", BankText.type(tx.txType))
-                    Line("Коли", tx.date.formatted(date: .long, time: .shortened))
-                    if let r = tx.relatedAccount { Line(tx.isIncome ? "Від" : "Кому", r) }
-                }
-                Section {
-                    if receipt != nil {
-                        Button { preview = receipt } label: { Label("Відкрити квитанцію", systemImage: "doc.richtext") }
-                    } else {
-                        Button("Переглянути квитанцію") {
-                            Task {
-                                await screen.run {
-                                    receipt = try await model.api.document("transactions/\(tx.id)/receipt", name: "Квитанція \(tx.id).pdf")
-                                    preview = receipt
+
+                    Button {
+                        if let receipt { preview = receipt; return }
+                        Task {
+                            await screen.run {
+                                receipt = try await model.api.document("transactions/\(tx.id)/receipt", name: "Квитанція \(tx.id).pdf")
+                                preview = receipt
+                            }
+                        }
+                    } label: {
+                        Label(receipt == nil ? "Переглянути квитанцію" : "Відкрити квитанцію", systemImage: "doc.richtext")
+                    }
+                    .buttonStyle(InkButton())
+                    .disabled(screen.busy)
+
+                    if let document {
+                        Surface { VerifySeal(doc: document).padding(18) }
+                    }
+
+                    if let h = tx.hash {
+                        Surface {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Хеш запису").font(.footnote).foregroundStyle(.secondary)
+                                Text(h.prefix(32) + "\n" + h.suffix(32))
+                                    .font(.footnote.monospaced()).textSelection(.enabled)
+                                Button(copied ? "Скопійовано" : "Скопіювати хеш") {
+                                    UIPasteboard.general.string = h
+                                    copied = true
                                 }
+                                .font(.footnote.weight(.semibold)).foregroundStyle(Theme.ink)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
                         }
                     }
-                }
-                if let h = tx.hash {
-                    Section {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(h.prefix(32) + "\n" + h.suffix(32))
-                                .font(.footnote.monospaced())
-                                .textSelection(.enabled)
-                            Button(copied ? "Скопійовано" : "Скопіювати хеш") {
-                                UIPasteboard.general.string = h
-                                copied = true
-                            }
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(Theme.ink)
+
+                    Surface {
+                        TextField("Додайте нотатку", text: $note, axis: .vertical)
+                            .lineLimit(1...4)
+                            .padding(16)
+                    }
+
+                    if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+
+                    if note != (tx.note ?? "") {
+                        Button("Зберегти нотатку") {
+                            Task { if await screen.run({ try await model.api.setNote(tx.id, note) }) { dismiss() } }
                         }
-                    } header: {
-                        Text("Хеш запису")
+                        .buttonStyle(LineButton())
+                        .disabled(screen.busy)
                     }
                 }
-                Section("Нотатка") {
-                    TextField("Додайте нотатку", text: $note, axis: .vertical)
-                }
-                ErrorSection(error: screen.error)
-                FormAction(title: "Зберегти нотатку", disabled: note == (tx.note ?? "") || screen.busy) {
-                    Task { if await screen.run({ try await model.api.setNote(tx.id, note) }) { dismiss() } }
-                }
+                .padding(Theme.gutter)
             }
-            .labForm()
+            .screenBackground()
             .navigationTitle("Операція")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } } }
             .onAppear { note = tx.note ?? "" }
+            .task { document = try? await model.api.receiptDocument(tx.id) }
         }
         .quickLookPreview($preview)
         .presentationDetents([.medium, .large])
