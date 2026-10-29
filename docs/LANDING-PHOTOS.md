@@ -6,11 +6,20 @@
 | Файл | Де стоїть | Джерело і ліцензія |
 |---|---|---|
 | `colosseum-dawn.webp` | перший екран | [Radek Kucharski](https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg), CC BY 2.0 |
+| `rome-forum-sunset.webp` | сцена «Один вечір у Римі», 19:10 | [Sonse](https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg), CC BY 2.0 |
+| `rome-pantheon-night.webp` | сцена «Один вечір у Римі», 21:30 | [DeveshT](https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg), CC0 |
+| `rome-trevi-night.webp` | сцена «Один вечір у Римі», 23:40 | [miketnorton](https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg), CC BY 2.0 |
 | `pay-tap.webp` | сцена «Дотик. Оплачено.» | [SumUp / Unsplash](https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek), ліцензія Unsplash |
 | `colosseum-sun.webp` | фінальний заклик | [Quentin Lowagie](https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg), CC BY 4.0 |
 
 Сцена Saint Agnes бере `/shop/hero-autumn.webp` з магазину, а товари підтягує з `/api/marketplace/catalog`.
 Подяки авторам виведено в підвалі лендингу (`.bl-credits`). Якщо міняєте кадр, оновіть і підпис, і цю таблицю.
+
+## Сцена «Один вечір у Римі»
+
+Закріплена на екрані секція `.bl-rome` (440svh): скрол крутить годинник від 18:30 до 23:55, фото змінюють одне одного
+(`DAY` у `BankLanding.tsx`), 3D-картка повертається, а під кожним кадром спливає платіж. Усе рахується в `frame()`
+і лягає в CSS-змінні `--o`, `--z`, `--a`, `--ry`.
 
 ## Ефекти на фото (`web/src/FireScene.tsx`)
 

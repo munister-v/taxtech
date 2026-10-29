@@ -16,6 +16,14 @@ const SHOP_PICKS = ['munister-81921', 'munister-83171', 'munister-81907', 'munis
 
 // Card designs: the guilloche default plus the Rome photographs the app offers under "Вигляд".
 type Finish = 'guilloche' | 'colosseum-night' | 'pantheon' | 'forum' | 'aqueduct' | 'marble';
+// One evening in Rome, told by the scroll: the clock runs from CLOCK_FROM to CLOCK_TO while the photographs change.
+const CLOCK_FROM = 18 * 60 + 30, CLOCK_TO = 23 * 60 + 55;
+const DAY = [
+  { img: '/landing/rome-forum-sunset.webp', pos: '50% 62%', place: { uk: 'Римський форум', en: 'Roman Forum' }, what: { uk: 'Аперитив', en: 'Aperitivo' }, merchant: 'Foro Romano', amount: 850 },
+  { img: '/landing/rome-pantheon-night.webp', pos: '50% 38%', place: { uk: 'Пантеон', en: 'Pantheon' }, what: { uk: 'Вечеря', en: 'Dinner' }, merchant: 'Pantheon', amount: 3200 },
+  { img: '/landing/rome-trevi-night.webp', pos: '50% 28%', place: { uk: 'Фонтан Треві', en: 'Trevi Fountain' }, what: { uk: 'Джелато', en: 'Gelato' }, merchant: 'Fontana di Trevi', amount: 180 },
+];
+
 const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
   { id: 'guilloche', uk: 'Гільйош', en: 'Guilloche' },
   { id: 'colosseum-night', uk: 'Колізей вночі', en: 'Colosseum by night', photo: '/cards/roma-colosseum-night.webp' },
@@ -120,6 +128,11 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root, threshold: 0.12 });
     root.querySelectorAll('.bl-rv').forEach(el => io.observe(el));
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rome = root.querySelector<HTMLElement>('.bl-rome');
+    const romeLayers = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome-layer'));
+    const romeItems = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome [data-i].bl-rome-item'));
+    const clockEl = root.querySelector<HTMLElement>('.bl-rome-time');
+    const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
     const photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
     const hero = root.querySelector<HTMLElement>('.bl-hero');
     let raf = 0;
@@ -129,6 +142,25 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
       const box = root.getBoundingClientRect();
       const max = root.scrollHeight - root.clientHeight;
       root.style.setProperty('--sp', (max > 0 ? root.scrollTop / max : 0).toFixed(4));
+      if (rome) {
+        const n = romeLayers.length;
+        const p = clamp(-(rome.getBoundingClientRect().top - box.top) / Math.max(1, rome.offsetHeight - root.clientHeight));
+        const s = p * n;
+        rome.style.setProperty('--ry', `${((p - 0.5) * 52).toFixed(2)}deg`);
+        romeLayers.forEach((el, i) => {
+          el.style.setProperty('--o', (i === 0 ? 1 : clamp((s - (i - 0.35)) / 0.7)).toFixed(3));
+          el.style.setProperty('--z', (1.05 + clamp(s - i, -0.35, 1.35) * 0.1).toFixed(3));
+        });
+        romeItems.forEach(el => {
+          const i = Number(el.dataset.i);
+          const d = i === 0 && s < 0.5 ? 0 : i === n - 1 && s > n - 0.5 ? 0 : Math.abs(s - (i + 0.5));
+          el.style.setProperty('--a', clamp(1 - d * 2.4).toFixed(3));
+        });
+        if (clockEl) {
+          const m = Math.round(CLOCK_FROM + p * (CLOCK_TO - CLOCK_FROM));
+          clockEl.textContent = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+        }
+      }
       if (still) return;
       for (const el of photos) {
         const sec = el.parentElement;
@@ -226,12 +258,13 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <section id="top" className="bl-hero">
           <FireScene className="bl-hero-photo" src="/landing/colosseum-dawn.webp" ratio={1.4991} focusX={0.22} focusY={0.3} spots={DAWN_SPOTS} embers={120} dawn />
           <div className="bl-wrap bl-hero-in">
-            <h1>{t('Платіть, як у Римі.', 'Pay like Rome.')}</h1>
+            <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
             <div className="bl-cta">
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
               <button type="button" className="bl-ghost" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
             </div>
           </div>
+          <div className="bl-cue" aria-hidden><i /></div>
           <div className="bl-hero-pay" aria-hidden>
             <div className="bl-toast bl-toast-loop">
               <Medallion tint="#4fd18b">{IC.check}</Medallion>
@@ -242,8 +275,46 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
+        {/* ── One evening in Rome: the scroll runs the clock, the photographs change, the card pays ── */}
+        <section id="pay" className="bl-rome">
+          <div className="bl-rome-stage">
+            {DAY.map((d, i) => (
+              <div key={d.img} className="bl-rome-layer" style={{ backgroundImage: `url(${d.img})`, ['--pos' as string]: d.pos, ['--o' as string]: i === 0 ? 1 : 0 }} aria-hidden />
+            ))}
+            <div className="bl-rome-shade" aria-hidden />
+            <div className="bl-wrap bl-rome-in">
+              <div className="bl-rome-left">
+                <div className="bl-rome-time" aria-hidden>18:30</div>
+                <div className="bl-rome-where">
+                  {DAY.map((d, i) => (
+                    <div key={d.img} data-i={i} className="bl-rome-item" style={{ ['--a' as string]: i === 0 ? 1 : 0 }}>
+                      <h2>{t(d.place.uk, d.place.en)}</h2>
+                      <p>{t(d.what.uk, d.what.en)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bl-rome-right">
+                <div className="bl-rome-toasts">
+                  {DAY.map((d, i) => (
+                    <div key={d.img} data-i={i} className="bl-rome-item bl-toast" style={{ ['--a' as string]: i === 0 ? 1 : 0 }}>
+                      <Medallion tint="#4fd18b">{IC.check}</Medallion>
+                      <div><b>{d.merchant}</b><span>{t(d.what.uk, d.what.en)}</span></div>
+                      <strong>−{fmt(d.amount)} <small>TAX</small></strong>
+                    </div>
+                  ))}
+                </div>
+                <div className="bl-rome-card"><Card finish="guilloche" /></div>
+              </div>
+            </div>
+            <div className="bl-rome-dots" aria-hidden>
+              {DAY.map((d, i) => <i key={d.img} data-i={i} className="bl-rome-item" style={{ ['--a' as string]: i === 0 ? 1 : 0 }} />)}
+            </div>
+          </div>
+        </section>
+
         {/* ── Pay scene: a Saint Agnes shoot with the checkout over it ── */}
-        <section id="pay" className="bl-sec bl-pay">
+        <section id="tap" className="bl-sec bl-pay">
           <div className="bl-wrap bl-center">
             <h2 className="bl-h bl-rv">{t('Дотик. Оплачено.', 'Tap. Paid.')}</h2>
           </div>
@@ -319,7 +390,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <footer className="bl-foot">
           <div className="bl-wrap">
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
-            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a></p>
+            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a></p>
             <div className="bl-foot-row">
               <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
               <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}<a href={DOCS_URL} target="_blank" rel="noreferrer">{t('Дослідження', 'Research')}</a><a href="https://github.com/munister-v/taxtech" target="_blank" rel="noreferrer">GitHub</a></nav>
