@@ -391,14 +391,16 @@ struct VirtualCardView: View {
             Spacer(minLength: 6)
             HStack(spacing: 12) {
                 CardChip()
-                Image(systemName: "wave.3.right").font(.system(size: 18, weight: .medium)).opacity(0.75)
+                ContactlessMark().opacity(0.8)
             }
             Spacer(minLength: 6)
+            // тиснений номер: світла кромка зверху-ліворуч і тінь знизу-праворуч
             Text(number)
                 .font(.system(.title3, design: .monospaced, weight: .medium))
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
-                .shadow(color: .black.opacity(l.color.isLight ? 0 : 0.25), radius: 1, y: 1)
+                .shadow(color: .white.opacity(l.color.isLight ? 0.55 : 0.28), radius: 0, x: -0.6, y: -0.6)
+                .shadow(color: .black.opacity(l.color.isLight ? 0.28 : 0.5), radius: 0.6, x: 0.7, y: 0.9)
             HStack(alignment: .lastTextBaseline) {
                 Text(holder ?? "").lineLimit(1)
                 Spacer()

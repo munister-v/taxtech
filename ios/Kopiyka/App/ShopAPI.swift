@@ -67,8 +67,27 @@ extension API {
     func orders() async throws -> [Order] { (try await fetch("marketplace/orders") as Orders).orders }
     func invoices() async throws -> [Invoice] { (try await fetch("marketplace/invoices") as Invoices).invoices }
 
-    func checkout(_ cart: [Product: Int], name: String, phone: String, address: String) async throws -> Purchase {
-        let items = cart.map { ["product_id": $0.key.id, "qty": $0.value] }
+    /// Рядок кошика: товар + обраний розмір («» - товар без розмірів).
+    struct CartLine: Hashable, Sendable {
+        let product: Product
+        let size: String
+    }
+
+    struct ProductSize: Decodable, Sendable, Hashable {
+        let size: String
+        let available: Int
+    }
+
+    private struct Sizes: Decodable { let sizes: [ProductSize] }
+
+    /// Розміри товару. Порожній список - товар без розмірів; будь-яка помилка (в тому числі 404) теж означає «без розмірів».
+    func sizes(for productId: Int) async -> [ProductSize] {
+        guard let s: Sizes = try? await fetch("marketplace/catalog/\(productId)/sizes") else { return [] }
+        return s.sizes
+    }
+
+    func checkout(_ cart: [CartLine: Int], name: String, phone: String, address: String) async throws -> Purchase {
+        let items: [[String: Any]] = cart.map { ["product_id": $0.key.product.id, "qty": $0.value, "size": $0.key.size] }
         let w: Wrapped<Purchase> = try await post("marketplace/checkout", json: [
             "items": items, "shipping_name": name, "shipping_phone": phone, "shipping_address": address,
             "payment_mode": "pay_now",

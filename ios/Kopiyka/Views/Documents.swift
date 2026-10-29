@@ -293,14 +293,14 @@ struct DocumentDetailView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     HeroPanel {
-                        GuillocheRibbon(label: doc.isReceipt ? "КВИТАНЦІЯ · TAXTECH" : "ВИПИСКА · TAXTECH").padding(.bottom, 14)
+                        GuillocheRibbon(label: doc.isReceipt ? "КВИТАНЦІЯ" : "ВИПИСКА").padding(.bottom, 14)
                         VStack(spacing: 8) {
                             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                                            tint: doc.isReceipt ? .green : Theme.accent, size: 72)
                             Text(doc.title).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             if let a = doc.amount {
                                 Text((doc.direction == "in" ? "+" : "−") + Format.money(a))
-                                    .font(.system(size: 40, weight: .semibold, design: .serif)).monospacedDigit()
+                                    .font(.system(size: 38, weight: .bold)).monospacedDigit()
                                     .minimumScaleFactor(0.5).lineLimit(1)
                                     .foregroundStyle(doc.direction == "in" ? Color.green : Theme.ink)
                             }

@@ -398,47 +398,13 @@ struct GuillocheBadge: View {
     var onDark = false
 
     var body: some View {
-        let ink = onDark ? Color.white : tint
         ZStack {
-            Circle().fill(
-                RadialGradient(colors: [tint.opacity(onDark ? 0.36 : 0.42), tint.opacity(onDark ? 0.10 : 0.12)],
-                               center: .topLeading, startRadius: 0, endRadius: size * 1.1)
-            )
-            Canvas { ctx, sz in
-                let c = CGPoint(x: sz.width / 2, y: sz.height / 2)
-                let r = sz.width / 2
-                Engraving.rosette(in: &ctx, center: c, radius: r * 0.94, curves: 12, lobes: 6, depth: 0.2, second: 0.06,
-                                  steps: 96, color: ink.opacity(0.30), width: 0.45)
-                Engraving.rings(in: &ctx, center: c, from: r * 0.5, to: r * 0.58, count: 3, color: ink.opacity(0.35), width: 0.4)
-                // мікрошкала по краю
-                for i in 0..<60 {
-                    let a = Double(i) / 60 * .pi * 2
-                    var p = Path()
-                    let long = i % 5 == 0
-                    p.move(to: CGPoint(x: c.x + (r - 1.2) * cos(a), y: c.y + (r - 1.2) * sin(a)))
-                    p.addLine(to: CGPoint(x: c.x + (r - (long ? 4.2 : 3)) * cos(a), y: c.y + (r - (long ? 4.2 : 3)) * sin(a)))
-                    ctx.stroke(p, with: .color(ink.opacity(long ? 0.5 : 0.3)), lineWidth: 0.5)
-                }
-            }
-            // центральний диск: темніший, щоб символ читався
-            Circle().fill(tint.opacity(onDark ? 0.22 : 0.20)).frame(width: size * 0.54, height: size * 0.54)
-            Circle().strokeBorder(
-                LinearGradient(colors: [.white.opacity(0.75), tint.opacity(0.25), .white.opacity(0.15)],
-                               startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.8)
-                .frame(width: size * 0.54, height: size * 0.54)
-            // зовнішнє металеве кільце + внутрішня тонка лінія
-            Circle().strokeBorder(
-                AngularGradient(colors: [tint, .white.opacity(0.9), tint.opacity(0.35), .white.opacity(0.75), tint],
-                                center: .center), lineWidth: 1.3)
-            Circle().strokeBorder(tint.opacity(0.35), lineWidth: 0.5).padding(2.4)
+            Circle().fill(tint.opacity(onDark ? 0.24 : 0.14))
             Image(systemName: symbol)
-                .font(.system(size: size * 0.3, weight: .bold))
+                .font(.system(size: size * 0.4, weight: .semibold))
                 .foregroundStyle(onDark ? .white : tint)
-                .shadow(color: .white.opacity(0.35), radius: 0, y: -0.6)
-                .shadow(color: .black.opacity(0.35), radius: 1, y: 1)
         }
         .frame(width: size, height: size)
-        .drawingGroup()
     }
 }
 
@@ -451,22 +417,15 @@ struct GuillocheRibbon: View {
     var height: CGFloat = 30
 
     var body: some View {
-        ZStack {
-            Canvas { ctx, sz in
-                Engraving.band(in: &ctx, y: 0, width: sz.width, height: sz.height, lines: 9,
-                               color: Theme.accent.opacity(0.55), lineWidth: 0.45)
-            }
+        HStack(spacing: 12) {
+            Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.6)
             Text(label)
-                .font(.system(size: 9.5, weight: .bold)).tracking(2.2)
-                .foregroundStyle(Theme.tint)
-                .padding(.horizontal, 12).padding(.vertical, 4)
-                .background(Theme.surface, in: .capsule)
-                .overlay(Capsule().strokeBorder(Theme.accent.opacity(0.55), lineWidth: 0.6))
+                .font(.system(size: 10, weight: .semibold)).tracking(2)
+                .foregroundStyle(Color.secondary)
+                .fixedSize()
+            Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.6)
         }
         .frame(height: height)
-        .mask(LinearGradient(stops: [.init(color: .clear, location: 0), .init(color: .black, location: 0.12),
-                                     .init(color: .black, location: 0.88), .init(color: .clear, location: 1)],
-                             startPoint: .leading, endPoint: .trailing))
     }
 }
 
@@ -489,25 +448,23 @@ struct DayRibbon: View {
     }
 }
 
-/// Рядок реквізиту з пунктирним виводом між підписом і значенням, як у бухгалтерській книзі.
+/// Рядок реквізиту: підпис ліворуч, значення праворуч, тонка лінія між рядками.
 struct LeaderRow: View {
     let title: String
     let value: String
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(title).foregroundStyle(.secondary)
-            Canvas { ctx, sz in
-                var p = Path()
-                p.move(to: CGPoint(x: 0, y: sz.height - 3)); p.addLine(to: CGPoint(x: sz.width, y: sz.height - 3))
-                ctx.stroke(p, with: .color(Theme.ink.opacity(0.22)), style: StrokeStyle(lineWidth: 0.8, lineCap: .round, dash: [0.1, 3.4]))
-            }
-            .frame(height: 12)
-            Text(value).multilineTextAlignment(.trailing).monospacedDigit()
+            Spacer(minLength: 8)
+            Text(value).fontWeight(.medium).multilineTextAlignment(.trailing).monospacedDigit()
         }
         .font(.subheadline)
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
+        .overlay(alignment: .bottom) {
+            Rectangle().fill(Theme.ink.opacity(0.08)).frame(height: 0.5).padding(.horizontal, 18)
+        }
     }
 }
 
@@ -521,7 +478,7 @@ struct Microprint: View {
                 Text(String(repeating: text, count: 6))
                     .font(.system(size: 5.5, weight: .semibold, design: .monospaced)).tracking(1)
                     .lineLimit(1).fixedSize()
-                    .foregroundStyle(Theme.accent.opacity(0.4))
+                    .foregroundStyle(Theme.ink.opacity(0.14))
             }
             .clipped()
     }
