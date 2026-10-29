@@ -4147,20 +4147,30 @@ function OverviewScreen() {
           <section className="kp-card kp-rise col-span-12 xl:col-span-5 2xl:col-span-4" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 24, ['--i' as string]: 1 }}>
             {cardSection}
             <div style={{ flex: 1 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {[
-                { label: t('filter_income'), value: monthIn, sign: '+' },
-                { label: t('filter_outcome'), value: monthOut, sign: '−' },
-              ].map(x => (
-                <div key={x.label} className="kp-card-flat" style={{ padding: '16px 18px' }}>
-                  <div style={{ fontSize: 13, color: text.muted, marginBottom: 6 }}>{x.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 600, color: text.primary, letterSpacing: -0.5, ...T.num }}>
-                    {x.sign}{fmtInt(x.value)}<span style={{ fontSize: 14, color: 'var(--kp-dim)', fontWeight: 500 }}>{fmtDec(x.value)}</span>
+            <div className="kp-card-flat" style={{ padding: '18px 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: text.secondary }}>{t('dk_this_month')}</span>
+                <span style={{ fontSize: 12.5, color: text.dim }}>{t('filter_income')} / {t('filter_outcome')}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {[
+                  { label: t('filter_income'), value: monthIn, sign: '+', color: '#5fd68a' },
+                  { label: t('filter_outcome'), value: monthOut, sign: '−', color: text.primary },
+                ].map(x => (
+                  <div key={x.label}>
+                    <div style={{ fontSize: 12.5, color: text.muted, marginBottom: 4 }}>{x.label}</div>
+                    <div style={{ fontSize: 22, fontWeight: 600, color: x.color, letterSpacing: -0.5, ...T.num }}>
+                      {x.sign}{fmtInt(x.value)}<span style={{ fontSize: 14, color: 'var(--kp-dim)', fontWeight: 500 }}>{fmtDec(x.value)}</span>
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12.5, color: text.dim, marginTop: 4 }}>{t('dk_this_month')}</div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div aria-hidden style={{ display: 'flex', height: 6, borderRadius: 999, overflow: 'hidden', marginTop: 16, background: 'var(--kp-fill)', gap: 3 }}>
+                <div style={{ flex: Math.max(monthIn, 0.0001), background: '#5fd68a', borderRadius: 999, transition: 'flex 0.8s var(--kp-ease)' }} />
+                <div style={{ flex: Math.max(monthOut, 0.0001), background: gold, borderRadius: 999, transition: 'flex 0.8s var(--kp-ease)' }} />
+              </div>
             </div>
+            <TopRecipientsMini onTransfer={() => { openTransfer('by_account'); }} />
           </section>
 
           <DesktopActivity span="col-span-12 xl:col-span-7 2xl:col-span-8" transactions={transactions} />
@@ -4175,11 +4185,8 @@ function OverviewScreen() {
           <div className="kp-card kp-rise kp-slot col-span-12 xl:col-span-4" style={{ padding: 24, ['--i' as string]: 6 }}>
             <SavingsGoalsMini />
           </div>
-          <div className="kp-card kp-rise kp-slot col-span-12 xl:col-span-8" style={{ padding: 24, ['--i' as string]: 7 }}>
+          <div className="kp-card kp-rise kp-slot col-span-12" style={{ padding: 24, ['--i' as string]: 7 }}>
             <CurrencyRatesBar onRatesLoaded={setFxRates} onExchange={() => setShowFx(true)} />
-          </div>
-          <div className="kp-card kp-rise kp-slot col-span-12 xl:col-span-4" style={{ padding: 24, ['--i' as string]: 8 }}>
-            <TopRecipientsMini onTransfer={() => { openTransfer('by_account'); }} />
           </div>
         </div>
         {showFx && fxRates.length > 0 && <FxExchangeModal rates={fxRates} onClose={() => setShowFx(false)} />}
@@ -8938,18 +8945,18 @@ function BalanceTrend() {
             <svg key={days} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`${t('dk_history_chart')}: ${fmtDay(points[0].day)} — ${fmtDay(points[n - 1].day)}`} className="kp-wipe" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
               <defs>
                 <linearGradient id={`bt-${uid}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity="0.16" />
-                  <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                  <stop offset="0%" stopColor={gold} stopOpacity="0.28" />
+                  <stop offset="100%" stopColor={gold} stopOpacity="0" />
                 </linearGradient>
               </defs>
               {[0.25, 0.5, 0.75].map(g => <line key={g} x1="0" x2={W} y1={H * g} y2={H * g} stroke="rgba(255,255,255, 0.1)" strokeDasharray="3 6" vectorEffect="non-scaling-stroke" />)}
               <path d={area} fill={`url(#bt-${uid})`} />
-              <path d={line} fill="none" stroke="#f4f4f5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+              <path d={line} fill="none" stroke={gold} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" style={{ filter: 'drop-shadow(0 0 6px rgba(255,212,0,0.45))' }} />
             </svg>
             {hp && (
               <>
                 <div aria-hidden style={{ position: 'absolute', top: 0, bottom: 0, left: `${hx}%`, width: 1, background: 'rgba(255,255,255,0.22)', pointerEvents: 'none' }} />
-                <div aria-hidden style={{ position: 'absolute', left: `${hx}%`, top: `${hy}%`, width: 11, height: 11, marginLeft: -5.5, marginTop: -5.5, borderRadius: '50%', background: '#f4f4f5', boxShadow: '0 0 0 4px rgba(255,255,255,0.16)', pointerEvents: 'none' }} />
+                <div aria-hidden style={{ position: 'absolute', left: `${hx}%`, top: `${hy}%`, width: 11, height: 11, marginLeft: -5.5, marginTop: -5.5, borderRadius: '50%', background: gold, boxShadow: '0 0 0 4px rgba(255,212,0,0.22), 0 0 14px rgba(255,212,0,0.6)', pointerEvents: 'none' }} />
                 <div style={{
                   position: 'absolute', top: -4, left: `min(max(${hx}%, 78px), calc(100% - 78px))`, transform: 'translate(-50%, -100%)',
                   padding: '8px 12px', borderRadius: 12, background: 'rgba(28,28,31,0.96)', border: '1px solid var(--kp-line-2)',
@@ -8987,7 +8994,7 @@ function DesktopHero({ firstName, greeting, balance, accountNumber, flowNet, vis
   const { goTo } = useApp();
   return (
     <section className={`kp-card kp-rise ${span}`} style={{ padding: '30px 36px 30px', overflow: 'hidden', ['--i' as string]: 0 }}>
-      <HeroRosette size={420} style={{ right: -110, top: -140 }} />
+      <div aria-hidden className="kp-hero-fx" />
 
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 26 }}>
         <div style={{ fontSize: 16, color: text.muted }}>{greeting}, <span style={{ color: text.primary, fontWeight: 600 }}>{firstName}</span></div>
@@ -9049,7 +9056,7 @@ function DesktopActivity({ transactions, span = '' }: { transactions: TxItem[]; 
   const dayLabel = (iso: string) => fmtDateLabel(iso, lang);
   return (
     <section className={`kp-card kp-rise ${span}`} style={{ padding: '26px 14px 12px', display: 'flex', flexDirection: 'column', ['--i' as string]: 2 }}>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px 12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '0 14px 6px' }}>
         <span style={{ ...T.h3, fontSize: 18, color: text.primary }}>{t('recent_activity')}</span>
         <div style={{ flex: 1 }} />
         <button onClick={() => goTo('operations')} className="kp-hover" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, height: 32, padding: '0 10px 0 12px', borderRadius: 10, border: 'none', background: 'transparent', color: text.secondary, fontFamily, fontSize: 13.5, fontWeight: 600 }}>
@@ -9058,24 +9065,34 @@ function DesktopActivity({ transactions, span = '' }: { transactions: TxItem[]; 
       </div>
       {rows.length === 0 ? (
         <div style={{ padding: '40px 16px', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('no_transactions_yet')}</div>
-      ) : rows.map(tx => {
+      ) : rows.map((tx, i) => {
         const incoming = tx.direction === 'in';
+        const day = dayLabel(tx.created_at);
+        const newDay = i === 0 || day !== dayLabel(rows[i - 1].created_at);
         return (
-          <button key={tx.id} onClick={() => goTo('operations')} className="kp-row" style={{
-            display: 'grid', gridTemplateColumns: '22px minmax(0,1fr) auto auto', alignItems: 'center', columnGap: 16,
-            width: '100%', padding: '13px 14px', borderRadius: 14, border: 'none', background: 'transparent',
-            fontFamily, textAlign: 'left', cursor: 'pointer', color: 'inherit',
-          }}>
-            <span style={{ color: incoming ? text.primary : 'var(--kp-dim)', display: 'flex' }}><Ico n={incoming ? 'inbound' : 'outbound'} size={18} sw={1.9} /></span>
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 500, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.description || txTypeLabel(tx.tx_type, t)}</span>
-              <span style={{ display: 'block', fontSize: 13, color: text.dim, marginTop: 2 }}>{dayLabel(tx.created_at)}, {fmtTime(tx.created_at, lang)}</span>
-            </span>
-            <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--kp-muted)', padding: '4px 10px', borderRadius: 999, background: 'var(--kp-fill)', whiteSpace: 'nowrap' }}>{txTypeLabel(tx.tx_type, t)}</span>
-            <span style={{ fontSize: 15.5, fontWeight: 600, minWidth: 120, textAlign: 'right', color: incoming ? text.primary : text.secondary, ...T.num }}>
-              {incoming ? '+' : '−'}{fmtInt(tx.amount)}{fmtDec(tx.amount)}&nbsp;TAX
-            </span>
-          </button>
+          <Fragment key={tx.id}>
+            {newDay && <div className="kp-day">{day}</div>}
+            <button onClick={() => goTo('operations')} className="kp-row" style={{
+              display: 'grid', gridTemplateColumns: '38px minmax(0,1fr) auto auto 14px', alignItems: 'center', columnGap: 16,
+              width: '100%', padding: '11px 14px', borderRadius: 14, border: 'none', background: 'transparent',
+              fontFamily, textAlign: 'left', cursor: 'pointer', color: 'inherit',
+            }}>
+              <span style={{
+                width: 38, height: 38, borderRadius: 12, display: 'grid', placeItems: 'center',
+                background: incoming ? 'rgba(95,214,138,0.12)' : 'var(--kp-fill)',
+                color: incoming ? '#5fd68a' : 'var(--kp-muted)',
+              }}><Ico n={incoming ? 'inbound' : 'outbound'} size={18} sw={1.9} /></span>
+              <span style={{ minWidth: 0 }}>
+                <span style={{ display: 'block', fontSize: 15, fontWeight: 500, color: text.secondary, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.description || txTypeLabel(tx.tx_type, t)}</span>
+                <span style={{ display: 'block', fontSize: 13, color: text.dim, marginTop: 2 }}>{fmtTime(tx.created_at, lang)}</span>
+              </span>
+              <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--kp-muted)', padding: '4px 10px', borderRadius: 999, background: 'var(--kp-fill)', whiteSpace: 'nowrap' }}>{txTypeLabel(tx.tx_type, t)}</span>
+              <span style={{ fontSize: 15.5, fontWeight: 600, minWidth: 120, textAlign: 'right', color: incoming ? '#5fd68a' : text.secondary, ...T.num }}>
+                {incoming ? '+' : '−'}{fmtInt(tx.amount)}{fmtDec(tx.amount)}&nbsp;TAX
+              </span>
+              <span className="kp-row-go" aria-hidden style={{ color: text.dim, display: 'flex' }}><Ico n="chevR" size={14} sw={2} /></span>
+            </button>
+          </Fragment>
         );
       })}
     </section>
@@ -9084,6 +9101,7 @@ function DesktopActivity({ transactions, span = '' }: { transactions: TxItem[]; 
 
 function SpendDonut({ rows, span = '' }: { rows: { label: string; value: number }[]; span?: string }) {
   const { t } = usePreferences();
+  const { goTo } = useApp();
   const [on, setOn] = useState(false);
   useEffect(() => { const id = requestAnimationFrame(() => setOn(true)); return () => cancelAnimationFrame(id); }, []);
   const total = rows.reduce((s, r) => s + r.value, 0);
@@ -9094,7 +9112,17 @@ function SpendDonut({ rows, span = '' }: { rows: { label: string; value: number 
     <section className={`kp-card kp-rise ${span}`} style={{ padding: '26px 28px 28px', ['--i' as string]: 3 }}>
       <div style={{ ...T.h3, fontSize: 18, color: text.primary, marginBottom: 22 }}>{t('spending_this_month')}</div>
       {total <= 0 ? (
-        <div style={{ padding: '40px 0', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('insufficient_spend_data')}</div>
+        <div style={{ padding: '18px 0 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, textAlign: 'center' }}>
+          <div style={{ position: 'relative', width: 128, height: 128 }}>
+            <svg viewBox="0 0 140 140" width="128" height="128" aria-hidden style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="14" strokeDasharray="4 7" strokeLinecap="round" />
+              <circle cx="70" cy="70" r={R} fill="none" stroke={gold} strokeWidth="14" strokeLinecap="round" strokeDasharray={`${C * 0.16} ${C}`} opacity="0.7" />
+            </svg>
+            <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', color: text.dim }}><Ico n="cart" size={26} sw={1.7} /></div>
+          </div>
+          <div style={{ fontSize: 14, color: text.muted, maxWidth: 240, lineHeight: 1.45 }}>{t('insufficient_spend_data')}</div>
+          <button className="kp-btn" onClick={() => goTo('market')} style={{ padding: '0 18px' }}><Ico n="cart" size={16} sw={1.9} />{t('quick_market')}</button>
+        </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', width: 152, height: 152, flexShrink: 0 }}>
