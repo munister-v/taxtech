@@ -348,3 +348,69 @@
 @keyframes bl-cue { from { transform: translateY(-110%); } to { transform: translateY(260%); } }
 @media (max-width: 960px) { .bl-cue { display: none; } }
 @media (prefers-reduced-motion: reduce) { .bl-w { animation: none; } .bl-cue i { animation: none; } }
+
+
+/* Tap. Paid.: pinned, camera pushes in, the tap rings out */
+.bl-tap { position: relative; height: 300svh; background: #000; }
+.bl-tap-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: #000; }
+.bl-tap.hit .bl-tap-stage { animation: bl-shake .42s cubic-bezier(.2,.8,.2,1); }
+@keyframes bl-shake { 0% { translate: 0 0; } 18% { translate: -7px 4px; } 36% { translate: 6px -4px; } 56% { translate: -3px 2px; } 100% { translate: 0 0; } }
+.bl-tap-cam { position: absolute; transform-origin: 47% 52.5%; transform: scale(var(--pz, 1)); will-change: transform; }
+.bl-tap-cam img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.bl-tap-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, #000 0%, transparent 14%, transparent 84%, #000 100%), linear-gradient(90deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,.05) 62%), rgba(0,0,0,var(--pd, .2)); }
+.bl-ripple { position: absolute; left: 47%; top: 52.5%; width: 5%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(79,209,139,.95); box-shadow: 0 0 34px rgba(79,209,139,.65), inset 0 0 30px rgba(79,209,139,.35); transform: translate(-50%, -50%) scale(.2); opacity: 0; pointer-events: none; }
+.bl-tap.hit .bl-ripple { animation: bl-ripple 2.1s cubic-bezier(.15,.7,.2,1) calc(var(--i) * .26s) both; }
+@keyframes bl-ripple { 0% { opacity: .95; transform: translate(-50%, -50%) scale(.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(10); } }
+.bl-tap-spot { position: absolute; left: 47%; top: 52.5%; width: 16%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; opacity: 0; pointer-events: none; background: radial-gradient(closest-side, rgba(255,255,255,.95), rgba(79,209,139,.55) 38%, transparent 70%); mix-blend-mode: screen; }
+.bl-tap.hit .bl-tap-spot { animation: bl-spot 1.1s ease-out both; }
+@keyframes bl-spot { 0% { opacity: 0; scale: .3; } 25% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1.6; } }
+.bl-tap-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.bl-tap.hit .bl-tap-flash { animation: bl-flash .8s ease-out both; }
+@keyframes bl-flash { 0% { opacity: .85; } 100% { opacity: 0; } }
+.bl-tap-in { position: relative; z-index: 2; height: 100%; display: grid; align-items: center; }
+.bl-tap-a, .bl-tap-b { grid-area: 1 / 1; }
+.bl .bl-tap-in h2 { font-size: clamp(76px, 14vw, 240px); line-height: .9; letter-spacing: -0.055em; text-shadow: 0 10px 70px rgba(0,0,0,.6); }
+.bl-tap-a { transition: opacity .35s, translate .5s, filter .35s; }
+.bl-tap.hit .bl-tap-a { opacity: 0; translate: -40px 0; filter: blur(14px); }
+.bl-tap-b { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; opacity: 0; pointer-events: none; }
+.bl-tap.hit .bl-tap-b { opacity: 1; }
+.bl-tap-b h2 { color: var(--yellow); }
+.bl-tap.hit .bl-tap-b h2 { animation: bl-pop .75s cubic-bezier(.2,1.5,.3,1) .12s both; }
+@keyframes bl-pop { from { opacity: 0; transform: scale(.7) translateY(.1em); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
+.bl-tap-ring { width: 84px; height: 84px; fill: none; stroke: #4fd18b; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.bl-tap-ring circle { stroke-dasharray: 340; stroke-dashoffset: 340; }
+.bl-tap-ring path { stroke-dasharray: 90; stroke-dashoffset: 90; }
+.bl-tap.hit .bl-tap-ring circle { animation: bl-draw .7s cubic-bezier(.5,0,.2,1) .05s forwards; }
+.bl-tap.hit .bl-tap-ring path { animation: bl-draw .4s ease-out .55s forwards; }
+@keyframes bl-draw { to { stroke-dashoffset: 0; } }
+.bl-tap-b .bl-toast { position: static; left: auto; top: auto; transform: none; animation: none; opacity: 0; }
+.bl-tap.hit .bl-tap-b .bl-toast { animation: bl-toast-in .7s cubic-bezier(.2,.9,.2,1) .7s both; }
+@keyframes bl-toast-in { from { opacity: 0; transform: translateY(24px) scale(.94); } to { opacity: 1; transform: none; } }
+@media (max-width: 860px) {
+  .bl-tap-in { align-items: end; padding-bottom: 11svh; }
+  .bl .bl-tap-in h2 { font-size: clamp(72px, 24vw, 130px); }
+  .bl-tap-shade { background: linear-gradient(180deg, #000 0%, transparent 14%, transparent 40%, rgba(0,0,0,.78) 100%), rgba(0,0,0,var(--pd, .2)); }
+  .bl-tap-ring { width: 64px; height: 64px; }
+}
+
+/* Six faces: 3D cover-flow */
+.bl-faces { position: relative; overflow: hidden; background: #050505; padding-bottom: 80px; }
+.bl-faces-bg { position: absolute; inset: 0; }
+.bl-faces-bg i { position: absolute; inset: -60px; background-size: cover; background-position: center; filter: blur(44px) saturate(1.35); opacity: 0; transition: opacity 1s ease; }
+.bl-faces-bg i.on { opacity: .62; }
+.bl-faces::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.1) 28%, rgba(0,0,0,.1) 72%, #000 100%); }
+.bl-faces > .bl-wrap { position: relative; z-index: 1; }
+.bl-flow { --cw: min(460px, 74vw); position: relative; width: 100%; height: calc(var(--cw) / 1.586 + 70px); margin: 56px auto 0; perspective: 1500px; touch-action: pan-y; cursor: grab; outline: none; user-select: none; -webkit-user-select: none; }
+.bl-flow:active { cursor: grabbing; }
+.bl-flow-card { position: absolute; left: 50%; top: 36px; width: var(--cw); margin-left: calc(var(--cw) / -2); transform-style: preserve-3d; will-change: transform, opacity; }
+.bl-flow-tilt { position: relative; border-radius: 4.6% / 7.3%; transform: rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg)); transition: transform .25s ease-out; box-shadow: 0 50px 80px -30px rgba(0,0,0,.75); }
+.bl-flow-glare { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(circle at var(--mx, 50%) var(--my, 40%), rgba(255,255,255,.42), transparent 55%); mix-blend-mode: soft-light; }
+.bl-flow-card.on .bl-flow-glare { opacity: 1; }
+.bl-flow-card:not(.on) { cursor: pointer; }
+.bl .bl-flow-btn { position: absolute; z-index: 200; top: 50%; translate: 0 -50%; width: 46px; height: 46px; border-radius: 50%; font-size: 28px; line-height: 1; color: #fff; background: rgba(20,20,24,.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); transition: background .2s, opacity .2s; }
+.bl .bl-flow-btn:hover:not(:disabled) { background: rgba(255,212,0,.9); color: #000; }
+.bl .bl-flow-btn:disabled { opacity: .25; }
+.bl-flow-prev { left: max(0px, calc(50% - var(--cw) * 1.25)); }
+.bl-flow-next { right: max(0px, calc(50% - var(--cw) * 1.25)); }
+.bl .bl-dot-name { font-family: var(--roman); letter-spacing: .22em; text-transform: uppercase; font-size: 15px; color: #fff; animation: bl-up .6s cubic-bezier(.2,.7,.2,1) both; }
+@media (max-width: 860px) { .bl-flow-btn { display: none; } .bl-flow { margin-top: 40px; } }

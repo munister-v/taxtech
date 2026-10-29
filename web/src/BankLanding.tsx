@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { LandingLangContext, initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
+import TapScene from './TapScene';
+import FaceFlow from './FaceFlow';
 import { DAWN_SPOTS, SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
@@ -313,29 +315,30 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
-        {/* ── Pay scene: a Saint Agnes shoot with the checkout over it ── */}
-        <section id="tap" className="bl-sec bl-pay">
-          <div className="bl-wrap bl-center">
-            <h2 className="bl-h bl-rv">{t('Дотик. Оплачено.', 'Tap. Paid.')}</h2>
-          </div>
-          <div className="bl-wrap">
-            <div className="bl-paystage bl-rv">
-              <div className="bl-paystage-photo" style={{ backgroundImage: 'url(/landing/pay-tap.webp)' }} aria-hidden />
-              <div className="bl-toast bl-toast-loop bl-toast-pay">
-                <Medallion tint="#4fd18b">{IC.check}</Medallion>
-                <div><b>Saint Agnes</b><span>{t('Оплачено', 'Paid')}</span></div>
-                <strong>−{shop[0]?.price ? fmt(Number(shop[0].price)) : '14 490'} <small>TAX</small></strong>
-              </div>
+        {/* ── Tap. Paid.: the camera pushes in on the terminal, the tap rings out ── */}
+        <TapScene
+          src="/landing/pay-tap.webp"
+          tapText={t('Дотик.', 'Tap.')}
+          paidText={t('Оплачено.', 'Paid.')}
+          toast={(
+            <div className="bl-toast bl-toast-pay">
+              <Medallion tint="#4fd18b">{IC.check}</Medallion>
+              <div><b>Saint Agnes</b><span>{t('Оплачено', 'Paid')}</span></div>
+              <strong>−{shop[0]?.price ? fmt(Number(shop[0].price)) : '14 490'} <small>TAX</small></strong>
             </div>
-          </div>
-        </section>
+          )}
+        />
 
-        {/* ── Card designs ── */}
-        <section id="card" className="bl-sec bl-sec-photo" style={{ ['--bg-photo' as string]: `url(${cur.photo || '/cards/roma-colosseum-night.webp'})` }}>
+        {/* ── Six faces: a 3D cover-flow of the card designs ── */}
+        <section id="card" className="bl-sec bl-faces">
+          <div className="bl-faces-bg" aria-hidden>
+            {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={{ backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` }} />)}
+          </div>
           <div className="bl-wrap bl-center">
             <h2 className="bl-h bl-rv">{t('Шість облич.', 'Six faces.')}</h2>
-            <div className="bl-stage bl-rv">
-              <div className="bl-stage-card" key={finish}><Card finish={finish} /></div>
+            <div className="bl-rv">
+              <FaceFlow count={FINISHES.length} active={FINISHES.findIndex(f => f.id === finish)} onChange={i => setFinish(FINISHES[i].id)}
+                renderCard={i => <Card finish={FINISHES[i].id} />} labelPrev={t('Попередня картка', 'Previous card')} labelNext={t('Наступна картка', 'Next card')} />
             </div>
             <div className="bl-thumbs bl-rv" role="radiogroup" aria-label={t('Оздоблення', 'Design')}>
               {FINISHES.map(f => (
@@ -343,7 +346,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                   style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#fff" strokeOpacity=".7" strokeWidth=".5" /></svg>}</button>
               ))}
             </div>
-            <p className="bl-dot-name">{t(cur.uk, cur.en)}</p>
+            <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
           </div>
         </section>
 
