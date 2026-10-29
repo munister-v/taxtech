@@ -3102,6 +3102,34 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
   );
 }
 
+// New account, nothing on it yet: three first steps instead of an empty list.
+function FirstSteps() {
+  const { goTo, openTransfer } = useApp();
+  const steps: { n: string; title: string; sub: string; go: () => void }[] = [
+    { n: 'I', title: tr('Поповніть рахунок', 'Top up the account'), sub: tr('Перші TAX виникнуть одразу, вони віртуальні', 'Your first TAX arrive at once, they are virtual'), go: () => openTransfer('topup') },
+    { n: 'II', title: tr('Оберіть вигляд картки', 'Pick a card design'), sub: tr('Гільйош або одне з фото Рима', 'Guilloche or one of the Rome photos'), go: () => goTo('cards') },
+    { n: 'III', title: tr('Заплатіть у Saint Agnes', 'Pay in Saint Agnes'), sub: tr('Одяг із цінами в TAX, оплата одним дотиком', 'Clothes priced in TAX, paid in one tap'), go: () => goTo('market') },
+  ];
+  return (
+    <div style={{ padding: '6px 0' }}>
+      <div style={{ padding: '14px 16px 8px', fontSize: 11, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: gold }}>{tr('З чого почати', 'Where to start')}</div>
+      {steps.map((st, i) => (
+        <Fragment key={st.n}>
+          <button onClick={st.go} style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '14px 16px', background: 'none', border: 'none', color: 'inherit', fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
+            <span style={{ flex: 'none', width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center', fontFamily: "'Forum', 'Times New Roman', serif", fontSize: 15, letterSpacing: '0.04em', color: gold, boxShadow: 'inset 0 0 0 1.5px rgba(255,212,0,0.45)', background: 'rgba(255,212,0,0.08)' }}>{st.n}</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 600, color: text.primary }}>{st.title}</span>
+              <span style={{ display: 'block', marginTop: 2, fontSize: 12.5, color: text.muted }}>{st.sub}</span>
+            </span>
+            <Chevron size={14} color={text.dim} />
+          </button>
+          {i < steps.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.1)', margin: '0 16px' }} />}
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
 function ActivityFeed({ title = true, transactions }: { title?: boolean; transactions: TxItem[] }) {
   const { goTo } = useApp();
   const { t, lang } = usePreferences();
@@ -3123,10 +3151,7 @@ function ActivityFeed({ title = true, transactions }: { title?: boolean; transac
       )}
       <div style={{ background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 20, overflow: 'hidden', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', boxShadow: '0 2px 12px rgba(0,0,0, 0.08)' }}>
         {rows.length === 0 ? (
-          <div style={{ padding: '28px 16px', textAlign: 'center' }}>
-            <div style={{ fontSize: 13, color: text.muted, marginBottom: 4 }}>{t('no_transactions_yet')}</div>
-            <div style={{ fontSize: 11, color: text.dim }}>{t('topup_or_transfer')}</div>
-          </div>
+          <FirstSteps />
         ) : rows.map((r, i) => (
           <Fragment key={i}>
             <ActivityRow {...r} onClick={() => goTo('operations')} />
@@ -9535,7 +9560,7 @@ function DesktopActivity({ transactions, span = '' }: { transactions: TxItem[]; 
         </button>
       </div>
       {rows.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: text.muted, fontSize: 14 }}>{t('no_transactions_yet')}</div>
+        <FirstSteps />
       ) : rows.map((tx, i) => {
         const incoming = tx.direction === 'in';
         const day = dayLabel(tx.created_at);

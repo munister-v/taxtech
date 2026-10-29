@@ -59,6 +59,69 @@ const INSIDE: { ic: keyof typeof IC; tint: string; uk: [string, string, string];
     en: ['Face ID', 'Sign in with Face ID or Touch ID. After the first time, no password.', 'No password'] },
 ];
 
+// Mini scenes at the top of the "Inside" tiles: one small loop per feature, CSS only, running once the tile is on screen.
+const QR_CELLS = (() => {
+  const out: [number, number][] = [];
+  let x = 7;
+  for (let r = 0; r < 11; r++) for (let c = 0; c < 11; c++) {
+    const finder = (r < 4 && c < 4) || (r < 4 && c > 6) || (r > 6 && c < 4);
+    x = (x * 73 + 41) % 251;
+    if (!finder && x % 5 < 2) out.push([c, r]);
+  }
+  return out;
+})();
+
+function Stage({ kind, t }: { kind: keyof typeof IC; t: (uk: string, en: string) => string }) {
+  if (kind === 'arrow') return (
+    <div className="bl-stage bl-st-send" aria-hidden>
+      <span className="bl-st-av">Y</span>
+      <span className="bl-st-track"><i /><em>−1 200 TAX</em></span>
+      <span className="bl-st-av bl-st-to">M<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+    </div>
+  );
+  if (kind === 'percent') return (
+    <div className="bl-stage bl-st-dep" aria-hidden>
+      <svg viewBox="0 0 220 90" preserveAspectRatio="none">
+        <defs><linearGradient id="bldep" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#c7a46f" stopOpacity=".45" /><stop offset="1" stopColor="#c7a46f" stopOpacity="0" /></linearGradient></defs>
+        <path className="bl-st-area" d="M0 78 C40 74 60 66 90 58 S150 36 220 10 V90 H0Z" fill="url(#bldep)" />
+        <path className="bl-st-line" d="M0 78 C40 74 60 66 90 58 S150 36 220 10" fill="none" stroke="#dcc195" strokeWidth="2.4" strokeLinecap="round" pathLength="1" />
+      </svg>
+      <span className="bl-st-chip">+512 TAX</span>
+    </div>
+  );
+  if (kind === 'plus') return (
+    <div className="bl-stage bl-st-credit" aria-hidden>
+      {[0, 1, 2, 3, 4, 5].map(i => <i key={i} style={{ ['--i' as string]: i }} />)}
+    </div>
+  );
+  if (kind === 'lock') return (
+    <div className="bl-stage bl-st-fraud" aria-hidden>
+      <ul>
+        {([['Сума', 'Amount'], ['Історія', 'History'], ['Граф', 'Graph']] as const).map(([uk, en], i) => <li key={en} style={{ ['--i' as string]: i }} className={i === 2 ? 'bad' : ''}><span>{t(uk, en)}</span><b>{i === 2 ? '✕' : '✓'}</b></li>)}
+      </ul>
+      <span className="bl-st-chip bl-st-blocked">{t('Заблоковано', 'Blocked')}</span>
+    </div>
+  );
+  if (kind === 'check') return (
+    <div className="bl-stage bl-st-rcpt" aria-hidden>
+      <div className="bl-st-qr">
+        <svg viewBox="0 0 11 11" shapeRendering="crispEdges">
+          {[[0, 0], [7, 0], [0, 7]].map(([x, y]) => <path key={x + '' + y} d={`M${x} ${y}h4v4h-4zM${x + 1} ${y + 1}v2h2v-2z`} fillRule="evenodd" />)}
+          {QR_CELLS.map(([c, r]) => <rect key={c + '-' + r} x={c} y={r} width="1" height="1" />)}
+        </svg>
+        <i />
+      </div>
+      <span className="bl-st-chip bl-st-valid">{t('Дійсна ✓', 'Valid ✓')}</span>
+    </div>
+  );
+  return (
+    <div className="bl-stage bl-st-face" aria-hidden>
+      <span className="bl-st-frame"><svg viewBox="0 0 24 24"><path d="M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.6 1.2 4.4 1.2 6 0" /></svg><i /></span>
+      <span className="bl-st-ok"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+    </div>
+  );
+}
+
 const STEPS: { uk: [string, string]; en: [string, string] }[] = [
   { uk: ['Реєстрація', 'Телефон або email і пароль. Картка з’являється одразу.'], en: ['Sign up', 'Phone or email, and a password. The card is there right away.'] },
   { uk: ['Картка', 'Гільйош або одне з п’яти фото Рима.'], en: ['Choose a card', 'Guilloche or one of five Rome photos.'] },
@@ -401,7 +464,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <ul className="bl-inside-grid">
               {INSIDE.map((x, i) => (
                 <li key={x.en[0]} className="bl-tilex bl-rv" style={{ ['--d' as string]: `${(i % 3) * 0.08}s`, ['--tint' as string]: x.tint }}>
-                  <Medallion tint={x.tint}>{IC[x.ic]}</Medallion>
+                  <Stage kind={x.ic} t={t} />
                   <h3>{t(x.uk[0], x.en[0])}</h3>
                   <p>{t(x.uk[1], x.en[1])}</p>
                   <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>

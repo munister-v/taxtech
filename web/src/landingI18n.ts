@@ -2,6 +2,11 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Blocked": "Bloccato",
+    "Valid ✓": "Valida ✓",
+    "Amount": "Importo",
+    "History": "Storico",
+    "Graph": "Grafo",
     "What’s in the app": "Cosa c’è nell’app",
     "Inside": "Dentro",
     "Questions": "Domande",
@@ -75,6 +80,11 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Blocked": "Blockiert",
+    "Valid ✓": "Gültig ✓",
+    "Amount": "Betrag",
+    "History": "Verlauf",
+    "Graph": "Graph",
     "What’s in the app": "Was in der App steckt",
     "Inside": "Innen",
     "Questions": "Fragen",
@@ -148,6 +158,11 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Blocked": "Заблокировано",
+    "Valid ✓": "Действительна ✓",
+    "Amount": "Сумма",
+    "History": "История",
+    "Graph": "Граф",
     "What’s in the app": "Что в приложении",
     "Inside": "Внутри",
     "Questions": "Вопросы",

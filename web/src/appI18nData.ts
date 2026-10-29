@@ -3,6 +3,13 @@
 type Row = [it: string, de: string, ru: string];
 
 const ROWS: Record<string, Row> = {
+  'Top up the account': ['Ricarica il conto', 'Konto aufladen', 'Пополните счёт'],
+  'Your first TAX arrive at once, they are virtual': ['I primi TAX arrivano subito, sono virtuali', 'Deine ersten TAX sind sofort da, sie sind virtuell', 'Первые TAX появятся сразу, они виртуальные'],
+  'Pick a card design': ['Scegli il design della carta', 'Kartendesign wählen', 'Выберите вид карты'],
+  'Guilloche or one of the Rome photos': ['Guilloche o una delle foto di Roma', 'Guilloche oder eines der Rom-Fotos', 'Гильоше или одно из фото Рима'],
+  'Pay in Saint Agnes': ['Paga in Saint Agnes', 'Bei Saint Agnes bezahlen', 'Заплатите в Saint Agnes'],
+  'Clothes priced in TAX, paid in one tap': ['Abiti con prezzi in TAX, si paga con un tocco', 'Kleidung mit Preisen in TAX, bezahlt mit einem Fingertipp', 'Одежда с ценами в TAX, оплата одним касанием'],
+  'Where to start': ['Da dove iniziare', 'Womit anfangen', 'С чего начать'],
   '↩ close': ['↩ chiudi', '↩ schließen', '↩ закрыть'],
   'CVV copied ✓': ['CVV copiato ✓', 'CVV kopiert ✓', 'CVV скопирован ✓'],
   'Card number': ['Numero carta', 'Kartennummer', 'Номер карты'],

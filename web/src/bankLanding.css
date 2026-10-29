@@ -560,3 +560,62 @@
   .bl-steps { grid-template-columns: 1fr; margin-top: 48px; border-top: 0; }
   .bl-steps li, .bl-steps li + li { padding: 22px 0; border-left: 0; border-top: 1px solid var(--line); }
 }
+
+/* Inside tiles: a small live scene on top of each one. Loops run only after the tile has been revealed. */
+.bl-stage { position: relative; display: flex; align-items: center; justify-content: center; height: 128px; margin-bottom: 24px; border-radius: 16px; overflow: hidden; background: radial-gradient(90% 120% at 50% 0%, color-mix(in srgb, var(--tint) 20%, transparent), transparent 70%), #0a0a0c; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.bl-stage svg { display: block; }
+.bl-st-chip { position: absolute; right: 12px; top: 12px; padding: 5px 10px; border-radius: 980px; font-size: 12px; font-weight: 700; letter-spacing: .02em; font-variant-numeric: tabular-nums; color: #14120a; background: var(--tint); box-shadow: 0 6px 18px -6px var(--tint); }
+.bl-tilex:not(.in) .bl-stage * { animation-play-state: paused !important; }
+/* Transfers: a coin runs from you to a friend, the friend's circle lights up with a tick */
+.bl-st-send { gap: 0; padding: 0 22px; }
+.bl-st-av { position: relative; flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-weight: 700; font-size: 16px; color: #fff; background: #1c1c20; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); }
+.bl-st-to { background: #0f2b1e; box-shadow: inset 0 0 0 1.5px var(--tint); animation: bl-arrive 4s ease-out infinite; }
+.bl-st-to svg { position: absolute; right: -6px; top: -6px; width: 20px; height: 20px; padding: 3px; border-radius: 50%; background: var(--tint); fill: none; stroke: #04140b; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; animation: bl-tick 4s ease-out infinite; }
+.bl-st-track { position: relative; flex: 1; height: 2px; margin: 0 10px; background: linear-gradient(90deg, rgba(255,255,255,.22), color-mix(in srgb, var(--tint) 70%, transparent)); border-radius: 2px; }
+.bl-st-track i { position: absolute; left: 0; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--tint); box-shadow: 0 0 16px 3px var(--tint); animation: bl-coin 4s cubic-bezier(.5,0,.3,1) infinite; }
+.bl-st-track em { position: absolute; left: 50%; top: -26px; translate: -50% 0; font-style: normal; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--sub); }
+@keyframes bl-coin { 0% { left: 0; opacity: 0; } 8% { opacity: 1; } 62% { left: calc(100% - 12px); opacity: 1; } 70%, 100% { left: calc(100% - 12px); opacity: 0; } }
+@keyframes bl-arrive { 0%, 58% { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.18); } 66% { box-shadow: inset 0 0 0 2px var(--tint), 0 0 0 0 color-mix(in srgb, var(--tint) 60%, transparent); } 90%, 100% { box-shadow: inset 0 0 0 1.5px var(--tint), 0 0 0 16px transparent; } }
+@keyframes bl-tick { 0%, 60% { scale: 0; } 70%, 92% { scale: 1; } 100% { scale: 0; } }
+/* Deposits: the curve draws itself, the amount pops in at the end */
+.bl-st-dep svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bl-st-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: bl-draw 5s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(220,193,149,.6)); }
+.bl-st-area { opacity: 0; animation: bl-area 5s ease-in-out infinite; }
+.bl-st-dep .bl-st-chip { animation: bl-pop 5s ease-out infinite; }
+@keyframes bl-draw { 0% { stroke-dashoffset: 1; } 55%, 92% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes bl-area { 0%, 20% { opacity: 0; } 55%, 92% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes bl-pop { 0%, 52% { scale: .6; opacity: 0; } 62% { scale: 1.08; opacity: 1; } 68%, 92% { scale: 1; opacity: 1; } 100% { opacity: 0; } }
+/* Credit: six instalments fill one after another */
+.bl-st-credit { gap: 9px; align-items: flex-end; padding: 0 28px 24px; }
+.bl-st-credit i { flex: 1; height: calc(36px + var(--i) * 0px); border-radius: 7px; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tint) 45%, transparent); position: relative; overflow: hidden; }
+.bl-st-credit i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in srgb, var(--tint) 90%, #fff), var(--tint)); transform-origin: bottom; transform: scaleY(0); animation: bl-fill 6s ease-out infinite; animation-delay: calc(var(--i) * .55s); }
+@keyframes bl-fill { 0% { transform: scaleY(0); } 10%, 82% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
+/* Fraud: three layers are checked, the last one fails, the transfer is blocked */
+.bl-st-fraud ul { width: 62%; display: grid; gap: 7px; margin-right: 36px; }
+.bl-st-fraud li { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; border-radius: 10px; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.05); color: var(--sub); opacity: .35; animation: bl-row 6s ease-out infinite; animation-delay: calc(var(--i) * .7s); }
+.bl-st-fraud li b { color: #4fd18b; }
+.bl-st-fraud li.bad b { color: var(--tint); }
+.bl-st-fraud li.bad { animation-name: bl-row-bad; }
+.bl-st-blocked { top: auto; bottom: 14px; right: 14px; color: #fff; opacity: 0; animation: bl-pop 6s ease-out infinite; animation-delay: 1.4s; }
+@keyframes bl-row { 0% { opacity: .35; } 8%, 85% { opacity: 1; color: var(--fg); } 100% { opacity: .35; } }
+@keyframes bl-row-bad { 0% { opacity: .35; } 8%, 85% { opacity: 1; color: var(--fg); background: rgba(255,107,94,.18); } 100% { opacity: .35; } }
+/* Receipts: a QR with a scan line, then "Valid" */
+.bl-st-qr { position: relative; width: 84px; height: 84px; padding: 7px; border-radius: 10px; background: #f5f5f7; }
+.bl-st-qr svg { width: 100%; height: 100%; fill: #0a0a0c; }
+.bl-st-qr i { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--tint); box-shadow: 0 0 14px 3px var(--tint); animation: bl-scan 4s ease-in-out infinite; }
+.bl-st-valid { top: auto; bottom: 14px; right: 14px; opacity: 0; animation: bl-pop 4s ease-out infinite; animation-delay: .9s; }
+@keyframes bl-scan { 0% { top: 4px; opacity: 0; } 8% { opacity: 1; } 50% { top: calc(100% - 6px); opacity: 1; } 58%, 100% { top: calc(100% - 6px); opacity: 0; } }
+/* Face ID: a frame with a scan line turns into a tick */
+.bl-st-face { color: var(--tint); }
+.bl-st-frame { position: relative; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 22px; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--tint) 60%, transparent); animation: bl-frame 4.5s ease-in-out infinite; }
+.bl-st-frame svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.bl-st-frame i { position: absolute; left: 8px; right: 8px; top: 8px; height: 2px; border-radius: 2px; background: var(--tint); box-shadow: 0 0 12px 2px var(--tint); animation: bl-scan 4.5s ease-in-out infinite; }
+.bl-st-ok { position: absolute; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 22px; background: #4fd18b; color: #04140b; opacity: 0; animation: bl-pop 4.5s ease-out infinite; animation-delay: .5s; }
+.bl-st-ok svg { width: 38px; height: 38px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes bl-frame { 0%, 45% { opacity: 1; } 55%, 85% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .bl-stage * { animation: none !important; }
+  .bl-st-line { stroke-dashoffset: 0; } .bl-st-area { opacity: 1; }
+  .bl-st-credit i::after { transform: scaleY(1); } .bl-st-credit i:nth-child(n+5)::after { transform: scaleY(0); }
+  .bl-st-fraud li, .bl-st-blocked, .bl-st-valid { opacity: 1; } .bl-st-track i, .bl-st-ok { display: none; }
+}
