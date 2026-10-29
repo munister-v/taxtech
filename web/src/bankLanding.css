@@ -533,7 +533,6 @@
 .bl-inside-head { max-width: 720px; margin: 0 auto 64px; text-align: center; }
 .bl-inside-head .bl-sub { margin-left: auto; margin-right: auto; }
 .bl-kick { margin-bottom: 18px; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--yellow); }
-.bl-inside-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .bl-tilex { position: relative; display: flex; flex-direction: column; padding: 28px 28px 24px; border-radius: 24px; background: linear-gradient(160deg, color-mix(in srgb, var(--tint) 9%, var(--tile)) 0%, var(--tile) 55%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); transition: box-shadow .35s, translate .35s; }
 .bl-tilex:hover { translate: 0 -3px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 55%, transparent); }
 .bl-tilex .bl-med { width: 56px; height: 56px; margin-bottom: 22px; }
@@ -541,11 +540,9 @@
 .bl .bl-tilex p { margin-top: 10px; font-size: 15.5px; line-height: 1.5; color: var(--sub); flex: 1; }
 .bl-tilex-proof { margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.08); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: var(--tint); }
 .bl-inside > .bl-wrap > .bl-cta { margin-top: 56px; justify-content: center; }
-@media (max-width: 960px) { .bl-inside-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 734px) {
   .bl-inside { padding: 88px 0; }
   .bl-inside-head { margin-bottom: 40px; }
-  .bl-inside-grid { grid-template-columns: 1fr; }
   .bl-tilex { padding: 24px 22px 20px; }
 }
 
@@ -617,7 +614,6 @@
 
 /* Under the hood: figures strip and the new scenes */
 .bl-tilex-proof { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; letter-spacing: .02em; text-transform: none; }
-.bl-inside-grid { margin-top: 0; }
 /* Ledger: two entries and a zero sum */
 .bl-st-ledger ul { width: 70%; display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
 .bl-st-ledger li { display: flex; justify-content: space-between; padding: 7px 12px; border-radius: 9px; font-size: 13px; background: rgba(255,255,255,.05); color: var(--sub); opacity: 0; transform: translateY(6px); animation: bl-entry 5s ease-out infinite; animation-delay: calc(var(--i) * .5s); }
@@ -662,27 +658,87 @@
 }
 
 /* Under the hood: type. A large thin headline, figures set like the clock in the Rome scene, labels in small spaced capitals */
-.bl-inside-head { margin: 0 auto 56px; }
+.bl-inside-head { max-width: none; margin: 0 auto 56px; }
 .bl .bl-inside-head .bl-h { font-size: clamp(54px, 8.4vw, 116px); font-weight: 700; line-height: .96; letter-spacing: -0.05em; }
-.bl-hood-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 0 56px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.bl-hood-stats li { display: flex; flex-direction: column; gap: 10px; padding: 34px 28px 30px; }
-.bl-hood-stats li + li { border-left: 1px solid var(--line); }
-.bl-hood-stats b { font-size: clamp(64px, 8.6vw, 124px); font-weight: 200; line-height: .9; letter-spacing: -0.055em; font-variant-numeric: tabular-nums; color: #fff; }
-.bl-hood-stats span { max-width: 15em; font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; line-height: 1.5; color: var(--yellow); }
-.bl-inside-grid { gap: 18px; }
 .bl .bl-tilex h3 { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
 .bl .bl-tilex p { margin-top: 12px; font-size: 16px; line-height: 1.55; color: #b3b3b9; }
 @media (max-width: 860px) {
-  .bl-hood-stats { grid-template-columns: 1fr; margin-bottom: 40px; }
-  .bl-hood-stats li { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 18px; padding: 22px 4px; }
-  .bl-hood-stats li + li { border-left: 0; border-top: 1px solid var(--line); }
-  .bl-hood-stats b { font-size: 64px; }
-  .bl-hood-stats span { text-align: right; max-width: 11em; }
 }
 
 /* Under the hood: a blueprint feel. Dotted grid in the scenes, numbered tiles, a thin tinted edge on top */
 .bl-mini { background: radial-gradient(rgba(255,255,255,.1) 1px, transparent 1.3px) 0 0 / 14px 14px, radial-gradient(90% 120% at 50% 0%, color-mix(in srgb, var(--tint) 20%, transparent), transparent 70%), #0a0a0c; }
 .bl-tilex::before { content: ""; position: absolute; left: 28px; right: 28px; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: linear-gradient(90deg, transparent, var(--tint), transparent); opacity: .65; transition: opacity .35s; }
 .bl-tilex:hover::before { opacity: 1; }
-.bl-tilex-n { position: absolute; z-index: 2; left: 42px; top: 42px; font: 600 11px ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .12em; color: color-mix(in srgb, var(--tint) 80%, #fff); opacity: .85; }
 @media (max-width: 734px) { .bl-tilex-n { left: 36px; top: 36px; } }
+
+/* ── Under the hood, Roman edition: tiles are small cards of ours (Rome photo, guilloche rosette, numeral, engraved caps) ── */
+.bl-inside { background: radial-gradient(70% 36% at 50% 0%, rgba(199,164,111,.12), transparent 72%), #000; }
+.bl .bl-inside-head .bl-h { font-family: var(--roman); font-weight: 400; text-transform: uppercase; letter-spacing: .05em; line-height: 1; font-size: clamp(36px, 6.2vw, 84px); white-space: nowrap;
+  background: linear-gradient(180deg, #f6e7c4 0%, var(--gold-l) 46%, #9a7a46 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bl-inside-head::after { content: ""; display: block; width: min(320px, 70%); height: 9px; margin: 30px auto 0; background:
+  linear-gradient(90deg, transparent, var(--gold)) left center / calc(50% - 14px) 1px no-repeat,
+  linear-gradient(90deg, var(--gold), transparent) right center / calc(50% - 14px) 1px no-repeat,
+  conic-gradient(from 45deg, var(--gold) 0 25%, transparent 0 50%, var(--gold) 0 75%, transparent 0) center / 9px 9px no-repeat; }
+
+.bl-tilex { padding: 0; overflow: hidden; border-radius: 22px; background: #0c0a07; isolation: isolate;
+  box-shadow: inset 0 0 0 1px rgba(199,164,111,.3), 0 24px 50px -30px rgba(0,0,0,.9); }
+.bl-tilex::before { left: 0; right: 0; top: 0; bottom: 0; height: auto; z-index: 5; border-radius: inherit; opacity: 1; pointer-events: none; background:
+  linear-gradient(118deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.04) 26%, transparent 44%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.34), inset 0 -1px 0 rgba(0,0,0,.5); }
+.bl-tilex:hover { translate: 0 -4px; box-shadow: inset 0 0 0 1px rgba(220,193,149,.7), 0 30px 60px -28px rgba(199,164,111,.28); }
+.bl-tilex:hover::before { opacity: 1; }
+.bl-tx-art { position: relative; display: flex; align-items: flex-end; justify-content: center; height: 268px; padding: 0 18px 18px; overflow: hidden; isolation: isolate; }
+.bl-tx-art::before { content: ""; position: absolute; inset: 0; z-index: -3; background: var(--photo) center / cover no-repeat; filter: sepia(.3) saturate(.9) contrast(1.06) brightness(.82); transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
+.bl-tilex:hover .bl-tx-art::before { transform: scale(1.06); }
+.bl-tx-art::after { content: ""; position: absolute; inset: 0; z-index: -1; background:
+  linear-gradient(180deg, rgba(10,8,5,.45) 0%, rgba(10,8,5,.1) 34%, rgba(12,10,7,.88) 82%, #0c0a07 100%),
+  radial-gradient(80% 90% at 100% 0%, rgba(199,164,111,.3), transparent 62%); }
+.bl-tx-rose { position: absolute; z-index: -2; right: -34%; top: -58%; width: 118%; aspect-ratio: 1; color: var(--gold-l); opacity: .5; mix-blend-mode: screen; animation: bl-rose-turn 120s linear infinite; }
+@keyframes bl-rose-turn { to { transform: rotate(360deg); } }
+.bl-tx-num { position: absolute; left: 20px; top: 14px; font-family: var(--roman); font-size: 38px; line-height: 1; letter-spacing: .06em;
+  background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 55%, #a0824f 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.65)); }
+.bl-tx-art .bl-mini { width: 100%; height: 128px; margin: 0; border-radius: 14px; background: rgba(8,7,5,.6); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: inset 0 0 0 1px rgba(220,193,149,.4), 0 14px 30px -14px rgba(0,0,0,.8); }
+.bl-tx-body { position: relative; display: flex; flex: 1; flex-direction: column; padding: 22px 26px 24px; }
+.bl .bl-tilex h3 { font-family: var(--roman); font-weight: 400; font-size: 22px; line-height: 1.15; letter-spacing: .05em; text-transform: uppercase; color: #f1e2c0; }
+.bl .bl-tilex p { margin-top: 12px; font-size: 15.5px; line-height: 1.55; color: #b8b2a6; }
+.bl-tilex-proof { position: relative; margin-top: 22px; padding-top: 16px; border-top: 0; color: var(--gold-l); }
+.bl-tilex-proof::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, var(--gold), rgba(199,164,111,.1)); }
+@media (max-width: 734px) {
+  .bl-tx-art { height: 250px; }
+  .bl-tx-body { padding: 20px 22px 22px; }
+  .bl .bl-tilex h3 { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .bl-tx-rose { animation: none; } .bl-tx-art::before { transition: none; } }
+
+/* Map + card. The map is the hero's Rome at night, still, with one pin per feature. */
+.bl-hood { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+.bl-hood > .bl-tilex { align-self: stretch; animation: bl-hood-in .55s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes bl-hood-in { from { opacity: 0; translate: 0 10px; } }
+.hm { position: relative; min-height: 600px; overflow: hidden; border-radius: 22px; background: #04060d; box-shadow: inset 0 0 0 1px rgba(199,164,111,.3); }
+.hm-cv { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+.hm-cv.on { opacity: 1; }
+.hm-vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 100% at 50% 50%, transparent 50%, rgba(4,6,13,.9) 100%); }
+.hm-pin { position: absolute; left: 0; top: 0; width: 0; height: 0; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; will-change: transform; -webkit-tap-highlight-color: transparent; }
+.hm-pin b { position: absolute; left: -16px; top: -16px; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font: 400 13px/1 var(--roman); letter-spacing: .02em; color: var(--gold-l); background: rgba(10,8,5,.82); box-shadow: inset 0 0 0 1px rgba(199,164,111,.7); transition: background .3s, color .3s, box-shadow .3s, scale .3s; }
+.hm-pin:hover b { scale: 1.12; box-shadow: inset 0 0 0 1px var(--gold-l); }
+.hm-pin.on b { scale: 1.2; color: #14100a; background: linear-gradient(180deg, #fff1c8, var(--gold-l) 60%, #b8935c); box-shadow: 0 0 0 4px rgba(220,193,149,.2), 0 8px 24px -4px rgba(220,193,149,.6); }
+.hm-ring { position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--gold-l); opacity: 0; pointer-events: none; }
+.hm-pin.on .hm-ring { animation: hm-pulse 2.4s ease-out infinite; }
+@keyframes hm-pulse { 0% { scale: 1; opacity: .8; } 100% { scale: 2.8; opacity: 0; } }
+.hm-pin span { position: absolute; top: -7px; white-space: nowrap; font: 600 10.5px/14px var(--display), system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.72); text-shadow: 0 1px 8px #000, 0 0 3px #000; transition: color .3s; }
+.hm-r span { left: 26px; }
+.hm-l span { right: 26px; }
+.hm-pin.on span { color: var(--gold-l); }
+.bl-tx-place { position: absolute; left: 22px; top: 56px; font: 600 10.5px/1 var(--display), system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: rgba(246,231,196,.85); text-shadow: 0 1px 10px #000; }
+@media (max-width: 960px) {
+  .bl-hood { grid-template-columns: 1fr; }
+  .hm { min-height: 0; height: 430px; }
+}
+@media (max-width: 734px) {
+  .hm { height: 400px; }
+  .hm-pin span { display: none; }
+  .hm-pin b { left: -14px; top: -14px; width: 28px; height: 28px; font-size: 12px; }
+  .hm-ring { left: -14px; top: -14px; width: 28px; height: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .bl-hood > .bl-tilex, .hm-pin.on .hm-ring { animation: none; } }

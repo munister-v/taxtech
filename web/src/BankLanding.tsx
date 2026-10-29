@@ -4,6 +4,7 @@ import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, sav
 import FireScene from './FireScene';
 import TapScene from './TapScene';
 import RomeMap from './RomeMap';
+import HoodMap, { HOOD_PLACES } from './HoodMap';
 import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import FaceFlow from './FaceFlow';
 import { SUN_SPOTS } from './fireData';
@@ -68,11 +69,12 @@ const HOOD: { kind: Kind; tint: string; uk: [string, string, string]; en: [strin
     uk: ['Квитанції з перевіркою', 'TT-XXXX-XXXX-XXXX — це 12 символів base32 від HMAC-SHA256 за видом, посиланням і власником. Без серверного ключа код не підробити, а публічна перевірка показує лише знеособлені реквізити.', 'HMAC-SHA256 · QR'],
     en: ['Verifiable receipts', 'TT-XXXX-XXXX-XXXX is 12 base32 characters of an HMAC-SHA256 over kind, reference and owner. It cannot be forged without the server key, and the public check page shows masked details only.', 'HMAC-SHA256 · QR'] },
 ];
-const HOOD_STATS: { n: string; uk: string; en: string }[] = [
-  { n: '28', uk: 'правил антифроду у трьох шарах', en: 'fraud rules in three layers' },
-  { n: '148', uk: 'автоматичних тестів', en: 'automated tests' },
-  { n: '2', uk: 'бази даних: PostgreSQL і SQLite', en: 'databases: PostgreSQL and SQLite' },
-];
+const HOOD_PHOTO: Record<Kind, string> = {
+  ledger: '/cards/roma-forum.webp', atomic: '/landing/rome-forum-sunset.webp', idem: '/landing/rome-trevi-night.webp',
+  fraud: '/cards/roma-colosseum.webp', chain: '/cards/roma-aqueduct.webp', hold: '/cards/roma-pantheon.webp',
+  tds: '/cards/roma-marble.webp', passkey: '/landing/rome-pantheon-night.webp', receipt: '/cards/roma-colosseum-night.webp',
+};
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 
 // Mini scenes at the top of the tiles: one small loop per mechanism, CSS only, running once the tile is on screen.
 const QR_CELLS = (() => {
@@ -237,6 +239,20 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const [sound, setSound] = useState(false);
   useEffect(() => { const disarm = armSound(), f = () => setSound(soundOn()), unsub = onSound(f); f(); return () => { disarm(); unsub(); }; }, []);
   const [menu, setMenu] = useState(false);
+  const [hood, setHood] = useState(0);
+  const hoodAuto = useRef(true);
+  const hoodRef = useRef<HTMLDivElement | null>(null);
+  // The map walks through the nine places on its own while it is on screen, until the visitor picks one.
+  useEffect(() => {
+    const el = hoodRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let seen = false;
+    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; }, { threshold: 0.35 });
+    io.observe(el);
+    const id = window.setInterval(() => { if (seen && hoodAuto.current) setHood(h => (h + 1) % HOOD.length); }, 6500);
+    return () => { io.disconnect(); window.clearInterval(id); };
+  }, []);
+  const pickHood = (i: number) => { hoodAuto.current = false; setHood(i); };
   useEffect(() => {
     const root = rootRef.current;
     if (!menu || !root) return;
@@ -484,20 +500,27 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-inside-head bl-rv">
               <h2 className="bl-h">{t('Під капотом.', 'Under the hood.')}</h2>
             </div>
-            <ul className="bl-hood-stats bl-rv">
-              {HOOD_STATS.map(x => <li key={x.en}><b>{x.n}</b><span>{t(x.uk, x.en)}</span></li>)}
-            </ul>
-            <ul className="bl-inside-grid">
-              {HOOD.map((x, i) => (
-                <li key={x.en[0]} className="bl-tilex bl-rv" style={{ ['--d' as string]: `${(i % 3) * 0.08}s`, ['--tint' as string]: x.tint }}>
-                  <span className="bl-tilex-n" aria-hidden>{String(i + 1).padStart(2, '0')}</span>
-                  <Stage kind={x.kind} t={t} />
-                  <h3>{t(x.uk[0], x.en[0])}</h3>
-                  <p>{t(x.uk[1], x.en[1])}</p>
-                  <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
-                </li>
-              ))}
-            </ul>
+            <div className="bl-hood bl-rv" ref={hoodRef}>
+              <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} active={hood} onSelect={pickHood} />
+              {(() => {
+                const x = HOOD[hood];
+                return (
+                  <article key={x.kind} className="bl-tilex in" style={{ ['--tint' as string]: x.tint }} aria-live="polite">
+                    <div className="bl-tx-art" style={{ ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` }}>
+                      <svg className="bl-tx-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="currentColor" strokeWidth=".25" /></svg>
+                      <span className="bl-tx-num" aria-hidden>{ROMAN[hood]}</span>
+                      <span className="bl-tx-place" aria-hidden>{HOOD_PLACES[hood].name}</span>
+                      <Stage kind={x.kind} t={t} />
+                    </div>
+                    <div className="bl-tx-body">
+                      <h3>{t(x.uk[0], x.en[0])}</h3>
+                      <p>{t(x.uk[1], x.en[1])}</p>
+                      <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
+                    </div>
+                  </article>
+                );
+              })()}
+            </div>
             <div className="bl-cta bl-center bl-rv">
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
             </div>
