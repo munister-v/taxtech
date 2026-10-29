@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { LandingLangContext, initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
 import TapScene from './TapScene';
+import CineGL, { GL_OK } from './CineGL';
 import FaceFlow from './FaceFlow';
 import { DAWN_SPOTS, SUN_SPOTS } from './fireData';
 import './bankLanding.css';
@@ -94,12 +95,15 @@ function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
   const f = FINISHES.find(x => x.id === finish)!;
   return (
     <div className={`bl-card${f.photo ? ' bl-card-photo' : ' bl-card-guil'}`} style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>
-      {!f.photo && <svg className="bl-card-ros" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#fff" strokeOpacity=".55" strokeWidth=".18" /></svg>}
       <span className="bl-card-shade" aria-hidden />
       <span className="bl-card-sheen" aria-hidden />
-      <span className="bl-card-brand">TAXTECH</span>
+      <span className="bl-card-brand">Tax<b>Tech</b></span>
       <svg className="bl-card-nfc" viewBox="0 0 24 24" aria-hidden><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.5a13 13 0 0 1 0 19" /></svg>
-      <span className="bl-card-chip" aria-hidden />
+      <svg className="bl-card-chip" viewBox="0 0 44 34" aria-hidden>
+        <defs><linearGradient id="blchip" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f7e7b4" /><stop offset=".35" stopColor="#d3ac55" /><stop offset=".62" stopColor="#f0d58e" /><stop offset="1" stopColor="#a47f33" /></linearGradient></defs>
+        <rect x=".5" y=".5" width="43" height="33" rx="6" fill="url(#blchip)" stroke="rgba(70,45,5,.55)" />
+        <path d="M.5 12h12.5q4 0 4 5t-4 5H.5M43.5 12H31q-4 0-4 5t4 5h12.5M17 .5v8.5M27 .5v8.5M17 33.5V25M27 33.5V25M17 9h10v16H17z" fill="none" stroke="rgba(70,45,5,.55)" strokeWidth=".9" />
+      </svg>
       <span className="bl-card-num">•••• •••• •••• {n}</span>
       <span className="bl-card-name">DEMO USER</span>
       <span className="bl-card-virt">VIRTUAL</span>
@@ -145,7 +149,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
       const max = root.scrollHeight - root.clientHeight;
       root.style.setProperty('--sp', (max > 0 ? root.scrollTop / max : 0).toFixed(4));
       if (rome) {
-        const n = romeLayers.length;
+        const n = DAY.length;
         const p = clamp(-(rome.getBoundingClientRect().top - box.top) / Math.max(1, rome.offsetHeight - root.clientHeight));
         const s = p * n;
         rome.style.setProperty('--ry', `${((p - 0.5) * 52).toFixed(2)}deg`);
@@ -256,9 +260,17 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         )}
 
+        {/* ── Hero and the evening in Rome share one WebGL background where photographs burn into each other ── */}
+        <div className={`bl-cine${GL_OK ? ' bl-cine-gl' : ''}`}>
+          {GL_OK && (
+            <div className="bl-cine-bg" aria-hidden>
+              <div className="bl-cine-poster" />
+              <CineGL />
+            </div>
+          )}
         {/* ── Hero: a real photograph of Rome at dusk ── */}
         <section id="top" className="bl-hero">
-          <FireScene className="bl-hero-photo" src="/landing/colosseum-dawn.webp" ratio={1.4991} focusX={0.22} focusY={0.3} spots={DAWN_SPOTS} embers={120} dawn />
+          {!GL_OK && <FireScene className="bl-hero-photo" src="/landing/colosseum-dawn.webp" ratio={1.4991} focusX={0.22} focusY={0.3} spots={DAWN_SPOTS} embers={120} dawn />}
           <div className="bl-wrap bl-hero-in">
             <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
             <div className="bl-cta">
@@ -280,7 +292,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         {/* ── One evening in Rome: the scroll runs the clock, the photographs change, the card pays ── */}
         <section id="pay" className="bl-rome">
           <div className="bl-rome-stage">
-            {DAY.map((d, i) => (
+            {!GL_OK && DAY.map((d, i) => (
               <div key={d.img} className="bl-rome-layer" style={{ backgroundImage: `url(${d.img})`, ['--pos' as string]: d.pos, ['--o' as string]: i === 0 ? 1 : 0 }} aria-hidden />
             ))}
             <div className="bl-rome-shade" aria-hidden />
@@ -314,6 +326,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             </div>
           </div>
         </section>
+
+        </div>
 
         {/* ── Tap. Paid.: the camera pushes in on the terminal, the tap rings out ── */}
         <TapScene

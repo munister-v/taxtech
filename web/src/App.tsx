@@ -1,6 +1,5 @@
 import markSvg from './assets/mark.svg?raw';
 import BankLanding from './BankLanding';
-import { Meander, ROMAN_FONT, ROMAN_GOLD } from './roman';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
@@ -136,7 +135,7 @@ function BrandMark({
 
 // ─── Shared section-label style ───────────────────────────────
 const sectionLabel: React.CSSProperties = {
-  ...T.caption, fontFamily: ROMAN_FONT, fontWeight: 400, letterSpacing: '0.16em', textTransform: 'uppercase', color: text.dim, padding: '0 6px 10px',
+  ...T.caption, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: text.dim, padding: '0 6px 10px',
 };
 
 // Brand mark for the sign-in screens.
@@ -2029,139 +2028,6 @@ function toUiCard(card: ApiCard, holderName: string): CardData {
 }
 
 
-// ─── Roman card art (inline SVG, 400×252 = card ratio) ───────────
-const svgUri = (body: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 252" preserveAspectRatio="xMidYMid slice">${body}</svg>`).replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/'/g, '%27')}`;
-// Shared SVG building blocks: film grain, gold foil, stone texture, vignette.
-const GRAIN = (o = 0.18) => `<filter id="gr" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 ${o} 0"/></filter><rect width="400" height="252" filter="url(#gr)"/>`;
-const VIGNETTE = (o = 0.55) => `<radialGradient id="vg" cx="50%" cy="45%" r="75%"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${o}"/></radialGradient><rect width="400" height="252" fill="url(#vg)"/>`;
-const FOIL = `<linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".22" stop-color="#e2b54e"/><stop offset=".48" stop-color="#8a5f12"/><stop offset=".7" stop-color="#f7dc8a"/><stop offset="1" stop-color="#a9781c"/></linearGradient>`;
-const STONE = (id: string, freq: number, base: string, dark: string) => `<filter id="${id}" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="5" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.4 1.05" result="m"/><feFlood flood-color="${dark}" result="d"/><feComposite in="d" in2="m" operator="in" result="spots"/><feFlood flood-color="${base}" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="spots"/></feMerge></filter>`;
-const laurel = (cx: number, cy: number, r: number, fill: string) => {
-  let leaves = '';
-  for (let side = -1; side <= 1; side += 2) {
-    for (let i = 0; i < 11; i++) {
-      const a = (Math.PI / 2) + side * (0.3 + i * 0.235);
-      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
-      const rot = (a * 180) / Math.PI + (side > 0 ? -38 : 38);
-      const len = 15 - i * 0.45;
-      leaves += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${len.toFixed(1)}" ry="${(len * 0.36).toFixed(1)}" transform="rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="${fill}"/>`;
-    }
-  }
-  return leaves;
-};
-const meander = (y: number, stroke: string) => {
-  let d = '';
-  for (let x = -12; x < 412; x += 24) d += `M${x} ${y + 12}V${y}H${x + 18}V${y + 9}H${x + 6}V${y + 4}H${x + 12}`;
-  return `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linejoin="miter"/>`;
-};
-const colosseumFacade = () => {
-  // Three arcaded tiers (Tuscan, Ionic, Corinthian) and a solid attic, receding slightly.
-  let out = '';
-  const tiers = [{ y: 172, h: 64, w: 44 }, { y: 112, h: 58, w: 42 }, { y: 58, h: 52, w: 40 }];
-  tiers.forEach((t, ti) => {
-    const n = Math.ceil(420 / t.w) + 1;
-    for (let i = 0; i < n; i++) {
-      const x = i * t.w - (ti * 7) % t.w - 6;
-      const aw = t.w * 0.62, ax = x + (t.w - aw) / 2, top = t.y + 10, r = aw / 2;
-      out += `<path d="M${ax} ${t.y + t.h}V${top + r}a${r} ${r} 0 0 1 ${aw} 0V${t.y + t.h}Z" fill="url(#archIn)"/>`;
-      out += `<rect x="${x + 1}" y="${t.y + 4}" width="5" height="${t.h - 4}" fill="#f0c99a" fill-opacity=".35"/>`;
-    }
-    out += `<rect x="0" y="${t.y - 4}" width="400" height="7" fill="#f3d2a6" fill-opacity=".55"/><rect x="0" y="${t.y + 3}" width="400" height="2" fill="#5a2a12" fill-opacity=".35"/>`;
-  });
-  let win = '';
-  for (let x = 8; x < 400; x += 40) win += `<rect x="${x}" y="22" width="10" height="16" fill="#4a1f0c" fill-opacity=".55"/>`;
-  return out + `<rect x="0" y="12" width="400" height="38" fill="url(#attic)"/>${win}<rect x="0" y="48" width="400" height="6" fill="#f3d2a6" fill-opacity=".6"/>`;
-};
-const pantheonPortico = () => {
-  let cols = '';
-  for (let i = 0; i < 8; i++) {
-    const x = 186 + i * 26;
-    cols += `<rect x="${x}" y="122" width="15" height="100" fill="url(#col)"/>`;
-    for (let f = 0; f < 4; f++) cols += `<path d="M${x + 2.5 + f * 3.4} 126v92" stroke="#8d7b5c" stroke-opacity=".45" stroke-width=".7"/>`;
-    cols += `<path d="M${x - 4} 122h23l-3-7h-17Z" fill="#efe1c3"/><rect x="${x - 3}" y="222" width="21" height="5" fill="#e4d2ad"/>`;
-  }
-  return `<path d="M168 236V108h232v128Z" fill="#1d150e" fill-opacity=".72"/>${cols}
-    <rect x="174" y="102" width="232" height="14" fill="url(#entab)"/>
-    <path d="M170 102L288 52L406 102Z" fill="url(#ped)"/><path d="M186 98L288 58L390 98Z" fill="none" stroke="#a8946c" stroke-width="1.2"/>
-    <text x="290" y="113" text-anchor="middle" font-family="Georgia,serif" font-size="7.5" letter-spacing="1.6" fill="#6d5b3a">M·AGRIPPA·L·F·COS·TERTIVM·FECIT</text>
-    <rect x="160" y="227" width="250" height="8" fill="#dcc79d"/><rect x="150" y="235" width="270" height="20" fill="#cdb488"/>`;
-};
-const aqueductArches = () => {
-  let lower = '', upper = '';
-  for (let i = -1; i < 8; i++) {
-    const x = i * 58 + 10;
-    lower += `<path d="M${x} 252V176a22 22 0 0 1 44 0V252Z" fill="url(#sun)"/>`;
-  }
-  for (let i = -1; i < 15; i++) {
-    const x = i * 29 + 8;
-    upper += `<path d="M${x} 150V128a10 10 0 0 1 20 0V150Z" fill="url(#sun)"/>`;
-  }
-  return `<path d="M0 252V112H400V252Z" fill="url(#aq)"/>${upper}${lower}
-    <rect x="0" y="104" width="400" height="10" fill="#3b2316"/><rect x="0" y="150" width="400" height="9" fill="#3b2316"/><rect x="0" y="114" width="400" height="2" fill="#f2a865" fill-opacity=".35"/>`;
-};
-const ROMAN_ART = {
-  pantheon: svgUri(`<defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3d5c"/><stop offset=".55" stop-color="#c98a62"/><stop offset="1" stop-color="#f1c890"/></linearGradient>
-      <linearGradient id="col" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9c8763"/><stop offset=".35" stop-color="#f7ead0"/><stop offset=".7" stop-color="#d9c49d"/><stop offset="1" stop-color="#7d6a4b"/></linearGradient>
-      <linearGradient id="ped" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6e9cc"/><stop offset="1" stop-color="#c9b286"/></linearGradient>
-      <linearGradient id="entab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2e3c2"/><stop offset="1" stop-color="#bfa577"/></linearGradient>
-    </defs><rect width="400" height="252" fill="url(#sky)"/>
-    <circle cx="96" cy="182" r="54" fill="#ffd9a0" fill-opacity=".35"/>
-    <path d="M0 252V196Q60 180 120 192T240 186V252Z" fill="#3a2a22" fill-opacity=".55"/>${pantheonPortico()}${VIGNETTE(.45)}${GRAIN(.14)}`),
-  aqueduct: svgUri(`<defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1430"/><stop offset=".45" stop-color="#7a3a4a"/><stop offset=".75" stop-color="#e2733e"/><stop offset="1" stop-color="#ffc277"/></linearGradient>
-      <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a52"/><stop offset="1" stop-color="#ffd08a"/></linearGradient>
-      <linearGradient id="aq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2a1a"/><stop offset="1" stop-color="#1b0f0a"/></linearGradient>
-      <radialGradient id="glow" cx="72%" cy="62%" r="40%"><stop offset="0" stop-color="#ffe0a0" stop-opacity=".9"/><stop offset="1" stop-color="#ffb060" stop-opacity="0"/></radialGradient>
-    </defs><rect width="400" height="252" fill="url(#sky)"/><rect width="400" height="252" fill="url(#glow)"/>
-    <circle cx="288" cy="150" r="24" fill="#fff0c4"/>
-    <path d="M0 212Q90 190 170 206T400 196V252H0Z" fill="#26150d"/>${aqueductArches()}${VIGNETTE(.5)}${GRAIN(.16)}`),
-  aureus: svgUri(`<defs>${FOIL}
-      <radialGradient id="g" cx="68%" cy="42%" r="85%"><stop offset="0" stop-color="#ffeaa8"/><stop offset=".45" stop-color="#d4a137"/><stop offset="1" stop-color="#5e400c"/></radialGradient>
-      <radialGradient id="coin" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff4c8"/><stop offset=".5" stop-color="#d8a640"/><stop offset="1" stop-color="#7c5512"/></radialGradient>
-      <filter id="brush"><feTurbulence type="fractalNoise" baseFrequency=".004 .9" numOctaves="2"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 .9  0 0 0 0 .6  0 0 0 .22 0"/></filter>
-    </defs><rect width="400" height="252" fill="url(#g)"/><rect width="400" height="252" filter="url(#brush)"/>
-    <circle cx="304" cy="128" r="96" fill="#000" fill-opacity=".18"/><circle cx="300" cy="124" r="96" fill="url(#coin)"/>
-    <circle cx="300" cy="124" r="86" fill="none" stroke="#6b4a10" stroke-opacity=".55" stroke-width="2" stroke-dasharray="2 3"/>
-    <g fill="#7a5512" fill-opacity=".55">${laurel(300, 124, 66, '#7a5512')}</g>
-    <text x="300" y="118" text-anchor="middle" font-family="Georgia,serif" font-size="30" font-weight="700" letter-spacing="3" fill="#6b4a10" fill-opacity=".75">AVG</text>
-    <text x="300" y="146" text-anchor="middle" font-family="Georgia,serif" font-size="12" letter-spacing="4" fill="#6b4a10" fill-opacity=".7">P·M·TR·P</text>
-    ${VIGNETTE(.35)}${GRAIN(.12)}`),
-  purpura: svgUri(`<defs>${FOIL}
-      <radialGradient id="g" cx="30%" cy="25%" r="95%"><stop offset="0" stop-color="#7a2560"/><stop offset=".55" stop-color="#3d0c2f"/><stop offset="1" stop-color="#160410"/></radialGradient>
-      <filter id="velvet"><feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="3" seed="3"/><feColorMatrix values="0 0 0 0 .6  0 0 0 0 .2  0 0 0 0 .5  0 0 0 .35 0"/></filter>
-    </defs><rect width="400" height="252" fill="url(#g)"/><rect width="400" height="252" filter="url(#velvet)"/>
-    <rect x="0" y="8" width="400" height="22" fill="#000" fill-opacity=".25"/>${meander(13, 'url(#foil)')}
-    <rect x="0" y="222" width="400" height="22" fill="#000" fill-opacity=".25"/>${meander(227, 'url(#foil)')}
-    <g opacity=".55">${laurel(318, 128, 62, 'url(#foil)')}</g>
-    <text x="318" y="138" text-anchor="middle" font-family="Georgia,serif" font-size="26" letter-spacing="2" fill="url(#foil)">IMP</text>
-    ${VIGNETTE(.5)}${GRAIN(.14)}`),
-  marmor: svgUri(`<defs>${FOIL}
-      <filter id="marble" x="0" y="0" width="100%" height="100%"><feTurbulence type="turbulence" baseFrequency=".006 .018" numOctaves="6" seed="11" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 .32  0 0 0 0 .3  0 0 0 0 .27  -2.4 0 0 0 1.25"/></filter>
-      <filter id="cloud"><feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="4" seed="4"/><feColorMatrix values="0 0 0 0 .55  0 0 0 0 .52  0 0 0 0 .48  0 0 0 .18 0"/></filter>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf9f5"/><stop offset="1" stop-color="#e7e2d8"/></linearGradient>
-    </defs><rect width="400" height="252" fill="url(#g)"/><rect width="400" height="252" filter="url(#cloud)"/><rect width="400" height="252" filter="url(#marble)" opacity=".75"/>
-    <rect x="9" y="9" width="382" height="234" rx="13" fill="none" stroke="url(#foil)" stroke-width="2"/>
-    <rect x="15" y="15" width="370" height="222" rx="9" fill="none" stroke="url(#foil)" stroke-opacity=".55" stroke-width=".8"/>${GRAIN(.08)}`),
-  colosseum: svgUri(`<defs>
-      <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e09a62"/><stop offset=".5" stop-color="#b9643a"/><stop offset="1" stop-color="#6a2c14"/></linearGradient>
-      <linearGradient id="archIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0f06"/><stop offset="1" stop-color="#4f1f0c"/></linearGradient>
-      <linearGradient id="attic" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8a873"/><stop offset="1" stop-color="#b6633a"/></linearGradient>
-      <linearGradient id="light" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd9a8" stop-opacity=".45"/><stop offset=".6" stop-color="#ffd9a8" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
-      ${STONE('trav', .55, '#00000000', '#3d1a0a')}
-    </defs><rect width="400" height="252" fill="url(#g)"/>${colosseumFacade()}
-    <rect width="400" height="252" filter="url(#trav)" opacity=".22"/><rect width="400" height="252" fill="url(#light)"/>${VIGNETTE(.45)}${GRAIN(.14)}`),
-  spqr: svgUri(`<defs>${FOIL}
-      <radialGradient id="g" cx="25%" cy="20%" r="100%"><stop offset="0" stop-color="#c22a2a"/><stop offset=".5" stop-color="#7d1014"/><stop offset="1" stop-color="#2e0507"/></radialGradient>
-      <filter id="cloth"><feTurbulence type="fractalNoise" baseFrequency=".9 .02" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0"/></filter>
-    </defs><rect width="400" height="252" fill="url(#g)"/><rect width="400" height="252" filter="url(#cloth)"/>
-    <g transform="translate(318 128) scale(.72)" fill="url(#foil)" opacity=".5">
-      <path d="M0 -34c6 0 10 5 10 10s-4 8-10 8-10-3-10-8 4-10 10-10Z"/>
-      <path d="M-6 -16L-78 -40L-60 -24L-86 -20L-60 -10L-80 0L-50 -2L-12 6Z"/><path d="M6 -16L78 -40L60 -24L86 -20L60 -10L80 0L50 -2L12 6Z"/>
-      <path d="M-12 4L12 4L8 34L0 46L-8 34Z"/><rect x="-26" y="48" width="52" height="5" rx="2"/>
-    </g>
-    <text x="200" y="150" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="92" font-weight="700" letter-spacing="10" fill="url(#foil)" fill-opacity=".16">SPQR</text>${VIGNETTE(.5)}${GRAIN(.14)}`),
-};
 const photoVariant = (image: string, light = false) => ({
   bg: light ? '#ece8df' : '#1a120c', image,
   text: light ? '#1d1810' : '#ffffff', muted: light ? 'rgba(29,24,16,0.62)' : 'rgba(255,255,255,0.72)',
@@ -2172,14 +2038,6 @@ const photoVariant = (image: string, light = false) => ({
   numberPlate: light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)',
   bottomPlate: light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)',
   badgePlate: light ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)',
-});
-const romanVariant = (image: string, dark: boolean) => ({
-  bg: dark ? '#2a1a12' : '#efe8da', image,
-  text: dark ? '#fbf3e4' : '#20180c', muted: dark ? 'rgba(251,243,228,0.7)' : 'rgba(32,24,12,0.6)',
-  shimmer: 'transparent', overlay: 'transparent',
-  numberPlate: dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)',
-  bottomPlate: dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)',
-  badgePlate: dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)',
 });
 
 const CARD_VARIANTS: Record<CardVariant, {
@@ -2256,11 +2114,11 @@ const CARD_VARIANTS: Record<CardVariant, {
     bottomPlate: 'rgba(255,255,255, 0.1)',
     badgePlate: 'rgba(255,255,255, 0.1)',
   },
-  roma_aureus: romanVariant(ROMAN_ART.aureus, false),
-  roma_purpura: romanVariant(ROMAN_ART.purpura, true),
+  roma_aureus: photoVariant('/cards/roma-forum.webp'),
+  roma_purpura: photoVariant('/cards/roma-pantheon.webp'),
   roma_marmor: photoVariant('/cards/roma-marble.webp', true),
   roma_colosseum: photoVariant('/cards/roma-colosseum.webp'),
-  roma_spqr: romanVariant(ROMAN_ART.spqr, true),
+  roma_spqr: photoVariant('/cards/roma-colosseum-night.webp'),
   roma_pantheon: photoVariant('/cards/roma-pantheon.webp'),
   roma_aqueduct: photoVariant('/cards/roma-aqueduct.webp'),
   roma_forum: photoVariant('/cards/roma-forum.webp'),
@@ -2291,9 +2149,6 @@ const CARD_DESIGN_OPTIONS: CardDesignOption[] = [
   { design: 'roma_forum', variant: 'roma_forum', title: 'Форум', subtitle: 'Храм Сатурна · фото: Nicholas Hartmann · CC BY-SA 4.0' },
   { design: 'roma_aqueduct', variant: 'roma_aqueduct', title: 'Акведук', subtitle: 'Аква Клавдія · фото: Mario2912 · CC BY-SA 4.0' },
   { design: 'roma_marmor', variant: 'roma_marmor', title: 'Мармур', subtitle: 'Каррара · фото: Solarence · CC BY-SA 4.0' },
-  { design: 'roma_aureus', variant: 'roma_aureus', title: 'Ауреус', subtitle: 'Рим · золота монета' },
-  { design: 'roma_purpura', variant: 'roma_purpura', title: 'Пурпур', subtitle: 'Рим · імператорський' },
-  { design: 'roma_spqr', variant: 'roma_spqr', title: 'SPQR', subtitle: 'Рим · сенат і народ' },
   { design: 'gold', variant: 'gold', title: 'Папір', subtitleKey: 'design_subtitle_gold' },
   { design: 'forest', variant: 'emerald', title: 'Попіл', subtitleKey: 'design_subtitle_forest' },
   { design: 'slate', variant: 'platinum', title: 'Графіт', subtitleKey: 'design_subtitle_slate' },
@@ -2403,11 +2258,14 @@ function CardBack({ bg, image, expiry, name, last4, revealed, toast }: {
   );
 }
 
+const CARD_GRAIN = `url("data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.1 -.2"/></filter><rect width="180" height="180" filter="url(#n)"/></svg>')}")`;
+
 function PremiumCard({ variant, number, name, expiry, type, style = {}, balance, isPrimary }: CardData & { style?: React.CSSProperties; balance?: number; isPrimary?: boolean }) {
   const v = CARD_VARIANTS[variant] ?? CARD_VARIANTS.gold;
   const tt = translations[getStoredLanguage()];
   const patId = `g-${variant}`;
   const hasPhoto = Boolean(v.image);
+  const lightText = v.text.toLowerCase() === '#ffffff';
   const titleShadow = hasPhoto ? '0 1px 3px rgba(0,0,0, 0.62)' : '0 1px 1px rgba(0,0,0, 0.2)';
   return (
     <div style={{
@@ -2431,18 +2289,19 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
         }} />
       )}
       <div style={{ position: 'absolute', inset: 0, background: v.overlay }} />
-      <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, opacity: hasPhoto ? 0.06 : 0.12, mixBlendMode: 'overlay' }}>
+      <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: CARD_GRAIN, backgroundSize: '180px 180px', opacity: hasPhoto ? 0.16 : 0.22, mixBlendMode: 'overlay', pointerEvents: 'none' }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'linear-gradient(118deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 26%, rgba(255,255,255,0) 44%, rgba(255,255,255,0) 66%, rgba(255,255,255,0.08) 100%)', mixBlendMode: lightText ? 'soft-light' : 'overlay', pointerEvents: 'none' }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 'inherit', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), inset 1px 0 0 rgba(255,255,255,0.14), inset 0 -1px 0 rgba(0,0,0,0.45), inset -1px 0 0 rgba(0,0,0,0.25)', pointerEvents: 'none', zIndex: 3 }} />
+      <svg aria-hidden viewBox="0 0 44 34" style={{ position: 'absolute', left: '8%', top: '30%', width: '13%', filter: 'drop-shadow(0 1px 1.5px rgba(0,0,0,0.45))' }}>
         <defs>
-          <pattern id={patId} x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-            <circle cx="30" cy="30" r="28" fill="none" stroke="currentColor" strokeWidth="0.4" />
-            <circle cx="30" cy="30" r="20" fill="none" stroke="currentColor" strokeWidth="0.4" />
-            <circle cx="0" cy="0" r="28" fill="none" stroke="currentColor" strokeWidth="0.4" />
-            <circle cx="60" cy="0" r="28" fill="none" stroke="currentColor" strokeWidth="0.4" />
-            <circle cx="0" cy="60" r="28" fill="none" stroke="currentColor" strokeWidth="0.4" />
-            <circle cx="60" cy="60" r="28" fill="none" stroke="currentColor" strokeWidth="0.4" />
-          </pattern>
+          <linearGradient id={`${patId}-chip`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#f7e7b4" /><stop offset=".35" stopColor="#d3ac55" /><stop offset=".62" stopColor="#f0d58e" /><stop offset="1" stopColor="#a47f33" />
+          </linearGradient>
         </defs>
-        <rect width="100%" height="100%" fill={`url(#${patId})`} />
+        <rect x=".5" y=".5" width="43" height="33" rx="6" fill={`url(#${patId}-chip)`} stroke="rgba(70,45,5,0.55)" />
+        <g fill="none" stroke="rgba(70,45,5,0.55)" strokeWidth=".9">
+          <path d="M.5 12h12.5q4 0 4 5t-4 5H.5M43.5 12H31q-4 0-4 5t4 5h12.5M17 .5v8.5M27 .5v8.5M17 33.5V25M27 33.5V25M17 9h10v16H17z" />
+        </g>
       </svg>
       <div style={{ position: 'absolute', inset: 0, background: v.shimmer, pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', inset: 0, padding: 'clamp(14px, 6.4cqw, 26px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -2453,10 +2312,11 @@ function PremiumCard({ variant, number, name, expiry, type, style = {}, balance,
               Tax<span style={{ fontWeight: 300 }}>Tech</span>
             </span>
           </div>
+          <svg aria-hidden viewBox="0 0 24 24" style={{ width: 'clamp(16px, 5.4cqw, 24px)', height: 'clamp(16px, 5.4cqw, 24px)', fill: 'none', stroke: v.text, strokeWidth: 1.7, strokeLinecap: 'round', opacity: 0.8, filter: lightText ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' : undefined }}><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.5a13 13 0 0 1 0 19" /></svg>
         </div>
         <div style={{
           fontFamily: '"SF Mono", monospace', fontSize: 'clamp(15px, 5.6cqw, 26px)', fontWeight: 600, letterSpacing: 1.5,
-          color: v.text, textShadow: titleShadow,
+          color: v.text, textShadow: lightText ? '0 -1px 0 rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.28), 0 2px 6px rgba(0,0,0,0.35)' : '0 1px 0 rgba(255,255,255,0.55), 0 -1px 0 rgba(0,0,0,0.22)',
           display: 'flex', gap: 'clamp(8px, 3.6cqw, 18px)', alignItems: 'center', marginBottom: -8,
           padding: 0,
           background: 'transparent',
@@ -8539,12 +8399,11 @@ function DesktopSidebar({ active, onChange, collapsed, onToggle }: { active: Tab
         <BrandMark size={40} radiusValue={12} />
         {!collapsed && (
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: ROMAN_FONT, fontSize: 19, letterSpacing: '0.22em', color: text.primary, lineHeight: 1.1 }}>TAXTECH</div>
+            <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '0.02em', color: text.primary, lineHeight: 1.1 }}>TaxTech</div>
             <div style={{ fontSize: 12, color: text.dim, marginTop: 3 }}>{t('personal_cabinet')}</div>
           </div>
         )}
       </div>
-      <Meander opacity={0.32} style={{ margin: '-6px 6px 18px', height: 14, flexShrink: 0 }} />
 
       <nav aria-label={t('dk_menu')} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {tabs.map(tb => {
@@ -9262,7 +9121,7 @@ function LoginBrandPanel() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <RomanSeal size={40} />
         <div>
-          <div style={{ fontFamily: ROMAN_FONT, fontSize: 26, letterSpacing: '0.24em', color: text.primary }}>TAXTECH</div>
+          <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '0.01em', color: text.primary }}>TaxTech</div>
         </div>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 560, paddingBottom: 'clamp(140px, 17vw, 240px)', position: 'relative', zIndex: 1 }}>
@@ -9275,7 +9134,6 @@ function LoginBrandPanel() {
           ))}
         </ul>
       </div>
-      <Meander opacity={0.45} style={{ position: 'absolute', left: 64, right: 64, bottom: 40, zIndex: 1 }} />
       <div aria-hidden className="kp-rise" style={{ position: 'absolute', right: -60, bottom: -40, width: 'clamp(260px, 30vw, 460px)', transform: 'rotate(-10deg)', opacity: 0.92, ['--i' as string]: 3 }}>
         <PremiumCard variant="obsidian" number="6897" name="TAXTECH" expiry="09/29" type="" balance={167504.68} isPrimary style={{ width: '100%' }} />
       </div>
