@@ -4,18 +4,6 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
   it: {
     'Pay': 'Paga',
     'Cards': 'Carte',
-    'What is TaxTech?': 'Che cos’è TaxTech?',
-    'The training digital bank of a digital-finance lab and the payment partner of Saint Agnes. Accounts, cards, transfers, deposits, credit and fraud checks work as in a real bank, but with virtual money.':
-      'La banca digitale didattica di un laboratorio di finanza digitale e partner di pagamento di Saint Agnes. Conti, carte, bonifici, depositi, credito e controlli antifrode funzionano come in una vera banca, ma con denaro virtuale.',
-    'What is TAX?': 'Che cos’è TAX?',
-    'The bank’s virtual token. It is not money or e-money and cannot be exchanged for hryvnia. No real cards or accounts are linked, so there is no way to lose real money.':
-      'Il token virtuale della banca. Non è denaro né moneta elettronica e non si cambia in grivnie. Non si collegano carte o conti reali, quindi è impossibile perdere denaro vero.',
-    'How do I open an account?': 'Come si apre un conto?',
-    'Enter a phone number or email and a password. The account and your first card appear at once; then add a passkey and sign in with Face ID.':
-      'Inserisci un numero di telefono o un’email e una password. Il conto e la prima carta compaiono subito; poi aggiungi una passkey e accedi con Face ID.',
-    'How does fraud protection work?': 'Come funziona la protezione dalle frodi?',
-    'Before any money moves, every transfer passes 28 rules in three layers: the transaction itself, your history and the transfer graph between customers. Online payments are confirmed with a 3-D Secure code.':
-      'Prima che il denaro si muova, ogni bonifico supera 28 regole su tre livelli: l’operazione stessa, il tuo storico e il grafo dei bonifici tra clienti. I pagamenti online si confermano con un codice 3-D Secure.',
     'Language': 'Lingua',
     'Sections': 'Sezioni',
     'Sign in': 'Accedi',
@@ -55,18 +43,6 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
   de: {
     'Pay': 'Zahlen',
     'Cards': 'Karten',
-    'What is TaxTech?': 'Was ist TaxTech?',
-    'The training digital bank of a digital-finance lab and the payment partner of Saint Agnes. Accounts, cards, transfers, deposits, credit and fraud checks work as in a real bank, but with virtual money.':
-      'Die digitale Lernbank eines Labors für digitale Finanzen und Zahlungspartner von Saint Agnes. Konten, Karten, Überweisungen, Einlagen, Kredit und Betrugsprüfung funktionieren wie bei einer echten Bank, aber mit virtuellem Geld.',
-    'What is TAX?': 'Was ist TAX?',
-    'The bank’s virtual token. It is not money or e-money and cannot be exchanged for hryvnia. No real cards or accounts are linked, so there is no way to lose real money.':
-      'Der virtuelle Token der Bank. Er ist weder Geld noch E-Geld und lässt sich nicht in Hrywnja umtauschen. Es werden keine echten Karten oder Konten verknüpft, echtes Geld kann also nicht verloren gehen.',
-    'How do I open an account?': 'Wie eröffne ich ein Konto?',
-    'Enter a phone number or email and a password. The account and your first card appear at once; then add a passkey and sign in with Face ID.':
-      'Gib eine Telefonnummer oder E-Mail und ein Passwort ein. Konto und erste Karte erscheinen sofort; danach kannst du einen Passkey hinzufügen und dich mit Face ID anmelden.',
-    'How does fraud protection work?': 'Wie funktioniert der Betrugsschutz?',
-    'Before any money moves, every transfer passes 28 rules in three layers: the transaction itself, your history and the transfer graph between customers. Online payments are confirmed with a 3-D Secure code.':
-      'Bevor Geld fließt, durchläuft jede Überweisung 28 Regeln in drei Ebenen: die Transaktion selbst, dein Verlauf und der Überweisungsgraph zwischen Kunden. Online-Zahlungen bestätigst du mit einem 3-D-Secure-Code.',
     'Language': 'Sprache',
     'Sections': 'Abschnitte',
     'Sign in': 'Anmelden',
@@ -106,18 +82,6 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
   ru: {
     'Pay': 'Оплата',
     'Cards': 'Карты',
-    'What is TaxTech?': 'Что такое TaxTech?',
-    'The training digital bank of a digital-finance lab and the payment partner of Saint Agnes. Accounts, cards, transfers, deposits, credit and fraud checks work as in a real bank, but with virtual money.':
-      'Учебный цифровой банк лаборатории цифровых финансов и платёжный партнёр Saint Agnes. Счета, карты, переводы, депозиты, кредит и антифрод работают как в настоящем банке, но на виртуальных деньгах.',
-    'What is TAX?': 'Что такое TAX?',
-    'The bank’s virtual token. It is not money or e-money and cannot be exchanged for hryvnia. No real cards or accounts are linked, so there is no way to lose real money.':
-      'Виртуальный токен банка. Это не деньги и не электронные деньги, на гривну он не обменивается. Настоящие карты и счета не привязываются, поэтому потерять реальные деньги невозможно.',
-    'How do I open an account?': 'Как открыть счёт?',
-    'Enter a phone number or email and a password. The account and your first card appear at once; then add a passkey and sign in with Face ID.':
-      'Укажите телефон или email и пароль. Счёт и первая карта появятся сразу; затем можно добавить passkey и входить по Face ID.',
-    'How does fraud protection work?': 'Как работает защита от мошенничества?',
-    'Before any money moves, every transfer passes 28 rules in three layers: the transaction itself, your history and the transfer graph between customers. Online payments are confirmed with a 3-D Secure code.':
-      'Ещё до списания каждый перевод проходит 28 правил в трёх слоях: сама операция, ваша история и граф переводов между клиентами. Онлайн-оплату подтверждает код 3-D Secure.',
     'Language': 'Язык',
     'Sections': 'Разделы',
     'Sign in': 'Войти',

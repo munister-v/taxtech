@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
 import TapScene from './TapScene';
@@ -218,12 +219,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const cur = FINISHES.find(f => f.id === finish)!;
 
   const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes']];
-  const faq: [string, string][] = [
-    [t('Що таке TaxTech?', 'What is TaxTech?'), t('Навчальний цифровий банк лабораторії цифрових фінансів і платіжний партнер Saint Agnes. Рахунок, картки, перекази, депозити, кредит і антифрод працюють як у справжньому банку, але на віртуальних грошах.', 'The training digital bank of a digital-finance lab and the payment partner of Saint Agnes. Accounts, cards, transfers, deposits, credit and fraud checks work as in a real bank, but with virtual money.')],
-    [t('Що таке TAX?', 'What is TAX?'), t('Віртуальний токен банку. Він не є грошима чи електронними грошима й не обмінюється на гривню. Справжні картки й рахунки не прив’язуються, тож втратити реальні гроші неможливо.', 'The bank’s virtual token. It is not money or e-money and cannot be exchanged for hryvnia. No real cards or accounts are linked, so there is no way to lose real money.')],
-    [t('Як відкрити рахунок?', 'How do I open an account?'), t('Вкажіть телефон або email і пароль. Рахунок і перша картка з’являються одразу; потім можна додати passkey і входити за Face ID.', 'Enter a phone number or email and a password. The account and your first card appear at once; then add a passkey and sign in with Face ID.')],
-    [t('Як працює захист від шахрайства?', 'How does fraud protection work?'), t('Кожен переказ ще до списання проходить 28 правил у трьох шарах: сама операція, ваша історія і граф переказів між клієнтами. Онлайн-оплату підтверджує код 3-D Secure.', 'Before any money moves, every transfer passes 28 rules in three layers: the transaction itself, your history and the transfer graph between customers. Online payments are confirmed with a 3-D Secure code.')],
-  ];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (
@@ -399,7 +394,12 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <div className="bl-wrap bl-faq-wrap">
             <h2 className="bl-h bl-rv">{t('Питання.', 'Questions.')}</h2>
             <div className="bl-faq bl-rv">
-              {faq.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}
+              {FAQ.map(g => (
+                <div className="bl-faq-group" key={g.title.en}>
+                  <h3>{g.title[lang]}</h3>
+                  {g.items.map(it => <details key={it.q.en}><summary>{it.q[lang]}</summary><p>{it.a[lang]}</p></details>)}
+                </div>
+              ))}
               <a className="bl-more" href={DOCS_URL} target="_blank" rel="noreferrer">{t('Дослідження TaxTech: телефон чи хмара для ІІ-задач', 'TaxTech research: phone or cloud for AI tasks')} ›</a>
             </div>
           </div>
