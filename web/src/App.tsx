@@ -2762,7 +2762,7 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
         {accountNumber && accountNumber !== '—' && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 100, fontSize: 11, color: 'rgba(215,215,215, 0.65)', fontWeight: 500, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: 'rgba(215,215,215, 0.6)', fontWeight: 500, letterSpacing: 0.3, ...T.num }}>
             {accountNumber}
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="2" /><path d="M5 15V5a2 2 0 012-2h10" stroke="currentColor" strokeWidth="2" /></svg>
           </div>
@@ -4346,14 +4346,17 @@ function OverviewScreen() {
           </div>
           <div style={{ height: 18 }} />
           <BalanceBlock visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)} balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 18, flexWrap: 'wrap' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, height: 32, padding: '0 13px', borderRadius: 999, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)', fontSize: 12, color: 'rgba(235,235,240,0.85)', fontWeight: 600 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" strokeWidth="1.7" /><path d="M2.5 10h19" stroke="currentColor" strokeWidth="1.7" /></svg>
-              {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+            <div>
+              <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 5 }}>Цього місяця</div>
+              <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.4, color: flowNet >= 0 ? '#5fd68a' : '#ff8d80', ...T.num }}>
+                {flowNetSign}{fmtInt(Math.abs(flowNet))}<span style={{ fontSize: 14, fontWeight: 500, opacity: 0.7 }}>{fmtDec(Math.abs(flowNet))}</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: text.dim, marginLeft: 5 }}>TAX</span>
+              </div>
             </div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, height: 32, padding: '0 13px', borderRadius: 999, background: flowNet >= 0 ? 'rgba(79,209,139,0.14)' : 'rgba(255,122,107,0.14)', border: `1px solid ${flowNet >= 0 ? 'rgba(79,209,139,0.28)' : 'rgba(255,122,107,0.28)'}`, fontSize: 12, color: flowNet >= 0 ? '#6fe0a3' : '#ff9a8d', fontWeight: 600, ...T.num }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ transform: flowNet >= 0 ? 'none' : 'rotate(180deg)' }}><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              {flowNetSign}{fmtInt(Math.abs(flowNet))}{fmtDec(Math.abs(flowNet))}{'\u00a0TAX'} цього місяця
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 5 }}>Картки</div>
+              <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.4, color: text.primary, ...T.num }}>{cards.length}</div>
             </div>
           </div>
         </div>
