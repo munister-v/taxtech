@@ -128,9 +128,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     <>
       <span className="bl-push-ic" aria-hidden><img src="/icons/mark-white.svg" alt="" /></span>
       <div className="bl-push-tx">
-        <div className="bl-push-top"><em>TaxTech</em><em>{t('зараз', 'now')}</em></div>
-        <div className="bl-push-h">{t('Списання', 'Debit')}<u>−{fmt(amount)} TAX</u></div>
-        <p>{merchant} · {t('Залишок', 'Balance')} {fmt(bal)} TAX</p>
+        <div className="bl-push-top"><b>TaxTech</b><em>{t('зараз', 'now')}</em></div>
+        <p className="bl-push-h">{t('Списання', 'Debit')} <u>−{fmt(amount)} TAX</u> · {merchant}</p>
+        <p>{t('Залишок', 'Balance')} {fmt(bal)} TAX</p>
       </div>
     </>
   );
@@ -376,12 +376,12 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                 <span className="bl-shopx-tag">{t('Осінь · лукбук', 'Autumn · lookbook')}</span>
                 <div className="bl-toast bl-push bl-shopx-paid">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
               </a>
-              <div className="bl-shopx-list">
-                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map((p, i) => {
+              <div className="bl-shopx-list bl-rv">
+                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map(p => {
                   const name = p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : '';
                   const brand = name.match(/\s([A-Z0-9][A-Z0-9 .&'-]+)$/)?.[1] || '';
                   return (
-                    <a key={p.id} className="bl-shopx-item bl-rv" style={{ ['--d' as string]: `${(0.08 * i).toFixed(2)}s` }} href={SHOP_URL} target="_blank" rel="noreferrer">
+                    <a key={p.id} className="bl-shopx-item" href={SHOP_URL} target="_blank" rel="noreferrer">
                       <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}</div>
                       <small>{brand || '\u00a0'}</small>
                       <span>{(brand ? name.slice(0, -brand.length) : name).trim() || '\u00a0'}</span>

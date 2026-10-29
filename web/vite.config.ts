@@ -17,6 +17,7 @@ export default defineConfig({
   },
   base: '/',
   server: {
-    proxy: {'/api': 'http://127.0.0.1:5050'},
+    // API_PROXY=https://bank.munister.com.ua previews the landing with the live shop feed.
+    proxy: {'/api': {target: process.env.API_PROXY || 'http://127.0.0.1:5050', changeOrigin: true}},
   },
 });

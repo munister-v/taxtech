@@ -59,10 +59,9 @@ export default function FireScene({ src, ratio, focusX = 0.5, focusY = 0.4, spot
       g.addColorStop(0.2, `hsla(${hue},100%,58%,.6)`);
       g.addColorStop(1, `hsla(${hue},100%,50%,0)`);
       g2.fillStyle = g; g2.fillRect(0, 0, SPR, SPR);
-      g2.fillStyle = `hsla(${hue},100%,88%,.95)`;
-      g2.beginPath(); g2.arc(m, m, m * 0.15, 0, 6.2832); g2.fill();
       return c;
     });
+    const cores = Array.from({ length: HUES }, (_, j) => `hsl(${22 + (26 * j) / (HUES - 1)},100%,88%)`);
     let visible = true, raf = 0, last = performance.now();
     const spawn = () => {
       const e = em[(Math.random() * em.length) | 0];
@@ -87,9 +86,12 @@ export default function FireScene({ src, ratio, focusX = 0.5, focusY = 0.4, spot
         const k = p.age / p.life;
         const a = Math.sin(Math.PI * Math.min(1, k * 1.15)) * (0.55 + 0.45 * Math.sin(p.ph * 6));
         const r = p.r * (w / 1400 + 0.6) * (1 - k * 0.5);
-        const R = r * 5;
-        ctx.globalAlpha = Math.max(0, Math.min(1, a));
-        ctx.drawImage(sprites[Math.min(HUES - 1, Math.round(((p.hue - 22) / 26) * (HUES - 1)))], p.x - R, p.y - R, R * 2, R * 2);
+        const R = r * 5, al = Math.max(0, Math.min(1, a)), hi = Math.min(HUES - 1, Math.round(((p.hue - 22) / 26) * (HUES - 1)));
+        ctx.globalAlpha = al;
+        ctx.drawImage(sprites[hi], p.x - R, p.y - R, R * 2, R * 2);
+        ctx.fillStyle = cores[hi];
+        ctx.globalAlpha = al * 0.95;
+        ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0.7, r * 0.75), 0, 6.2832); ctx.fill();
       }
     };
     const io = new IntersectionObserver(es => {
