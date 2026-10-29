@@ -39,7 +39,11 @@
 
   body {
     @apply antialiased;
-    background: #000;
+    background:
+      radial-gradient(900px 520px at 8% -6%, rgba(255, 212, 0, 0.08), transparent 62%),
+      radial-gradient(820px 640px at 100% 42%, rgba(80, 110, 255, 0.07), transparent 62%),
+      #000;
+    background-attachment: fixed;
     color: var(--kp-ink-2);
   }
 
@@ -72,17 +76,14 @@
     position: relative;
     border-radius: 22px;
     border: 1px solid transparent;
-    background:
-      linear-gradient(155deg, rgba(255,212,0,0.08), rgba(255,212,0,0) 42%) padding-box,
-      linear-gradient(#1c1c1e, #1c1c1e) padding-box,
-      linear-gradient(135deg, rgba(255,212,0,0.55), rgba(255,255,255,0.08) 48%, rgba(255,212,0,0.30)) border-box;
-    box-shadow: inset 0 0 0 4px #1c1c1e, inset 0 0 0 4.5px rgba(255,212,0,0.10);
+    border-color: rgba(255,255,255,0.05);
+    background: linear-gradient(180deg, #222225 0%, #19191b 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 30px -16px rgba(0,0,0,0.75);
     transition: border-color 0.25s var(--kp-ease), background 0.25s var(--kp-ease);
   }
   .kp-card:hover {
     border-color: transparent;
   }
-  .kp-card-flat { box-shadow: inset 0 0 0 1px rgba(255,212,0,0.10); }
   .kp-card-flat {
     border-radius: 18px;
     border: 1px solid transparent;
@@ -670,7 +671,7 @@
 .kp-tx-row { transition: background 0.15s ease; -webkit-tap-highlight-color: transparent; }
 .kp-tx-row:active { background: rgba(255,255,255, 0.05); }
 
-/* Гравюрна рамка для великих темних панелей, що задають фон інлайном (єдиний вигляд із iOS) */
+/* Великі темні панелі з інлайн-фоном: та сама тонка нейтральна лінія */
 :is(
   [style*="background: rgb(28, 28, 30)"][style*="border-radius: 20px"],
   [style*="background: rgb(28, 28, 30)"][style*="border-radius: 22px"],
@@ -678,5 +679,6 @@
   [style*="background: rgb(28, 28, 30)"][style*="border-radius: 26px"],
   [style*="background: rgb(28, 28, 30)"][style*="border-radius: 28px"]
 ):not(.kp-card) {
-  box-shadow: inset 0 0 0 1px rgba(255, 212, 0, 0.30), inset 0 0 0 4px #1c1c1e, inset 0 0 0 4.5px rgba(255, 212, 0, 0.10) !important;
+  background: linear-gradient(180deg, #222225 0%, #19191b 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 30px -16px rgba(0, 0, 0, 0.75) !important;
 }

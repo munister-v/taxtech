@@ -91,11 +91,11 @@ const glassCard = (extra?: React.CSSProperties): React.CSSProperties => {
   }
   return glassCardMobile(extra);
 };
-// Гравюрна рамка: золотий градієнтний край, ледь помітний блик і внутрішня тонка лінія, як у Surface на iOS
+// Поверхня панелі: м'який вертикальний градієнт, світлий верхній край і глибока тінь замість обводки
 const ENGRAVED_FRAME: React.CSSProperties = {
-  border: '1px solid transparent',
-  background: 'linear-gradient(155deg, rgba(255,212,0,0.08), rgba(255,212,0,0) 42%) padding-box, linear-gradient(#1c1c1e, #1c1c1e) padding-box, linear-gradient(135deg, rgba(255,212,0,0.55), rgba(255,255,255,0.08) 48%, rgba(255,212,0,0.30)) border-box',
-  boxShadow: 'inset 0 0 0 4px #1c1c1e, inset 0 0 0 4.5px rgba(255,212,0,0.10)',
+  border: '1px solid rgba(255,255,255,0.05)',
+  background: 'linear-gradient(180deg, #222225 0%, #19191b 100%)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 30px -16px rgba(0,0,0,0.75)',
 };
 const glassCardMobile = (extra?: React.CSSProperties): React.CSSProperties => ({
   ...extra,
@@ -143,9 +143,9 @@ const sectionLabel: React.CSSProperties = {
 // Кнопка-таблетка для виписки й експорту: іконка + підпис
 const docPill: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 7, height: 38, padding: '0 16px', borderRadius: 100,
-  background: 'linear-gradient(180deg, rgba(255,229,102,0.16), rgba(255,212,0,0.06))',
-  border: '1px solid rgba(255,212,0,0.38)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), inset 0 0 0 3px rgba(255,212,0,0.04)',
-  color: gold, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+  background: 'rgba(255,255,255,0.06)',
+  border: '1px solid rgba(255,255,255,0.14)',
+  color: gold, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', whiteSpace: 'nowrap',
 };
 
 // Заголовок панелі на десктопі
@@ -2360,6 +2360,55 @@ function apiCardToData(c: CardInfo, holderFallback = 'ARMY BANK'): CardData & { 
   };
 }
 
+// Рубашка картки: стрічка, CVV і номер у скляних чипах, дійсна до та власник. Розкладка потоком, без відсотків
+function CardBack({ bg, image, expiry, name, last4, revealed, toast }: {
+  bg: string; image?: string; expiry: string; name: string; last4: string;
+  revealed: { cvv: string; card_number: string } | null | undefined; toast: (m: string) => void;
+}) {
+  const mono = '"SF Mono", ui-monospace, Menlo, monospace';
+  const copy = (value: string | undefined, msg: string) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (value) navigator.clipboard.writeText(value).then(() => toast(msg)).catch(() => {});
+  };
+  const chip: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, height: 32, padding: '0 11px',
+    background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 10,
+    color: '#fff', fontFamily: mono, fontWeight: 700, cursor: revealed ? 'pointer' : 'default',
+  };
+  const cap: React.CSSProperties = { fontSize: 8.5, color: 'rgba(255,255,255,0.5)', letterSpacing: 1, textTransform: 'uppercase' };
+  const copyIcon = <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="rgba(255,255,255,0.65)" strokeWidth="2" /><path d="M5 15V5a2 2 0 012-2h10" stroke="rgba(255,255,255,0.65)" strokeWidth="2" /></svg>;
+  const number = revealed ? revealed.card_number.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() : `•••• •••• •••• ${last4}`;
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+      transform: 'rotateY(180deg)', borderRadius: 22, overflow: 'hidden', background: bg,
+      boxShadow: '0 20px 40px -12px rgba(0,0,0,0.55)', display: 'flex', flexDirection: 'column',
+    }}>
+      {image && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3)', transform: 'scale(1.04)' }} />}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+      <div style={{ position: 'relative', height: '15%', minHeight: 22, marginTop: '7%', background: 'linear-gradient(180deg, #202022, #0c0c0d)', boxShadow: '0 1px 0 rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '0 14px' }}><span style={{ ...cap, fontSize: 9 }}>↩ закрити</span></div>
+      <div style={{ position: 'relative', flex: 1, minHeight: 0, padding: '9px 16px 11px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <span style={cap}>CVV2</span>
+          <button onClick={copy(revealed?.cvv, 'CVV скопійовано ✓')} style={{ ...chip, width: 84, flexShrink: 0, border: '1px solid rgba(255,255,255,0.14)' }}>
+            <span style={{ fontSize: 14, letterSpacing: 3 }}>{revealed?.cvv || '•••'}</span>{revealed && copyIcon}
+          </button>
+        </div>
+        <div>
+          <div style={{ ...cap, marginBottom: 4 }}>Номер картки</div>
+          <button onClick={copy(revealed?.card_number.replace(/\s/g, ''), 'Номер скопійовано ✓')} style={{ ...chip, width: '100%' }}>
+            <span style={{ fontSize: 13, letterSpacing: 1.6, whiteSpace: 'nowrap' }}>{number}</span>{revealed && copyIcon}
+          </button>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
+          <div><div style={cap}>Дійсна до</div><div style={{ fontFamily: mono, fontSize: 12, fontWeight: 700, color: '#fff', marginTop: 2 }}>{expiry}</div></div>
+          <div style={{ flex: 1, minWidth: 0 }}><div style={cap}>Власник</div><div style={{ fontSize: 11, fontWeight: 700, color: '#fff', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PremiumCard({ variant, number, name, expiry, type, style = {}, balance, isPrimary }: CardData & { style?: React.CSSProperties; balance?: number; isPrimary?: boolean }) {
   const v = CARD_VARIANTS[variant] ?? CARD_VARIANTS.gold;
   const tt = translations[getStoredLanguage()];
@@ -2634,7 +2683,7 @@ function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: s
       gap: 9, padding: isMobile ? '8px 2px 6px' : '12px 6px 10px', background: 'transparent', border: 'none',
       color: text.secondary, fontFamily: 'inherit', cursor: 'pointer', textAlign: 'center', minWidth: 0,
     }}>
-      <Medallion tint={gold} size={isMobile ? 54 : 58}>{recolorIcon(icon, gold)}</Medallion>
+      <div style={{ filter: 'drop-shadow(0 8px 16px rgba(255,212,0,0.22))' }}><Medallion tint={gold} size={isMobile ? 54 : 58}>{recolorIcon(icon, gold)}</Medallion></div>
       <span style={{
         fontSize: isMobile ? 11.5 : 10.5, fontWeight: 600, lineHeight: 1.2, letterSpacing: isMobile ? 0.1 : 0.4,
         textTransform: isMobile ? 'none' : 'uppercase', color: text.secondary,
@@ -2654,9 +2703,9 @@ function ActivityRow({ iconEl, title, subtitle, amount, positive, onClick }: {
         <div style={{ ...T.body, fontWeight: 500, color: text.primary, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}>{title}</div>
         <div style={{ ...T.sm, color: text.muted, marginTop: 3 }}>{subtitle}</div>
       </div>
-      <div style={{ flexShrink: 0, textAlign: 'right', fontFamily: 'ui-serif, "New York", Georgia, serif', fontSize: 18, fontWeight: 600, letterSpacing: -0.3, color: positive ? '#5fd68a' : text.primary, ...T.num, whiteSpace: 'nowrap' }}>
+      <div style={{ flexShrink: 0, textAlign: 'right', fontSize: 16, fontWeight: 600, letterSpacing: -0.2, color: positive ? '#5fd68a' : text.primary, ...T.num, whiteSpace: 'nowrap' }}>
         {positive ? '+' : '\u2212'}{amount.replace(/[\s\u00a0]*TAX$/, '')}
-        <div style={{ fontFamily: 'inherit', fontSize: 10, fontWeight: 700, color: gold, letterSpacing: 1.6, marginTop: 2 }}>TAX</div>
+        <div style={{ fontSize: 10.5, fontWeight: 500, color: text.dim, letterSpacing: 0.6, marginTop: 2 }}>TAX</div>
       </div>
     </div>
   );
@@ -2707,7 +2756,7 @@ function BalanceBlock({ visible, onToggle, balance, accountNumber }: { visible: 
       <div style={{ position: 'relative' }}>
         <div style={{ ...T.num, fontSize: 46, fontWeight: 300, letterSpacing: -1.8, color: text.primary, lineHeight: 1, display: 'flex', alignItems: 'baseline', gap: 4 }}>
           <span style={{ fontSize: 26, fontWeight: 600, color: gold, letterSpacing: -0.5 }}>TAX</span>
-          <span style={{ textShadow: '0 0 40px rgba(236,236,236, 0.12)' }}>{visible ? fmtInt(balance) : '• • • • • • •'}</span>
+          <span style={{ fontWeight: 500, background: 'linear-gradient(180deg, #ffffff 30%, #a9a9b2 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 6px 22px rgba(255,212,0,0.18))' }}>{visible ? fmtInt(balance) : '• • • • • • •'}</span>
           <span style={{ fontSize: 24, fontWeight: 300, color: 'rgba(235,235,235, 0.38)', letterSpacing: -0.5 }}>{visible ? fmtDec(balance) : ''}</span>
         </div>
       </div>
@@ -3673,41 +3722,47 @@ function FinancialHealthScore({ transactions, account }: { transactions: TxItem[
   const { score, label: levelLabel, tips, parts } = computeHealth(transactions, account);
   const savingsRate = parts[0].val, balanceScore = parts[1].val, activityScore = parts[2].val;
 
-  const level = score >= 80 ? { label: levelLabel, color: '#a9a9a9', icon: <TrophyIcon color="#a9a9a9" /> }
-    : score >= 60 ? { label: levelLabel, color: '#ababab', icon: <CheckBadgeIcon color="#ababab" /> }
-    : score >= 40 ? { label: levelLabel, color: '#afafaf', icon: <ChartIcon color="#afafaf" /> }
-    : { label: levelLabel, color: '#757575', icon: <AlertIcon color="#757575" /> };
+  const level = score >= 80 ? { label: levelLabel, color: '#4fd18b', icon: <TrophyIcon color="#4fd18b" /> }
+    : score >= 60 ? { label: levelLabel, color: '#b6d94c', icon: <CheckBadgeIcon color="#b6d94c" /> }
+    : score >= 40 ? { label: levelLabel, color: '#FFD400', icon: <ChartIcon color="#FFD400" /> }
+    : { label: levelLabel, color: '#ff7a6b', icon: <AlertIcon color="#ff7a6b" /> };
 
   return (
-    <div style={{ margin: dk ? 0 : '0 22px 20px', background: bg.card, border: `1px solid ${bg.border}`, borderRadius: dk ? 24 : 20, padding: dk ? 24 : '18px 20px', overflow: 'hidden', position: 'relative', height: dk ? '100%' : undefined, boxSizing: 'border-box' }}>
-      <div style={{ position: 'absolute', top: 0, right: 0, width: 120, height: 120, borderRadius: '50%', background: `${level.color}`, pointerEvents: 'none' }} />
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div>
-          <div style={{ fontSize: 11, color: text.muted, letterSpacing: 0.8, marginBottom: 4 }}>ФІНАНСОВИЙ РЕЙТИНГ</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: level.color }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16 }}>{level.icon}</span>
+    <div style={{ margin: dk ? 0 : '14px 22px 20px', ...ENGRAVED_FRAME, borderRadius: dk ? 24 : 20, padding: dk ? 24 : '18px 20px', overflow: 'hidden', position: 'relative', height: dk ? '100%' : undefined, boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 18 }}>
+        <div style={{ position: 'relative', width: 92, height: 92, flexShrink: 0, filter: `drop-shadow(0 6px 16px ${level.color}40)` }}>
+          <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden="true">
+            <circle cx="46" cy="46" r="38" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="7" />
+            <circle cx="46" cy="46" r="38" fill="none" stroke={level.color} strokeWidth="7" strokeLinecap="round"
+              strokeDasharray={`${(2 * Math.PI * 38 * score) / 100} ${2 * Math.PI * 38}`} transform="rotate(-90 46 46)"
+              style={{ transition: 'stroke-dasharray 1s ease' }} />
+          </svg>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1, color: text.primary, letterSpacing: -0.8, ...T.num }}>{score}</div>
+            <div style={{ fontSize: 10, color: text.muted, marginTop: 3 }}>зі 100</div>
+          </div>
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 11, color: text.muted, letterSpacing: 1, marginBottom: 6 }}>ФІНАНСОВИЙ РЕЙТИНГ</div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 11px', borderRadius: 999, background: `${level.color}22`, color: level.color, fontSize: 13, fontWeight: 600 }}>
+            <span style={{ display: 'inline-flex', width: 15, height: 15 }}>{level.icon}</span>
             <span>{level.label}</span>
           </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 36, fontWeight: 800, color: level.color, lineHeight: 1 }}>{score}</div>
-          <div style={{ fontSize: 10, color: text.muted }}>зі 100</div>
-        </div>
       </div>
-      {/* Score bar */}
-      <div style={{ background: 'rgba(255,255,255, 0.1)', borderRadius: 4, height: 6, marginBottom: tips.length ? 14 : 0, overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${score}%`, borderRadius: 4, background: `${level.color}`, transition: 'width 1s ease' }} />
-      </div>
-      {/* Components */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: tips.length ? 14 : 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 11, marginBottom: tips.length ? 16 : 0 }}>
         {[
           { label: 'Заощадження', val: Math.round(savingsRate) },
           { label: 'Баланс', val: Math.round(balanceScore) },
           { label: 'Активність', val: Math.round(activityScore) },
         ].map(({ label, val }) => (
-          <div key={label} style={{ textAlign: 'center', background: 'rgba(255,255,255, 0.1)', borderRadius: 10, padding: '8px 4px' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: text.primary }}>{val}</div>
-            <div style={{ fontSize: 9, color: text.muted, marginTop: 2 }}>{label}</div>
+          <div key={label}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: text.muted, marginBottom: 5 }}>
+              <span>{label}</span><span style={{ color: text.secondary, fontWeight: 600, ...T.num }}>{val}</span>
+            </div>
+            <div style={{ height: 5, borderRadius: 5, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+              <div style={{ width: `${val}%`, height: '100%', borderRadius: 5, background: `linear-gradient(90deg, ${level.color}99, ${level.color})`, transition: 'width 1s ease' }} />
+            </div>
           </div>
         ))}
       </div>
@@ -4164,40 +4219,7 @@ function OverviewScreen() {
                             {!ovFlipped && <div style={{ position: 'absolute', bottom: 10, right: 12, fontSize: 9, color: 'rgba(255,255,255, 0.5)', pointerEvents: 'none' }}>{ovRevealing ? '…' : '👁 перевернути'}</div>}
                           </div>
                           {/* Back */}
-                          <div style={{
-                            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                            backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                            transform: 'rotateY(180deg)', borderRadius: 22, overflow: 'hidden',
-                            background: v.bg, boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55)',
-                          }}>
-                            {v.image && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${v.image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3)', transform: 'scale(1.04)' }} />}
-                            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0, 0.6)' }} />
-                            <div style={{ position: 'absolute', top: '22%', left: 0, right: 0, height: '16%', background: '#1c1c1c' }} />
-                            <div style={{ position: 'absolute', top: '42%', left: '5%', right: '5%' }}>
-                              <div style={{ display: 'flex', height: 30, borderRadius: 4, overflow: 'hidden' }}>
-                                <div style={{ flex: 1, background: '#cccccc' }} />
-                                <button onClick={e => { e.stopPropagation(); if (ovRevealed) navigator.clipboard.writeText(ovRevealed.cvv).then(() => toast('CVV скопійовано ✓')).catch(() => {}); }} style={{ background: '#ffffff', border: 'none', padding: '0 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
-                                  <span style={{ fontFamily: '"SF Mono", monospace', fontSize: 14, fontWeight: 800, color: '#000000', letterSpacing: 3 }}>{ovRevealed?.cvv || '•••'}</span>
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="#888888" strokeWidth="2"/><path d="M5 15V5a2 2 0 012-2h10" stroke="#888888" strokeWidth="2"/></svg>
-                                </button>
-                              </div>
-                              <div style={{ fontSize: 8, color: 'rgba(255,255,255, 0.45)', marginTop: 4, letterSpacing: 0.8 }}>CVV2 / CVC2 · натисни щоб скопіювати</div>
-                            </div>
-                            <div style={{ position: 'absolute', top: '62%', left: '5%', right: '5%' }}>
-                              <div style={{ fontSize: 8, color: 'rgba(255,255,255, 0.45)', letterSpacing: 1, marginBottom: 5 }}>НОМЕР КАРТКИ</div>
-                              <button onClick={e => { e.stopPropagation(); if (ovRevealed) navigator.clipboard.writeText(ovRevealed.card_number.replace(/\s/g, '')).then(() => toast('Номер скопійовано ✓')).catch(() => {}); }} style={{ width: '100%', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 8, padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                                <span style={{ fontFamily: '"SF Mono", monospace', fontSize: 13, fontWeight: 700, color: '#ffffff', letterSpacing: 2 }}>
-                                  {ovRevealed ? ovRevealed.card_number.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() : `•••• •••• •••• ${c.number}`}
-                                </span>
-                                {ovRevealed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="rgba(255,255,255, 0.6)" strokeWidth="2"/><path d="M5 15V5a2 2 0 012-2h10" stroke="rgba(255,255,255, 0.6)" strokeWidth="2"/></svg>}
-                              </button>
-                            </div>
-                            <div style={{ position: 'absolute', bottom: '5%', left: '5%', right: '5%', display: 'flex', gap: 16 }}>
-                              <div><div style={{ fontSize: 7, color: 'rgba(255,255,255, 0.4)', letterSpacing: 1 }}>ДІЙСНА ДО</div><div style={{ fontFamily: '"SF Mono", monospace', fontSize: 11, fontWeight: 700, color: '#ffffff' }}>{c.expiry}</div></div>
-                              <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 7, color: 'rgba(255,255,255, 0.4)', letterSpacing: 1 }}>ВЛАСНИК</div><div style={{ fontSize: 10, fontWeight: 700, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div></div>
-                            </div>
-                            <div style={{ position: 'absolute', top: 10, right: 14, fontSize: 9, color: 'rgba(255,255,255, 0.4)' }}>↩ закрити</div>
-                          </div>
+                            <CardBack bg={v.bg} image={v.image} expiry={c.expiry} name={c.name} last4={c.number} revealed={ovRevealed} toast={toast} />
                         </div>
                       </div>
                     ) : (
@@ -4325,10 +4347,12 @@ function OverviewScreen() {
           <div style={{ height: 18 }} />
           <BalanceBlock visible={balanceVisible} onToggle={() => setBalanceVisible(v => !v)} balance={account?.balance ?? 0} accountNumber={account?.account_number ?? '—'} />
           <div style={{ display: 'flex', gap: 8, marginTop: 18, flexWrap: 'wrap' }}>
-            <div style={{ padding: '8px 12px', borderRadius: 999, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', fontSize: 11, color: 'rgba(215,215,215, 0.78)', fontWeight: 600 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, height: 32, padding: '0 13px', borderRadius: 999, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)', fontSize: 12, color: 'rgba(235,235,240,0.85)', fontWeight: 600 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" stroke="currentColor" strokeWidth="1.7" /><path d="M2.5 10h19" stroke="currentColor" strokeWidth="1.7" /></svg>
               {cards.length} {cards.length === 1 ? 'картка' : 'картки'}
             </div>
-            <div style={{ padding: '8px 12px', borderRadius: 999, background: flowNet >= 0 ? 'rgba(169,169,169, 0.14)' : 'rgba(136,136,136, 0.14)', border: `1px solid ${flowNet >= 0 ? 'rgba(169,169,169, 0.24)' : 'rgba(136,136,136, 0.22)'}`, fontSize: 11, color: flowNet >= 0 ? '#c5c5c5' : '#bfbfbf', fontWeight: 600, fontFeatureSettings: '"tnum" 1' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, height: 32, padding: '0 13px', borderRadius: 999, background: flowNet >= 0 ? 'rgba(79,209,139,0.14)' : 'rgba(255,122,107,0.14)', border: `1px solid ${flowNet >= 0 ? 'rgba(79,209,139,0.28)' : 'rgba(255,122,107,0.28)'}`, fontSize: 12, color: flowNet >= 0 ? '#6fe0a3' : '#ff9a8d', fontWeight: 600, ...T.num }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ transform: flowNet >= 0 ? 'none' : 'rotate(180deg)' }}><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
               {flowNetSign}{fmtInt(Math.abs(flowNet))}{fmtDec(Math.abs(flowNet))}{'\u00a0TAX'} цього місяця
             </div>
           </div>
@@ -4732,44 +4756,7 @@ function CardsScreen() {
                       {!flipped && <div style={{ position: 'absolute', bottom: 12, right: 14, fontSize: 9, color: 'rgba(255,255,255, 0.54)', pointerEvents: 'none', letterSpacing: 0.5, textTransform: 'uppercase' }}>{revealing ? '…' : 'Реквізити'}</div>}
                     </div>
                     {/* Back */}
-                    <div style={{
-                      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                      backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                      transform: 'rotateY(180deg)', borderRadius: 22, overflow: 'hidden',
-                      background: v.bg, boxShadow: '0 20px 40px -12px rgba(0,0,0, 0.55)',
-                    }}>
-                      {v.image && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: `url(${v.image})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3)', transform: 'scale(1.04)' }} />}
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0, 0.6)' }} />
-                      {/* Magnetic stripe — 22% from top */}
-                      <div style={{ position: 'absolute', top: '22%', left: 0, right: 0, height: '16%', background: '#1c1c1c' }} />
-                      {/* Signature + CVV row — 42% from top */}
-                      <div style={{ position: 'absolute', top: '42%', left: '5%', right: '5%' }}>
-                        <div style={{ display: 'flex', height: 30, borderRadius: 4, overflow: 'hidden' }}>
-                          <div style={{ flex: 1, background: '#cccccc' }} />
-                          <button onClick={e => { e.stopPropagation(); if (revealed) navigator.clipboard.writeText(revealed.cvv).then(() => toast('CVV скопійовано ✓')).catch(() => {}); }} style={{ background: '#ffffff', border: 'none', padding: '0 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }}>
-                            <span style={{ fontFamily: '"SF Mono", monospace', fontSize: 14, fontWeight: 800, color: '#000000', letterSpacing: 3 }}>{revealed?.cvv || '•••'}</span>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="#888888" strokeWidth="2"/><path d="M5 15V5a2 2 0 012-2h10" stroke="#888888" strokeWidth="2"/></svg>
-                          </button>
-                        </div>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255, 0.45)', marginTop: 4, letterSpacing: 0.8 }}>CVV2 / CVC2 · натисни щоб скопіювати</div>
-                      </div>
-                      {/* Card number — 62% from top */}
-                      <div style={{ position: 'absolute', top: '62%', left: '5%', right: '5%' }}>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255, 0.45)', letterSpacing: 1, marginBottom: 5 }}>НОМЕР КАРТКИ</div>
-                        <button onClick={e => { e.stopPropagation(); if (revealed) navigator.clipboard.writeText(revealed.card_number.replace(/\s/g, '')).then(() => toast('Номер скопійовано ✓')).catch(() => {}); }} style={{ width: '100%', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 8, padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                          <span style={{ fontFamily: '"SF Mono", monospace', fontSize: 13, fontWeight: 700, color: '#ffffff', letterSpacing: 2 }}>
-                            {revealed ? revealed.card_number.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() : `•••• •••• •••• ${c.number}`}
-                          </span>
-                          {revealed && <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="rgba(255,255,255, 0.6)" strokeWidth="2"/><path d="M5 15V5a2 2 0 012-2h10" stroke="rgba(255,255,255, 0.6)" strokeWidth="2"/></svg>}
-                        </button>
-                      </div>
-                      {/* Expiry + holder — bottom 5% */}
-                      <div style={{ position: 'absolute', bottom: '5%', left: '5%', right: '5%', display: 'flex', gap: 16 }}>
-                        <div><div style={{ fontSize: 7, color: 'rgba(255,255,255, 0.4)', letterSpacing: 1 }}>ДІЙСНА ДО</div><div style={{ fontFamily: '"SF Mono", monospace', fontSize: 11, fontWeight: 700, color: '#ffffff' }}>{c.expiry}</div></div>
-                        <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 7, color: 'rgba(255,255,255, 0.4)', letterSpacing: 1 }}>ВЛАСНИК</div><div style={{ fontSize: 10, fontWeight: 700, color: '#ffffff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div></div>
-                      </div>
-                      <div style={{ position: 'absolute', top: 10, right: 14, fontSize: 9, color: 'rgba(255,255,255, 0.42)', letterSpacing: 0.45, textTransform: 'uppercase' }}>Закрити</div>
-                    </div>
+                      <CardBack bg={v.bg} image={v.image} expiry={c.expiry} name={c.name} last4={c.number} revealed={revealed} toast={toast} />
                   </div>
                 </div>
               ) : (
@@ -4828,13 +4815,13 @@ function CardsScreen() {
           </div>
 
           {/* Card balance block */}
-          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'linear-gradient(160deg, rgba(255,212,0,0.07), rgba(255,255,255,0.04))', borderRadius: 16, border: '1px solid rgba(255,212,0,0.28)' }}>
+          <div style={{ marginBottom: 18, padding: '14px 16px', background: 'linear-gradient(160deg, rgba(255,212,0,0.10), rgba(255,255,255,0.03) 60%)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <div style={{ fontSize: 10, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
                   {card?.isPrimary ? 'Баланс рахунку (головна картка)' : 'Баланс картки'}
                 </div>
-                <div style={{ fontFamily: 'ui-serif, "New York", Georgia, serif', fontSize: 26, fontWeight: 600, color: text.primary, fontFeatureSettings: '"tnum"' }}>
+                <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: -0.4, color: text.primary, fontFeatureSettings: '"tnum"' }}>
                   {formatUah(card?.balance ?? 0)}
                 </div>
               </div>
@@ -4882,10 +4869,10 @@ function CardsScreen() {
                 display: 'flex', flexDirection: 'column', alignItems: layout === 'mobile' ? 'flex-start' : 'center', gap: 10,
                 minHeight: layout === 'mobile' ? 94 : undefined,
                 padding: layout === 'mobile' ? '14px 12px' : '10px 4px',
-                background: 'linear-gradient(160deg, rgba(255,212,0,0.07), rgba(255,255,255,0.03))',
-                border: '1px solid rgba(255,212,0,0.22)', borderRadius: 16,
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03))',
+                border: '1px solid rgba(255,255,255,0.05)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)', borderRadius: 16,
                 color: '#e8e8ea', fontSize: layout === 'mobile' ? 12.5 : 11, fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer',
-                textAlign: layout === 'mobile' ? 'left' : 'center', boxShadow: 'none',
+                textAlign: layout === 'mobile' ? 'left' : 'center',
               }}>
                 <Medallion tint={gold} size={38}>{a.icon}</Medallion>{a.label}
               </button>
@@ -5143,11 +5130,15 @@ const MEDALLION_TICKS = Array.from({ length: 60 }, (_, i) => {
 const HERO_ROSETTE = rosettePaths(26, 8, 0.2, 0.06, 46, 110).join('');
 function HeroRosette({ size = 280, style }: { size?: number; style?: React.CSSProperties }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={{ position: 'absolute', right: -size * 0.28, top: -size * 0.3, opacity: 0.1, pointerEvents: 'none', ...style }}>
-      <path d={HERO_ROSETTE} fill="none" stroke={gold} strokeWidth="0.18" />
-      <circle cx="50" cy="50" r="47" fill="none" stroke={gold} strokeWidth="0.25" />
-      <circle cx="50" cy="50" r="14" fill="none" stroke={gold} strokeWidth="0.25" />
-    </svg>
+    <>
+      <div aria-hidden="true" style={{ position: 'absolute', right: -size * 0.3, top: -size * 0.35, width: size * 0.95, height: size * 0.95, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,212,0,0.30), rgba(255,170,0,0.08) 55%, transparent 72%)', filter: 'blur(18px)', pointerEvents: 'none', ...style }} />
+      <div aria-hidden="true" style={{ position: 'absolute', left: -size * 0.35, bottom: -size * 0.45, width: size * 0.9, height: size * 0.9, borderRadius: '50%', background: 'radial-gradient(circle, rgba(90,120,255,0.22), transparent 68%)', filter: 'blur(22px)', pointerEvents: 'none' }} />
+      <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={{ position: 'absolute', right: -size * 0.28, top: -size * 0.3, opacity: 0.16, pointerEvents: 'none', ...style }}>
+        <path d={HERO_ROSETTE} fill="none" stroke={gold} strokeWidth="0.18" />
+        <circle cx="50" cy="50" r="47" fill="none" stroke={gold} strokeWidth="0.25" />
+        <circle cx="50" cy="50" r="14" fill="none" stroke={gold} strokeWidth="0.25" />
+      </svg>
+    </>
   );
 }
 let medallionSeq = 0;
@@ -6160,7 +6151,7 @@ function OperationsScreen() {
           overflow: 'hidden',
         }}>
         <div style={{ ...T.h1, color: text.primary, marginBottom: 14 }}>{t('operations_title')}</div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
           <button onClick={downloadStatement} style={docPill}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
@@ -6382,9 +6373,9 @@ function OperationsScreen() {
                       <div style={{ ...T.body, fontWeight: 500, color: text.primary, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', overflowWrap: 'anywhere' }}>{item.title}</div>
                       <div style={{ ...T.sm, color: text.muted, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle}</div>
                     </div>
-                    <div style={{ flexShrink: 0, textAlign: 'right', fontFamily: 'ui-serif, "New York", Georgia, serif', fontSize: 19, fontWeight: 600, letterSpacing: -0.3, color: item.positive ? '#5fd68a' : text.primary, ...T.num }}>
+                    <div style={{ flexShrink: 0, textAlign: 'right', fontSize: 16, fontWeight: 600, letterSpacing: -0.2, color: item.positive ? '#5fd68a' : text.primary, ...T.num }}>
                       {item.amount}
-                      <div style={{ fontFamily: 'inherit', fontSize: 10, fontWeight: 700, color: gold, letterSpacing: 1.6, marginTop: 2 }}>TAX</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 500, color: text.dim, letterSpacing: 0.6, marginTop: 2 }}>TAX</div>
                     </div>
                   </div>
                   {i < g.items.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255, 0.06)', margin: '0 16px 0 72px' }} />}
