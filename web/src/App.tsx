@@ -2558,11 +2558,20 @@ function BalanceHistoryChart() {
   const min = Math.min(...points.map(p => p.balance));
   const max = Math.max(...points.map(p => p.balance));
   const range = max - min || 1;
-  const W = 280, H = 60;
-  const toY = (v: number) => H - ((v - min) / range) * (H - 8) - 4;
+  const W = 320, H = 120, PAD = 10;
+  const toY = (v: number) => H - PAD - ((v - min) / range) * (H - PAD * 2);
   const toX = (i: number) => (i / (points.length - 1)) * W;
-  const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(i).toFixed(1)} ${toY(p.balance).toFixed(1)}`).join(' ');
+  const pts = points.map((p, i): [number, number] => [toX(i), toY(p.balance)]);
+  const clampY = (y: number) => Math.max(PAD / 2, Math.min(H - PAD / 2, y));
+  let pathD = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1: [number, number] = [p1[0] + (p2[0] - p0[0]) / 6, clampY(p1[1] + (p2[1] - p0[1]) / 6)];
+    const c2: [number, number] = [p2[0] - (p3[0] - p1[0]) / 6, clampY(p2[1] - (p3[1] - p1[1]) / 6)];
+    pathD += ` C ${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
   const areaD = `${pathD} L ${W} ${H} L 0 ${H} Z`;
+  const last = pts[pts.length - 1];
   const locale = localeForLang(lang);
   const startDay = new Date(points[0].day).toLocaleDateString(locale, { day: 'numeric', month: 'short' });
   const endDay = new Date(points[points.length - 1].day).toLocaleDateString(locale, { day: 'numeric', month: 'short' });
@@ -2573,26 +2582,38 @@ function BalanceHistoryChart() {
 
   return (
     <div style={{ padding: '0 22px 20px' }}>
-      <div style={{ padding: '16px 18px', ...glassCard() }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
-          <span style={{ fontSize: 11, color: text.muted, textTransform: 'uppercase', letterSpacing: 0.8 }}>{t('balance_history_title')}</span>
-          <span style={{ fontSize: 12, color: isUp ? '#a9a9a9' : '#888888', fontWeight: 600, fontFeatureSettings: '"tnum"' }}>
-            {isUp ? '+' : ''}{fmtInt(diff)}{fmtDec(diff)} TAX
-          </span>
+      <div style={{ padding: '18px 18px 14px', ...glassCard() }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 6 }}>
+          <div>
+            <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 6 }}>{t('balance_history_title')}</div>
+            <div style={{ fontSize: 26, fontWeight: 600, letterSpacing: -0.7, color: text.primary, ...T.num }}>
+              {fmtInt(lastBalance)}<span style={{ fontSize: 16, fontWeight: 500, color: text.dim }}>{fmtDec(lastBalance)}</span>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right', fontSize: 13, fontWeight: 600, color: isUp ? '#5fd68a' : '#ff8d80', ...T.num }}>
+            {isUp ? '↑ +' : '↓ '}{fmtInt(diff)}{fmtDec(diff)}
+            <div style={{ fontSize: 11, fontWeight: 500, color: text.dim, marginTop: 3 }}>за 14 днів</div>
+          </div>
         </div>
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block', height: 52, overflow: 'visible' }}>
-          <defs>
-            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={isUp ? '#a9a9a9' : '#888888'} stopOpacity="0.25" />
-              <stop offset="100%" stopColor={isUp ? '#a9a9a9' : '#888888'} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path d={areaD} fill={`url(#${gradId})`} />
-          <path d={pathD} fill="none" stroke={isUp ? '#a9a9a9' : '#888888'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-          <span style={{ fontSize: 10, color: text.dim }}>{startDay}</span>
-          <span style={{ fontSize: 10, color: text.dim }}>{endDay}</span>
+        <div style={{ position: 'relative' }}>
+          <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', overflow: 'visible' }}>
+            <defs>
+              <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#FFD400" stopOpacity="0.34" />
+                <stop offset="70%" stopColor="#FFD400" stopOpacity="0.04" />
+                <stop offset="100%" stopColor="#FFD400" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            {[0.25, 0.5, 0.75].map(f => <line key={f} x1="0" x2={W} y1={H * f} y2={H * f} stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="2 5" />)}
+            <path d={areaD} fill={`url(#${gradId})`} />
+            <path d={pathD} fill="none" stroke="#FFD400" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 4px 10px rgba(255,212,0,0.45))' }} />
+            <circle cx={last[0]} cy={last[1]} r="9" fill="#FFD400" opacity="0.18" />
+            <circle cx={last[0]} cy={last[1]} r="4" fill="#FFD400" stroke="#19191b" strokeWidth="2" />
+          </svg>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+          <span style={{ fontSize: 11, color: text.dim }}>{startDay}</span>
+          <span style={{ fontSize: 11, color: text.dim }}>{endDay}</span>
         </div>
       </div>
     </div>
@@ -2674,18 +2695,27 @@ function TopRecipientsMini({ onTransfer }: { onTransfer: (account: string) => vo
 }
 
 // ─── Overview screen ──────────────────────────────────────────
-function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
+const QUICK_TONE: Record<string, string> = { topup: '#34c77b', by_card: '#4d8dff', by_account: '#9b6bff', market: '#FFD400' };
+function QuickAction({ icon, label, tone = '#FFD400', onClick }: { icon: React.ReactNode; label: string; tone?: string; onClick?: () => void }) {
   const layout = useLayout();
   const isMobile = layout === 'mobile';
+  const dark = tone === '#FFD400';
+  const size = isMobile ? 58 : 62;
   return (
     <button onClick={onClick} className="kp-tx-row" style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
-      gap: 9, padding: isMobile ? '8px 2px 6px' : '12px 6px 10px', background: 'transparent', border: 'none',
+      gap: 10, padding: isMobile ? '6px 2px 4px' : '10px 6px 8px', background: 'transparent', border: 'none',
       color: text.secondary, fontFamily: 'inherit', cursor: 'pointer', textAlign: 'center', minWidth: 0,
     }}>
-      <div style={{ filter: 'drop-shadow(0 8px 16px rgba(255,212,0,0.22))' }}><Medallion tint={gold} size={isMobile ? 54 : 58}>{recolorIcon(icon, gold)}</Medallion></div>
+      <div style={{
+        width: size, height: size, borderRadius: 20, display: 'grid', placeItems: 'center',
+        background: `linear-gradient(150deg, ${tone} 0%, ${tone}b8 100%)`,
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,0.35), 0 12px 24px -10px ${tone}b3`,
+      }}>
+        <div style={{ transform: 'scale(1.3)', display: 'grid', placeItems: 'center' }}>{recolorIcon(icon, dark ? '#1a1a1a' : '#ffffff')}</div>
+      </div>
       <span style={{
-        fontSize: isMobile ? 11.5 : 10.5, fontWeight: 600, lineHeight: 1.2, letterSpacing: isMobile ? 0.1 : 0.4,
+        fontSize: isMobile ? 12 : 10.5, fontWeight: 600, lineHeight: 1.2, letterSpacing: isMobile ? 0 : 0.4,
         textTransform: isMobile ? 'none' : 'uppercase', color: text.secondary,
       }}>{label}</span>
     </button>
@@ -4244,7 +4274,7 @@ function OverviewScreen() {
     <div>
       <div style={{ ...T.h3, color: text.secondary, marginBottom: 14 }}>{t('quick_actions')}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8 }}>
-        {quickActions.map(a => <Fragment key={a.label}><QuickAction icon={a.icon} label={a.label} onClick={() => handleQuickAction(a.action)} /></Fragment>)}
+        {quickActions.map(a => <Fragment key={a.label}><QuickAction icon={a.icon} label={a.label} tone={QUICK_TONE[a.action as string]} onClick={() => handleQuickAction(a.action)} /></Fragment>)}
       </div>
     </div>
   );
@@ -6867,18 +6897,19 @@ function ProfileScreen() {
         </div>
         <div style={{ ...T.h2, color: text.primary, marginBottom: 4 }}>{displayName}</div>
         <div style={{ fontSize: 12, color: text.muted, marginBottom: 12 }}>{account?.account_number ?? '—'}</div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent', borderRadius: 100 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#a9a9a9' }} />
-          <span style={{ fontSize: 11.5, color: '#a9a9a9', fontWeight: 500 }}>{t('profile_verified')}</span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5fd68a', fontSize: 12.5, fontWeight: 600 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.4 2 3.1-.3 1 3 2.7 1.6-.9 3 .9 3-2.7 1.6-1 3-3.1-.3L12 22l-2.4-2-3.1.3-1-3L2.8 15.7l.9-3-.9-3 2.7-1.6 1-3 3.1.3L12 2z" fill="currentColor" opacity="0.22" /><path d="M8.5 12.2l2.4 2.4 4.6-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          {t('profile_verified')}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, width: '100%', marginTop: 16 }}>
-          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent' }}>
-            <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.7, marginBottom: 4 }}>{t('profile_phone')}</div>
-            <div style={{ fontSize: 13, color: text.secondary, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{phone}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1px minmax(0, 1fr)', width: '100%', marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.07)', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center', padding: '0 8px' }}>
+            <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 6 }}>{t('profile_phone')}</div>
+            <div style={{ fontSize: 14.5, color: text.primary, fontWeight: 600, letterSpacing: -0.2, whiteSpace: 'nowrap', ...T.num }}>{phone}</div>
           </div>
-          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent' }}>
-            <div style={{ fontSize: 10, color: text.muted, letterSpacing: 0.7, marginBottom: 4 }}>{t('balance_total')}</div>
-            <div style={{ fontSize: 13, color: text.primary, fontWeight: 700, fontFeatureSettings: '"tnum" 1' }}>{formatUah(Number(account?.balance || 0), lang)}</div>
+          <div style={{ alignSelf: 'stretch', background: 'rgba(255,255,255,0.07)' }} />
+          <div style={{ textAlign: 'center', padding: '0 8px' }}>
+            <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 6 }}>{t('balance_total')}</div>
+            <div style={{ fontSize: 14.5, color: text.primary, fontWeight: 600, letterSpacing: -0.2, whiteSpace: 'nowrap', ...T.num }}>{formatUah(Number(account?.balance || 0), lang)}</div>
           </div>
         </div>
         </div>
@@ -7829,13 +7860,13 @@ function MarketplaceScreen() {
           </div>
         )}
         {tab === 'catalog' && (
-          <div data-no-tab-swipe="true" style={{ display: 'flex', gap: 6, overflowX: 'auto', marginTop: 12, paddingBottom: 2, scrollbarWidth: 'none' }}>
+          <div data-no-tab-swipe="true" style={{ display: 'flex', gap: 22, overflowX: 'auto', marginTop: 14, scrollbarWidth: 'none', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             {SHOP_CATEGORIES.map(c => (
               <button key={c.k || 'all'} onClick={() => setCategory(c.k)} style={{
-                flexShrink: 0, padding: '8px 14px', borderRadius: 999, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
-                border: '1px solid transparent',
-                background: category === c.k ? gold : 'rgba(255,255,255, 0.1)',
-                color: category === c.k ? '#000' : text.secondary,
+                flexShrink: 0, padding: '8px 0 11px', fontSize: 14.5, fontWeight: category === c.k ? 600 : 500, cursor: 'pointer', fontFamily: 'inherit',
+                background: 'none', border: 'none', marginBottom: -1,
+                borderBottom: `2px solid ${category === c.k ? gold : 'transparent'}`,
+                color: category === c.k ? text.primary : text.muted, transition: 'color .15s, border-color .15s',
               }}>{lang === 'uk' ? c.uk : c.en}</button>
             ))}
           </div>
