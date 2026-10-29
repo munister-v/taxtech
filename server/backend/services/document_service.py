@@ -12,7 +12,6 @@ import base64
 import hashlib
 import hmac
 import json
-import math
 from datetime import datetime, timezone
 from html import escape
 
@@ -231,7 +230,7 @@ class DocumentService:
         rows = [('Вид', kind)]
         if receipt:
             if meta.get('tx_type'):
-                rows.append(('Операція', meta['tx_type']))
+                rows.append(('Операція', _tx_label(meta['tx_type'])))
         else:
             rows += [('Період', meta.get('period') or '—'), ('Операцій', str(meta.get('count', '—'))),
                      ('Надійшло', f"{_money(meta.get('total_in'))} TAX"), ('Витрачено', f"{_money(meta.get('total_out'))} TAX")]
@@ -244,12 +243,11 @@ class DocumentService:
         qr = qr_svg(verify_url(v['code'], root))
         qr = qr[qr.index('<svg'):]
         body = (
-            _sheet_head(f'{kind.upper()} · TAXTECH') + head_html + hero +
+            _sheet_head(kind.upper()) + head_html + hero +
             f'<div class="perf"></div><div class="rows">{table}</div><div class="perf"></div>'
             f'<div class="hash"><span>Відбиток SHA-256</span><code>{d[:32]}<br>{d[32:]}</code></div>'
-            f'<div class="qrrow"><div class="qr">{qr}</div>'
-            '<p>QR веде на цю сторінку. Кожен документ має власний код: перевірка звіряє його з реєстром операцій '
-            'і не показує особистих даних.</p></div>'
+            f'<div class="qrbox"><div class="qr">{qr}</div><div class="qcode">{escape(v["code"])}</div>'
+            '<p>Скануйте QR: сторінка звіряє документ з реєстром операцій і не показує особистих даних.</p></div>'
             f'<div class="checked">Перевірено {_when(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))}</div>'
             + _sheet_end())
         return _page(f'{kind} {v["code"]}', body, ok=bool(v['intact'])), 200
@@ -259,6 +257,15 @@ class DocumentService:
 
 _MONTHS = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
            'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня']
+
+
+_TX_LABELS = {'marketplace_invoice': 'Оплата в магазині', 'marketplace': 'Магазин', 'transfer': 'Переказ',
+              'topup': 'Поповнення', 'payment': 'Оплата', 'payout': 'Виплата', 'donation': 'Донат'}
+
+
+def _tx_label(raw) -> str:
+    raw = str(raw or '')
+    return _TX_LABELS.get(raw) or raw.replace('_', ' ').capitalize() or 'Операція'
 
 
 def _money(v) -> str:
@@ -273,108 +280,88 @@ def _when(ts: str) -> str:
         return f'{ts} UTC'
 
 
-def _rosette(size: int, curves: int, lobes: int, pts: int = 120, depth: float = 0.26, width: float = 0.5) -> str:
-    """Гільошна розетка: обертові копії рози з другою гармонікою, як на банкноті."""
-    c, r0 = size / 2, size / 2 * 0.92
-    paths = []
-    for k in range(curves):
-        ph = 2 * math.pi * k / curves
-        pt = []
-        for i in range(pts + 1):
-            t = 2 * math.pi * i / pts
-            r = r0 * (0.6 + depth * math.cos(lobes * t + ph) + 0.07 * math.cos(2 * lobes * t - ph))
-            pt.append(f'{c + r * math.cos(t):.1f} {c + r * math.sin(t):.1f}')
-        paths.append('M' + 'L'.join(pt) + 'Z')
-    rings = ''.join(f'<circle cx="{c}" cy="{c}" r="{r0 * f:.1f}"/>' for f in (1.0, 0.97, 0.3, 0.27))
-    return (f'<svg viewBox="0 0 {size} {size}" fill="none" stroke="currentColor" stroke-width="{width}" aria-hidden="true">'
-            f'<path d="{" ".join(paths)}"/>{rings}</svg>')
+# Знак TaxTech (з web/public/icons/mark-white.svg), колір береться з currentColor.
+_MARK = ('<svg class="mark" viewBox="0 0 1650 1938" aria-hidden="true"><g transform="translate(0.000000,1938.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"> <path d="M7550 18974 c-264 -35 -474 -149 -788 -428 -125 -110 -5048 -5045 -5138 -5151 -38 -44 -108 -120 -155 -170 -47 -49 -113 -130 -147 -180 -35 -49 -105 -151 -157 -225 -52 -74 -107 -155 -121 -180 -15 -25 -44 -72 -64 -105 -128 -207 -333 -669 -374 -845 -9 -36 -27 -96 -41 -135 -13 -38 -25 -80 -25 -92 0 -13 -11 -52 -25 -88 -13 -35 -29 -100 -35 -143 -6 -44 -19 -109 -30 -145 -10 -37 -21 -93 -25 -124 -4 -32 -18 -132 -31 -222 -14 -92 -29 -251 -34 -365 -5 -110 -12 -253 -16 -316 -11 -197 21 -757 51 -883 8 -34 19 -102 25 -152 5 -49 18 -115 29 -146 10 -31 24 -88 30 -127 6 -38 19 -90 29 -114 11 -23 25 -67 32 -96 64 -270 305 -733 568 -1092 129 -175 818 -887 1485 -1534 143 -137 264 -257 270 -266 7 -8 64 -66 129 -128 140 -135 157 -140 236 -70 207 186 953 940 1096 1106 93 110 110 136 102 167 -4 14 -115 136 -249 272 -133 137 -301 311 -372 388 -71 77 -219 232 -329 345 -436 445 -498 515 -680 755 -131 174 -202 292 -276 460 -29 66 -66 149 -82 184 -15 35 -35 97 -44 137 -8 40 -22 90 -30 110 -35 83 -69 734 -47 879 7 44 17 136 23 205 6 86 17 148 35 199 14 41 25 87 25 103 0 146 283 731 467 967 116 148 218 267 378 440 61 65 157 172 215 237 57 66 341 355 630 644 289 289 1209 1211 2045 2050 835 839 1530 1533 1544 1542 42 28 101 23 152 -13 24 -18 339 -327 699 -688 361 -361 902 -901 1203 -1201 301 -300 627 -628 725 -729 443 -461 1066 -1092 1988 -2016 1098 -1099 1228 -1238 1366 -1460 184 -296 321 -628 348 -840 6 -49 20 -139 32 -200 29 -152 29 -364 0 -535 -12 -69 -26 -160 -32 -203 -5 -43 -19 -99 -30 -125 -10 -26 -24 -67 -30 -92 -21 -83 -74 -235 -91 -260 -9 -14 -22 -43 -29 -65 -11 -35 -78 -170 -172 -343 -94 -174 -322 -472 -605 -788 -45 -51 -662 -672 -1370 -1381 -1233 -1234 -2370 -2376 -2893 -2907 -284 -288 -307 -303 -401 -258 -23 10 -206 189 -470 457 -239 242 -705 710 -1036 1040 -616 614 -633 633 -633 707 0 90 -48 39 1717 1809 919 921 1706 1715 1749 1765 163 189 182 211 250 304 180 244 364 641 388 840 4 30 17 89 29 130 34 115 34 661 0 760 -12 36 -27 93 -33 128 -6 34 -19 82 -29 105 -10 23 -23 64 -30 90 -14 58 -112 256 -186 378 -124 204 -192 276 -1270 1359 -572 575 -1101 1107 -1174 1182 -74 75 -153 147 -175 159 -81 42 -72 49 -473 -354 -199 -199 -403 -409 -454 -466 -52 -58 -158 -170 -236 -251 -201 -209 -202 -203 16 -420 75 -74 231 -236 346 -359 116 -123 219 -231 230 -240 31 -27 604 -610 875 -891 135 -139 343 -355 463 -478 301 -310 320 -342 256 -433 -38 -54 -424 -435 -495 -488 -73 -56 -819 -818 -949 -970 -75 -88 -349 -364 -1892 -1908 -776 -777 -1450 -1455 -1497 -1508 -92 -103 -102 -131 -76 -201 15 -38 533 -566 1595 -1624 334 -333 995 -996 1468 -1474 474 -478 901 -901 948 -941 229 -191 447 -292 757 -350 l153 -29 127 23 c282 52 407 108 682 306 103 74 184 148 466 430 1903 1896 4895 4891 4928 4931 22 28 84 101 136 161 275 319 626 910 773 1298 62 167 89 242 113 315 13 41 33 100 43 130 11 30 20 65 21 77 0 12 12 58 26 103 14 45 31 120 39 168 8 48 23 130 34 182 12 52 21 118 21 145 0 28 7 75 15 105 56 199 59 951 5 1265 -10 61 -21 142 -24 181 -3 38 -15 97 -26 130 -11 32 -25 90 -31 129 -6 38 -18 86 -26 105 -8 19 -23 69 -33 110 -10 41 -34 118 -53 170 -20 52 -47 127 -61 165 -40 109 -162 344 -266 513 -200 324 -330 472 -935 1072 -478 474 -2335 2324 -4325 4310 -1617 1613 -1775 1768 -1880 1843 -177 126 -392 214 -586 241 -139 19 -162 19 -304 0z"/> </g></svg>')
 
 
-def _wave_band(lines: int = 9) -> str:
-    out = []
-    for k in range(lines):
-        ph = k * math.pi / lines
-        pt = [f'{x:.1f} {15 + 12 * math.sin(2 * math.pi * 2 * x / 400 + ph):.2f}' for x in range(0, 401, 8)]
-        out.append('M' + 'L'.join(pt))
-    return ('<svg viewBox="0 0 400 30" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width=".6" '
-            f'aria-hidden="true"><path d="{" ".join(out)}"/></svg>')
+def _status_icon(state: str) -> str:
+    if state == 'ok':
+        mark = '<path d="M7 12.5l3.2 3.2L17 8.8"/>'
+    elif state == 'bad':
+        mark = '<path d="M12 7v6.5"/><circle cx="12" cy="17" r=".6"/>'
+    else:
+        mark = '<path d="M9.6 9.4a2.5 2.5 0 1 1 3.6 2.2c-.8.5-1.2 1-1.2 2"/><circle cx="12" cy="17" r=".6"/>'
+    return (f'<div class="status {state}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+            f'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{mark}</svg></div>')
 
 
 def _medal(ok: bool, glyph: str = '') -> str:
-    ticks = ''.join(
-        f'<line x1="52" y1="3" x2="52" y2="{6 if i % 5 else 8}" transform="rotate({i * 6} 52 52)"/>' for i in range(60))
-    if ok:
-        mark = '<path d="M33 54l13 13 25-29" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
-    elif glyph == '!':
-        mark = '<path d="M52 32v26" stroke-width="7" stroke-linecap="round"/><circle cx="52" cy="71" r="4.2" stroke="none" fill="currentColor"/>'
-    else:
-        mark = '<path d="M44 42a8 8 0 1 1 11 7c-3 2-3 4-3 8" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="52" cy="71" r="4.2" stroke="none" fill="currentColor"/>'
-    return (f'<div class="medal {"ok" if ok else "bad"}"><div class="ros">{_rosette(104, 18, 7, 80, 0.24, 0.45)}</div>'
-            f'<svg class="face" viewBox="0 0 104 104" stroke="currentColor" aria-hidden="true">'
-            f'<g stroke-width="1" opacity=".7">{ticks}</g><circle cx="52" cy="52" r="33" class="disc"/>{mark}</svg></div>')
+    return _status_icon('ok' if ok else ('bad' if glyph == '!' else 'unknown'))
 
 
 def _sheet_head(label: str) -> str:
-    return (f'<section class="sheet"><div class="bgros">{_rosette(360, 30, 9, 140, 0.28, 0.5)}</div>'
-            f'<div class="ribbon">{_wave_band()}<span>{escape(label)}</span></div>')
+    return (f'<section class="sheet"><div class="band"><div class="glow"></div>{_MARK}'
+            '<div class="word">TaxTech</div><div class="uni">State Tax University</div>'
+            f'<div class="tag">{escape(label)}</div></div><div class="body">')
 
 
 def _sheet_end() -> str:
-    micro = 'STATE TAX UNIVERSITY · TAXTECH · VIRTUAL FINANCE · ' * 8
-    return f'<div class="micro">{micro}</div></section><p class="foot">Навчальний документ TaxTech: токени TAX не є грошима. Особисті дані приховано.</p>'
+    return ('</div></section><p class="foot">Навчальний документ TaxTech: токени TAX не є грошима.<br>'
+            'Особисті дані приховано.</p>')
 
 
 def _page(title: str, body: str, ok: bool = True) -> str:
     return f"""<!doctype html><html lang="uk"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
-<meta name="theme-color" content="#000000"><title>{escape(title)} · TaxTech</title><style>
-:root{{color-scheme:dark;--gold:#FFD400;--ok:#4fd18b;--bad:#ff6b6b;--mute:#8e8e93;--serif:ui-serif,'New York',Georgia,'Times New Roman',serif}}
+<meta name="color-scheme" content="light dark"><title>{escape(title)} · TaxTech</title><style>
+:root{{--bg:#ececea;--card:#fff;--ink:#111;--mute:#76767b;--line:#e9e9e7;--soft:#f6f6f4;--ok:#16a05a;--bad:#d64545;--notch:#ececea}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#08080a;--card:#16161a;--ink:#f4f4f5;--mute:#8d8d93;--line:#26262b;--soft:#1d1d22;--ok:#3ccf82;--bad:#ff6b6b;--notch:#08080a}}}}
 *{{box-sizing:border-box}}
-body{{margin:0;min-height:100vh;color:#f5f5f7;font:16px/1.45 -apple-system,BlinkMacSystemFont,'SF Pro Text',Segoe UI,Roboto,sans-serif;
-background:radial-gradient(120% 60% at 50% -10%,rgba(255,212,0,.14),transparent 60%),#000;padding:26px 16px 40px;display:flex;justify-content:center}}
-main{{width:100%;max-width:470px}}
-.brand{{text-align:center;letter-spacing:.34em;font-size:10.5px;color:var(--gold);font-weight:700;margin:4px 0 20px}}
-.sheet{{position:relative;overflow:hidden;text-align:center;padding:16px 22px 14px;border-radius:26px;
-background:linear-gradient(165deg,rgba(255,212,0,.09),transparent 40%),#18181a;border:1px solid rgba(255,212,0,.42);
-box-shadow:0 30px 70px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.07)}}
-.sheet::after{{content:'';position:absolute;inset:6px;border-radius:21px;border:1px solid rgba(255,212,0,.14);pointer-events:none}}
-.sheet>*{{position:relative}}
-.bgros{{position:absolute!important;right:-120px;top:-90px;width:360px;height:360px;color:var(--gold);opacity:.09;pointer-events:none}}
-.bgros svg,.ros svg{{width:100%;height:100%;display:block}}
-.ribbon{{position:relative;height:30px;margin:2px -22px 10px;color:rgba(255,212,0,.6);display:grid;place-items:center;
--webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}}
-.ribbon svg{{position:absolute;inset:0;width:100%;height:100%}}
-.ribbon span{{position:relative;background:#18181a;border:1px solid rgba(255,212,0,.55);border-radius:99px;padding:4px 13px;
-font-size:9.5px;font-weight:700;letter-spacing:.22em;color:var(--gold)}}
-.medal{{position:relative;width:124px;height:124px;margin:10px auto 8px}}
-.medal.ok{{color:var(--ok)}}.medal.bad{{color:var(--bad)}}
-.medal .ros{{position:absolute;inset:0;opacity:.75}}
-.medal .face{{position:absolute;inset:0;width:100%;height:100%}}
-.medal .disc{{fill:rgba(0,0,0,.55);stroke-width:1.2}}
-.medal::before{{content:'';position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle,currentColor,transparent 68%);opacity:.18}}
-h1{{font:600 27px/1.15 var(--serif);letter-spacing:-.3px;margin:6px 0 6px}}
-.sub{{color:var(--mute);margin:0 0 12px;font-size:14.5px}}.sub.small{{font-size:12.5px}}
-.amount{{font:600 46px/1.1 var(--serif);letter-spacing:-.5px;margin:12px 0 6px;font-variant-numeric:tabular-nums}}
-.amount small{{font:700 12px/1 -apple-system,sans-serif;letter-spacing:.2em;color:var(--gold);margin-left:8px;vertical-align:.7em}}
+body{{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);padding:30px 16px 44px;display:flex;justify-content:center;text-align:center;
+font:15px/1.45 -apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}}
+main{{width:100%;max-width:420px}}
+.sheet{{position:relative;background:var(--card);border-radius:28px;overflow:hidden;
+box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 2px 4px rgba(0,0,0,.05),0 24px 60px rgba(0,0,0,.14)}}
+.band{{position:relative;padding:30px 20px 80px;background:#0d0d0f;color:#fff;overflow:hidden}}
+.band::after{{content:'';position:absolute;left:0;right:0;bottom:-1px;height:34px;background:var(--card);border-radius:50% 50% 0 0/100% 100% 0 0}}
+.glow{{position:absolute;left:50%;top:-40px;width:340px;height:240px;transform:translateX(-50%);
+background:radial-gradient(closest-side,rgba(255,255,255,.2),transparent);pointer-events:none}}
+.mark{{position:relative;width:34px;height:40px;display:block;margin:0 auto;color:#fff}}
+.word{{position:relative;margin-top:12px;font-size:22px;font-weight:700;letter-spacing:-.02em}}
+.uni{{position:relative;margin-top:4px;font-size:10px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.55)}}
+.body{{position:relative;padding:0 26px 24px;margin-top:-62px}}
+.tag{{position:relative;display:inline-block;margin-top:16px;padding:5px 14px;border:1px solid rgba(255,255,255,.28);border-radius:99px;
+font-size:10.5px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.85)}}
+.status{{position:relative;z-index:2;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;margin:0 auto 16px;
+background:var(--card);box-shadow:0 0 0 6px var(--card),0 10px 26px rgba(0,0,0,.18)}}
+.status svg{{width:34px;height:34px}}
+.status.ok{{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,var(--card))}}
+.status.bad{{color:var(--bad);background:color-mix(in srgb,var(--bad) 13%,var(--card))}}
+.status.unknown{{color:var(--mute);background:var(--soft)}}
+h1{{font-size:26px;line-height:1.18;font-weight:700;letter-spacing:-.025em;margin:0 0 6px}}
+.sub{{color:var(--mute);margin:0 auto;font-size:14px;max-width:300px}}.sub.small{{font-size:13px;margin-top:10px}}
+.amount{{display:inline-block;margin:22px 0 0;padding:12px 22px;border-radius:18px;background:var(--soft);
+font-size:36px;line-height:1.1;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}}
+.amount small{{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--mute);margin-left:7px}}
 .amount.in{{color:var(--ok)}}
-.perf{{position:relative;height:0;border-top:1.5px dashed rgba(255,255,255,.16);margin:16px -22px}}
-.perf::before,.perf::after{{content:'';position:absolute;top:-8px;width:16px;height:16px;border-radius:50%;background:#000;border:1px solid rgba(255,212,0,.42)}}
-.perf::before{{left:-9px;clip-path:inset(0 0 0 50%)}}.perf::after{{right:-9px;clip-path:inset(0 50% 0 0)}}
+.perf{{position:relative;height:0;border-top:1.5px dashed var(--line);margin:24px -26px 8px}}
+.perf::before,.perf::after{{content:'';position:absolute;top:-10px;width:20px;height:20px;border-radius:50%;background:var(--notch)}}
+.perf::before{{left:-10px}}.perf::after{{right:-10px}}
 .rows{{text-align:left}}
-.row{{display:flex;align-items:baseline;gap:9px;padding:9px 0;font-size:14.5px}}
+.row{{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:11px 0;font-size:14px;border-bottom:1px solid var(--line)}}
+.row:last-child{{border-bottom:0}}
 .row span{{color:var(--mute);flex-shrink:0}}
-.row i{{flex:1;min-width:12px;border-bottom:1.5px dotted rgba(255,255,255,.2);transform:translateY(-3px)}}
+.row i{{display:none}}
 .row b{{font-weight:600;text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}}
-.mono{{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}}
-.hash{{text-align:left;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:11px 14px;margin:0 0 14px}}
-.hash span{{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}}
-code{{font:11.5px/1.55 ui-monospace,Menlo,monospace;color:#d6d6db;word-break:break-all}}
-.qrrow{{display:flex;gap:14px;align-items:center;text-align:left}}
-.qr{{flex:0 0 92px;height:92px;background:#fff;border-radius:12px;padding:7px;box-shadow:0 6px 18px rgba(0,0,0,.4)}}
+.mono{{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.03em}}
+.hash{{background:var(--soft);border-radius:14px;padding:13px 14px;margin:8px 0 24px}}
+.hash span{{display:block;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:7px}}
+code{{font:11.5px/1.6 ui-monospace,Menlo,monospace;color:var(--ink);word-break:break-all}}
+.qrbox{{display:flex;flex-direction:column;align-items:center}}
+.qr{{width:132px;height:132px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:9px}}
 .qr svg{{width:100%;height:100%;display:block}}
-.qrrow p{{margin:0;font-size:12.5px;color:var(--mute);line-height:1.45}}
-.checked{{margin:14px 0 4px;font-size:11.5px;color:var(--mute);letter-spacing:.04em}}
-.micro{{margin:10px -22px 0;white-space:nowrap;overflow:hidden;font:600 5.5px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;color:rgba(255,212,0,.42)}}
-.foot{{text-align:center;color:#6c6c70;font-size:12px;margin:16px 8px 0}}
-@media print{{body{{background:#fff}}}}
-</style></head><body><main><div class="brand">TAXTECH · STATE TAX UNIVERSITY</div>{body}</main></body></html>"""
+.qcode{{margin-top:12px;font:700 14px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}}
+.qrbox p{{margin:8px 0 0;max-width:280px;font-size:12.5px;color:var(--mute);line-height:1.5}}
+.checked{{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}}
+.foot{{color:var(--mute);font-size:12px;line-height:1.5;margin:20px 12px 0}}
+</style></head><body><main>{body}</main></body></html>"""

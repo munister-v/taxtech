@@ -30,6 +30,10 @@ _FONT_NAME_BOLD = 'Helvetica-Bold'
 
 # Каскад пошуку Cyrillic-сумісних TTF: спочатку бандл проекту, потім системні
 _FONT_CANDIDATES = [
+    # bundled Roboto (Apache-2.0, Cyrillic): основний шрифт документів
+    (os.path.join(_FONTS_DIR, 'Roboto-Regular.ttf'),
+     os.path.join(_FONTS_DIR, 'Roboto-Bold.ttf'),
+     'Roboto'),
     # bundled DejaVu Sans (BSD-license, Cyrillic, ships with the repo — works everywhere)
     (os.path.join(_FONTS_DIR, 'DejaVuSans.ttf'),
      os.path.join(_FONTS_DIR, 'DejaVuSans-Bold.ttf'),
@@ -90,6 +94,82 @@ def _f(bold: bool = False) -> str:
     return _FONT_NAME_BOLD if bold else _FONT_NAME
 
 
+_INK = colors.HexColor('#111111')
+_OKGREEN = colors.HexColor('#16a05a')
+_MARK_CACHE: list = []
+
+
+def _mark_paths():
+    """Контури знака TaxTech з SVG (формат potrace: M/c/l/h/v/z, відносні й абсолютні)."""
+    if _MARK_CACHE:
+        return _MARK_CACHE[0]
+    from .document_service import _MARK
+    out = []
+    for d in re.findall(r' d="([^"]+)"', _MARK):
+        toks = re.findall(r'[MmLlHhVvCcZz]|-?\d+(?:\.\d+)?', d)
+        pts, ops = [], []
+        x = y = sx = sy = 0.0
+        i, cmd = 0, ''
+        while i < len(toks):
+            if toks[i].isalpha():
+                cmd = toks[i]; i += 1
+                if cmd in 'Zz':
+                    ops.append(3); x, y = sx, sy
+                    continue
+            rel = cmd.islower()
+            c = cmd.upper()
+            if c == 'M':
+                nx, ny = float(toks[i]), float(toks[i + 1]); i += 2
+                x, y = (x + nx, y + ny) if rel else (nx, ny)
+                sx, sy = x, y
+                pts += [x, y]; ops.append(0)
+                cmd = 'l' if rel else 'L'
+            elif c == 'L':
+                nx, ny = float(toks[i]), float(toks[i + 1]); i += 2
+                x, y = (x + nx, y + ny) if rel else (nx, ny)
+                pts += [x, y]; ops.append(1)
+            elif c == 'H':
+                v = float(toks[i]); i += 1
+                x = x + v if rel else v
+                pts += [x, y]; ops.append(1)
+            elif c == 'V':
+                v = float(toks[i]); i += 1
+                y = y + v if rel else v
+                pts += [x, y]; ops.append(1)
+            elif c == 'C':
+                v = [float(t) for t in toks[i:i + 6]]; i += 6
+                if rel:
+                    v = [x + v[0], y + v[1], x + v[2], y + v[3], x + v[4], y + v[5]]
+                pts += v; ops.append(2)
+                x, y = v[4], v[5]
+            else:
+                i += 1
+        out.append((pts, ops))
+    _MARK_CACHE.append(out)
+    return out
+
+
+def _mark_drawing(height: float, color=colors.white):
+    """Знак TaxTech як малюнок reportlab заданої висоти."""
+    from reportlab.graphics.shapes import Drawing, Path
+    k = height / 19380.0
+    d = Drawing(16500 * k, height)
+    for pts, ops in _mark_paths():
+        path = Path(points=[v * k for v in pts], operators=ops, fillColor=color, strokeColor=None)
+        path.fillMode = 1   # even-odd: отвори знака лишаються прозорими
+        d.add(path)
+    return d
+
+
+def _check_badge(size: float, color=_OKGREEN):
+    from reportlab.graphics.shapes import Drawing, Circle, PolyLine
+    d = Drawing(size, size)
+    d.add(Circle(size / 2, size / 2, size / 2, fillColor=color, strokeColor=None))
+    d.add(PolyLine([size * .28, size * .5, size * .44, size * .34, size * .73, size * .66],
+                   strokeColor=colors.white, strokeWidth=size * .1, strokeLineCap=1, strokeLineJoin=1))
+    return d
+
+
 # ── Кольорова схема виписок TaxTech: лише сірі тони, як у застосунку ───────────────
 _NAVY   = colors.HexColor('#2b2b2b')
 _NAVY2  = colors.HexColor('#1a1a1a')
@@ -117,7 +197,20 @@ _TX_TYPE_LABELS = {
     'deposit': 'Депозит',
     'marketplace': 'Магазин',
     'card_topup': 'Поповнення картки',
+    'marketplace_invoice': 'Оплата в магазині',
+    'marketplace_refund': 'Повернення з магазину',
+    'cashback': 'Кешбек',
+    'fee': 'Комісія',
+    'tax': 'Податок',
+    'salary': 'Зарплата',
 }
+
+
+def _tx_label(raw, default: str = 'Операція') -> str:
+    raw = str(raw or '')
+    if not raw:
+        return default
+    return _TX_TYPE_LABELS.get(raw) or raw.replace('_', ' ').capitalize()
 
 _REPORT_TYPE_LABELS = {
     'standard': 'Стандартна виписка',
@@ -363,9 +456,9 @@ class StatementService:
         sign = '+' if str(tx_dict.get('direction')) == 'in' else '−'
         doc = DocumentService().issue(
             user_id, KIND_RECEIPT, str(tx_id),
-            title=str(tx_dict.get('description') or _TX_TYPE_LABELS.get(tx_dict.get('tx_type'), 'Операція')),
+            title=str(tx_dict.get('description') or _tx_label(tx_dict.get('tx_type'))),
             digest=record_hash, amount=float(tx_dict.get('amount') or 0), direction=str(tx_dict.get('direction') or 'out'),
-            meta={'tx_type': _TX_TYPE_LABELS.get(tx_dict.get('tx_type'), tx_dict.get('tx_type') or 'Операція'),
+            meta={'tx_type': _tx_label(tx_dict.get('tx_type')),
                   'tx_date': str(tx_dict.get('created_at') or ''), 'sign': sign},
         )
 
@@ -436,7 +529,7 @@ class StatementService:
         url = verify_url(doc['code'], root)
         label = ParagraphStyle('vl', fontName=_f(), fontSize=7.4, leading=10.5, textColor=_MUTED)
         code = ParagraphStyle('vc', fontName=_f(True), fontSize=11, leading=14, textColor=_STEEL)
-        link = ParagraphStyle('vu', fontName='Courier', fontSize=6.3, leading=8.6, textColor=_MUTED)
+        link = ParagraphStyle('vu', fontName=_f(), fontSize=6.3, leading=8.6, textColor=_MUTED)
         t = Table(
             [[qr_drawing(url, 24 * mm),
               [Paragraph('ПЕРЕВІРКА ДОКУМЕНТА', ParagraphStyle('vh', fontName=_f(True), fontSize=7.4, leading=10, textColor=_GOLD)),
@@ -461,157 +554,122 @@ class StatementService:
     # Receipt PDF
     # ──────────────────────────────────────────────────────────────────────
     def _build_receipt(self, account: dict, user: dict, tx: dict, doc: dict | None = None, root: str | None = None) -> bytes:
-        """Генерує A6 PDF квитанцію для однієї транзакції."""
+        """Генерує одну сторінку PDF-квитанції (A6-ширина) для транзакції: знак, сума, реквізити, QR."""
         buf = io.BytesIO()
-        width, height = 105 * mm, 190 * mm   # A6, подовжений під токен і хеш запису
-        pdf_doc = SimpleDocTemplate(
-            buf,
-            pagesize=(width, height),
-            leftMargin=0,
-            rightMargin=0,
-            topMargin=0,
-            bottomMargin=6 * mm,
-        )
+        width, height = 105 * mm, 184 * mm
+        from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate
+        pdf_doc = BaseDocTemplate(buf, pagesize=(width, height), leftMargin=0, rightMargin=0,
+                                  topMargin=0, bottomMargin=0)
+        pdf_doc.addPageTemplates([PageTemplate(id='r', frames=[Frame(
+            0, 0, width, height, leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0, id='f')])])
+        pad = 9 * mm
+        inner = width - 2 * pad
 
         direction = str(tx.get('direction') or 'out').lower()
         is_in = direction == 'in'
         amount = float(tx.get('amount') or 0)
-        commission = 0.0
-        total = amount if is_in else amount + commission
         sign = '+' if is_in else '−'
         amount_str = f'{sign}{self._money(amount)}'
 
         raw_dt = str(tx.get('created_at') or '')
         try:
             dt = datetime.fromisoformat(raw_dt.replace('Z', '+00:00'))
-            date_str = dt.strftime('%d.%m.%Y %H:%M')
-            date_short = dt.strftime('%d.%m.%Y')
+            date_str = dt.strftime('%d.%m.%Y, %H:%M')
         except Exception:
             date_str = raw_dt[:16] or '—'
-            date_short = '—'
 
-        tx_type = _TX_TYPE_LABELS.get(tx.get('tx_type'), tx.get('tx_type') or 'Операція')
-        receipt_kind = 'Навчальний чек (токени TAX)'
+        tx_type = _tx_label(tx.get('tx_type'))
         tx_num = int(tx.get('id') or 0)
+
+        def P(text, size=8.5, bold=False, color=_INK, align=1, leading=None, font=None):
+            return Paragraph(text, ParagraphStyle(
+                'r', fontName=font or _f(bold), fontSize=size, leading=leading or size * 1.3,
+                textColor=color, alignment=align))
 
         story = []
 
-        # ── Navy header band ─────────────────────────────────────────────────
-        wt = ParagraphStyle('wt', fontName=_f(True), fontSize=14, textColor=_WHITE, leading=18)
-        wn = ParagraphStyle('wn', fontName=_f(), fontSize=8.2, textColor=colors.HexColor('#c3c3c3'),
-                            leading=11, alignment=2)
-        hdr = Table(
-            [[Paragraph('TaxTech <font color="#9a9a9a">Lab</font>', wt),
-              Paragraph(f'{receipt_kind}<br/>#{tx_num}<br/>{date_short}', wn)]],
-            colWidths=[None, 28 * mm],
-        )
-        hdr.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), _NAVY2),
-            ('TOPPADDING', (0, 0), (-1, -1), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 9),
-            ('LEFTPADDING', (0, 0), (-1, -1), 11),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 11),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        # ── Темна шапка: знак і назва ────────────────────────────────────────
+        band = Table(
+            [[_mark_drawing(11 * mm)],
+             [P('TaxTech', 15, True, colors.white)],
+             [P('STATE TAX UNIVERSITY', 6.3, True, colors.HexColor('#8c8c8c'))],
+             [P('КВИТАНЦІЯ', 6.8, True, colors.HexColor('#e8e8e8'))]],
+            colWidths=[width], rowHeights=None)
+        band.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d0d0f')),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('TOPPADDING', (0, 0), (-1, -1), 0), ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (0, 0), 7 * mm), ('TOPPADDING', (0, 1), (0, 1), 2.4 * mm),
+            ('TOPPADDING', (0, 2), (0, 2), 1.2 * mm), ('TOPPADDING', (0, 3), (0, 3), 3.4 * mm),
+            ('BOTTOMPADDING', (0, 3), (0, 3), 9 * mm),
         ]))
-        story.append(hdr)
+        story.append(band)
 
-        # ── Amount block ─────────────────────────────────────────────────────
-        amt_bg  = _LGGREEN if is_in else _LGRED
-        amt_fg  = colors.HexColor('#5f5f5f') if is_in else colors.HexColor('#606060')
-        lbl_fg  = colors.HexColor('#5d5d5d') if is_in else colors.HexColor('#585858')
-        amount_caption = ParagraphStyle('ac', fontName=_f(), fontSize=8.2, textColor=lbl_fg, alignment=1, leading=11)
-        amount_status = ParagraphStyle('as', fontName=_f(True), fontSize=7.6, textColor=colors.HexColor('#747474'), alignment=1, leading=10)
-        amt_t = Table(
-            [[Paragraph(amount_str,
-                        ParagraphStyle('aa', fontName=_f(True), fontSize=24, textColor=amt_fg,
-                                       alignment=1, leading=28))],
-             [Paragraph(tx_type,
-                        ParagraphStyle('at', fontName=_f(), fontSize=9, textColor=lbl_fg,
-                                       alignment=1, leading=12))],
-             [Paragraph('Навчальний документ TaxTech: гроші віртуальні', amount_caption)],
-             [Paragraph('✓ ПІДТВЕРДЖЕНО СИСТЕМОЮ', amount_status)]],
-            colWidths=['100%'],
-        )
-        amt_t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), amt_bg),
-            ('TOPPADDING', (0, 0), (0, 0), 10),
-            ('BOTTOMPADDING', (0, -1), (0, -1), 10),
-            ('TOPPADDING', (0, 1), (0, 1), 1),
-            ('TOPPADDING', (0, 2), (0, 2), 2),
-            ('TOPPADDING', (0, 3), (0, 3), 0),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ]))
-        story.append(amt_t)
-        story.append(Spacer(1, 3))
+        # ── Статус, сума, вид операції ───────────────────────────────────────
+        badge = Table([[_check_badge(9 * mm)]], colWidths=[width])
+        badge.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'), ('TOPPADDING', (0, 0), (-1, -1), 6 * mm),
+                                   ('BOTTOMPADDING', (0, 0), (-1, -1), 0)]))
+        story.append(badge)
+        story.append(Spacer(1, 2.5 * mm))
+        story.append(P('Операцію виконано', 8.2, False, _MUTED))
+        story.append(Spacer(1, 2.5 * mm))
+        story.append(P(amount_str, 22, True, _OKGREEN if is_in else _INK, leading=26))
+        story.append(Spacer(1, 1 * mm))
+        story.append(P(tx_type, 9, False, colors.HexColor('#555555')))
+        story.append(Spacer(1, 5 * mm))
 
-        # ── Details table ────────────────────────────────────────────────────
-        lbl_s = ParagraphStyle('ls', fontName=_f(), fontSize=7.8, leading=11, textColor=_MUTED)
-        val_s = ParagraphStyle('vs', fontName=_f(True), fontSize=8.5, leading=12, textColor=_STEEL)
-        ok_s  = ParagraphStyle('ok', fontName=_f(True), fontSize=8.5, leading=12, textColor=_GREEN)
+        # ── Реквізити ────────────────────────────────────────────────────────
+        lbl = ParagraphStyle('rl', fontName=_f(), fontSize=7.6, leading=10.5, textColor=_MUTED)
+        val = ParagraphStyle('rv', fontName=_f(True), fontSize=8, leading=10.5, textColor=_INK, alignment=2)
 
-        def _row(label: str, value: str, val_style=None):
-            return [Paragraph(label, lbl_s), Paragraph(value, val_style or val_s)]
-
-        related = tx.get('related_account') or '—'
-        desc = str(tx.get('description') or '—')
-        from .integrity_service import IntegrityService
-        record_hash = IntegrityService().hashes_for([{**dict(tx), 'account_id': tx.get('account_id') or account.get('id')}]).get(tx_num, '')
-        if len(desc) > 50:
-            desc = desc[:47] + '…'
-
-        rows = [
-            _row('ID документа', f'#{tx_num}'),
-            _row('Дата та час', date_str),
-            _row('Тип операції', tx_type),
-            _row('Отримувач', user.get('full_name') or '—'),
-            _row('Рахунок', account.get('account_number') or '—'),
-            _row('Контрагент',   related),
-            _row('Сума',         self._money(amount)),
-            _row('Комісія',      self._money(commission)),
-            _row('Разом',        self._money(total)),
-            _row('Опис',         desc),
-            _row('Токен',        'TAX · навчальний, не гроші'),
-            _row('Хеш запису',   f'<font name="Courier" size="6.5">{record_hash[:32]}<br/>{record_hash[32:]}</font>'),
-            _row('Верифікація',  '✓ ПІДТВЕРДЖЕНО', ok_s),
-        ]
-
-        det_t = Table(rows, colWidths=[30 * mm, None])
-        n_rows = len(rows)
-        det_t.setStyle(TableStyle([
-            ('LINEBELOW', (0, 0), (-1, n_rows - 2), 0.25, colors.HexColor('#d2d2d2')),
-            ('BACKGROUND', (0, n_rows - 1), (-1, n_rows - 1), colors.HexColor('#fafafa')),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ('LEFTPADDING', (0, 0), (-1, -1), 11),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 11),
+        rows = [('Дата й час', date_str), ('Власник', user.get('full_name') or '—'),
+                ('Рахунок', account.get('account_number') or '—')]
+        related = tx.get('related_account')
+        if related:
+            rows.append(('Контрагент', str(related)))
+        desc = str(tx.get('description') or '').strip()
+        if desc:
+            rows.append(('Призначення', desc if len(desc) <= 60 else desc[:57] + '…'))
+        rows.append(('№ операції', f'#{tx_num}'))
+        det = Table([[Paragraph(k, lbl), Paragraph(v, val)] for k, v in rows],
+                    colWidths=[26 * mm, inner - 26 * mm])
+        det.setStyle(TableStyle([
+            ('LINEBELOW', (0, 0), (-1, -2), 0.3, colors.HexColor('#e4e4e4')),
+            ('TOPPADDING', (0, 0), (-1, -1), 3.3), ('BOTTOMPADDING', (0, 0), (-1, -1), 3.3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ]))
-        story.append(det_t)
+        wrap = Table([[det]], colWidths=[width])
+        wrap.setStyle(TableStyle([('LEFTPADDING', (0, 0), (-1, -1), pad), ('RIGHTPADDING', (0, 0), (-1, -1), pad),
+                                  ('TOPPADDING', (0, 0), (-1, -1), 0), ('BOTTOMPADDING', (0, 0), (-1, -1), 0)]))
+        story.append(wrap)
+        story.append(Spacer(1, 4 * mm))
 
-        block = self._verify_block(doc, root, width - 22 * mm)
-        if block is not None:
-            story.append(Spacer(1, 5))
-            story.append(Table([[block]], colWidths=[width - 22 * mm], style=TableStyle([
-                ('LEFTPADDING', (0, 0), (-1, -1), 0), ('RIGHTPADDING', (0, 0), (-1, -1), 0)]), hAlign='CENTER'))
+        # ── Перевірка: QR, код, відбиток ─────────────────────────────────────
+        from .integrity_service import IntegrityService
+        record_hash = IntegrityService().hashes_for(
+            [{**dict(tx), 'account_id': tx.get('account_id') or account.get('id')}]).get(tx_num, '')
+        if doc:
+            from .document_service import qr_drawing, verify_url
+            qr = qr_drawing(verify_url(doc['code'], root), 27 * mm)
+            check = Table(
+                [[qr], [P(doc['code'], 9.5, True, _INK, font=_f(True))],
+                 [P('Скануйте QR, щоб звірити квитанцію з реєстром TaxTech', 6.8, False, _MUTED, leading=9)],
+                 [P(f'SHA-256 · {record_hash[:32]}<br/>{record_hash[32:]}', 5.4, False, colors.HexColor('#a0a0a0'),
+                    leading=7)]],
+                colWidths=[width])
+            check.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('TOPPADDING', (0, 0), (-1, -1), 0), ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 1), (0, 1), 2 * mm), ('TOPPADDING', (0, 2), (0, 2), 1 * mm),
+                ('TOPPADDING', (0, 3), (0, 3), 2.4 * mm),
+            ]))
+            story.append(HRFlowable(width=inner, thickness=0.6, color=colors.HexColor('#cfcfcf'),
+                                    dash=[2, 2.4], spaceAfter=4 * mm, hAlign='CENTER'))
+            story.append(check)
 
-        # ── Footer ───────────────────────────────────────────────────────────
-        story.append(Spacer(1, 4))
-        story.append(HRFlowable(width='100%', thickness=0.4, color=_LIGHT, spaceAfter=3))
-        ft = Table(
-            [[Paragraph(f'Сформовано: {date_short}',
-                        ParagraphStyle('fl', fontName=_f(), fontSize=7, textColor=_MUTED)),
-              Paragraph(f'TaxTech · TX#{tx_num}',
-                        ParagraphStyle('fr', fontName=_f(), fontSize=7, textColor=_MUTED, alignment=2))]],
-            colWidths=['50%', '50%'],
-        )
-        ft.setStyle(TableStyle([
-            ('LEFTPADDING', (0, 0), (-1, -1), 11),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 11),
-            ('TOPPADDING', (0, 0), (-1, -1), 0),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-        ]))
-        story.append(ft)
+        story.append(Spacer(1, 4 * mm))
+        story.append(P('Навчальний документ: токени TAX не є грошима', 6.3, False, _MUTED))
 
         pdf_doc.build(story)
         return buf.getvalue()
@@ -731,18 +789,22 @@ class StatementService:
 
         # ── Row 0: navy banner spanning full width ────────────────────────────
         banner = Table(
-            [[Paragraph('TaxTech <font color="#9a9a9a">Lab</font>', banner_brand),
+            [[Table([[_mark_drawing(7.2 * mm), Paragraph('TaxTech', banner_brand)]], colWidths=[9 * mm, None],
+                    style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                                      ('RIGHTPADDING', (0, 0), (-1, -1), 0), ('TOPPADDING', (0, 0), (-1, -1), 0),
+                                      ('BOTTOMPADDING', (0, 0), (-1, -1), 0)]), hAlign='LEFT'),
               Paragraph(report_label.upper(), banner_type),
               Paragraph(period_label, banner_period)]],
             colWidths=['35%', '35%', '30%'],
         )
         banner.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), _NAVY2),
-            ('TOPPADDING', (0, 0), (-1, -1), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 9),
-            ('LEFTPADDING', (0, 0), (0, 0), 0),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d0d0f')),
+            ('ROUNDEDCORNERS', [8, 8, 8, 8]),
+            ('TOPPADDING', (0, 0), (-1, -1), 13),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 13),
+            ('LEFTPADDING', (0, 0), (0, 0), 14),
             ('LEFTPADDING', (1, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 14),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
 
@@ -921,7 +983,7 @@ class StatementService:
 
         top_row = [
             Table(
-                [[Paragraph(ic, icon_s)], [Paragraph(lbl_txt, lbl)], [Paragraph(val_txt, vs)]],
+                [[Paragraph(lbl_txt, lbl)], [Paragraph(val_txt, vs)]],
                 colWidths=['100%'],
             )
             for lbl_txt, val_txt, vs, ic in cards_data
@@ -936,11 +998,9 @@ class StatementService:
 
         table = Table([top_row], colWidths=['20%', '20%', '20%', '20%', '20%'])
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), _LIGHT),
-            ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#fafafa')),
-            ('BACKGROUND', (2, 0), (2, 0), colors.HexColor('#f4f4f4')),
-            ('BOX',        (0, 0), (-1, -1), 0.6, colors.HexColor('#c8c8c8')),
-            ('INNERGRID',  (0, 0), (-1, -1), 0.5, colors.HexColor('#d7d7d7')),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f3f3f1')),
+            ('ROUNDEDCORNERS', [6, 6, 6, 6]),
+            ('INNERGRID',  (0, 0), (-1, -1), 3, _WHITE),
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
             ('LEFTPADDING', (0, 0), (-1, -1), 4),
@@ -969,8 +1029,8 @@ class StatementService:
         table = Table(rows, colWidths=['68%', '32%'])
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), _WHITE),
-            ('BOX', (0, 0), (-1, -1), 0.5, colors.HexColor('#d0d0d0')),
-            ('INNERGRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#dcdcdc')),
+            ('LINEBELOW', (0, 0), (-1, -2), 0.3, colors.HexColor('#e6e6e4')),
+            ('TOPPADDING', (0, 0), (-1, -1), 3.6),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
             ('LEFTPADDING', (0, 0), (-1, -1), 6),
@@ -1004,8 +1064,8 @@ class StatementService:
         table = Table(data, colWidths=['28%', '12%', '20%', '20%', '20%'], repeatRows=1)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#d0d0d0')),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [_WHITE, _BG]),
+            ('LINEBELOW', (0, 1), (-1, -1), 0.3, colors.HexColor('#e6e6e4')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [_WHITE, colors.HexColor('#f8f8f7')]),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
             ('LEFTPADDING', (0, 0), (-1, -1), 5),
@@ -1042,8 +1102,8 @@ class StatementService:
         table = Table(data, colWidths=['20%', '14%', '22%', '22%', '22%'], repeatRows=1)
         table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#d0d0d0')),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [_WHITE, _BG]),
+            ('LINEBELOW', (0, 1), (-1, -1), 0.3, colors.HexColor('#e6e6e4')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [_WHITE, colors.HexColor('#f8f8f7')]),
             ('TOPPADDING', (0, 0), (-1, -1), 3.5),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),
             ('LEFTPADDING', (0, 0), (-1, -1), 5),
@@ -1114,8 +1174,8 @@ class StatementService:
         table = Table(data, colWidths=['28%', '10%', '22%', '20%', '20%'], repeatRows=1)
         ts = [
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#d0d0d0')),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -2), [_WHITE, _BG]),
+            ('LINEBELOW', (0, 1), (-1, -1), 0.3, colors.HexColor('#e6e6e4')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -2), [_WHITE, colors.HexColor('#f8f8f7')]),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
             ('LEFTPADDING', (0, 0), (-1, -1), 5),
@@ -1185,7 +1245,7 @@ class StatementService:
                 desc_cells.append(Paragraph(str(related), muted))
             h = record_hashes.get(int(tx.get('id') or 0))
             if h:
-                desc_cells.append(Paragraph(f'<font name="Courier">#{h[:16]}</font>', muted))
+                desc_cells.append(Paragraph(f'#{h[:16]}', muted))
 
             tx_type = _TX_TYPE_LABELS.get(tx.get('tx_type'), tx.get('tx_type') or '—')
             balance_after = balance_by_id.get(tx_id, 0.0)
@@ -1223,8 +1283,8 @@ class StatementService:
         table = Table(data, colWidths=[7 * mm, 20 * mm, None, 22 * mm, 26 * mm, 30 * mm], repeatRows=1)
         ts = [
             ('BACKGROUND', (0, 0), (-1, 0), _NAVY),
-            ('GRID', (0, 0), (-1, -2), 0.25, colors.HexColor('#e6e6e6')),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -2), [_WHITE, _BG]),
+            ('LINEBELOW', (0, 1), (-1, -2), 0.25, colors.HexColor('#e6e6e4')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -2), [_WHITE, colors.HexColor('#f8f8f7')]),
             ('TOPPADDING', (0, 0), (-1, -1), 3.5),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3.5),
             ('LEFTPADDING', (0, 0), (-1, -1), 4),
