@@ -396,7 +396,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <section id="top" className="bl-hero">
             <div className="bl-wrap bl-hero-in">
               <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
-              <p className="bl-hero-sub">{t('Навчальний банк: картка, рахунок і магазин в одному застосунку. Живе на TAX, а не на справжніх грошах.', 'A training bank: card, account and shop in one app. It runs on TAX, not real money.')}</p>
               <div className="bl-cta">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
                 <a className="bl-ghost" href="#inside">{t('Що в застосунку', 'What’s in the app')}</a>

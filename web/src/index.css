@@ -521,7 +521,7 @@
 .ap-auth-sub { margin: 10px 0 0; font-size: 17px; color: #86868b; }
 .ap-auth input:focus { border-color: #ffd400 !important; outline: none; }
 .ap-auth .ap-link { font-size: 15px; color: #ffd400; }
-.tt-back { position: fixed; z-index: 30; top: calc(16px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px 0 10px; border-radius: 980px; border: 0; background: rgba(44,44,46,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #eee; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.tt-back { position: absolute; z-index: 30; top: calc(16px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px 0 10px; border-radius: 980px; border: 0; background: rgba(44,44,46,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #eee; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 @media (max-width: 900px) {
   .tt-hero { padding: 32px 0 64px; }
   .tt-hero-in { grid-template-columns: minmax(0, 1fr); gap: 40px; }
@@ -700,3 +700,17 @@
   background: linear-gradient(180deg, #222225 0%, #19191b 100%) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 30px -16px rgba(0, 0, 0, 0.75) !important;
 }
+
+/* Sign-in and sign-up on a short window: the form is the same, only tighter, so it needs little scrolling */
+@media (max-height: 820px) {
+  .ap-auth-wrap { padding-top: 76px !important; padding-bottom: 28px !important; }
+  .ap-auth-head { margin-bottom: 22px !important; }
+  .ap-auth-seal { display: none !important; }
+  .ap-auth-title { font-size: 28px; }
+  .ap-auth-sub { margin-top: 6px; font-size: 15px; }
+  .ap-auth input { height: 48px !important; font-size: 16px !important; }
+}
+
+/* Sign-in column: never narrower than a comfortable form; the picture panel gives way first */
+.ap-auth-wrap { flex: 1 1 440px !important; min-width: min(100%, 440px) !important; }
+@media (max-width: 1000px) { .ap-brand { display: none !important; } }

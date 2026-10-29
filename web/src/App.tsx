@@ -9764,7 +9764,7 @@ function LoginBrandPanel() {
   const { t } = usePreferences();
   const points = [t('dk_login_p1'), t('dk_login_p2'), t('dk_login_p3')];
   return (
-    <aside className="kp-fade" style={{ position: 'relative', flex: '1 1 52%', minWidth: 0, overflow: 'hidden', padding: '56px 64px', display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--kp-line)', background: 'linear-gradient(180deg, rgba(5,5,7,0.78) 0%, rgba(5,5,7,0.55) 45%, rgba(5,5,7,0.92) 100%), url(/cards/roma-pantheon.webp) center / cover, #0a0a0b' }}>
+    <aside className="kp-fade ap-brand" style={{ position: 'relative', flex: '1 1 52%', minWidth: 0, overflow: 'hidden', padding: '56px 64px', display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--kp-line)', background: 'linear-gradient(180deg, rgba(5,5,7,0.78) 0%, rgba(5,5,7,0.55) 45%, rgba(5,5,7,0.92) 100%), url(/cards/roma-pantheon.webp) center / cover, #0a0a0b' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <RomanSeal size={40} />
         <div>
@@ -9892,11 +9892,11 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
         </button>
       )}
       <div style={{ minHeight: '100%', display: 'flex', alignItems: 'stretch', position: 'relative' }}>
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '88px 20px 48px' }}>
+      <div className="ap-auth-wrap" style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '88px 20px 48px' }}>
       <div className="ap-auth" style={{ width: '100%', maxWidth: 400 }}>
 
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><RomanSeal size={52} /></div>
+        <div className="ap-auth-head" style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div className="ap-auth-seal" style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}><RomanSeal size={52} /></div>
           <h1 className="ap-auth-title">{mode === 'login' ? tr('Увійдіть у TaxTech', 'Sign in to TaxTech') : tr('Відкрийте рахунок', 'Open an account')}</h1>
           <p className="ap-auth-sub">{mode === 'login' ? tr('Телефон або email і пароль.', 'Phone or email, and your password.') : tr('Хвилина — і рахунок у TAX готовий.', 'A minute, and your TAX account is ready.')}</p>
         </div>

@@ -526,11 +526,10 @@
 @keyframes bl-hover { 0%, 100% { transform: rotateX(16deg) rotateZ(-5deg) translateY(0); } 50% { transform: rotateX(14deg) rotateZ(-4deg) translateY(-12px); } }
 
 /* Hero line and buttons: what TaxTech is, and a way in */
-.bl-hero-sub { margin-top: 22px; max-width: 30em; margin-inline: auto; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.5; color: #d2d2d7; text-shadow: 0 2px 24px rgba(0,0,0,.7); animation: bl-up 1s cubic-bezier(.2,.7,.2,1) 2.5s both; }
-.bl-hero .bl-cta { margin-top: 26px; animation-delay: 2.7s; }
+.bl-hero .bl-cta { margin-top: 34px; animation-delay: 2.5s; }
 .bl-hero .bl-ghost { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-@media (min-width: 861px) { .bl-hero-sub { margin-inline: 0; max-width: 24em; } .bl-hero .bl-cta { justify-content: flex-start; } }
-@media (prefers-reduced-motion: reduce) { .bl-hero-sub, .bl-hero .bl-cta { animation: none; } }
+@media (min-width: 861px) { .bl-hero .bl-cta { justify-content: flex-start; } }
+@media (prefers-reduced-motion: reduce) { .bl-hero .bl-cta { animation: none; } }
 
 /* Inside: what the bank does */
 .bl-inside { background: radial-gradient(70% 40% at 50% 0%, rgba(255,212,0,.06), transparent 70%), #000; }
@@ -618,4 +617,12 @@
   .bl-st-line { stroke-dashoffset: 0; } .bl-st-area { opacity: 1; }
   .bl-st-credit i::after { transform: scaleY(1); } .bl-st-credit i:nth-child(n+5)::after { transform: scaleY(0); }
   .bl-st-fraud li, .bl-st-blocked, .bl-st-valid { opacity: 1; } .bl-st-track i, .bl-st-ok { display: none; }
+}
+
+/* Hero on a phone: air under the headline, a scrim behind the text so the map lines do not cut through it, one clear button and a quiet link */
+@media (max-width: 860px) {
+  .bl-cine .bl-hero::before { background: radial-gradient(100% 52% at 50% 36%, rgba(4,6,13,.9) 0%, rgba(4,6,13,.72) 55%, transparent 100%); }
+  .bl-hero .bl-cta { margin-top: 26px; flex-direction: column; gap: 4px; }
+  .bl .bl-hero .bl-ghost { height: 44px; padding: 0 10px; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; font-size: 15.5px; font-weight: 600; color: var(--yellow); }
+  .bl .bl-hero .bl-ghost::after { content: "\203A"; margin-left: 6px; font-size: 20px; line-height: 1; }
 }
