@@ -23,9 +23,9 @@ type Finish = 'guilloche' | 'colosseum-night' | 'pantheon' | 'forum' | 'aqueduct
 // One evening in Rome, told by the scroll: the clock runs from CLOCK_FROM to CLOCK_TO while the photographs change.
 const CLOCK_FROM = 18 * 60 + 30, CLOCK_TO = 23 * 60 + 55;
 const DAY = [
-  { img: '/landing/rome-forum-sunset.webp', pos: '50% 62%', place: { uk: 'Римський форум', en: 'Roman Forum' }, what: { uk: 'Аперитив', en: 'Aperitivo' }, merchant: 'Foro Romano', amount: 850 },
-  { img: '/landing/rome-pantheon-night.webp', pos: '50% 38%', place: { uk: 'Пантеон', en: 'Pantheon' }, what: { uk: 'Вечеря', en: 'Dinner' }, merchant: 'Pantheon', amount: 3200 },
-  { img: '/landing/rome-trevi-night.webp', pos: '50% 28%', place: { uk: 'Фонтан Треві', en: 'Trevi Fountain' }, what: { uk: 'Джелато', en: 'Gelato' }, merchant: 'Fontana di Trevi', amount: 180 },
+  { img: '/landing/rome-forum-sunset.webp', pos: '50% 62%', place: { uk: 'Римський форум', en: 'Roman Forum' }, what: { uk: 'Аперитив', en: 'Aperitivo' }, merchant: 'Foro Romano', amount: 850, bal: 23150 },
+  { img: '/landing/rome-pantheon-night.webp', pos: '50% 38%', place: { uk: 'Пантеон', en: 'Pantheon' }, what: { uk: 'Вечеря', en: 'Dinner' }, merchant: 'Pantheon', amount: 3200, bal: 19950 },
+  { img: '/landing/rome-trevi-night.webp', pos: '50% 28%', place: { uk: 'Фонтан Треві', en: 'Trevi Fountain' }, what: { uk: 'Джелато', en: 'Gelato' }, merchant: 'Fontana di Trevi', amount: 180, bal: 19770 },
 ];
 
 const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
@@ -96,9 +96,10 @@ function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
   const f = FINISHES.find(x => x.id === finish)!;
   return (
     <div className={`bl-card${f.photo ? ' bl-card-photo' : ' bl-card-guil'}`} style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>
+      {!f.photo && <svg className="bl-card-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeWidth=".3" /></svg>}
       <span className="bl-card-shade" aria-hidden />
       <span className="bl-card-sheen" aria-hidden />
-      <span className="bl-card-brand">Tax<b>Tech</b></span>
+      <span className="bl-card-brand"><img src="/icons/mark-white.svg" alt="" /><span>Tax<b>Tech</b></span></span>
       <svg className="bl-card-nfc" viewBox="0 0 24 24" aria-hidden><path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M15.5 2.5a13 13 0 0 1 0 19" /></svg>
       <svg className="bl-card-chip" viewBox="0 0 44 34" aria-hidden>
         <defs><linearGradient id="blchip" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f7e7b4" /><stop offset=".35" stopColor="#d3ac55" /><stop offset=".62" stopColor="#f0d58e" /><stop offset="1" stopColor="#a47f33" /></linearGradient></defs>
@@ -120,6 +121,17 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
+  // Debit notification as the app sends it: icon, app name, "now", what was charged and what is left.
+  const push = (merchant: string, amount: number, bal: number) => (
+    <>
+      <span className="bl-push-ic" aria-hidden><img src="/icons/mark-white.svg" alt="" /></span>
+      <div className="bl-push-tx">
+        <div className="bl-push-top"><em>TaxTech</em><em>{t('зараз', 'now')}</em></div>
+        <div className="bl-push-h">{t('Списання', 'Debit')}<u>−{fmt(amount)} TAX</u></div>
+        <p>{merchant} · {t('Залишок', 'Balance')} {fmt(bal)} TAX</p>
+      </div>
+    </>
+  );
 
   useEffect(() => {
     const id = window.setTimeout(() => { document.documentElement.lang = lang; }, 0);
@@ -263,11 +275,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <h1>{t('Платіть, як у Римі.', 'Pay like Rome.').split(' ').map((w, i) => <span key={i} className="bl-w" style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
             </div>
             <div className="bl-hero-pay" aria-hidden>
-              <div className="bl-toast bl-toast-loop">
-                <Medallion tint="#4fd18b">{IC.check}</Medallion>
-                <div><b>Roma · Colosseo</b><span>{t('Оплачено', 'Paid')}</span></div>
-                <strong>−850 <small>TAX</small></strong>
-              </div>
+              <div className="bl-toast bl-push bl-toast-loop">{push('Roma · Colosseo', 850, 23150)}</div>
               <div className="bl-hero-card"><Card finish="guilloche" /></div>
             </div>
           </section>
@@ -291,10 +299,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <div className="bl-rome-right">
                 <div className="bl-rome-toasts">
                   {DAY.map((d, i) => (
-                    <div key={d.img} data-i={i} className="bl-rome-item bl-toast" style={{ ['--a' as string]: i === 0 ? 1 : 0 }}>
-                      <Medallion tint="#4fd18b">{IC.check}</Medallion>
-                      <div><b>{d.merchant}</b><span>{t(d.what.uk, d.what.en)}</span></div>
-                      <strong>−{fmt(d.amount)} <small>TAX</small></strong>
+                    <div key={d.img} data-i={i} className="bl-rome-item bl-toast bl-push" style={{ ['--a' as string]: i === 0 ? 1 : 0 }}>
+                      {push(`${d.merchant} · ${t(d.what.uk, d.what.en)}`, d.amount, d.bal)}
                     </div>
                   ))}
                 </div>
@@ -312,11 +318,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           tapText={t('Дотик.', 'Tap.')}
           paidText={t('Оплачено.', 'Paid.')}
           toast={(
-            <div className="bl-toast bl-toast-pay">
-              <Medallion tint="#4fd18b">{IC.check}</Medallion>
-              <div><b>Saint Agnes</b><span>{t('Оплачено', 'Paid')}</span></div>
-              <strong>−{shop[0]?.price ? fmt(Number(shop[0].price)) : '14 490'} <small>TAX</small></strong>
-            </div>
+            <div className="bl-toast bl-push bl-toast-pay">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
           )}
         />
 
@@ -334,7 +336,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-thumbs bl-rv" role="radiogroup" aria-label={t('Оздоблення', 'Design')}>
               {FINISHES.map(f => (
                 <button key={f.id} type="button" role="radio" aria-checked={finish === f.id} aria-label={t(f.uk, f.en)} className={`bl-thumb${finish === f.id ? ' on' : ''}`} onClick={() => setFinish(f.id)}
-                  style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#fff" strokeOpacity=".7" strokeWidth=".5" /></svg>}</button>
+                  style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeOpacity=".75" strokeWidth=".5" /></svg>}</button>
               ))}
             </div>
             <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>

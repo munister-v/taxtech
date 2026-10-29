@@ -2,6 +2,9 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    'now': 'ora',
+    'Debit': 'Addebito',
+    'Balance': 'Saldo',
     'Pay': 'Paga',
     'Cards': 'Carte',
     'Language': 'Lingua',
@@ -41,6 +44,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    'now': 'jetzt',
+    'Debit': 'Abbuchung',
+    'Balance': 'Saldo',
     'Pay': 'Zahlen',
     'Cards': 'Karten',
     'Language': 'Sprache',
@@ -80,6 +86,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    'now': 'сейчас',
+    'Debit': 'Списание',
+    'Balance': 'Остаток',
     'Pay': 'Оплата',
     'Cards': 'Карты',
     'Language': 'Язык',
