@@ -22,12 +22,6 @@
 .bl-wrap { max-width: 1120px; margin: 0 auto; padding-left: max(22px, env(safe-area-inset-left, 0px)); padding-right: max(22px, env(safe-area-inset-right, 0px)); }
 .bl-center { text-align: center; }
 .bl-dim { color: var(--mut); }
-.bl .bl-eyebrow { font-family: var(--roman); font-size: 15px; font-weight: 400; color: var(--gold-l); letter-spacing: .24em; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
-.bl-center .bl-eyebrow, .bl-center.bl-eyebrow { justify-content: center; }
-.bl .bl-eyebrow b { font-weight: 400; color: var(--yellow); }
-.bl .bl-eyebrow i { width: 28px; height: 1px; background: currentColor; opacity: .5; }
-.bl .bl-eyebrow-hero { color: var(--gold-l); }
-.bl .bl-eyebrow-hero svg { flex: none; }
 .bl .bl-h { font-size: clamp(36px, 5vw, 60px); line-height: 1.06; letter-spacing: -0.035em; }
 .bl .bl-h-xl { font-size: clamp(44px, 7vw, 84px); }
 .bl .bl-sub { margin-top: 18px; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.45; color: var(--sub); max-width: 600px; }
@@ -52,12 +46,9 @@
 .bl-nav { position: sticky; top: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px); margin-bottom: calc(-56px - env(safe-area-inset-top, 0px)); background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,0)); transition: background .35s, box-shadow .3s; }
 .bl-nav.s { background: rgba(0,0,0,.72); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 1px 0 rgba(255,255,255,.08); }
 .bl-nav-in { display: flex; align-items: center; height: 56px; gap: 24px; }
-.bl-logo { display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0; font-family: var(--roman); font-weight: 400; font-size: 18px; letter-spacing: .3em; color: #fff; white-space: nowrap; }
-.bl-logo-seal { position: relative; width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center; margin-left: -4px; }
-.bl-logo-seal svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px rgba(199,164,111,.35)); }
-.bl-logo-seal img { position: relative; height: 44%; width: auto; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
-.bl-logo:hover .bl-logo-seal img { transform: translateY(-1px) scale(1.12); }
-.bl-logo-word { padding-top: 2px; }
+.bl-logo { display: inline-flex; flex-shrink: 0; }
+.bl-logo img { box-sizing: border-box; width: 40px; height: 40px; padding: 9px 10px; object-fit: contain; border-radius: 11px; background: #000; border: 1px solid rgba(255,255,255,.22); transition: transform .4s cubic-bezier(.2,.7,.2,1), border-color .3s; }
+.bl-logo:hover img { transform: scale(1.06); border-color: rgba(255,212,0,.7); }
 .bl-links { display: flex; gap: 30px; margin: 0 auto; }
 .bl-links a { font-size: 13px; color: #d2d2d7; opacity: .85; transition: opacity .2s; }
 .bl-links a:hover { opacity: 1; }
@@ -212,16 +203,8 @@
 }
 
 /* Roman identity: niche, meander, arcade, inscriptions */
-.bl-cta-laurel { display: block; margin: 0 auto 8px; }
-.bl .bl-inscr { margin-top: 22px; font-family: var(--roman); font-size: 15px; letter-spacing: .34em; text-transform: uppercase; color: var(--gold-l); }
-.bl-center .bl-inscr { text-align: center; }
-.bl-arcade { margin-bottom: 28px; margin-top: -40px; }
-.bl .bl-inscr-foot { margin: 0 0 20px; font-size: 13px; color: var(--gold); text-align: center; }
 .bl-foot { padding-top: 40px; }
 @media (max-width: 734px) {
-  .bl .bl-eyebrow { font-size: 13px; letter-spacing: .18em; gap: 10px; }
-  .bl .bl-eyebrow i { width: 18px; }
-  .bl .bl-inscr { letter-spacing: .2em; font-size: 12px; }
 }
 
 /* Numbers strip, app medallions, mobile scene tweaks */
@@ -247,13 +230,11 @@
 .bl-scene > .bl-wrap { position: relative; z-index: 1; width: 100%; }
 .bl-scene .bl-photo { background-size: cover; background-position: center; }
 .bl-scene .bl-photo::after { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.35) 24%, rgba(0,0,0,.45) 70%, #000 100%); }
-.bl-photo-warm::after { background: linear-gradient(180deg, #000 0%, rgba(8,6,14,.22) 26%, rgba(8,6,14,.38) 74%, #000 100%) !important; }
 .bl-photo-shop { background-position: 50% 28%; }
 .bl-photo-shop::after { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.25) 26%, rgba(0,0,0,.35) 52%, rgba(0,0,0,.9) 100%) !important; }
 .bl-photo-final { background-position: 50% 38%; }
 .bl-photo-final::after { background: linear-gradient(180deg, #000 0%, rgba(2,6,24,.15) 26%, rgba(2,6,24,.3) 62%, #000 100%) !important; }
 .bl-final { min-height: 100svh; }
-.bl-final .bl-inscr-top { margin: 0 0 18px; }
 @media (max-width: 960px) {
   .bl-final { align-items: flex-start; padding-top: 84px; }
   .bl-final::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(2,6,24,.78) 0%, rgba(2,6,24,.55) 38%, rgba(2,6,24,0) 62%); }
@@ -261,30 +242,13 @@
   .bl-final .bl-h-xl { text-shadow: 0 4px 30px rgba(2,6,24,.9); }
 }
 
-.bl-final .bl-inscr { color: #f3e3bd; text-shadow: 0 1px 14px rgba(2,6,24,.95), 0 0 3px rgba(2,6,24,.9); }
 @media (min-width: 961px) { .bl-final { align-items: flex-start; padding-top: 11vh; } .bl-final > .bl-wrap { padding-left: 40%; } .bl-final .bl-h-xl { font-size: clamp(44px, 5.4vw, 84px); text-shadow: 0 6px 50px rgba(2,6,24,.8); } }
 
 /* Deposit */
-.bl-calc-big span { display: block; font-size: clamp(64px, 11vw, 150px); font-weight: 700; letter-spacing: -0.05em; line-height: 1; font-variant-numeric: tabular-nums; text-shadow: 0 8px 60px rgba(0,0,0,.6); }
-.bl-calc-big em { font-style: normal; font-size: .28em; letter-spacing: .08em; margin-left: .3em; color: var(--yellow); }
-.bl-calc-big small { display: block; margin-top: 10px; font-family: var(--roman); font-size: 15px; letter-spacing: .26em; text-transform: uppercase; color: var(--gold-l); }
-.bl-calc { max-width: 560px; margin: 44px auto 0; padding: 26px; border-radius: 30px; background: rgba(10,10,14,.55); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 40px 90px -40px #000; }
-.bl-seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border-radius: 980px; background: rgba(255,255,255,.1); }
 .bl .bl-seg button { padding: 10px 6px; border-radius: 980px; font-size: 14px; color: #d4d4dc; white-space: nowrap; transition: background .25s, color .25s; }
 .bl .bl-seg button.on { background: var(--yellow); color: #14120a; font-weight: 600; }
-.bl-range { display: block; margin: 30px 0 28px; }
-.bl-range input { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--yellow) var(--p), rgba(255,255,255,.25) var(--p)); outline: none; }
-.bl-range input::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.5); cursor: grab; }
-.bl-range input::-moz-range-thumb { width: 28px; height: 28px; border: 0; border-radius: 50%; background: #fff; cursor: grab; }
-.bl-range span { display: block; margin-top: 16px; font-size: 18px; }
-.bl-range b { font-weight: 600; letter-spacing: -0.02em; }
 
 /* Security */
-.bl-secure .bl-h-xl { font-size: clamp(64px, 12vw, 170px); text-shadow: 0 8px 60px rgba(0,0,0,.7); }
-.bl-layers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 56px auto 0; max-width: 760px; background: rgba(255,255,255,.16); border-radius: 24px; overflow: hidden; }
-.bl-layers > div { background: rgba(8,8,12,.62); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); padding: 28px 12px; }
-.bl-layers b { display: block; font-family: var(--roman); font-weight: 400; font-size: clamp(40px, 6vw, 72px); line-height: 1; color: var(--gold-l); }
-.bl-layers span { display: block; margin-top: 10px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #c9c9d1; }
 
 /* Saint Agnes */
 .bl-shopscene { align-items: flex-end; }
@@ -304,10 +268,7 @@
 @media (max-width: 734px) {
   .bl-scene { padding: 88px 0; min-height: 0; }
   .bl-final { min-height: 86svh; }
-  .bl-calc { padding: 18px; border-radius: 24px; }
   .bl .bl-seg button { font-size: 13px; padding: 9px 2px; }
-  .bl-layers > div { padding: 22px 6px; }
-  .bl-layers span { font-size: 11px; letter-spacing: .08em; }
   .bl-shop { gap: 10px; margin-top: 36px; }
   .bl-prod { padding: 8px 8px 12px; border-radius: 18px; }
 }
@@ -327,6 +288,23 @@
 
 @media (max-width: 560px) {
   .bl-logo { gap: 8px; font-size: 15px; letter-spacing: .24em; }
-  .bl-logo-seal { width: 42px; height: 42px; margin-left: -4px; }
 }
 @media (max-width: 299px) { .bl-logo-word { display: none; } }
+
+
+/* Fire scenes: a photograph with living light in its arches and sparks rising from them */
+.bl-fire { position: absolute; inset: 0; overflow: hidden; background: #05070f; }
+.bl-fire-in { position: absolute; }
+.bl-fire-in img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.bl-fire-cv { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.bl-fire-glow { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; mix-blend-mode: screen; opacity: .8;
+  background: radial-gradient(closest-side, rgba(255,178,72,.7), rgba(255,118,28,.26) 55%, transparent 76%);
+  animation: bl-flicker var(--f) ease-in-out var(--o) infinite; }
+.bl-photo-final .bl-fire-glow { background: radial-gradient(closest-side, rgba(255,238,196,.6), rgba(255,190,100,.2) 55%, transparent 76%); animation-name: bl-breathe; animation-duration: 5s; }
+.bl-fire-dawn .bl-fire-in img { animation: bl-dawn 3.4s ease-out both; }
+.bl-fire-dawn .bl-fire-glow { opacity: 0; animation: bl-ignite .9s ease-out var(--d) forwards, bl-flicker var(--f) ease-in-out calc(var(--d) + .9s + var(--o)) infinite; }
+@keyframes bl-dawn { from { filter: brightness(.38) saturate(.55); } to { filter: none; } }
+@keyframes bl-ignite { from { opacity: 0; transform: translate(-50%, -50%) scale(.4); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes bl-flicker { 0%, 100% { opacity: .82; } 22% { opacity: 1; } 41% { opacity: .66; } 63% { opacity: .96; } 82% { opacity: .74; } }
+@keyframes bl-breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bl-fire-dawn .bl-fire-glow { opacity: .9; } }

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LandingLangContext, initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
-import { Arcade, Laurel } from './roman';
+import FireScene from './FireScene';
+import { DAWN_SPOTS, SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
@@ -10,7 +11,6 @@ import './bankLanding.css';
 const DOCS_URL = 'https://github.com/munister-v/taxtech/blob/main/docs/RESEARCH.md';
 const SHOP_URL = 'https://shop.munister.com.ua/';
 // Same rates and formula as server/backend/services/deposit_service.py and credit_service.py.
-const DEPOSIT_RATES: Record<number, number> = { 1: 8, 3: 10, 6: 12, 12: 14 };
 // Hand-picked Saint Agnes pieces, in this order (coat, teddy jacket, tweed cardigan, check jacket).
 const SHOP_PICKS = ['munister-81921', 'munister-83171', 'munister-81907', 'munister-83168'];
 
@@ -80,10 +80,6 @@ const IC = {
 };
 
 // Section label in inscription capitals with a Roman numeral: "II · Вигляд картки".
-function Eyebrow({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <p className={`bl-eyebrow ${className}`}>{children}</p>;
-}
-
 function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
   const f = FINISHES.find(x => x.id === finish)!;
   return (
@@ -101,34 +97,12 @@ function Card({ finish, n = '6595' }: { finish: Finish; n?: string }) {
   );
 }
 
-/** Eases a displayed number towards its target, so the deposit gain rolls instead of jumping. */
-function useTween(target: number) {
-  const [v, setV] = useState(target);
-  const from = useRef(target);
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { from.current = target; setV(target); return; }
-    const a = from.current, t0 = performance.now();
-    let raf = 0;
-    const step = (now: number) => {
-      const k = Math.min(1, (now - t0) / 650);
-      const cur = a + (target - a) * (1 - Math.pow(1 - k, 3));
-      from.current = cur; setV(cur);
-      if (k < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [target]);
-  return v;
-}
-
 export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
   const [finish, setFinish] = useState<Finish>('guilloche');
-  const [term, setTerm] = useState(12);
-  const [amount, setAmount] = useState(50000);
   const [shop, setShop] = useState<ShopItem[]>([]);
   const t = (uk: string, en: string) => (lang === 'en' ? en : uk);
 
@@ -203,12 +177,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
       .catch(() => {});
   }, []);
 
-  const days = useMemo(() => { const a = new Date(); const b = new Date(a); b.setMonth(b.getMonth() + term); return Math.round((b.getTime() - a.getTime()) / 86400000); }, [term]);
-  const gain = Math.round(amount * DEPOSIT_RATES[term] / 100 * days / 365 * 100) / 100;
-  const shownGain = useTween(gain);
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#save', t('Депозит', 'Deposit')], ['#security', t('Безпека', 'Security')], ['#shop', 'Saint Agnes']];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes']];
   const faq: [string, string][] = [
     [t('Що таке TaxTech?', 'What is TaxTech?'), t('Навчальний цифровий банк лабораторії цифрових фінансів і платіжний партнер Saint Agnes. Рахунок, картки, перекази, депозити, кредит і антифрод працюють як у справжньому банку, але на віртуальних грошах.', 'The training digital bank of a digital-finance lab and the payment partner of Saint Agnes. Accounts, cards, transfers, deposits, credit and fraud checks work as in a real bank, but with virtual money.')],
     [t('Що таке TAX?', 'What is TAX?'), t('Віртуальний токен банку. Він не є грошима чи електронними грошима й не обмінюється на гривню. Справжні картки й рахунки не прив’язуються, тож втратити реальні гроші неможливо.', 'The bank’s virtual token. It is not money or e-money and cannot be exchanged for hryvnia. No real cards or accounts are linked, so there is no way to lose real money.')],
@@ -228,10 +199,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <div className="bl-progress" aria-hidden />
         <header className={`bl-nav${scrolled ? ' s' : ''}`}>
           <div className="bl-wrap bl-nav-in">
-            <a href="#top" className="bl-logo" aria-label="TaxTech">
-              <span className="bl-logo-seal" aria-hidden><Laurel size={40} /><img src="/icons/mark-white.svg" alt="" /></span>
-              <span className="bl-logo-word">TAXTECH</span>
-            </a>
+            <a href="#top" className="bl-logo" aria-label="TaxTech"><img src="/icons/mark-white.svg" alt="TaxTech" /></a>
             <nav className="bl-links" aria-label={t('Розділи', 'Sections')}>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>
             <div className="bl-nav-r">
               {langSwitch}
@@ -256,7 +224,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
         {/* ── Hero: a real photograph of Rome at dusk ── */}
         <section id="top" className="bl-hero">
-          <div className="bl-hero-photo" style={{ backgroundImage: 'url(/landing/rome-colosseum-night.webp)' }} aria-hidden />
+          <FireScene className="bl-hero-photo" src="/landing/colosseum-dawn.webp" ratio={1.4991} focusX={0.22} focusY={0.3} spots={DAWN_SPOTS} embers={120} dawn />
           <div className="bl-wrap bl-hero-in">
             <h1>{t('Платіть, як у Римі.', 'Pay like Rome.')}</h1>
             <div className="bl-cta">
@@ -277,7 +245,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         {/* ── Pay scene: a Saint Agnes shoot with the checkout over it ── */}
         <section id="pay" className="bl-sec bl-pay">
           <div className="bl-wrap bl-center">
-            <Eyebrow className="bl-rv">{t('Оплата', 'Pay')}</Eyebrow>
             <h2 className="bl-h bl-rv">{t('Дотик. Оплачено.', 'Tap. Paid.')}</h2>
           </div>
           <div className="bl-wrap">
@@ -295,7 +262,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         {/* ── Card designs ── */}
         <section id="card" className="bl-sec bl-sec-photo" style={{ ['--bg-photo' as string]: `url(${cur.photo || '/cards/roma-colosseum-night.webp'})` }}>
           <div className="bl-wrap bl-center">
-            <Eyebrow className="bl-rv">{t('Картки', 'Cards')}</Eyebrow>
             <h2 className="bl-h bl-rv">{t('Шість облич.', 'Six faces.')}</h2>
             <div className="bl-stage bl-rv">
               <div className="bl-stage-card" key={finish}><Card finish={finish} /></div>
@@ -310,46 +276,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
-        {/* ── Deposit: sunset over the Forum ── */}
-        <section id="save" className="bl-scene bl-save">
-          <div className="bl-photo bl-photo-warm" style={{ backgroundImage: 'url(/landing/rome-forum-sunset.webp)' }} aria-hidden />
-          <div className="bl-wrap bl-center">
-            <Eyebrow className="bl-rv">{t('Депозит', 'Deposit')}</Eyebrow>
-            <div className="bl-calc-big bl-rv"><span>+{fmt(shownGain, 0)}<em>TAX</em></span><small>{t('за', 'in')} {term} {t('міс', 'months')} · {DEPOSIT_RATES[term]}%</small></div>
-            <div className="bl-calc bl-rv">
-              <div className="bl-seg" role="group" aria-label={t('Строк', 'Term')}>
-                {Object.keys(DEPOSIT_RATES).map(Number).map(m => (
-                  <button key={m} type="button" className={m === term ? 'on' : ''} aria-pressed={m === term} onClick={() => setTerm(m)}>{m} {t('міс', 'mo')}</button>
-                ))}
-              </div>
-              <label className="bl-range">
-                <input type="range" min={1000} max={500000} step={1000} value={amount} aria-label={t('Сума', 'Amount')} style={{ ['--p' as string]: `${((amount - 1000) / 499000) * 100}%` }} onChange={e => setAmount(+e.target.value)} />
-                <span><b>{fmt(amount)} TAX</b></span>
-              </label>
-              <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити депозит', 'Open a deposit')}</button>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Security: the Pantheon at night ── */}
-        <section id="security" className="bl-scene bl-secure">
-          <div className="bl-photo" style={{ backgroundImage: 'url(/landing/rome-pantheon-night.webp)' }} aria-hidden />
-          <div className="bl-wrap bl-center">
-            <Eyebrow className="bl-rv">{t('Безпека', 'Security')}</Eyebrow>
-            <h2 className="bl-h bl-h-xl bl-rv">{t('28 замків.', '28 locks.')}</h2>
-            <div className="bl-layers bl-rv">
-              {[[t('Операція', 'The transaction'), '5'], [t('Ваша історія', 'Your history'), '12'], [t('Граф переказів', 'Transfer graph'), '11']].map(([a, b]) => (
-                <div key={a}><b>{b}</b><span>{a}</span></div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ── Saint Agnes: the shoot, the pieces ── */}
         <section id="shop" className="bl-scene bl-shopscene">
           <div className="bl-photo bl-photo-shop" style={{ backgroundImage: 'url(/shop/hero-autumn.webp)' }} aria-hidden />
           <div className="bl-wrap bl-center">
-            <Eyebrow className="bl-rv">Saint Agnes × TaxTech</Eyebrow>
             <h2 className="bl-h bl-h-xl bl-rv">{t('Одягайтесь за TAX.', 'Dress in TAX.')}</h2>
             <div className="bl-shop bl-rv">
               {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map(p => (
@@ -366,9 +296,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
         {/* ── Final CTA: the Colosseum at blue hour ── */}
         <section className="bl-scene bl-final">
-          <div className="bl-photo bl-photo-final" style={{ backgroundImage: 'url(/landing/rome-colosseum-day.webp)' }} aria-hidden />
+          <FireScene className="bl-photo bl-photo-final" src="/landing/colosseum-sun.webp" ratio={1.504} focusX={0.12} focusY={0.5} spots={SUN_SPOTS} embers={50} />
           <div className="bl-wrap bl-center">
-            <Laurel size={88} className="bl-cta-laurel" />
             <h2 className="bl-h bl-h-xl bl-rv">{t('Ваша картка чекає.', 'Your card is waiting.')}</h2>
             <div className="bl-cta bl-rv">
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
@@ -388,10 +317,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         </section>
 
         <footer className="bl-foot">
-          <Arcade className="bl-arcade" opacity={0.5} />
           <div className="bl-wrap">
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
-            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Colosseum_at_night_01.jpg" target="_blank" rel="noreferrer">John Samuel</a> (CC BY-SA 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Colosseum_in_Rome,_Italy_-_April_2007.jpg" target="_blank" rel="noreferrer">Diliff</a> (CC BY-SA 2.5) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a></p>
+            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a></p>
             <div className="bl-foot-row">
               <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
               <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}<a href={DOCS_URL} target="_blank" rel="noreferrer">{t('Дослідження', 'Research')}</a><a href="https://github.com/munister-v/taxtech" target="_blank" rel="noreferrer">GitHub</a></nav>

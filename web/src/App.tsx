@@ -1,6 +1,6 @@
 import markSvg from './assets/mark.svg?raw';
 import BankLanding from './BankLanding';
-import { Laurel, Meander, ROMAN_FONT, ROMAN_GOLD } from './roman';
+import { Meander, ROMAN_FONT, ROMAN_GOLD } from './roman';
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
@@ -139,14 +139,9 @@ const sectionLabel: React.CSSProperties = {
   ...T.caption, fontFamily: ROMAN_FONT, fontWeight: 400, letterSpacing: '0.16em', textTransform: 'uppercase', color: text.dim, padding: '0 6px 10px',
 };
 
-// Brand mark inside a laurel wreath: the Roman seal used on sign-in screens.
+// Brand mark for the sign-in screens.
 function RomanSeal({ size }: { size: number }) {
-  return (
-    <div style={{ position: 'relative', width: size * 1.7, height: size * 1.7, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-      <Laurel size={size * 1.7} style={{ position: 'absolute', inset: 0 }} />
-      <BrandMark size={size} radiusValue={size / 3.4} />
-    </div>
-  );
+  return <BrandMark size={size * 1.25} radiusValue={size / 3} />;
 }
 
 // Кнопка-таблетка для виписки й експорту: іконка + підпис

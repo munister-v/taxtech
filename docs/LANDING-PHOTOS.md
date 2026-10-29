@@ -1,32 +1,36 @@
 # Фото для лендингу
 
-Лендинг (`web/src/BankLanding.tsx`) побудований на справжніх фотографіях: Рим, Колізей, Пантеон, Форум, плюс кадр
-оплати карткою і зйомка Saint Agnes з магазину. Векторних малюнків немає. Картки показано в CSS, поверх кадрів
-лежать темні градієнти, тож текст читається.
-
-Фото лежать у `web/public/landing/` (WebP, 2400 px по довгій стороні) і підключені як `background-image`.
+Лендинг (`web/src/BankLanding.tsx`) стоїть на справжніх фотографіях Рима з ефектами поверх. Векторних малюнків немає.
+Фото лежать у `web/public/landing/` (WebP, 2400 px по довгій стороні).
 
 | Файл | Де стоїть | Джерело і ліцензія |
 |---|---|---|
-| `rome-colosseum-night.webp` | перший екран | [John Samuel](https://commons.wikimedia.org/wiki/File:Colosseum_at_night_01.jpg), CC BY-SA 4.0 |
+| `colosseum-dawn.webp` | перший екран | [Radek Kucharski](https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg), CC BY 2.0 |
 | `pay-tap.webp` | сцена «Дотик. Оплачено.» | [SumUp / Unsplash](https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek), ліцензія Unsplash |
-| `rome-forum-sunset.webp` | депозит | [Sonse](https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg), CC BY 2.0 |
-| `rome-pantheon-night.webp` | безпека | [DeveshT](https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg), CC0 |
-| `rome-colosseum-day.webp` | фінальний заклик | [Diliff](https://commons.wikimedia.org/wiki/File:Colosseum_in_Rome,_Italy_-_April_2007.jpg), CC BY-SA 2.5 |
+| `colosseum-sun.webp` | фінальний заклик | [Quentin Lowagie](https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg), CC BY 4.0 |
 
 Сцена Saint Agnes бере `/shop/hero-autumn.webp` з магазину, а товари підтягує з `/api/marketplace/catalog`.
-
 Подяки авторам виведено в підвалі лендингу (`.bl-credits`). Якщо міняєте кадр, оновіть і підпис, і цю таблицю.
+
+## Ефекти на фото (`web/src/FireScene.tsx`)
+
+Перший екран і фінал малює `FireScene`: фото поводиться як `background-size: cover`, а поверх лежать
+- світіння в освітлених арках, яке спалахує одне за одним і мерехтить;
+- іскри, що здіймаються з арок (canvas, пауза поза екраном і за `prefers-reduced-motion`).
+
+Координати арок лежать у `web/src/fireData.ts` (у відсотках від зображення), тож ефекти не з’їжджають із
+архітектури за жодної обрізки. Нове фото потребує нових координат: зменшіть копію до 800 px, виділіть пікселі арок
+(теплі: R>215, 120<G<215, B<120, R−B>110; сонячні: R, G, B>235) і знайдіть зв’язні області.
+Центр і розмір кожної області йдуть у `fireData.ts`.
 
 ## Як замінити кадр
 
-Беріть оригінал з Wikimedia Commons (API з `iiurlwidth=2400`) або з Unsplash. Перевіряйте ліцензію: для CC BY і
-CC BY-SA потрібна атрибуція в підвалі. Потім:
+Беріть оригінал з Wikimedia Commons (API з `iiurlwidth=2400`) або з Unsplash. Для CC BY потрібна атрибуція
+в підвалі. Потім:
 
 ```bash
-cwebp -q 82 -resize 2400 0 original.jpg -o web/public/landing/<name>.webp
+cwebp -q 80 -resize 2400 0 original.jpg -o web/public/landing/<name>.webp
 cd web && npm run build
 ```
 
-Далі викладається лише `server/frontend/` (див. `server/README.md`, розділ про розгортання). Перший екран тримайте
-до ~400 КБ.
+Далі викладається лише `server/frontend/` (див. `server/README.md`, розділ про розгортання).
