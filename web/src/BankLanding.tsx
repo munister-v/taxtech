@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LandingLangContext, initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
+import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
 import TapScene from './TapScene';
 import CineGL, { GL_OK } from './CineGL';
@@ -118,12 +118,12 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   const [menu, setMenu] = useState(false);
   const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
-  const t = (uk: string, en: string) => (lang === 'en' ? en : uk);
+  const t = (uk: string, en: string) => landingText(lang, uk, en);
 
   useEffect(() => {
     const id = window.setTimeout(() => { document.documentElement.lang = lang; }, 0);
     saveLandingLang(lang);
-    document.title = lang === 'en' ? 'TaxTech · card, account and shop in one app' : 'TaxTech · картка, рахунок і магазин в одному застосунку';
+    document.title = t('TaxTech · картка, рахунок і магазин в одному застосунку', 'TaxTech · card, account and shop in one app');
     return () => { window.clearTimeout(id); document.documentElement.lang = 'uk'; };
   }, [lang]);
 
@@ -226,8 +226,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   ];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
-      <button type="button" className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
-      <button type="button" className={lang === 'uk' ? 'on' : ''} aria-pressed={lang === 'uk'} onClick={() => setLang('uk')}>UA</button>
+      {LANDING_LANGS.map(l => (
+        <button key={l.id} type="button" className={lang === l.id ? 'on' : ''} aria-pressed={lang === l.id} onClick={() => setLang(l.id)}>{l.label}</button>
+      ))}
     </div>
   );
 
