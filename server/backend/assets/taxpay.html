@@ -120,7 +120,7 @@
 (function () {
   var token = location.pathname.split('/').filter(Boolean).pop() || '';
   var app = document.getElementById('app');
-  var S = null, mode = 'login', busy = false, err = '', timer = null;
+  var S = null, mode = 'login', busy = false, err = '', timer = null, typedPw = '';
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function money(n) { return Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
@@ -189,7 +189,8 @@
       panel = '<div class="panel fade"><div class="acct"><div class="avatar">' + esc((me.name || '?').trim().charAt(0).toUpperCase()) + '</div>' +
         '<div class="who"><div>' + esc(me.name || 'TaxTech account') + '</div><div>Account ' + esc(me.account) + '</div></div>' +
         '<div class="bal' + (short ? ' low' : '') + '">' + money(me.balance) + ' TAX<span>available</span></div></div>' +
-        '<button class="pay" id="pay"' + (short || busy ? ' disabled' : '') + '>' + (busy ? '<span class="spinner"></span>' : 'Pay ' + money(S.amount) + ' TAX') + '</button>' +
+        (short ? '' : '<div class="field" style="margin-top:16px"><label for="ppw">Confirm with your password</label><input id="ppw" name="password" type="password" autocomplete="current-password" value="' + esc(typedPw) + '"></div>') +
+        '<button class="pay" id="pay"' + (short || busy ? ' disabled' : '') + '>' + (busy ? '<span class="spinner"></span>' : 'Confirm and pay ' + money(S.amount) + ' TAX') + '</button>' +
         (short ? '<div class="err">Not enough TAX on this account.</div>' : '<div class="err" id="err">' + esc(err) + '</div>') +
         '<div class="links"><button class="switch" id="switch">Use another account</button><a href="/" target="_blank" rel="noopener">Open TaxTech</a></div></div>';
     } else {
@@ -209,9 +210,12 @@
 
     var payBtn = document.getElementById('pay');
     if (payBtn) payBtn.onclick = pay;
+    var ppw = document.getElementById('ppw');
+    if (ppw) ppw.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); pay(); } };
     var sw = document.getElementById('switch');
     if (sw) sw.onclick = function () {
       try { localStorage.removeItem('army_bank_token'); } catch (e) {}
+      typedPw = '';
       api('/api/auth/logout', {}).then(function () { S.me = null; err = ''; render(); });
     };
     var f = document.getElementById('login');
@@ -226,14 +230,19 @@
       busy = false;
       if (!d.ok) { err = d.error || 'Wrong e-mail, phone or password.'; render(); return; }
       try { localStorage.removeItem('army_bank_token'); } catch (e) {}
+      typedPw = password;
       load();
     });
   }
 
   function pay() {
-    if (busy) return; busy = true; err = ''; render();
-    api('/api/taxpay/sessions/' + encodeURIComponent(token) + '/pay', {}).then(function (d) {
-      busy = false;
+    if (busy) return;
+    var el = document.getElementById('ppw');
+    var password = el ? el.value : '';
+    if (!password) { err = 'Enter your password to confirm the payment.'; render(); return; }
+    busy = true; err = ''; render();
+    api('/api/taxpay/sessions/' + encodeURIComponent(token) + '/pay', { password: password }).then(function (d) {
+      busy = false; typedPw = '';
       if (d.ok) { S.status = 'paid'; S.return_url = d.redirect || S.return_url; if (navigator.vibrate) navigator.vibrate(18); render(); return; }
       if (d._status === 401) { S.me = null; err = 'Your session has ended, please sign in again.'; render(); return; }
       err = d.error || 'The payment was declined.'; load();

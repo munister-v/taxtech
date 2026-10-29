@@ -22,7 +22,8 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..database import get_connection, get_returning_id_suffix, insert_last_id
 from ..services import shop_sync
-from .helpers import api_error, auth_required, auth_service
+from .helpers import api_error, auth_required, auth_service, rate_limit
+from ..utils.security import verify_password
 from .marketplace_routes import (
     _authorize_and_capture_payment,
     _due_at_sql,
@@ -234,9 +235,21 @@ def session_cancel(token: str):
 
 @taxpay_bp.post('/api/taxpay/sessions/<token>/pay')
 @auth_required
+@rate_limit(8, 900, key_func=lambda: f"taxpay-pay:{g.current_user['id']}")
 def session_pay(token: str):
     _ensure_schema()
     user_id = int(g.current_user['id'])
+    # A signed-in browser session is not consent to spend: every payment needs
+    # the account password typed now (the cookie may be on a shared or borrowed
+    # device, or left logged in for weeks). Wrong tries count against the limit.
+    data = request.get_json(silent=True) or {}
+    password = str(data.get('password') or '')
+    with get_connection() as conn:
+        row = conn.execute('SELECT password_hash FROM users WHERE id = %s', (user_id,)).fetchone()
+    if not password:
+        return api_error('Введіть пароль, щоб підтвердити платіж.', 400)
+    if not row or not verify_password(password, str(row['password_hash'] or '')):
+        return api_error('Невірний пароль. Гроші не списано.', 403)
     with get_connection() as conn:
         s = _load(conn, token)
         if not s:
