@@ -5188,5 +5188,17 @@
 "it": "Pagamento della fattura %@ nello shop TaxTech",
 "de": "Zahlung der Rechnung %@ im TaxTech-Shop",
 "ru": "Оплата инвойса %@ в магазине TaxTech"
+},
+"З поверненням": {
+"en": "Welcome back",
+"it": "Bentornato",
+"de": "Willkommen zurück",
+"ru": "С возвращением"
+},
+"у Рим.": {
+"en": "to Rome.",
+"it": "a Roma.",
+"de": "in Rom.",
+"ru": "в Рим."
 }
 }

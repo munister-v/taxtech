@@ -14,6 +14,7 @@ struct OverviewView: View {
     @State private var sheet: Sheet?
     @State private var prefill = ""
     @State private var showProfile = false
+    @State private var selected: API.Transaction?
     @State private var hits: [API.Product] = []
     @State private var shown: Double = 0
     @State private var drawn: CGFloat = 0
@@ -61,6 +62,7 @@ struct OverviewView: View {
                 }
             }
             .sheet(isPresented: $showProfile) { ProfileView().presentationDragIndicator(.visible) }
+            .sheet(item: $selected) { tx in TransactionDetailView(tx: tx) }
         }
     }
 
@@ -185,7 +187,7 @@ struct OverviewView: View {
     private var quickTransfer: some View {
         Card {
             HStack {
-                Text(L("Швидкий переказ").s).font(.headline)
+                Text(L("Швидкий переказ").s).caption()
                 Spacer()
                 Text(L("за історією").s).font(.footnote).foregroundStyle(.secondary)
             }
@@ -196,7 +198,9 @@ struct OverviewView: View {
                         VStack(spacing: 6) {
                             Image(systemName: "plus").font(.title3.weight(.semibold))
                                 .frame(width: 54, height: 54)
-                                .background(Theme.ink.opacity(0.08), in: .circle)
+                                .foregroundStyle(Theme.accent)
+                                .background(Theme.bg, in: .circle)
+                                .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.9))
                             Text(L("Новий").s).font(.caption.weight(.medium))
                         }
                     }
@@ -204,16 +208,15 @@ struct OverviewView: View {
                     ForEach(recipients.prefix(8)) { r in
                         Button { prefill = r.relatedAccount; sheet = .byAccount } label: {
                             VStack(spacing: 6) {
-                                // стабільний колір за номером (hashValue між запусками різний)
-                                let hue = Double(r.relatedAccount.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) % 997 }) / 997
                                 let shop = r.relatedAccount.hasPrefix("MRC-")
                                 Group {
                                     if shop { Image(systemName: "storefront.fill").font(.title3) }
-                                    else { Text(String(r.relatedAccount.suffix(2))).font(.headline.monospacedDigit()) }
+                                    else { Text(String(r.relatedAccount.suffix(2))).font(.custom("Futura-Medium", size: 19)).monospacedDigit() }
                                 }
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(Theme.goldFill)
                                     .frame(width: 54, height: 54)
-                                    .background(Color(hue: hue, saturation: 0.5, brightness: 0.72), in: .circle)
+                                    .background(Theme.surface, in: .circle)
+                                    .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.9))
                                 Text(shop ? String(r.relatedAccount.dropFirst(4)).replacingOccurrences(of: "-", with: " ").capitalized
                                           : r.relatedAccount)
                                     .font(.caption2.weight(.medium).monospacedDigit())
@@ -237,7 +240,7 @@ struct OverviewView: View {
             Card {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(L("Гаманець").s).font(.headline)
+                        Text(L("Гаманець").s).caption()
                         Text(bank.cards.isEmpty ? L("Карток ще немає").s : "\(bank.cards.count) " + cardsWord(bank.cards.count))
                             .font(.footnote).foregroundStyle(.secondary)
                     }
@@ -286,10 +289,10 @@ struct OverviewView: View {
         let low = points.map(\.balance).min() ?? 0, high = points.map(\.balance).max() ?? 1
         return Card {
             VStack(alignment: .leading, spacing: 4) {
-                Text(L("Баланс за 30 днів").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                Text(L("Баланс за 30 днів").s).caption()
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text((delta >= 0 ? "+" : "−") + Self.compact(abs(delta)))
-                        .font(.system(size: 28, weight: .bold)).monospacedDigit()
+                        .font(.custom("Futura-Medium", size: 30)).monospacedDigit()
                     Image(systemName: delta >= 0 ? "arrow.up.right" : "arrow.down.right")
                         .font(.footnote.weight(.bold))
                         .foregroundStyle(delta >= 0 ? .green : .orange)
@@ -317,23 +320,32 @@ struct OverviewView: View {
         }
     }
 
-    /// Останні операції: значок виду в колі, назва, час і сума.
+    /// Останні операції: заголовок із переходом у всі, рядки відкривають саму операцію.
     private var activity: some View {
         Card {
+            HStack(alignment: .firstTextBaseline) {
+                Text(L("Останні").s).caption()
+                Spacer()
+                Button { open(.operations) } label: {
+                    HStack(spacing: 4) {
+                        Text(L("Усі").s)
+                        Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
+                    }
+                    .font(.footnote.weight(.semibold)).foregroundStyle(Theme.accent)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 20).padding(.top, 18).padding(.bottom, 4)
             if bank.loaded && bank.history.isEmpty {
                 Text(L("Операцій ще немає").s).foregroundStyle(.secondary).padding(18)
             } else {
                 ForEach(Array(bank.history.prefix(4).enumerated()), id: \.element.id) { i, tx in
-                    ActivityRow(tx: tx)
+                    Button { selected = tx } label: { ActivityRow(tx: tx).contentShape(.rect) }
+                        .buttonStyle(PressScale())
                     if i < min(bank.history.count, 4) - 1 { Rule().padding(.leading, 68) }
                 }
+                Spacer().frame(height: 6)
             }
-            Button { open(.operations) } label: {
-                Text(L("Усі операції").s).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
-                    .frame(maxWidth: .infinity, minHeight: 46)
-            }
-            .buttonStyle(.plain)
-            .overlay(alignment: .top) { Rule() }
         }
     }
 

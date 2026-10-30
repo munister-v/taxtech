@@ -305,7 +305,7 @@ struct DocumentDetailView: View {
                         Rule().padding(.horizontal, -16).padding(.top, 14)
                         VStack(spacing: 0) {
                             LeaderRow(title: L("Вид").s, value: doc.isReceipt ? L("Квитанція").s : L("Виписка").s)
-                            LeaderRow(title: L("Видано").s, value: doc.date.formatted(date: .long, time: .shortened))
+                            LeaderRow(title: L("Видано").s, value: doc.date.formatted(Date.FormatStyle(date: .long, time: .shortened).locale(Lang.current.locale)))
                             if doc.isReceipt {
                                 LeaderRow(title: L("Операція").s, value: "№ " + String(format: "%08d", Int(doc.ref) ?? 0))
                             } else {

@@ -43,7 +43,7 @@ struct TransactionRow: View {
 
     var body: some View {
         AmountRow(title: title,
-                  subtitle: "\(kind), \(tx.date.formatted(date: .omitted, time: .shortened))",
+                  subtitle: "\(kind), \(tx.date.formatted(Date.FormatStyle(date: .omitted, time: .shortened).locale(Lang.current.locale)))",
                   amount: (tx.isIncome ? "+" : "−") + Format.money(tx.amount), positive: tx.isIncome)
     }
 

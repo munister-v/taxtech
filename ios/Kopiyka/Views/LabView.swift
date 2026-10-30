@@ -179,7 +179,7 @@ struct LabView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(Self.taskTitles[r.task] ?? r.task): \(r.plan.title.lowercased())")
                     RoutedNote(record: r)
-                    Text("\(r.strategy.title), \(r.date.formatted(date: .omitted, time: .standard))")
+                    Text("\(r.strategy.title), \(r.date.formatted(Date.FormatStyle(date: .omitted, time: .standard).locale(Lang.current.locale)))")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                 }

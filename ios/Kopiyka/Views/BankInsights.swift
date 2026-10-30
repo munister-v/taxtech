@@ -23,7 +23,7 @@ struct TransactionDetailView: View {
                             Text(TransactionRow(tx: tx).title)
                                 .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
-                                .font(.system(size: 42, weight: .semibold)).monospacedDigit()
+                                .font(.custom("Futura-Medium", size: 44)).monospacedDigit()
                                 .minimumScaleFactor(0.5).lineLimit(1)
                                 .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
                             Label(L("Виконано").s, systemImage: "checkmark.seal.fill")
@@ -36,7 +36,7 @@ struct TransactionDetailView: View {
                         Rule().padding(.horizontal, -16).padding(.top, 14)
                         VStack(spacing: 0) {
                             LeaderRow(title: L("Вид").s, value: BankText.type(tx.txType))
-                            LeaderRow(title: L("Коли").s, value: tx.date.formatted(date: .long, time: .shortened))
+                            LeaderRow(title: L("Коли").s, value: tx.date.formatted(Date.FormatStyle(date: .long, time: .shortened).locale(Lang.current.locale)))
                             if let r = tx.relatedAccount { LeaderRow(title: tx.isIncome ? L("Від").s : L("Кому").s, value: r) }
                             LeaderRow(title: L("Номер операції").s, value: "№ " + String(format: "%08d", tx.id))
                         }

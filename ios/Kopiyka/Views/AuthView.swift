@@ -230,6 +230,29 @@ struct WelcomeBackdrop: View {
     }
 }
 
+/// Тло аркушів входу: чорне, золота розетка гільйошу в кутку, мʼяке сяйво й римське фото під затемненням.
+struct SheetBackdrop: View {
+    var body: some View {
+        ZStack {
+            Color(red: 0.02, green: 0.02, blue: 0.015)
+            Image("RomeHero").resizable().scaledToFill()
+                .frame(height: 260, alignment: .top).clipped()
+                .saturation(0.5).opacity(0.28)
+                .mask(LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom))
+                .frame(maxHeight: .infinity, alignment: .top)
+            Canvas { ctx, size in
+                let c = CGPoint(x: size.width * 0.92, y: size.height * 0.1)
+                Engraving.rosette(in: &ctx, center: c, radius: size.width * 0.8, curves: 26, lobes: 8, depth: 0.2, second: 0.06,
+                                  steps: 220, color: Theme.goldLight.opacity(0.13), width: 0.4)
+                Engraving.rings(in: &ctx, center: c, from: size.width * 0.74, to: size.width * 0.77, count: 3, color: Theme.goldLight.opacity(0.16))
+            }
+            RadialGradient(colors: [Theme.accent.opacity(0.14), .clear], center: .init(x: 0.9, y: 0.06), startRadius: 0, endRadius: 320)
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+}
+
 /// Вхід: телефон чи пошта й пароль на окремому аркуші.
 struct SignInSheet: View {
     @Environment(AppModel.self) private var model
@@ -246,23 +269,53 @@ struct SignInSheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    Text(L("Вхід").s).font(.system(size: 34, weight: .bold)).tracking(-1)
-                    AuthField(title: L("Телефон або пошта").s, placeholder: L("+380… або you@example.com").s, text: $identity,
-                              content: .username, keyboard: .emailAddress, plain: true)
-                    VStack(alignment: .leading, spacing: 12) {
-                        AuthField(title: L("Пароль").s, placeholder: L("Пароль").s, text: $password, secure: true,
-                                  content: .password, submit: .go) { Task { await submit() } }
-                        Button(L("Забули пароль?").s) { forgot = true }
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Theme.ink)
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 10) {
+                        MarkView(height: 24, color: Theme.accent)
+                        (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
+                            .font(.custom("Futura-Medium", size: 20)).tracking(0.6).foregroundStyle(.white)
+                        Spacer()
+                        Button { dismiss() } label: {
+                            Image(systemName: "xmark").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white.opacity(0.8))
+                                .frame(width: 36, height: 36)
+                                .background(.white.opacity(0.08), in: .circle)
+                                .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.8))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L("Закрити").s)
                     }
+                    .rise(0)
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(L("З поверненням").s).foregroundStyle(.white)
+                        Text(L("у Рим.").s).foregroundStyle(Theme.goldFill)
+                    }
+                    .font(.system(size: 42, weight: .medium)).tracking(-1)
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                    .padding(.top, 18).padding(.bottom, 6)
+                    .rise(1)
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        AuthField(title: L("Телефон або пошта").s, placeholder: L("+380… або you@example.com").s, text: $identity,
+                                  content: .username, keyboard: .emailAddress, plain: true)
+                        VStack(alignment: .leading, spacing: 12) {
+                            AuthField(title: L("Пароль").s, placeholder: L("Пароль").s, text: $password, secure: true,
+                                      content: .password, submit: .go) { Task { await submit() } }
+                            Button(L("Забули пароль?").s) { forgot = true }
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Theme.accent)
+                        }
+                    }
+                    .rise(2)
+
                     if let status {
                         Label(status, systemImage: "exclamationmark.circle")
                             .font(.subheadline)
+                            .foregroundStyle(Color(red: 1, green: 0.62, blue: 0.5))
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(12)
-                            .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
+                            .padding(14)
+                            .background(Color(red: 1, green: 0.4, blue: 0.3).opacity(0.1), in: .rect(cornerRadius: 16, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color(red: 1, green: 0.4, blue: 0.3).opacity(0.35), lineWidth: 0.8))
                             .modifier(Shake(animatableData: CGFloat(shakes)))
                     }
                     Button { Task { await submit() } } label: {
@@ -273,24 +326,29 @@ struct SignInSheet: View {
                     }
                     .buttonStyle(InkButton())
                     .disabled(!valid || working)
+                    .padding(.top, 4)
+                    .rise(3)
                 }
-                .padding(24)
+                .padding(.horizontal, 24).padding(.top, 22).padding(.bottom, 24)
             }
             .scrollDismissesKeyboard(.interactively)
-            .screenBackground()
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
+            .background { SheetBackdrop() }
+            .toolbar(.hidden, for: .navigationBar)
             .sensoryFeedback(.error, trigger: shakes)
             .sheet(isPresented: $forgot) { ForgotPasswordView(identity: identity) }
             .onAppear {
                 if identity.isEmpty { identity = model.lastIdentity }
                 #if DEBUG
                 let env = ProcessInfo.processInfo.environment
-                if identity.isEmpty, let id = env["KOPIYKA_DEMO_IDENTITY"] { identity = id }
+                if let id = env["KOPIYKA_DEMO_IDENTITY"] { identity = id }
                 if password.isEmpty, let pw = env["KOPIYKA_DEMO_PASSWORD"] { password = pw }
                 #endif
             }
         }
         .presentationDetents([.large])
+        .presentationBackground(Color(red: 0.02, green: 0.02, blue: 0.015))
+        .presentationCornerRadius(34)
+        .presentationDragIndicator(.hidden)
     }
 
     private func submit() async {
@@ -514,7 +572,7 @@ struct AuthField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text(title).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+            Text(title).caption()
             HStack(spacing: 10) {
                 Group {
                     if secure && !reveal {
@@ -542,12 +600,13 @@ struct AuthField: View {
             .padding(.leading, 16)
             .padding(.trailing, secure ? 8 : 16)
             .frame(minHeight: 54)
-            .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
+            .background(Theme.surface.opacity(0.9), in: .rect(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(focused ? Theme.ink.opacity(0.75) : (hint != nil ? Theme.ink.opacity(0.35) : Theme.line),
-                                  lineWidth: focused ? 1.5 : 1)
+                    .strokeBorder(focused ? AnyShapeStyle(Theme.accent) : (hint != nil ? AnyShapeStyle(Theme.accent.opacity(0.5)) : AnyShapeStyle(Theme.edge)),
+                                  lineWidth: focused ? 1.4 : 0.9)
             )
+            .shadow(color: focused ? Theme.accent.opacity(0.25) : .clear, radius: 12)
             .animation(.snappy(duration: 0.15), value: focused)
             if let hint {
                 Text(hint).font(.footnote).foregroundStyle(Theme.ink.opacity(0.75))
