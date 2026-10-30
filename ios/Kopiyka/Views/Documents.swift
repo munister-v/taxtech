@@ -47,7 +47,7 @@ extension API {
             return "transactions/statement?" + q.joined(separator: "&")
         }
 
-        var fileName: String { isReceipt ? "Квитанція \(code).pdf" : "Виписка \(code).pdf" }
+        var fileName: String { isReceipt ? L("Квитанція \(code).pdf").s : L("Виписка \(code).pdf").s }
     }
 
     func documents(kind: String? = nil) async throws -> [DocumentRecord] {
@@ -94,7 +94,7 @@ struct QRPlate: View {
         }
         .frame(width: size, height: size)
         .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
-        .accessibilityLabel("QR-код перевірки документа")
+        .accessibilityLabel(L("QR-код перевірки документа").s)
     }
 }
 
@@ -122,33 +122,33 @@ struct VerifySeal: View {
         VStack(spacing: 14) {
             QRPlate(text: doc.verifyUrl)
             VStack(spacing: 4) {
-                Text("Код документа").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                Text(L("Код документа").s).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                 Text(doc.code)
                     .font(.system(.title3, design: .monospaced).weight(.bold)).tracking(1.2)
                     .textSelection(.enabled).minimumScaleFactor(0.7).lineLimit(1)
             }
-            Text("Наведіть камеру на QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.")
+            Text(L("Наведіть камеру на QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.").s)
                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
             HStack(spacing: 10) {
                 if let url = doc.url {
                     Link(destination: url) {
-                        Label("Перевірити онлайн", systemImage: "checkmark.shield")
+                        Label(L("Перевірити онлайн").s, systemImage: "checkmark.shield")
                             .font(.subheadline.weight(.semibold))
                             .frame(maxWidth: .infinity).padding(.vertical, 12)
                             .foregroundStyle(Theme.onAccent)
                             .background(Theme.accent, in: .rect(cornerRadius: 14, style: .continuous))
                     }
-                    ShareLink(item: url, subject: Text(doc.title), message: Text("Код \(doc.code)")) {
+                    ShareLink(item: url, subject: Text(doc.title), message: Text(L("Код \(doc.code)").s)) {
                         Image(systemName: "square.and.arrow.up").font(.subheadline.weight(.semibold))
                             .frame(width: 48).padding(.vertical, 12)
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .strokeBorder(Theme.accent.opacity(0.7), lineWidth: 1))
                     }
                     .foregroundStyle(Theme.ink)
-                    .accessibilityLabel("Поділитися посиланням")
+                    .accessibilityLabel(L("Поділитися посиланням").s)
                 }
             }
-            Button(copied ? "Код скопійовано" : "Скопіювати код") {
+            Button(copied ? L("Код скопійовано").s : L("Скопіювати код").s) {
                 UIPasteboard.general.string = doc.code
                 copied = true
             }
@@ -190,24 +190,24 @@ struct DocumentsView: View {
             VStack(alignment: .leading, spacing: 18) {
                 HeroPanel {
                     HStack(alignment: .top, spacing: 12) {
-                        count("Квитанції", all.filter { $0.isReceipt }.count)
-                        count("Виписки", all.filter { !$0.isReceipt }.count)
-                        count("Усього", all.count)
+                        count(L("Квитанції").s, all.filter { $0.isReceipt }.count)
+                        count(L("Виписки").s, all.filter { !$0.isReceipt }.count)
+                        count(L("Усього").s, all.count)
                     }
                     Rule().padding(.horizontal, -16).padding(.top, 14)
-                    Text("Кожен документ має власний код і QR. Перевірити його можна в інтернеті: сторінка звіряє запис із реєстром операцій.")
+                    Text(L("Кожен документ має власний код і QR. Перевірити його можна в інтернеті: сторінка звіряє запис із реєстром операцій.").s)
                         .font(.footnote).foregroundStyle(.secondary).padding(.top, 6)
                 }
 
-                SegmentBar(items: [(Kind.all, "Усі"), (.receipt, "Квитанції"), (.statement, "Виписки")], selection: $kind)
+                SegmentBar(items: [(Kind.all, L("Усі").s), (.receipt, L("Квитанції").s), (.statement, L("Виписки").s)], selection: $kind)
 
                 if loaded && rows.isEmpty {
                     Surface {
                         VStack(spacing: 8) {
                             Image(systemName: "doc.viewfinder").font(.system(size: 34)).foregroundStyle(Theme.tint)
-                            Text(failed ? "Не вдалося завантажити документи" : "Документів поки немає")
+                            Text(failed ? L("Не вдалося завантажити документи").s : L("Документів поки немає").s)
                                 .font(.headline)
-                            Text("Відкрийте операцію й натисніть «Переглянути квитанцію», або сформуйте виписку: вони з'являться тут.")
+                            Text(L("Відкрийте операцію й натисніть «Переглянути квитанцію», або сформуйте виписку: вони з'являться тут.").s)
                                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity).padding(24)
@@ -227,7 +227,7 @@ struct DocumentsView: View {
             .padding(Theme.gutter)
         }
         .screenBackground()
-        .navigationTitle("Мої документи")
+        .navigationTitle(L("Мої документи").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
@@ -304,15 +304,15 @@ struct DocumentDetailView: View {
                         .frame(maxWidth: .infinity)
                         Rule().padding(.horizontal, -16).padding(.top, 14)
                         VStack(spacing: 0) {
-                            LeaderRow(title: "Вид", value: doc.isReceipt ? "Квитанція" : "Виписка")
-                            LeaderRow(title: "Видано", value: doc.date.formatted(date: .long, time: .shortened))
+                            LeaderRow(title: L("Вид").s, value: doc.isReceipt ? L("Квитанція").s : L("Виписка").s)
+                            LeaderRow(title: L("Видано").s, value: doc.date.formatted(date: .long, time: .shortened))
                             if doc.isReceipt {
-                                LeaderRow(title: "Операція", value: "№ " + String(format: "%08d", Int(doc.ref) ?? 0))
+                                LeaderRow(title: L("Операція").s, value: "№ " + String(format: "%08d", Int(doc.ref) ?? 0))
                             } else {
-                                if let p = doc.meta.period { LeaderRow(title: "Період", value: p) }
-                                if let n = doc.meta.count { LeaderRow(title: "Операцій", value: "\(n)") }
-                                if let i = doc.meta.totalIn { LeaderRow(title: "Надійшло", value: Format.money(i)) }
-                                if let o = doc.meta.totalOut { LeaderRow(title: "Витрачено", value: Format.money(o)) }
+                                if let p = doc.meta.period { LeaderRow(title: L("Період").s, value: p) }
+                                if let n = doc.meta.count { LeaderRow(title: L("Операцій").s, value: "\(n)") }
+                                if let i = doc.meta.totalIn { LeaderRow(title: L("Надійшло").s, value: Format.money(i)) }
+                                if let o = doc.meta.totalOut { LeaderRow(title: L("Витрачено").s, value: Format.money(o)) }
                             }
                         }
                         .padding(.horizontal, -18)
@@ -327,7 +327,7 @@ struct DocumentDetailView: View {
                             }
                         }
                     } label: {
-                        Label("Відкрити PDF", systemImage: "doc.richtext")
+                        Label(L("Відкрити PDF").s, systemImage: "doc.richtext")
                     }
                     .buttonStyle(InkButton())
                     .disabled(screen.busy)
@@ -337,9 +337,9 @@ struct DocumentDetailView: View {
                 .padding(Theme.gutter)
             }
             .screenBackground()
-            .navigationTitle(doc.isReceipt ? "Квитанція" : "Виписка")
+            .navigationTitle(doc.isReceipt ? L("Квитанція").s : L("Виписка").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } } }
         }
         .quickLookPreview($preview)
         .presentationDetents([.large])

@@ -29,11 +29,11 @@ enum AssistantTask {
         let model = SystemLanguageModel.default
         switch model.availability {
         case .available:
-            return model.supportsLocale(Locale(identifier: "uk_UA")) ? "Доступна" : "Доступна, але без української"
-        case .unavailable(.deviceNotEligible): return "Цей iPhone не підтримує Apple Intelligence"
-        case .unavailable(.appleIntelligenceNotEnabled): return "Apple Intelligence вимкнено"
-        case .unavailable(.modelNotReady): return "Модель ще завантажується"
-        case .unavailable: return "Недоступна"
+            return model.supportsLocale(Locale(identifier: "uk_UA")) ? L("Доступна").s : L("Доступна, але без української").s
+        case .unavailable(.deviceNotEligible): return L("Цей iPhone не підтримує Apple Intelligence").s
+        case .unavailable(.appleIntelligenceNotEnabled): return L("Apple Intelligence вимкнено").s
+        case .unavailable(.modelNotReady): return L("Модель ще завантажується").s
+        case .unavailable: return L("Недоступна").s
         }
     }
 

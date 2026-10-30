@@ -32,18 +32,18 @@ enum FopGroup: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .first: "1 група"
-        case .second: "2 група"
-        case .third: "3 група, 5%"
-        case .thirdVat: "3 група, 3% + ПДВ"
+        case .first: L("1 група").s
+        case .second: L("2 група").s
+        case .third: L("3 група, 5%").s
+        case .thirdVat: L("3 група, 3% + ПДВ").s
         }
     }
 
     var who: String {
         switch self {
-        case .first: "Роздрібна торгівля на ринку й побутові послуги населенню, без найманих працівників."
-        case .second: "Послуги й продаж населенню та платникам єдиного податку, до 10 працівників."
-        case .third, .thirdVat: "Будь-які дозволені види діяльності, клієнти - будь-хто, працівників без обмежень."
+        case .first: L("Роздрібна торгівля на ринку й побутові послуги населенню, без найманих працівників.").s
+        case .second: L("Послуги й продаж населенню та платникам єдиного податку, до 10 працівників.").s
+        case .third, .thirdVat: L("Будь-які дозволені види діяльності, клієнти - будь-хто, працівників без обмежень.").s
         }
     }
 }
@@ -112,22 +112,22 @@ struct Deduction: Codable, Identifiable, Equatable, Sendable {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .education: "Навчання"
-            case .mortgage: "Відсотки за іпотекою"
-            case .ivf: "Лікування безпліддя"
-            case .insurance: "Страхування життя, пенсійні внески"
-            case .charity: "Благодійність"
-            case .housing: "Будівництво житла за програмою"
+            case .education: L("Навчання").s
+            case .mortgage: L("Відсотки за іпотекою").s
+            case .ivf: L("Лікування безпліддя").s
+            case .insurance: L("Страхування життя, пенсійні внески").s
+            case .charity: L("Благодійність").s
+            case .housing: L("Будівництво житла за програмою").s
             }
         }
         var hint: String {
             switch self {
-            case .education: "Своє або дітей у закладах України. До 1,4 прожиткового мінімуму на місяць навчання."
-            case .mortgage: "Відсотки за кредитом на житло в межах норм площі."
-            case .ivf: "Запліднення in vitro та сурогатне материнство."
-            case .insurance: "Договори довгострокового страхування й недержавне пенсійне забезпечення."
-            case .charity: "Пожертви неприбутковим організаціям - до 4% річного доходу."
-            case .housing: "Внески на доступне житло й обслуговування кредиту за державною програмою."
+            case .education: L("Своє або дітей у закладах України. До 1,4 прожиткового мінімуму на місяць навчання.").s
+            case .mortgage: L("Відсотки за кредитом на житло в межах норм площі.").s
+            case .ivf: L("Запліднення in vitro та сурогатне материнство.").s
+            case .insurance: L("Договори довгострокового страхування й недержавне пенсійне забезпечення.").s
+            case .charity: L("Пожертви неприбутковим організаціям - до 4% річного доходу.").s
+            case .housing: L("Внески на доступне житло й обслуговування кредиту за державною програмою.").s
             }
         }
     }
@@ -148,31 +148,31 @@ struct TaxDeadline: Identifiable, Sendable {
         func d(_ year: Int, _ m: Int, _ day: Int) -> Date { cal.date(from: DateComponents(year: year, month: m, day: day)) ?? now }
         var list: [TaxDeadline] = []
         for year in [y, y + 1] {
-            list.append(.init(date: d(year, 5, 1), title: "Декларація про майновий стан",
-                              detail: "Якщо були доходи без утримання податку: оренда, продаж, іноземні доходи, виграші.", forFop: false))
-            list.append(.init(date: d(year, 7, 31), title: "Сплата податку за декларацією",
-                              detail: "ПДФО і військовий збір за минулий рік, задекларовані до 1 травня.", forFop: false))
-            list.append(.init(date: d(year, 12, 31), title: "Податкова знижка за минулий рік",
-                              detail: "Останній день подати декларацію на знижку за витрати попереднього року.", forFop: false))
+            list.append(.init(date: d(year, 5, 1), title: L("Декларація про майновий стан").s,
+                              detail: L("Якщо були доходи без утримання податку: оренда, продаж, іноземні доходи, виграші.").s, forFop: false))
+            list.append(.init(date: d(year, 7, 31), title: L("Сплата податку за декларацією").s,
+                              detail: L("ПДФО і військовий збір за минулий рік, задекларовані до 1 травня.").s, forFop: false))
+            list.append(.init(date: d(year, 12, 31), title: L("Податкова знижка за минулий рік").s,
+                              detail: L("Останній день подати декларацію на знижку за витрати попереднього року.").s, forFop: false))
             if let group {
-                for (m, label) in [(1, "IV квартал"), (4, "I квартал"), (7, "II квартал"), (10, "III квартал")] {
-                    list.append(.init(date: d(year, m, 20), title: "ЄСВ за \(label)",
-                                      detail: "Внесок «за себе» - щонайменше 22% мінімальної зарплати за кожен місяць.", forFop: true))
+                for (m, label) in [(1, L("IV квартал").s), (4, L("I квартал").s), (7, L("II квартал").s), (10, L("III квартал").s)] {
+                    list.append(.init(date: d(year, m, 20), title: L("ЄСВ за \(label)").s,
+                                      detail: L("Внесок «за себе» - щонайменше 22% мінімальної зарплати за кожен місяць.").s, forFop: true))
                 }
                 switch group {
                 case .first, .second:
                     for m in 1...12 {
-                        list.append(.init(date: d(year, m, 20), title: "Єдиний податок і військовий збір",
-                                          detail: "Авансом за поточний місяць.", forFop: true))
+                        list.append(.init(date: d(year, m, 20), title: L("Єдиний податок і військовий збір").s,
+                                          detail: L("Авансом за поточний місяць.").s, forFop: true))
                     }
-                    list.append(.init(date: d(year, 3, 1), title: "Річна декларація ФОП",
-                                      detail: "Декларація платника єдиного податку за минулий рік.", forFop: true))
+                    list.append(.init(date: d(year, 3, 1), title: L("Річна декларація ФОП").s,
+                                      detail: L("Декларація платника єдиного податку за минулий рік.").s, forFop: true))
                 case .third, .thirdVat:
-                    for (m, day, label) in [(2, 9, "IV квартал"), (5, 9, "I квартал"), (8, 9, "II квартал"), (11, 9, "III квартал")] {
-                        list.append(.init(date: d(year, m, day), title: "Декларація за \(label)",
-                                          detail: "Протягом 40 днів після кінця кварталу.", forFop: true))
-                        list.append(.init(date: d(year, m, day + 10), title: "Єдиний податок за \(label)",
-                                          detail: "Сплата протягом 10 днів після строку декларації, разом із військовим збором 1%.", forFop: true))
+                    for (m, day, label) in [(2, 9, L("IV квартал").s), (5, 9, L("I квартал").s), (8, 9, L("II квартал").s), (11, 9, L("III квартал").s)] {
+                        list.append(.init(date: d(year, m, day), title: L("Декларація за \(label)").s,
+                                          detail: L("Протягом 40 днів після кінця кварталу.").s, forFop: true))
+                        list.append(.init(date: d(year, m, day + 10), title: L("Єдиний податок за \(label)").s,
+                                          detail: L("Сплата протягом 10 днів після строку декларації, разом із військовим збором 1%.").s, forFop: true))
                     }
                 }
             }

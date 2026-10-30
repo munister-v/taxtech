@@ -20,12 +20,24 @@ struct AuthView: View {
                 (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
                     .font(.custom("Futura-Medium", size: 22)).tracking(0.6).foregroundStyle(.white)
                 Spacer()
+                Menu {
+                    ForEach(Lang.allCases) { l in
+                        Button { Lang.set(l) } label: { Label(l.title, systemImage: Lang.current == l ? "checkmark" : "") }
+                    }
+                } label: {
+                    Text(Lang.current.rawValue.uppercased())
+                        .font(.system(size: 13, weight: .semibold)).tracking(1.2)
+                        .foregroundStyle(.white.opacity(0.75))
+                        .padding(.horizontal, 12).frame(height: 32)
+                        .overlay(Capsule().strokeBorder(.white.opacity(0.25), lineWidth: 1))
+                }
+                .accessibilityLabel(L("Мова").s)
                 Button { server = true } label: {
                     Image(systemName: "network").font(.system(size: 16, weight: .medium)).foregroundStyle(.white.opacity(0.55))
                         .frame(width: 40, height: 40)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Адреса сервера")
+                .accessibilityLabel(L("Адреса сервера").s)
             }
             .padding(.top, 4)
             .rise(0)
@@ -37,9 +49,9 @@ struct AuthView: View {
                 .rise(1)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("Платіть,")
+                Text(L("Платіть,").s)
                     .foregroundStyle(.white)
-                Text("як у Римі.")
+                Text(L("як у Римі.").s)
                     .foregroundStyle(Theme.goldFill)
             }
             .font(.system(size: 44, weight: .medium)).tracking(-1)
@@ -70,11 +82,11 @@ struct AuthView: View {
                 .clipShape(.capsule)
                 .disabled(working)
 
-                Button("Увійти телефоном або поштою") { signingIn = true }
+                Button(L("Увійти телефоном або поштою").s) { signingIn = true }
                     .buttonStyle(InkButton())
 
                 Button { signingUp = true } label: {
-                    (Text("Немає акаунта? ").foregroundStyle(.white.opacity(0.6)) + Text("Створити").fontWeight(.semibold).foregroundStyle(Theme.goldLight))
+                    (Text(L("Немає акаунта? ").s).foregroundStyle(.white.opacity(0.6)) + Text(L("Створити").s).fontWeight(.semibold).foregroundStyle(Theme.goldLight))
                         .font(.subheadline)
                         .frame(maxWidth: .infinity, minHeight: 40)
                 }
@@ -105,7 +117,7 @@ struct AuthView: View {
         case .success(let auth):
             guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
                   let data = credential.identityToken, let token = String(data: data, encoding: .utf8) else {
-                status = "Apple не віддала токен входу."
+                status = L("Apple не віддала токен входу.").s
                 return
             }
             // ім'я Apple віддає лише при першому вході
@@ -117,7 +129,7 @@ struct AuthView: View {
             do {
                 try await model.signInWithApple(identityToken: token, nonce: nonce, fullName: name)
             } catch {
-                status = "Сервер не прийняв вхід через Apple: \(error.localizedDescription)"
+                status = L("Сервер не прийняв вхід через Apple: \(error.localizedDescription)").s
             }
         }
     }
@@ -128,11 +140,11 @@ struct AuthView: View {
         switch e.code {
         case .canceled: return nil
         case .unknown:
-            return "Apple не відповіла (код 1000). Перевірте, що в Параметрах виконано вхід в Apple ID з двоетапною перевіркою, і спробуйте ще раз."
-        case .notInteractive: return "Apple не змогла показати вікно входу. Спробуйте ще раз."
+            return L("Apple не відповіла (код 1000). Перевірте, що в Параметрах виконано вхід в Apple ID з двоетапною перевіркою, і спробуйте ще раз.").s
+        case .notInteractive: return L("Apple не змогла показати вікно входу. Спробуйте ще раз.").s
         case .failed, .invalidResponse, .notHandled:
-            return "Apple не завершила вхід (код \(e.code.rawValue)). Спробуйте ще раз або увійдіть поштою."
-        default: return "Apple: код \(e.code.rawValue). \(e.localizedDescription)"
+            return L("Apple не завершила вхід (код \(e.code.rawValue)). Спробуйте ще раз або увійдіть поштою.").s
+        default: return L("Apple: код \(e.code.rawValue). \(e.localizedDescription)").s
         }
     }
 
@@ -235,13 +247,13 @@ struct SignInSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Text("Вхід").font(.system(size: 34, weight: .bold)).tracking(-1)
-                    AuthField(title: "Телефон або пошта", placeholder: "+380… або you@example.com", text: $identity,
+                    Text(L("Вхід").s).font(.system(size: 34, weight: .bold)).tracking(-1)
+                    AuthField(title: L("Телефон або пошта").s, placeholder: L("+380… або you@example.com").s, text: $identity,
                               content: .username, keyboard: .emailAddress, plain: true)
                     VStack(alignment: .leading, spacing: 12) {
-                        AuthField(title: "Пароль", placeholder: "Пароль", text: $password, secure: true,
+                        AuthField(title: L("Пароль").s, placeholder: L("Пароль").s, text: $password, secure: true,
                                   content: .password, submit: .go) { Task { await submit() } }
-                        Button("Забули пароль?") { forgot = true }
+                        Button(L("Забули пароль?").s) { forgot = true }
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Theme.ink)
                     }
@@ -256,7 +268,7 @@ struct SignInSheet: View {
                     Button { Task { await submit() } } label: {
                         HStack(spacing: 8) {
                             if working { ProgressView().tint(Theme.onAccent) }
-                            Text("Увійти")
+                            Text(L("Увійти").s)
                         }
                     }
                     .buttonStyle(InkButton())
@@ -266,7 +278,7 @@ struct SignInSheet: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .screenBackground()
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Закрити") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
             .sensoryFeedback(.error, trigger: shakes)
             .sheet(isPresented: $forgot) { ForgotPasswordView(identity: identity) }
             .onAppear {
@@ -289,7 +301,7 @@ struct SignInSheet: View {
             try await model.signIn(email: identity, password: password)
         } catch {
             let m = error.localizedDescription
-            status = m.contains("Невірні облікові дані") ? "Пароль або логін не підходять. Перевірте або відновіть пароль." : m
+            status = m.contains("Невірні облікові дані") ? L("Пароль або логін не підходять. Перевірте або відновіть пароль.").s : m
             withAnimation(.linear(duration: 0.4)) { shakes += 1 }
         }
     }
@@ -330,12 +342,12 @@ struct SignUpFlow: View {
 
                 Group {
                     switch step {
-                    case 0: bigField("Олена Коваленко", $name, .name)
+                    case 0: bigField(L("Олена Коваленко").s, $name, .name)
                     case 1: bigField("+380 …", $phone, .telephoneNumber, keyboard: .phonePad)
                     case 2: bigField("you@example.com", $email, .emailAddress, keyboard: .emailAddress, plain: true)
                     default:
                         VStack(alignment: .leading, spacing: 14) {
-                            SecureField("Щонайменше 8 символів", text: $password)
+                            SecureField(L("Щонайменше 8 символів").s, text: $password)
                                 .textContentType(.newPassword)
                                 .font(.system(size: 24, weight: .semibold))
                                 .focused($focused)
@@ -358,13 +370,13 @@ struct SignUpFlow: View {
                 Spacer()
 
                 if step == steps - 1 {
-                    Text("Створюючи акаунт, ви погоджуєтеся, що це навчальний банк: токени TAX не мають грошової цінності.")
+                    Text(L("Створюючи акаунт, ви погоджуєтеся, що це навчальний банк: токени TAX не мають грошової цінності.").s)
                         .font(.footnote).foregroundStyle(.secondary).padding(.bottom, 12)
                 }
                 Button { Task { await next() } } label: {
                     HStack(spacing: 8) {
                         if working { ProgressView().tint(Theme.onAccent) }
-                        Text(step == steps - 1 ? "Створити акаунт" : "Далі")
+                        Text(step == steps - 1 ? L("Створити акаунт").s : L("Далі").s)
                     }
                 }
                 .buttonStyle(InkButton())
@@ -378,7 +390,7 @@ struct SignUpFlow: View {
                     Button { if step > 0 { step -= 1; status = nil } else { dismiss() } } label: {
                         Image(systemName: step > 0 ? "chevron.left" : "xmark")
                     }
-                    .accessibilityLabel(step > 0 ? "Назад" : "Закрити")
+                    .accessibilityLabel(step > 0 ? L("Назад").s : L("Закрити").s)
                 }
             }
             .onAppear { focused = true }
@@ -390,14 +402,14 @@ struct SignUpFlow: View {
     }
 
     private var question: String {
-        ["Як вас звати?", "Ваш номер телефону", "Пошта для входу", "Придумайте пароль"][step]
+        [L("Як вас звати?").s, L("Ваш номер телефону").s, L("Пошта для входу").s, L("Придумайте пароль").s][step]
     }
 
     private var hint: String {
-        ["Так звертатимемося в застосунку й підписуватимемо картки.",
-         "Ним теж можна входити. SMS не надсилаємо.",
-         "Нею входитимете й відновлюватимете пароль.",
-         "Довгий пароль із цифрами й символами - найкращий."][step]
+        [L("Так звертатимемося в застосунку й підписуватимемо картки.").s,
+         L("Ним теж можна входити. SMS не надсилаємо.").s,
+         L("Нею входитимете й відновлюватимете пароль.").s,
+         L("Довгий пароль із цифрами й символами - найкращий.").s][step]
     }
 
     private var stepValid: Bool {
@@ -448,8 +460,8 @@ struct ServerSheet: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Сервер").font(.system(size: 30, weight: .bold)).tracking(-0.8)
-                Text("Застосунок працює з навчальним банком. За замовчуванням - публічний сервер; для занять у класі вкажіть адресу локального.")
+                Text(L("Сервер").s).font(.system(size: 30, weight: .bold)).tracking(-0.8)
+                Text(L("Застосунок працює з навчальним банком. За замовчуванням - публічний сервер; для занять у класі вкажіть адресу локального.").s)
                     .font(.subheadline).foregroundStyle(.secondary)
                 TextField("https://…", text: $server)
                     .keyboardType(.URL)
@@ -460,15 +472,15 @@ struct ServerSheet: View {
                     .frame(minHeight: 54)
                     .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
                     .onSubmit(save)
-                Button("Зберегти", action: save).buttonStyle(InkButton())
-                Button("Повернути стандартний") { server = AppModel.defaultServer.absoluteString; save() }
+                Button(L("Зберегти").s, action: save).buttonStyle(InkButton())
+                Button(L("Повернути стандартний").s) { server = AppModel.defaultServer.absoluteString; save() }
                     .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
                     .frame(maxWidth: .infinity)
                 Spacer()
             }
             .padding(24)
             .screenBackground()
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Закрити") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
             .onAppear { server = model.serverURL.absoluteString }
         }
         .presentationDetents([.medium])
@@ -524,7 +536,7 @@ struct AuthField: View {
                             .frame(width: 32, height: 32)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(reveal ? "Сховати пароль" : "Показати пароль")
+                    .accessibilityLabel(reveal ? L("Сховати пароль").s : L("Показати пароль").s)
                 }
             }
             .padding(.leading, 16)
@@ -551,10 +563,10 @@ struct PasswordStrength: View {
 
     private var rules: [(String, Bool)] {
         [
-            ("8+ символів", password.count >= 8),
-            ("Літери й цифри", password.rangeOfCharacter(from: .letters) != nil && password.rangeOfCharacter(from: .decimalDigits) != nil),
-            ("Великі й малі", password.rangeOfCharacter(from: .uppercaseLetters) != nil && password.rangeOfCharacter(from: .lowercaseLetters) != nil),
-            ("Спецсимвол", password.rangeOfCharacter(from: CharacterSet.alphanumerics.union(.whitespaces).inverted) != nil),
+            (L("8+ символів").s, password.count >= 8),
+            (L("Літери й цифри").s, password.rangeOfCharacter(from: .letters) != nil && password.rangeOfCharacter(from: .decimalDigits) != nil),
+            (L("Великі й малі").s, password.rangeOfCharacter(from: .uppercaseLetters) != nil && password.rangeOfCharacter(from: .lowercaseLetters) != nil),
+            (L("Спецсимвол").s, password.rangeOfCharacter(from: CharacterSet.alphanumerics.union(.whitespaces).inverted) != nil),
         ]
     }
 
@@ -564,7 +576,7 @@ struct PasswordStrength: View {
     }
 
     private var label: String {
-        ["", "Слабкий", "Середній", "Надійний", "Дуже надійний"][score]
+        ["", L("Слабкий").s, L("Середній").s, L("Надійний").s, L("Дуже надійний").s][score]
     }
 
     var body: some View {
@@ -602,20 +614,20 @@ struct ForgotPasswordView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Text(ticket == nil ? "Відновлення пароля" : "Новий пароль")
+                    Text(ticket == nil ? L("Відновлення пароля").s : L("Новий пароль").s)
                         .font(.display(30)).tracking(-0.8)
                     if let ticket {
-                        Text(ticket.demoCode == nil ? "Код надіслано на \(ticket.sentTo). Він діє \(ticket.expiresIn / 60) хвилин."
-                                                    : "Код для \(ticket.sentTo) діє \(ticket.expiresIn / 60) хвилин.")
+                        Text(ticket.demoCode == nil ? L("Код надіслано на \(ticket.sentTo). Він діє \(ticket.expiresIn / 60) хвилин.").s
+                                                    : L("Код для \(ticket.sentTo) діє \(ticket.expiresIn / 60) хвилин.").s)
                             .foregroundStyle(.secondary)
                         if let demo = ticket.demoCode {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Навчальний банк: SMS не надсилаємо").font(.footnote).foregroundStyle(.secondary)
+                                    Text(L("Навчальний банк: SMS не надсилаємо").s).font(.footnote).foregroundStyle(.secondary)
                                     Text(demo).font(.system(size: 24, weight: .bold).monospaced()).tracking(4)
                                 }
                                 Spacer()
-                                Button("Вставити") { code = demo }
+                                Button(L("Вставити").s) { code = demo }
                                     .font(.subheadline.weight(.semibold))
                                     .padding(.horizontal, 14).frame(height: 36)
                                     .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
@@ -626,7 +638,7 @@ struct ForgotPasswordView: View {
                             .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
                         }
                         VStack(alignment: .leading, spacing: 7) {
-                            Text("Код із 6 цифр").font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                            Text(L("Код із 6 цифр").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                             TextField("000000", text: $code)
                                 .keyboardType(.numberPad)
                                 .textContentType(.oneTimeCode)
@@ -638,28 +650,28 @@ struct ForgotPasswordView: View {
                                 .onChange(of: code) { code = String(code.filter(\.isNumber).prefix(6)) }
                         }
                         VStack(alignment: .leading, spacing: 10) {
-                            AuthField(title: "Новий пароль", placeholder: "Щонайменше 8 символів", text: $newPassword,
+                            AuthField(title: L("Новий пароль").s, placeholder: L("Щонайменше 8 символів").s, text: $newPassword,
                                       secure: true, content: .newPassword, submit: .done) { Task { await reset() } }
                             if !newPassword.isEmpty { PasswordStrength(password: newPassword) }
                         }
-                        Button("Змінити пароль і увійти") { Task { await reset() } }
+                        Button(L("Змінити пароль і увійти").s) { Task { await reset() } }
                             .buttonStyle(InkButton())
                             .disabled(code.count != 6 || newPassword.count < 8 || screen.busy)
                         HStack {
-                            Text(left > 0 ? String(format: "Повторно через %d:%02d", left / 60, left % 60) : "Код не прийшов?")
+                            Text(left > 0 ? String(format: L("Повторно через %d:%02d").s, left / 60, left % 60) : L("Код не прийшов?").s)
                                 .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
                             Spacer()
-                            Button("Надіслати ще раз") { Task { await request() } }
+                            Button(L("Надіслати ще раз").s) { Task { await request() } }
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(Theme.ink)
                                 .disabled(left > 0 || screen.busy)
                         }
                     } else {
-                        Text("Вкажіть телефон або пошту акаунта. Надішлемо код, після нього задасте новий пароль, а всі старі сесії буде завершено.")
+                        Text(L("Вкажіть телефон або пошту акаунта. Надішлемо код, після нього задасте новий пароль, а всі старі сесії буде завершено.").s)
                             .foregroundStyle(.secondary)
-                        AuthField(title: "Телефон або пошта", placeholder: "+380… або you@example.com", text: $identity,
+                        AuthField(title: L("Телефон або пошта").s, placeholder: L("+380… або you@example.com").s, text: $identity,
                                   content: .username, keyboard: .emailAddress, plain: true, submit: .send) { Task { await request() } }
-                        Button("Надіслати код") { Task { await request() } }
+                        Button(L("Надіслати код").s) { Task { await request() } }
                             .buttonStyle(InkButton())
                             .disabled(identity.trimmingCharacters(in: .whitespaces).isEmpty || screen.busy)
                     }
@@ -674,7 +686,7 @@ struct ForgotPasswordView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .screenBackground()
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
             .task(id: ticket?.resetId) {
                 guard ticket != nil else { return }
                 left = 60

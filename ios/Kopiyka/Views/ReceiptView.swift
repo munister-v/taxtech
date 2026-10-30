@@ -24,12 +24,12 @@ struct ReceiptView: View {
             LabForm {
                 Section {
                     if VNDocumentCameraViewController.isSupported {
-                        Button("Сфотографувати чек") { scanning = true }
+                        Button(L("Сфотографувати чек").s) { scanning = true }
                     }
-                    PhotosPicker("Вибрати фото чека", selection: $item, matching: .images)
-                    Button("Демо-чек") { Task { await process(DemoReceipt.image()) } }
+                    PhotosPicker(L("Вибрати фото чека").s, selection: $item, matching: .images)
+                    Button(L("Демо-чек").s) { Task { await process(DemoReceipt.image()) } }
                 } footer: {
-                    Text("Фото розпізнається на телефоні. На сервер, якщо знадобиться, іде лише текст без номерів карток, телефонів і ІПН.")
+                    Text(L("Фото розпізнається на телефоні. На сервер, якщо знадобиться, іде лише текст без номерів карток, телефонів і ІПН.").s)
                 }
 
                 if let image {
@@ -44,31 +44,31 @@ struct ReceiptView: View {
                 if let error { Text(error).foregroundStyle(.secondary) }
 
                 if fields != nil, let record {
-                    Section("Розпізнано") {
-                        TextField("Де", text: binding(\.merchant))
-                        TextField("Сума, TAX", value: binding(\.total), format: .number).keyboardType(.decimalPad)
-                        Picker("Категорія", selection: binding(\.category)) {
+                    Section(L("Розпізнано").s) {
+                        TextField(L("Де").s, text: binding(\.merchant))
+                        TextField(L("Сума, TAX").s, value: binding(\.total), format: .number).keyboardType(.decimalPad)
+                        Picker(L("Категорія").s, selection: binding(\.category)) {
                             ForEach(AddExpenseView.categories, id: \.self, content: Text.init)
                         }
                     }
                     Section {
                         RoutedNote(record: record)
                         if let ocrTime {
-                            Text("Розпізнавання фото на телефоні: \(Format.ms(ocrTime))")
+                            Text(L("Розпізнавання фото на телефоні: \(Format.ms(ocrTime))").s)
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
                     }
                     Section {
-                        Button("Зберегти витрату") { save() }
+                        Button(L("Зберегти витрату").s) { save() }
                             .disabled((fields?.total ?? 0) <= 0)
                     }
                 }
             }
             .labForm()
-            .navigationTitle("Чек")
+            .navigationTitle(L("Чек").s)
             .toolbar {
-                if closable { ToolbarItem(placement: .cancellationAction) { Button("Закрити") { dismiss() } } }
+                if closable { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
             }
             .fullScreenCover(isPresented: $scanning) {
                 DocumentScanner { img in Task { await process(img) } }
@@ -112,7 +112,7 @@ struct ReceiptView: View {
 
     private func save() {
         guard let f = fields, let record else { return }
-        context.insert(Expense(amount: f.total ?? 0, merchant: f.merchant, category: f.category, source: "Чек"))
+        context.insert(Expense(amount: f.total ?? 0, merchant: f.merchant, category: f.category, source: L("Чек").s))
         // мітка зі звичайного користування: сума не змінена - відповідь правильна
         let correct = f.total == parsed?.total
         Task { await model.feedback(record.id, correct: correct) }

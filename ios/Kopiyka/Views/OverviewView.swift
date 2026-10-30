@@ -96,7 +96,7 @@ struct OverviewView: View {
                     AvatarView(initials: initials ?? "TT", size: 40)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Профіль")
+                .accessibilityLabel(L("Профіль").s)
                 Spacer()
                 BrandLockup(height: 26, color: Theme.ink)
                 Spacer()
@@ -108,18 +108,18 @@ struct OverviewView: View {
                         .overlay(Circle().strokeBorder(Theme.line, lineWidth: Theme.hairline))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(unread > 0 ? "Сповіщення, нових: \(unread)" : "Сповіщення")
+                .accessibilityLabel(unread > 0 ? L("Сповіщення, нових: \(unread)").s : L("Сповіщення").s)
             }
             .padding(.top, 8)
             .rise(0)
 
             VStack(spacing: 6) {
-                Text("Основний рахунок · TAX").caption()
+                Text(L("Основний рахунок · TAX").s).caption()
                 Button { withAnimation(.snappy) { hidden.toggle() } } label: {
                     HeroAmount(value: shown, hidden: hidden)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(hidden ? "Показати баланс" : "Сховати баланс")
+                .accessibilityLabel(hidden ? L("Показати баланс").s : L("Сховати баланс").s)
                 .redacted(reason: bank.loaded ? [] : .placeholder)
                 .onChange(of: bank.account?.balance) { _, v in
                     guard let v else { return }
@@ -141,10 +141,10 @@ struct OverviewView: View {
             .rise(1)
 
             HStack(alignment: .top, spacing: 0) {
-                CircleAction(title: "Поповнити", symbol: "plus", primary: true) { sheet = .topUp }
-                CircleAction(title: "Переказ", symbol: "arrow.right") { prefill = ""; sheet = .byAccount }
-                CircleAction(title: "На картку", symbol: "creditcard") { sheet = .byCard }
-                CircleAction(title: "Податки", symbol: "percent") { open(.taxes) }
+                CircleAction(title: L("Поповнити").s, symbol: "plus", primary: true) { sheet = .topUp }
+                CircleAction(title: L("Переказ").s, symbol: "arrow.right") { prefill = ""; sheet = .byAccount }
+                CircleAction(title: L("На картку").s, symbol: "creditcard") { sheet = .byCard }
+                CircleAction(title: L("Податки").s, symbol: "percent") { open(.taxes) }
             }
             .padding(.bottom, 24)
             .rise(2)
@@ -185,9 +185,9 @@ struct OverviewView: View {
     private var quickTransfer: some View {
         Card {
             HStack {
-                Text("Швидкий переказ").font(.headline)
+                Text(L("Швидкий переказ").s).font(.headline)
                 Spacer()
-                Text("за історією").font(.footnote).foregroundStyle(.secondary)
+                Text(L("за історією").s).font(.footnote).foregroundStyle(.secondary)
             }
             .padding([.horizontal, .top], 18)
             ScrollView(.horizontal, showsIndicators: false) {
@@ -197,7 +197,7 @@ struct OverviewView: View {
                             Image(systemName: "plus").font(.title3.weight(.semibold))
                                 .frame(width: 54, height: 54)
                                 .background(Theme.ink.opacity(0.08), in: .circle)
-                            Text("Новий").font(.caption.weight(.medium))
+                            Text(L("Новий").s).font(.caption.weight(.medium))
                         }
                     }
                     .buttonStyle(PressScale())
@@ -237,8 +237,8 @@ struct OverviewView: View {
             Card {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Гаманець").font(.headline)
-                        Text(bank.cards.isEmpty ? "Карток ще немає" : "\(bank.cards.count) " + cardsWord(bank.cards.count))
+                        Text(L("Гаманець").s).font(.headline)
+                        Text(bank.cards.isEmpty ? L("Карток ще немає").s : "\(bank.cards.count) " + cardsWord(bank.cards.count))
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -251,7 +251,7 @@ struct OverviewView: View {
                             .strokeBorder(Theme.ink.opacity(0.2), style: StrokeStyle(lineWidth: 1.2, dash: [6, 5]))
                             .aspectRatio(1.586, contentMode: .fit)
                             .frame(width: 200)
-                            .overlay(Label("Випустити", systemImage: "plus").font(.subheadline.weight(.semibold)))
+                            .overlay(Label(L("Випустити").s, systemImage: "plus").font(.subheadline.weight(.semibold)))
                     }
                     ForEach(Array(shownCards.enumerated().reversed()), id: \.element.id) { i, c in
                         let spread = Double(i) - Double(shownCards.count - 1) / 2
@@ -274,9 +274,9 @@ struct OverviewView: View {
 
     private func cardsWord(_ n: Int) -> String {
         let d = n % 10, h = n % 100
-        if d == 1 && h != 11 { return "картка" }
-        if (2...4).contains(d) && !(12...14).contains(h) { return "картки" }
-        return "карток"
+        if d == 1 && h != 11 { return L("картка").s }
+        if (2...4).contains(d) && !(12...14).contains(h) { return L("картки").s }
+        return L("карток").s
     }
 
     /// Баланс за 30 днів: лінія з тінню-градієнтом і різниця від початку.
@@ -286,7 +286,7 @@ struct OverviewView: View {
         let low = points.map(\.balance).min() ?? 0, high = points.map(\.balance).max() ?? 1
         return Card {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Баланс за 30 днів").font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                Text(L("Баланс за 30 днів").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text((delta >= 0 ? "+" : "−") + Self.compact(abs(delta)))
                         .font(.system(size: 28, weight: .bold)).monospacedDigit()
@@ -295,10 +295,10 @@ struct OverviewView: View {
                         .foregroundStyle(delta >= 0 ? .green : .orange)
                 }
                 Chart(Array(points.enumerated()), id: \.offset) { i, p in
-                    AreaMark(x: .value("День", i), yStart: .value("Мін", low - (high - low) * 0.1), yEnd: .value("Баланс", p.balance))
+                    AreaMark(x: .value(L("День").s, i), yStart: .value(L("Мін").s, low - (high - low) * 0.1), yEnd: .value(L("Баланс").s, p.balance))
                         .foregroundStyle(LinearGradient(colors: [Theme.accent.opacity(0.35), .clear], startPoint: .top, endPoint: .bottom))
                         .interpolationMethod(.catmullRom)
-                    LineMark(x: .value("День", i), y: .value("Баланс", p.balance))
+                    LineMark(x: .value(L("День").s, i), y: .value(L("Баланс").s, p.balance))
                         .foregroundStyle(Theme.accent)
                         .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round))
                         .interpolationMethod(.catmullRom)
@@ -321,7 +321,7 @@ struct OverviewView: View {
     private var activity: some View {
         Card {
             if bank.loaded && bank.history.isEmpty {
-                Text("Операцій ще немає").foregroundStyle(.secondary).padding(18)
+                Text(L("Операцій ще немає").s).foregroundStyle(.secondary).padding(18)
             } else {
                 ForEach(Array(bank.history.prefix(4).enumerated()), id: \.element.id) { i, tx in
                     ActivityRow(tx: tx)
@@ -329,7 +329,7 @@ struct OverviewView: View {
                 }
             }
             Button { open(.operations) } label: {
-                Text("Усі операції").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                Text(L("Усі операції").s).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
                     .frame(maxWidth: .infinity, minHeight: 46)
             }
             .buttonStyle(.plain)
@@ -345,12 +345,12 @@ struct OverviewView: View {
         return Button { open(.operations) } label: {
             Card {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Витрати цього місяця").font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                    Text(L("Витрати цього місяця").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(Self.compact(out)).font(.system(size: 28, weight: .bold)).monospacedDigit()
                         if prev > 0 {
                             let d = (out - prev) / prev * 100
-                            Text("\(d >= 0 ? "+" : "−")\(Int(abs(d).rounded()))% до минулого")
+                            Text(L("\(d >= 0 ? "+" : "−")\(Int(abs(d).rounded()))% до минулого").s)
                                 .font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                         }
                     }
@@ -391,10 +391,10 @@ struct OverviewView: View {
         return Button { open(.taxes) } label: {
             Card {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Податки").font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                    Text(L("Податки").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                     Spacer(minLength: 0)
-                    Text("\(left) дн.").font(.system(size: 28, weight: .bold)).monospacedDigit()
-                    Text(next?.title ?? "Строків немає").font(.footnote).foregroundStyle(.secondary).lineLimit(2)
+                    Text(L("\(left) дн.").s).font(.system(size: 28, weight: .bold)).monospacedDigit()
+                    Text(next?.title ?? L("Строків немає").s).font(.footnote).foregroundStyle(.secondary).lineLimit(2)
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

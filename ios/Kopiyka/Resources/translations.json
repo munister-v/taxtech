@@ -1,0 +1,5162 @@
+{
+"Сервер не повернув полів чека": {
+"en": "The server returned no receipt fields",
+"it": "Il server non ha restituito i campi dello scontrino",
+"de": "Der Server hat keine Belegfelder zurückgegeben",
+"ru": "Сервер не вернул поля чека"
+},
+"Доступна": {
+"en": "Available",
+"it": "Disponibile",
+"de": "Verfügbar",
+"ru": "Доступна"
+},
+"Доступна, але без української": {
+"en": "Available, but not in Ukrainian",
+"it": "Disponibile, ma non in ucraino",
+"de": "Verfügbar, aber nicht auf Ukrainisch",
+"ru": "Доступна, но без украинского"
+},
+"Цей iPhone не підтримує Apple Intelligence": {
+"en": "This iPhone doesn't support Apple Intelligence",
+"it": "Questo iPhone non supporta Apple Intelligence",
+"de": "Dieses iPhone unterstützt Apple Intelligence nicht",
+"ru": "Этот iPhone не поддерживает Apple Intelligence"
+},
+"Apple Intelligence вимкнено": {
+"en": "Apple Intelligence is turned off",
+"it": "Apple Intelligence è disattivata",
+"de": "Apple Intelligence ist ausgeschaltet",
+"ru": "Apple Intelligence отключён"
+},
+"Модель ще завантажується": {
+"en": "The model is still downloading",
+"it": "Il modello è ancora in download",
+"de": "Das Modell wird noch geladen",
+"ru": "Модель ещё загружается"
+},
+"Недоступна": {
+"en": "Unavailable",
+"it": "Non disponibile",
+"de": "Nicht verfügbar",
+"ru": "Недоступна"
+},
+"Сума трохи нижче контрольного порогу": {
+"en": "Amount just below the control threshold",
+"it": "Importo appena sotto la soglia di controllo",
+"de": "Betrag knapp unter der Kontrollschwelle",
+"ru": "Сумма чуть ниже контрольного порога"
+},
+"Підозріло кругла сума": {
+"en": "Suspiciously round amount",
+"it": "Importo sospettosamente tondo",
+"de": "Verdächtig runder Betrag",
+"ru": "Подозрительно круглая сумма"
+},
+"Підозрілі слова в призначенні": {
+"en": "Suspicious words in the description",
+"it": "Parole sospette nella causale",
+"de": "Verdächtige Wörter im Verwendungszweck",
+"ru": "Подозрительные слова в назначении"
+},
+"Майже весь залишок": {
+"en": "Almost the entire balance",
+"it": "Quasi tutto il saldo",
+"de": "Fast das gesamte Guthaben",
+"ru": "Почти весь остаток"
+},
+"Увесь залишок": {
+"en": "The entire balance",
+"it": "Tutto il saldo",
+"de": "Das gesamte Guthaben",
+"ru": "Весь остаток"
+},
+"Сума впритул під порогом звітності": {
+"en": "Amount right under the reporting threshold",
+"it": "Importo subito sotto la soglia di segnalazione",
+"de": "Betrag knapp unter der Meldeschwelle",
+"ru": "Сумма вплотную под порогом отчётности"
+},
+"Кілька ознак одночасно": {
+"en": "Several signs at once",
+"it": "Più segnali insieme",
+"de": "Mehrere Anzeichen gleichzeitig",
+"ru": "Несколько признаков одновременно"
+},
+"Багато ознак одночасно": {
+"en": "Many signs at once",
+"it": "Molti segnali insieme",
+"de": "Viele Anzeichen gleichzeitig",
+"ru": "Много признаков одновременно"
+},
+"Ланцюжок ознак": {
+"en": "A chain of signs",
+"it": "Una catena di segnali",
+"de": "Eine Kette von Anzeichen",
+"ru": "Цепочка признаков"
+},
+"Сума вища за звичну": {
+"en": "Amount above your usual",
+"it": "Importo superiore al solito",
+"de": "Betrag über dem Üblichen",
+"ru": "Сумма выше обычной"
+},
+"Сума набагато вища за звичну": {
+"en": "Amount far above your usual",
+"it": "Importo molto superiore al solito",
+"de": "Betrag weit über dem Üblichen",
+"ru": "Сумма намного выше обычной"
+},
+"Найбільша сума за весь час": {
+"en": "Largest amount ever",
+"it": "Importo più alto di sempre",
+"de": "Höchster Betrag aller Zeiten",
+"ru": "Крупнейшая сумма за всё время"
+},
+"Сума поза звичним діапазоном": {
+"en": "Amount outside the usual range",
+"it": "Importo fuori dal range abituale",
+"de": "Betrag außerhalb des üblichen Bereichs",
+"ru": "Сумма вне привычного диапазона"
+},
+"Сума далеко поза звичним діапазоном": {
+"en": "Amount far outside the usual range",
+"it": "Importo ben fuori dal range abituale",
+"de": "Betrag weit außerhalb des üblichen Bereichs",
+"ru": "Сумма далеко вне привычного диапазона"
+},
+"Суми ростуть рівними кроками": {
+"en": "Amounts rising in equal steps",
+"it": "Importi in crescita a passi uguali",
+"de": "Beträge steigen in gleichen Schritten",
+"ru": "Суммы растут равными шагами"
+},
+"Суми ростуть у рази": {
+"en": "Amounts multiplying",
+"it": "Importi che si moltiplicano",
+"de": "Beträge vervielfachen sich",
+"ru": "Суммы растут в разы"
+},
+"Частіше, ніж зазвичай": {
+"en": "More often than usual",
+"it": "Più spesso del solito",
+"de": "Häufiger als üblich",
+"ru": "Чаще, чем обычно"
+},
+"Сплеск переказів": {
+"en": "Burst of transfers",
+"it": "Raffica di bonifici",
+"de": "Überweisungsschub",
+"ru": "Всплеск переводов"
+},
+"Багато переказів протягом години": {
+"en": "Many transfers within an hour",
+"it": "Molti bonifici in un'ora",
+"de": "Viele Überweisungen innerhalb einer Stunde",
+"ru": "Много переводов в течение часа"
+},
+"Різке зростання частоти": {
+"en": "Sharp rise in frequency",
+"it": "Brusco aumento della frequenza",
+"de": "Starker Anstieg der Häufigkeit",
+"ru": "Резкий рост частоты"
+},
+"Раптова активність після тиші": {
+"en": "Sudden activity after silence",
+"it": "Attività improvvisa dopo un periodo di silenzio",
+"de": "Plötzliche Aktivität nach einer Pause",
+"ru": "Внезапная активность после тишины"
+},
+"Великий переказ після довгої паузи": {
+"en": "Large transfer after a long pause",
+"it": "Bonifico elevato dopo una lunga pausa",
+"de": "Hohe Überweisung nach langer Pause",
+"ru": "Крупный перевод после долгой паузы"
+},
+"Перекази один за одним": {
+"en": "Transfers one after another",
+"it": "Bonifici uno dopo l'altro",
+"de": "Überweisungen hintereinander",
+"ru": "Переводы один за другим"
+},
+"Серія переказів уночі": {
+"en": "A series of transfers at night",
+"it": "Serie di bonifici di notte",
+"de": "Serie von Überweisungen nachts",
+"ru": "Серия переводов ночью"
+},
+"Нічний час": {
+"en": "Night time",
+"it": "Orario notturno",
+"de": "Nachtzeit",
+"ru": "Ночное время"
+},
+"Незвичний для вас час": {
+"en": "An unusual time for you",
+"it": "Un orario insolito per te",
+"de": "Eine ungewöhnliche Zeit für Sie",
+"ru": "Необычное для вас время"
+},
+"Новий одержувач": {
+"en": "New recipient",
+"it": "Nuovo destinatario",
+"de": "Neuer Empfänger",
+"ru": "Новый получатель"
+},
+"Велика сума новому одержувачу": {
+"en": "Large amount to a new recipient",
+"it": "Importo elevato a un nuovo destinatario",
+"de": "Hoher Betrag an einen neuen Empfänger",
+"ru": "Крупная сумма новому получателю"
+},
+"Одержувач щойно відкрив рахунок": {
+"en": "The recipient has just opened an account",
+"it": "Il destinatario ha appena aperto il conto",
+"de": "Der Empfänger hat gerade ein Konto eröffnet",
+"ru": "Получатель только что открыл счёт"
+},
+"Рахунок щойно відкрито": {
+"en": "Account just opened",
+"it": "Conto appena aperto",
+"de": "Konto gerade eröffnet",
+"ru": "Счёт только что открыт"
+},
+"Повтор того самого переказу": {
+"en": "Repeat of the same transfer",
+"it": "Ripetizione dello stesso bonifico",
+"de": "Wiederholung derselben Überweisung",
+"ru": "Повтор того же перевода"
+},
+"Дроблення на дрібні перекази": {
+"en": "Splitting into small transfers",
+"it": "Frazionamento in piccoli bonifici",
+"de": "Aufteilung in kleine Überweisungen",
+"ru": "Дробление на мелкие переводы"
+},
+"Майже всі перекази одному одержувачу": {
+"en": "Almost all transfers to one recipient",
+"it": "Quasi tutti i bonifici a un solo destinatario",
+"de": "Fast alle Überweisungen an einen Empfänger",
+"ru": "Почти все переводы одному получателю"
+},
+"Розсилка багатьом одержувачам": {
+"en": "Mass sending to many recipients",
+"it": "Invio di massa a molti destinatari",
+"de": "Massenversand an viele Empfänger",
+"ru": "Рассылка многим получателям"
+},
+"Гроші ходять туди й назад": {
+"en": "Money going back and forth",
+"it": "Denaro che va avanti e indietro",
+"de": "Geld geht hin und her",
+"ru": "Деньги ходят туда и обратно"
+},
+"Гроші одразу йдуть далі": {
+"en": "Money immediately moves on",
+"it": "Il denaro passa subito oltre",
+"de": "Geld wird sofort weitergeleitet",
+"ru": "Деньги сразу уходят дальше"
+},
+"Одержувач схожий на підставний рахунок": {
+"en": "The recipient looks like a front account",
+"it": "Il destinatario sembra un conto prestanome",
+"de": "Der Empfänger wirkt wie ein Strohmannkonto",
+"ru": "Получатель похож на подставной счёт"
+},
+"Схема підставного рахунку": {
+"en": "Front account scheme",
+"it": "Schema del conto prestanome",
+"de": "Strohmannkonto-Schema",
+"ru": "Схема подставного счёта"
+},
+"Одержувач пов'язаний із підозрілими": {
+"en": "The recipient is linked to suspicious ones",
+"it": "Il destinatario è collegato a soggetti sospetti",
+"de": "Der Empfänger ist mit Verdächtigen verbunden",
+"ru": "Получатель связан с подозрительными"
+},
+"Неприродно однакові суми": {
+"en": "Unnaturally identical amounts",
+"it": "Importi innaturalmente identici",
+"de": "Unnatürlich gleiche Beträge",
+"ru": "Неестественно одинаковые суммы"
+},
+"Неприродно рівні проміжки": {
+"en": "Unnaturally even intervals",
+"it": "Intervalli innaturalmente regolari",
+"de": "Unnatürlich gleichmäßige Abstände",
+"ru": "Неестественно ровные промежутки"
+},
+"Схоже на автоматичні перекази": {
+"en": "Looks like automatic transfers",
+"it": "Sembrano bonifici automatici",
+"de": "Wirkt wie automatische Überweisungen",
+"ru": "Похоже на автоматические переводы"
+},
+"Часті поповнення картки": {
+"en": "Frequent card top-ups",
+"it": "Ricariche frequenti della carta",
+"de": "Häufige Kartenaufladungen",
+"ru": "Частые пополнения карты"
+},
+"Раніше вже блокувались перекази": {
+"en": "Transfers were blocked before",
+"it": "In passato bonifici già bloccati",
+"de": "Überweisungen wurden bereits blockiert",
+"ru": "Ранее уже блокировались переводы"
+},
+"Раніше були критичні перекази": {
+"en": "There were critical transfers before",
+"it": "In passato bonifici critici",
+"de": "Es gab bereits kritische Überweisungen",
+"ru": "Ранее были критичные переводы"
+},
+"Розбіжність у журналі рахунку": {
+"en": "Mismatch in the account ledger",
+"it": "Discrepanza nel registro del conto",
+"de": "Abweichung im Kontojournal",
+"ru": "Расхождение в журнале счёта"
+},
+"Біометрія": {
+"en": "Biometrics",
+"it": "Biometria",
+"de": "Biometrie",
+"ru": "Биометрия"
+},
+"Ввести PIN": {
+"en": "Enter PIN",
+"it": "Inserisci il PIN",
+"de": "PIN eingeben",
+"ru": "Ввести PIN"
+},
+"Сервер не віддав документ": {
+"en": "The server did not return the document",
+"it": "Il server non ha restituito il documento",
+"de": "Der Server hat das Dokument nicht geliefert",
+"ru": "Сервер не отдал документ"
+},
+"1 група": {
+"en": "Group 1",
+"it": "Gruppo 1",
+"de": "Gruppe 1",
+"ru": "1 группа"
+},
+"2 група": {
+"en": "Group 2",
+"it": "Gruppo 2",
+"de": "Gruppe 2",
+"ru": "2 группа"
+},
+"3 група, 5%": {
+"en": "Group 3, 5%",
+"it": "Gruppo 3, 5%",
+"de": "Gruppe 3, 5 %",
+"ru": "3 группа, 5%"
+},
+"3 група, 3% + ПДВ": {
+"en": "Group 3, 3% + VAT",
+"it": "Gruppo 3, 3% + IVA",
+"de": "Gruppe 3, 3 % + MwSt.",
+"ru": "3 группа, 3% + НДС"
+},
+"Роздрібна торгівля на ринку й побутові послуги населенню, без найманих працівників.": {
+"en": "Market retail and household services for individuals, no hired employees.",
+"it": "Commercio al dettaglio nei mercati e servizi domestici ai privati, senza dipendenti.",
+"de": "Einzelhandel auf dem Markt und Haushaltsdienste für Privatpersonen, ohne Angestellte.",
+"ru": "Розничная торговля на рынке и бытовые услуги населению, без наёмных работников."
+},
+"Послуги й продаж населенню та платникам єдиного податку, до 10 працівників.": {
+"en": "Services and sales to individuals and single-tax payers, up to 10 employees.",
+"it": "Servizi e vendite a privati e a contribuenti a imposta unica, fino a 10 dipendenti.",
+"de": "Dienstleistungen und Verkauf an Privatpersonen und Pauschalsteuerzahler, bis zu 10 Angestellte.",
+"ru": "Услуги и продажа населению и плательщикам единого налога, до 10 работников."
+},
+"Будь-які дозволені види діяльності, клієнти - будь-хто, працівників без обмежень.": {
+"en": "Any permitted activity, any clients, no limit on employees.",
+"it": "Qualsiasi attività consentita, qualsiasi cliente, senza limiti di dipendenti.",
+"de": "Jede zulässige Tätigkeit, beliebige Kunden, keine Begrenzung der Angestellten.",
+"ru": "Любые разрешённые виды деятельности, клиенты любые, работников без ограничений."
+},
+"Навчання": {
+"en": "Education",
+"it": "Istruzione",
+"de": "Bildung",
+"ru": "Обучение"
+},
+"Відсотки за іпотекою": {
+"en": "Mortgage interest",
+"it": "Interessi sul mutuo",
+"de": "Hypothekenzinsen",
+"ru": "Проценты по ипотеке"
+},
+"Лікування безпліддя": {
+"en": "Infertility treatment",
+"it": "Cure per l'infertilità",
+"de": "Kinderwunschbehandlung",
+"ru": "Лечение бесплодия"
+},
+"Страхування життя, пенсійні внески": {
+"en": "Life insurance, pension contributions",
+"it": "Assicurazione sulla vita, contributi pensionistici",
+"de": "Lebensversicherung, Rentenbeiträge",
+"ru": "Страхование жизни, пенсионные взносы"
+},
+"Благодійність": {
+"en": "Charity",
+"it": "Beneficenza",
+"de": "Spenden",
+"ru": "Благотворительность"
+},
+"Будівництво житла за програмою": {
+"en": "Housing construction under the programme",
+"it": "Costruzione di alloggi nell'ambito del programma",
+"de": "Wohnungsbau im Rahmen des Programms",
+"ru": "Строительство жилья по программе"
+},
+"Своє або дітей у закладах України. До 1,4 прожиткового мінімуму на місяць навчання.": {
+"en": "Your own or your children's studies in Ukrainian institutions. Up to 1.4 subsistence minimums per month of study.",
+"it": "Studi propri o dei figli in istituti ucraini. Fino a 1,4 minimi vitali al mese di studio.",
+"de": "Eigenes Studium oder das der Kinder in ukrainischen Einrichtungen. Bis zu 1,4 Existenzminima pro Studienmonat.",
+"ru": "Своё или детей обучение в заведениях Украины. До 1,4 прожиточного минимума на месяц обучения."
+},
+"Відсотки за кредитом на житло в межах норм площі.": {
+"en": "Interest on a housing loan within the area norms.",
+"it": "Interessi su un prestito per la casa entro i limiti di superficie.",
+"de": "Zinsen auf einen Wohnkredit im Rahmen der Flächennormen.",
+"ru": "Проценты по кредиту на жильё в пределах норм площади."
+},
+"Запліднення in vitro та сурогатне материнство.": {
+"en": "In vitro fertilisation and surrogacy.",
+"it": "Fecondazione in vitro e maternità surrogata.",
+"de": "In-vitro-Fertilisation und Leihmutterschaft.",
+"ru": "Экстракорпоральное оплодотворение и суррогатное материнство."
+},
+"Договори довгострокового страхування й недержавне пенсійне забезпечення.": {
+"en": "Long-term insurance contracts and private pension plans.",
+"it": "Contratti assicurativi a lungo termine e previdenza privata.",
+"de": "Langfristige Versicherungsverträge und private Altersvorsorge.",
+"ru": "Договоры долгосрочного страхования и негосударственное пенсионное обеспечение."
+},
+"Пожертви неприбутковим організаціям - до 4% річного доходу.": {
+"en": "Donations to non-profit organisations, up to 4% of annual income.",
+"it": "Donazioni a organizzazioni non profit, fino al 4% del reddito annuo.",
+"de": "Spenden an gemeinnützige Organisationen, bis zu 4 % des Jahreseinkommens.",
+"ru": "Пожертвования некоммерческим организациям, до 4% годового дохода."
+},
+"Внески на доступне житло й обслуговування кредиту за державною програмою.": {
+"en": "Contributions to affordable housing and loan servicing under the state programme.",
+"it": "Contributi per alloggi accessibili e rate del prestito nell'ambito del programma statale.",
+"de": "Beiträge für bezahlbaren Wohnraum und Kreditbedienung im Rahmen des staatlichen Programms.",
+"ru": "Взносы на доступное жильё и обслуживание кредита по государственной программе."
+},
+"Декларація про майновий стан": {
+"en": "Property declaration",
+"it": "Dichiarazione patrimoniale",
+"de": "Vermögenserklärung",
+"ru": "Декларация об имущественном состоянии"
+},
+"Якщо були доходи без утримання податку: оренда, продаж, іноземні доходи, виграші.": {
+"en": "If you had income with no tax withheld: rent, sales, foreign income, winnings.",
+"it": "Se hai avuto redditi senza ritenuta: affitti, vendite, redditi esteri, vincite.",
+"de": "Wenn Sie Einkünfte ohne Steuerabzug hatten: Miete, Verkauf, ausländische Einkünfte, Gewinne.",
+"ru": "Если были доходы без удержания налога: аренда, продажа, иностранные доходы, выигрыши."
+},
+"Сплата податку за декларацією": {
+"en": "Paying tax under the declaration",
+"it": "Pagamento dell'imposta in base alla dichiarazione",
+"de": "Steuerzahlung laut Erklärung",
+"ru": "Уплата налога по декларации"
+},
+"ПДФО і військовий збір за минулий рік, задекларовані до 1 травня.": {
+"en": "Personal income tax and military levy for last year, declared by 1 May.",
+"it": "IRPEF e contributo militare dell'anno scorso, dichiarati entro il 1° maggio.",
+"de": "Einkommensteuer und Militärabgabe für das Vorjahr, erklärt bis zum 1. Mai.",
+"ru": "НДФЛ и военный сбор за прошлый год, задекларированные до 1 мая."
+},
+"Податкова знижка за минулий рік": {
+"en": "Tax deduction for last year",
+"it": "Detrazione fiscale per l'anno scorso",
+"de": "Steuerabzug für das Vorjahr",
+"ru": "Налоговая скидка за прошлый год"
+},
+"Останній день подати декларацію на знижку за витрати попереднього року.": {
+"en": "Last day to file a deduction claim for the previous year's expenses.",
+"it": "Ultimo giorno per presentare la richiesta di detrazione per le spese dell'anno precedente.",
+"de": "Letzter Tag für den Antrag auf Abzug der Ausgaben des Vorjahres.",
+"ru": "Последний день подать декларацию на скидку за расходы предыдущего года."
+},
+"IV квартал": {
+"en": "Q4",
+"it": "T4",
+"de": "Q4",
+"ru": "IV квартал"
+},
+"I квартал": {
+"en": "Q1",
+"it": "T1",
+"de": "Q1",
+"ru": "I квартал"
+},
+"II квартал": {
+"en": "Q2",
+"it": "T2",
+"de": "Q2",
+"ru": "II квартал"
+},
+"III квартал": {
+"en": "Q3",
+"it": "T3",
+"de": "Q3",
+"ru": "III квартал"
+},
+"ЄСВ за %@": {
+"en": "Social contribution for %@",
+"it": "Contributo sociale per %@",
+"de": "Sozialbeitrag für %@",
+"ru": "ЕСВ за %@"
+},
+"Внесок «за себе» - щонайменше 22% мінімальної зарплати за кожен місяць.": {
+"en": "\"For yourself\" contribution: at least 22% of the minimum wage for each month.",
+"it": "Contributo «per sé»: almeno il 22% del salario minimo per ogni mese.",
+"de": "Beitrag «für sich selbst»: mindestens 22 % des Mindestlohns für jeden Monat.",
+"ru": "Взнос «за себя»: не менее 22% минимальной зарплаты за каждый месяц."
+},
+"Єдиний податок і військовий збір": {
+"en": "Single tax and military levy",
+"it": "Imposta unica e contributo militare",
+"de": "Pauschalsteuer und Militärabgabe",
+"ru": "Единый налог и военный сбор"
+},
+"Авансом за поточний місяць.": {
+"en": "In advance for the current month.",
+"it": "In anticipo per il mese corrente.",
+"de": "Im Voraus für den laufenden Monat.",
+"ru": "Авансом за текущий месяц."
+},
+"Річна декларація ФОП": {
+"en": "Annual sole-proprietor return",
+"it": "Dichiarazione annuale dell'imprenditore individuale",
+"de": "Jährliche Erklärung für Einzelunternehmer",
+"ru": "Годовая декларация ФЛП"
+},
+"Декларація платника єдиного податку за минулий рік.": {
+"en": "Single-tax payer's return for last year.",
+"it": "Dichiarazione del contribuente a imposta unica per l'anno scorso.",
+"de": "Erklärung des Pauschalsteuerzahlers für das Vorjahr.",
+"ru": "Декларация плательщика единого налога за прошлый год."
+},
+"Декларація за %@": {
+"en": "Return for %@",
+"it": "Dichiarazione per %@",
+"de": "Erklärung für %@",
+"ru": "Декларация за %@"
+},
+"Протягом 40 днів після кінця кварталу.": {
+"en": "Within 40 days after the end of the quarter.",
+"it": "Entro 40 giorni dalla fine del trimestre.",
+"de": "Innerhalb von 40 Tagen nach Quartalsende.",
+"ru": "В течение 40 дней после окончания квартала."
+},
+"Єдиний податок за %@": {
+"en": "Single tax for %@",
+"it": "Imposta unica per %@",
+"de": "Pauschalsteuer für %@",
+"ru": "Единый налог за %@"
+},
+"Сплата протягом 10 днів після строку декларації, разом із військовим збором 1%.": {
+"en": "Pay within 10 days after the return deadline, together with the 1% military levy.",
+"it": "Pagamento entro 10 giorni dal termine della dichiarazione, insieme al contributo militare dell'1%.",
+"de": "Zahlung innerhalb von 10 Tagen nach Erklärungsfrist, zusammen mit der Militärabgabe von 1 %.",
+"ru": "Уплата в течение 10 дней после срока декларации, вместе с военным сбором 1%."
+},
+"Сервер відповів кодом %@": {
+"en": "The server responded with code %@",
+"it": "Il server ha risposto con il codice %@",
+"de": "Der Server antwortete mit Code %@",
+"ru": "Сервер ответил кодом %@"
+},
+"Остання одиниця": {
+"en": "Last one",
+"it": "Ultimo pezzo",
+"de": "Letztes Stück",
+"ru": "Последняя единица"
+},
+"Осінь": {
+"en": "Autumn",
+"it": "Autunno",
+"de": "Herbst",
+"ru": "Осень"
+},
+"вже тут": {
+"en": "is here",
+"it": "è arrivato",
+"de": "ist da",
+"ru": "уже здесь"
+},
+"До каталогу": {
+"en": "To the catalogue",
+"it": "Al catalogo",
+"de": "Zum Katalog",
+"ru": "В каталог"
+},
+"Оплата TaxPay": {
+"en": "TaxPay payment",
+"it": "Pagamento TaxPay",
+"de": "TaxPay-Zahlung",
+"ru": "Оплата TaxPay"
+},
+"Нова пошта": {
+"en": "Nova Poshta",
+"it": "Nova Poshta",
+"de": "Nova Poshta",
+"ru": "Новая почта"
+},
+"100% оригінал": {
+"en": "100% original",
+"it": "100% originale",
+"de": "100 % Original",
+"ru": "100% оригинал"
+},
+"Обмін 14 днів": {
+"en": "14-day exchange",
+"it": "Cambio in 14 giorni",
+"de": "14 Tage Umtausch",
+"ru": "Обмен 14 дней"
+},
+"Жінкам": {
+"en": "Women",
+"it": "Donna",
+"de": "Damen",
+"ru": "Женщинам"
+},
+"Сукні · верхній одяг · взуття": {
+"en": "Dresses · outerwear · shoes",
+"it": "Abiti · capispalla · scarpe",
+"de": "Kleider · Oberbekleidung · Schuhe",
+"ru": "Платья · верхняя одежда · обувь"
+},
+"Чоловікам": {
+"en": "Men",
+"it": "Uomo",
+"de": "Herren",
+"ru": "Мужчинам"
+},
+"Сорочки · поло · костюми": {
+"en": "Shirts · polos · suits",
+"it": "Camicie · polo · abiti",
+"de": "Hemden · Polos · Anzüge",
+"ru": "Рубашки · поло · костюмы"
+},
+"У кошик": {
+"en": "To the basket",
+"it": "Nel carrello",
+"de": "In den Warenkorb",
+"ru": "В корзину"
+},
+"Каталог": {
+"en": "Catalogue",
+"it": "Catalogo",
+"de": "Katalog",
+"ru": "Каталог"
+},
+"Замовлення": {
+"en": "Orders",
+"it": "Ordini",
+"de": "Bestellungen",
+"ru": "Заказы"
+},
+"Інвойси": {
+"en": "Invoices",
+"it": "Fatture",
+"de": "Rechnungen",
+"ru": "Инвойсы"
+},
+"Магазин · оплата TAX": {
+"en": "Shop · pay in TAX",
+"it": "Negozio · paga in TAX",
+"de": "Shop · Zahlung in TAX",
+"ru": "Магазин · оплата в TAX"
+},
+"Кошик, товарів: %@": {
+"en": "Basket, items: %@",
+"it": "Carrello, articoli: %@",
+"de": "Warenkorb, Artikel: %@",
+"ru": "Корзина, товаров: %@"
+},
+"Колекції": {
+"en": "Collections",
+"it": "Collezioni",
+"de": "Kollektionen",
+"ru": "Коллекции"
+},
+"Оригінальні бренди з Європи": {
+"en": "Original brands from Europe",
+"it": "Marchi originali dall'Europa",
+"de": "Originalmarken aus Europa",
+"ru": "Оригинальные бренды из Европы"
+},
+"Добірка": {
+"en": "Selection",
+"it": "Selezione",
+"de": "Auswahl",
+"ru": "Подборка"
+},
+"Обране цього тижня": {
+"en": "This week's picks",
+"it": "Scelti della settimana",
+"de": "Auswahl dieser Woche",
+"ru": "Избранное этой недели"
+},
+"Пошук товарів…": {
+"en": "Search products…",
+"it": "Cerca prodotti…",
+"de": "Produkte suchen…",
+"ru": "Поиск товаров…"
+},
+"%@ товарів": {
+"en": "%@ items",
+"it": "%@ articoli",
+"de": "%@ Artikel",
+"ru": "%@ товаров"
+},
+"Сортування": {
+"en": "Sort",
+"it": "Ordina",
+"de": "Sortierung",
+"ru": "Сортировка"
+},
+"Нічого не знайдено": {
+"en": "Nothing found",
+"it": "Nessun risultato",
+"de": "Nichts gefunden",
+"ru": "Ничего не найдено"
+},
+"%@ у кошику": {
+"en": "%@ in the basket",
+"it": "%@ nel carrello",
+"de": "%@ im Warenkorb",
+"ru": "%@ в корзине"
+},
+"Оформити": {
+"en": "Check out",
+"it": "Procedi all'ordine",
+"de": "Zur Kasse",
+"ru": "Оформить"
+},
+"Замовлень ще немає": {
+"en": "No orders yet",
+"it": "Ancora nessun ordine",
+"de": "Noch keine Bestellungen",
+"ru": "Заказов пока нет"
+},
+"Інвойсів ще немає": {
+"en": "No invoices yet",
+"it": "Ancora nessuna fattura",
+"de": "Noch keine Rechnungen",
+"ru": "Инвойсов пока нет"
+},
+"Оплачено інвойсів": {
+"en": "Invoices paid",
+"it": "Fatture pagate",
+"de": "Bezahlte Rechnungen",
+"ru": "Оплачено инвойсов"
+},
+"Усе": {
+"en": "All",
+"it": "Tutto",
+"de": "Alle",
+"ru": "Всё"
+},
+"Смартфони": {
+"en": "Smartphones",
+"it": "Smartphone",
+"de": "Smartphones",
+"ru": "Смартфоны"
+},
+"Ноутбуки": {
+"en": "Laptops",
+"it": "Laptop",
+"de": "Laptops",
+"ru": "Ноутбуки"
+},
+"Аудіо": {
+"en": "Audio",
+"it": "Audio",
+"de": "Audio",
+"ru": "Аудио"
+},
+"Ігри": {
+"en": "Games",
+"it": "Giochi",
+"de": "Spiele",
+"ru": "Игры"
+},
+"Техніка": {
+"en": "Appliances",
+"it": "Elettrodomestici",
+"de": "Geräte",
+"ru": "Техника"
+},
+"Для дому": {
+"en": "For home",
+"it": "Per la casa",
+"de": "Für zu Hause",
+"ru": "Для дома"
+},
+"Годинники": {
+"en": "Watches",
+"it": "Orologi",
+"de": "Uhren",
+"ru": "Часы"
+},
+"Планшети": {
+"en": "Tablets",
+"it": "Tablet",
+"de": "Tablets",
+"ru": "Планшеты"
+},
+"Гаджети": {
+"en": "Gadgets",
+"it": "Gadget",
+"de": "Gadgets",
+"ru": "Гаджеты"
+},
+"Взуття": {
+"en": "Footwear",
+"it": "Calzature",
+"de": "Schuhe",
+"ru": "Обувь"
+},
+"Сумки": {
+"en": "Bags",
+"it": "Borse",
+"de": "Taschen",
+"ru": "Сумки"
+},
+"Аксесуари": {
+"en": "Accessories",
+"it": "Accessori",
+"de": "Accessoires",
+"ru": "Аксессуары"
+},
+"Популярні": {
+"en": "Popular",
+"it": "Popolari",
+"de": "Beliebt",
+"ru": "Популярные"
+},
+"Дешевші": {
+"en": "Cheaper",
+"it": "Più economici",
+"de": "Günstiger",
+"ru": "Дешевле"
+},
+"Дорожчі": {
+"en": "More expensive",
+"it": "Più costosi",
+"de": "Teurer",
+"ru": "Дороже"
+},
+"Нові": {
+"en": "New",
+"it": "Novità",
+"de": "Neu",
+"ru": "Новые"
+},
+"За назвою": {
+"en": "By name",
+"it": "Per nome",
+"de": "Nach Name",
+"ru": "По названию"
+},
+"Оплачено": {
+"en": "Paid",
+"it": "Pagato",
+"de": "Bezahlt",
+"ru": "Оплачено"
+},
+"Очікує оплати": {
+"en": "Awaiting payment",
+"it": "In attesa di pagamento",
+"de": "Zahlung ausstehend",
+"ru": "Ожидает оплаты"
+},
+"Виставлено": {
+"en": "Issued",
+"it": "Emessa",
+"de": "Ausgestellt",
+"ru": "Выставлено"
+},
+"Прострочено": {
+"en": "Overdue",
+"it": "Scaduta",
+"de": "Überfällig",
+"ru": "Просрочено"
+},
+"Скасовано": {
+"en": "Cancelled",
+"it": "Annullato",
+"de": "Storniert",
+"ru": "Отменено"
+},
+"Відправлено": {
+"en": "Shipped",
+"it": "Spedito",
+"de": "Versendet",
+"ru": "Отправлено"
+},
+"Доставлено": {
+"en": "Delivered",
+"it": "Consegnato",
+"de": "Zugestellt",
+"ru": "Доставлено"
+},
+"Обробляється": {
+"en": "Processing",
+"it": "In elaborazione",
+"de": "In Bearbeitung",
+"ru": "Обрабатывается"
+},
+"Лишилось %@": {
+"en": "%@ left",
+"it": "Ne restano %@",
+"de": "%@ übrig",
+"ru": "Осталось %@"
+},
+"Хіт": {
+"en": "Hit",
+"it": "Di tendenza",
+"de": "Hit",
+"ru": "Хит"
+},
+"Новинка": {
+"en": "New in",
+"it": "Novità",
+"de": "Neuheit",
+"ru": "Новинка"
+},
+"Топ": {
+"en": "Top",
+"it": "Top",
+"de": "Top",
+"ru": "Топ"
+},
+"Вигідно": {
+"en": "Great value",
+"it": "Conveniente",
+"de": "Preistipp",
+"ru": "Выгодно"
+},
+"Знижка": {
+"en": "Sale",
+"it": "Sconto",
+"de": "Rabatt",
+"ru": "Скидка"
+},
+"Нова пошта · безкоштовно від 3 000 TAX, ще %@ до безкоштовної": {
+"en": "Nova Poshta · free from 3,000 TAX, %@ more to free delivery",
+"it": "Nova Poshta · gratis da 3.000 TAX, ancora %@ per la consegna gratuita",
+"de": "Nova Poshta · kostenlos ab 3.000 TAX, noch %@ bis zum Gratisversand",
+"ru": "Новая почта · бесплатно от 3 000 TAX, ещё %@ до бесплатной"
+},
+"Нова пошта · доставка безкоштовна": {
+"en": "Nova Poshta · free delivery",
+"it": "Nova Poshta · consegna gratuita",
+"de": "Nova Poshta · kostenloser Versand",
+"ru": "Новая почта · доставка бесплатная"
+},
+"Розмір %@, немає": {
+"en": "Size %@, unavailable",
+"it": "Taglia %@, non disponibile",
+"de": "Größe %@, nicht verfügbar",
+"ru": "Размер %@, нет"
+},
+"Розмір %@": {
+"en": "Size %@",
+"it": "Taglia %@",
+"de": "Größe %@",
+"ru": "Размер %@"
+},
+"Немає в наявності": {
+"en": "Out of stock",
+"it": "Non disponibile",
+"de": "Nicht auf Lager",
+"ru": "Нет в наличии"
+},
+"В наявності": {
+"en": "In stock",
+"it": "Disponibile",
+"de": "Auf Lager",
+"ru": "В наличии"
+},
+"Розмір": {
+"en": "Size",
+"it": "Taglia",
+"de": "Größe",
+"ru": "Размер"
+},
+"Оберіть розмір": {
+"en": "Choose a size",
+"it": "Scegli la taglia",
+"de": "Größe wählen",
+"ru": "Выберите размер"
+},
+"Остання одиниця в розмірі %@": {
+"en": "Last one in size %@",
+"it": "Ultimo pezzo in taglia %@",
+"de": "Letztes Stück in Größe %@",
+"ru": "Последняя единица в размере %@"
+},
+"Лишилось %@ шт. у розмірі %@": {
+"en": "%@ left in size %@",
+"it": "Ne restano %@ in taglia %@",
+"de": "%@ übrig in Größe %@",
+"ru": "Осталось %@ шт. в размере %@"
+},
+"Кількість": {
+"en": "Quantity",
+"it": "Quantità",
+"de": "Menge",
+"ru": "Количество"
+},
+"Уже в кошику: %@": {
+"en": "Already in basket: %@",
+"it": "Già nel carrello: %@",
+"de": "Bereits im Warenkorb: %@",
+"ru": "Уже в корзине: %@"
+},
+"Купити зараз · %@": {
+"en": "Buy now · %@",
+"it": "Acquista ora · %@",
+"de": "Jetzt kaufen · %@",
+"ru": "Купить сейчас · %@"
+},
+"Додати в кошик": {
+"en": "Add to basket",
+"it": "Aggiungi al carrello",
+"de": "In den Warenkorb",
+"ru": "Добавить в корзину"
+},
+"Відправка за 1–2 робочі дні, до %@": {
+"en": "Ships in 1–2 working days, by %@",
+"it": "Spedizione in 1–2 giorni lavorativi, entro %@",
+"de": "Versand in 1–2 Werktagen, bis %@",
+"ru": "Отправка за 1–2 рабочих дня, до %@"
+},
+"Обмін і повернення 14 днів": {
+"en": "Exchange and returns within 14 days",
+"it": "Cambio e reso entro 14 giorni",
+"de": "Umtausch und Rückgabe innerhalb von 14 Tagen",
+"ru": "Обмен и возврат 14 дней"
+},
+"Лише оригінал, з гарантією": {
+"en": "Original only, with warranty",
+"it": "Solo originali, con garanzia",
+"de": "Nur Originale, mit Garantie",
+"ru": "Только оригинал, с гарантией"
+},
+"Готово": {
+"en": "Done",
+"it": "Fatto",
+"de": "Fertig",
+"ru": "Готово"
+},
+"Обробка": {
+"en": "Processing",
+"it": "Elaborazione",
+"de": "Bearbeitung",
+"ru": "Обработка"
+},
+"Замовлення #%@": {
+"en": "Order #%@",
+"it": "Ordine #%@",
+"de": "Bestellung #%@",
+"ru": "Заказ #%@"
+},
+"%@ поз., %@": {
+"en": "%@ items, %@",
+"it": "%@ art., %@",
+"de": "%@ Pos., %@",
+"ru": "%@ поз., %@"
+},
+"Чек": {
+"en": "Receipt",
+"it": "Ricevuta",
+"de": "Beleg",
+"ru": "Чек"
+},
+"Чек замовлення %@.pdf": {
+"en": "Order receipt %@.pdf",
+"it": "Ricevuta ordine %@.pdf",
+"de": "Bestellbeleg %@.pdf",
+"ru": "Чек заказа %@.pdf"
+},
+"Готую…": {
+"en": "Preparing…",
+"it": "Preparazione…",
+"de": "Wird erstellt…",
+"ru": "Готовлю…"
+},
+"Вкажіть ім'я та прізвище, лише літери": {
+"en": "Enter first and last name, letters only",
+"it": "Inserisci nome e cognome, solo lettere",
+"de": "Vor- und Nachname eingeben, nur Buchstaben",
+"ru": "Укажите имя и фамилию, только буквы"
+},
+"Вкажіть номер телефону": {
+"en": "Enter a phone number",
+"it": "Inserisci un numero di telefono",
+"de": "Telefonnummer eingeben",
+"ru": "Укажите номер телефона"
+},
+"Невірний номер, приклад: +380 50 123 45 67": {
+"en": "Invalid number, e.g. +380 50 123 45 67",
+"it": "Numero non valido, esempio: +380 50 123 45 67",
+"de": "Ungültige Nummer, Beispiel: +380 50 123 45 67",
+"ru": "Неверный номер, пример: +380 50 123 45 67"
+},
+"Вкажіть адресу: місто, вулиця або відділення (від 8 символів)": {
+"en": "Enter an address: city, street or branch (at least 8 characters)",
+"it": "Inserisci l'indirizzo: città, via o filiale (almeno 8 caratteri)",
+"de": "Adresse eingeben: Stadt, Straße oder Filiale (mindestens 8 Zeichen)",
+"ru": "Укажите адрес: город, улица или отделение (от 8 символов)"
+},
+"Замовлення #%@%@": {
+"en": "Order #%@%@",
+"it": "Ordine #%@%@",
+"de": "Bestellung #%@%@",
+"ru": "Заказ #%@%@"
+},
+"Залишок %@": {
+"en": "Balance %@",
+"it": "Saldo %@",
+"de": "Guthaben %@",
+"ru": "Остаток %@"
+},
+"Кошик порожній": {
+"en": "The basket is empty",
+"it": "Il carrello è vuoto",
+"de": "Der Warenkorb ist leer",
+"ru": "Корзина пуста"
+},
+"Кошик": {
+"en": "Basket",
+"it": "Carrello",
+"de": "Warenkorb",
+"ru": "Корзина"
+},
+"Разом": {
+"en": "Total",
+"it": "Totale",
+"de": "Gesamt",
+"ru": "Итого"
+},
+"Доставка": {
+"en": "Delivery",
+"it": "Consegna",
+"de": "Lieferung",
+"ru": "Доставка"
+},
+"Ім'я та прізвище": {
+"en": "First and last name",
+"it": "Nome e cognome",
+"de": "Vor- und Nachname",
+"ru": "Имя и фамилия"
+},
+"Телефон": {
+"en": "Phone",
+"it": "Telefono",
+"de": "Telefon",
+"ru": "Телефон"
+},
+"Адреса": {
+"en": "Address",
+"it": "Indirizzo",
+"de": "Adresse",
+"ru": "Адрес"
+},
+"Оплатити %@": {
+"en": "Pay %@",
+"it": "Paga %@",
+"de": "%@ bezahlen",
+"ru": "Оплатить %@"
+},
+"Закрити": {
+"en": "Close",
+"it": "Chiudi",
+"de": "Schließen",
+"ru": "Закрыть"
+},
+"Підтвердження оплати": {
+"en": "Payment confirmation",
+"it": "Conferma del pagamento",
+"de": "Zahlungsbestätigung",
+"ru": "Подтверждение оплаты"
+},
+"Отримувач": {
+"en": "Recipient",
+"it": "Destinatario",
+"de": "Empfänger",
+"ru": "Получатель"
+},
+"Сума": {
+"en": "Amount",
+"it": "Importo",
+"de": "Betrag",
+"ru": "Сумма"
+},
+"ваш телефон": {
+"en": "your phone",
+"it": "il tuo telefono",
+"de": "Ihr Telefon",
+"ru": "ваш телефон"
+},
+"Код надіслано на %@.": {
+"en": "Code sent to %@.",
+"it": "Codice inviato a %@.",
+"de": "Code an %@ gesendet.",
+"ru": "Код отправлен на %@."
+},
+"Навчальний банк: ваш код %@": {
+"en": "Training bank: your code is %@",
+"it": "Banca didattica: il tuo codice è %@",
+"de": "Lernbank: Ihr Code lautet %@",
+"ru": "Учебный банк: ваш код %@"
+},
+"Код дійсний ще %d:%02d": {
+"en": "Code valid for another %d:%02d",
+"it": "Codice valido ancora per %d:%02d",
+"de": "Code noch %d:%02d gültig",
+"ru": "Код действителен ещё %d:%02d"
+},
+"Час вийшов - почніть оплату знову": {
+"en": "Time is up - start the payment again",
+"it": "Tempo scaduto - avvia di nuovo il pagamento",
+"de": "Zeit abgelaufen - Zahlung neu starten",
+"ru": "Время вышло - начните оплату заново"
+},
+"Підтвердити": {
+"en": "Confirm",
+"it": "Conferma",
+"de": "Bestätigen",
+"ru": "Подтвердить"
+},
+"3-D Secure · навчальний банк TaxTech": {
+"en": "3-D Secure · TaxTech training bank",
+"it": "3-D Secure · banca didattica TaxTech",
+"de": "3-D Secure · TaxTech-Lernbank",
+"ru": "3-D Secure · учебный банк TaxTech"
+},
+"Скасувати": {
+"en": "Cancel",
+"it": "Annulla",
+"de": "Abbrechen",
+"ru": "Отмена"
+},
+"Профіль": {
+"en": "Profile",
+"it": "Profilo",
+"de": "Profil",
+"ru": "Профиль"
+},
+"Гроші": {
+"en": "Money",
+"it": "Denaro",
+"de": "Geld",
+"ru": "Деньги"
+},
+"Депозити": {
+"en": "Deposits",
+"it": "Depositi",
+"de": "Einlagen",
+"ru": "Депозиты"
+},
+"Кредити": {
+"en": "Loans",
+"it": "Prestiti",
+"de": "Kredite",
+"ru": "Кредиты"
+},
+"Цілі": {
+"en": "Goals",
+"it": "Obiettivi",
+"de": "Ziele",
+"ru": "Цели"
+},
+"Донати": {
+"en": "Donations",
+"it": "Donazioni",
+"de": "Spenden",
+"ru": "Донаты"
+},
+"Виплати": {
+"en": "Payouts",
+"it": "Pagamenti in uscita",
+"de": "Auszahlungen",
+"ru": "Выплаты"
+},
+"Борги": {
+"en": "Debts",
+"it": "Debiti",
+"de": "Schulden",
+"ru": "Долги"
+},
+"Платежі": {
+"en": "Payments",
+"it": "Pagamenti",
+"de": "Zahlungen",
+"ru": "Платежи"
+},
+"Контакти й шаблони": {
+"en": "Contacts and templates",
+"it": "Contatti e modelli",
+"de": "Kontakte und Vorlagen",
+"ru": "Контакты и шаблоны"
+},
+"Ліміти й регулярні платежі": {
+"en": "Limits and recurring payments",
+"it": "Limiti e pagamenti ricorrenti",
+"de": "Limits und Daueraufträge",
+"ru": "Лимиты и регулярные платежи"
+},
+"Виписки": {
+"en": "Statements",
+"it": "Estratti conto",
+"de": "Kontoauszüge",
+"ru": "Выписки"
+},
+"Аналітика": {
+"en": "Analytics",
+"it": "Analisi",
+"de": "Analysen",
+"ru": "Аналитика"
+},
+"Безпека": {
+"en": "Security",
+"it": "Sicurezza",
+"de": "Sicherheit",
+"ru": "Безопасность"
+},
+"PIN, пароль і пристрої": {
+"en": "PIN, password and devices",
+"it": "PIN, password e dispositivi",
+"de": "PIN, Passwort und Geräte",
+"ru": "PIN, пароль и устройства"
+},
+"PIN, %@, пароль": {
+"en": "PIN, %@, password",
+"it": "PIN, %@, password",
+"de": "PIN, %@, Passwort",
+"ru": "PIN, %@, пароль"
+},
+"Сповіщення": {
+"en": "Notifications",
+"it": "Notifiche",
+"de": "Benachrichtigungen",
+"ru": "Уведомления"
+},
+"Досягнення": {
+"en": "Achievements",
+"it": "Traguardi",
+"de": "Erfolge",
+"ru": "Достижения"
+},
+"%@ з %@": {
+"en": "%@ of %@",
+"it": "%@ di %@",
+"de": "%@ von %@",
+"ru": "%@ из %@"
+},
+"На телефоні": {
+"en": "On your phone",
+"it": "Sul telefono",
+"de": "Auf dem Telefon",
+"ru": "На телефоне"
+},
+"Облік витрат": {
+"en": "Expense tracker",
+"it": "Registro spese",
+"de": "Ausgabenübersicht",
+"ru": "Учёт расходов"
+},
+"Розпізнати чек": {
+"en": "Scan a receipt",
+"it": "Riconosci scontrino",
+"de": "Beleg erkennen",
+"ru": "Распознать чек"
+},
+"Помічник": {
+"en": "Assistant",
+"it": "Assistente",
+"de": "Assistent",
+"ru": "Помощник"
+},
+"Лабораторія": {
+"en": "Lab",
+"it": "Laboratorio",
+"de": "Labor",
+"ru": "Лаборатория"
+},
+"Вийти": {
+"en": "Sign out",
+"it": "Esci",
+"de": "Abmelden",
+"ru": "Выйти"
+},
+"Видалити акаунт": {
+"en": "Delete account",
+"it": "Elimina account",
+"de": "Konto löschen",
+"ru": "Удалить аккаунт"
+},
+"Видалити акаунт назавжди?": {
+"en": "Delete the account permanently?",
+"it": "Eliminare l'account in modo definitivo?",
+"de": "Konto endgültig löschen?",
+"ru": "Удалить аккаунт навсегда?"
+},
+"Видалити акаунт і всі дані": {
+"en": "Delete the account and all data",
+"it": "Elimina account e tutti i dati",
+"de": "Konto und alle Daten löschen",
+"ru": "Удалить аккаунт и все данные"
+},
+"Рахунок, картки, депозити, кредити й історія операцій зникнуть. Облік витрат на телефоні залишиться.": {
+"en": "The account, cards, deposits, loans and transaction history will disappear. The expense tracker on the phone stays.",
+"it": "Conto, carte, depositi, prestiti e cronologia delle operazioni scompariranno. Il registro spese sul telefono resta.",
+"de": "Konto, Karten, Einlagen, Kredite und Transaktionsverlauf verschwinden. Die Ausgabenübersicht auf dem Telefon bleibt erhalten.",
+"ru": "Счёт, карты, депозиты, кредиты и история операций исчезнут. Учёт расходов на телефоне останется."
+},
+"Не вдалося видалити": {
+"en": "Could not delete",
+"it": "Eliminazione non riuscita",
+"de": "Löschen fehlgeschlagen",
+"ru": "Не удалось удалить"
+},
+"Гаразд": {
+"en": "OK",
+"it": "OK",
+"de": "OK",
+"ru": "Хорошо"
+},
+"Змінити фото": {
+"en": "Change photo",
+"it": "Cambia foto",
+"de": "Foto ändern",
+"ru": "Сменить фото"
+},
+"Видалити фото": {
+"en": "Remove photo",
+"it": "Rimuovi foto",
+"de": "Foto entfernen",
+"ru": "Удалить фото"
+},
+"Запросити друга": {
+"en": "Invite a friend",
+"it": "Invita un amico",
+"de": "Freund einladen",
+"ru": "Пригласить друга"
+},
+"TaxTech: картки, депозити й перекази на токенах TAX": {
+"en": "TaxTech: cards, deposits and transfers in TAX tokens",
+"it": "TaxTech: carte, depositi e bonifici in token TAX",
+"de": "TaxTech: Karten, Einlagen und Überweisungen in TAX-Token",
+"ru": "TaxTech: карты, депозиты и переводы на токенах TAX"
+},
+"Поділитися": {
+"en": "Share",
+"it": "Condividi",
+"de": "Teilen",
+"ru": "Поделиться"
+},
+"Огляд": {
+"en": "Overview",
+"it": "Panoramica",
+"de": "Übersicht",
+"ru": "Обзор"
+},
+"Операції": {
+"en": "Transactions",
+"it": "Operazioni",
+"de": "Transaktionen",
+"ru": "Операции"
+},
+"Картки": {
+"en": "Cards",
+"it": "Carte",
+"de": "Karten",
+"ru": "Карты"
+},
+"Податки": {
+"en": "Taxes",
+"it": "Tasse",
+"de": "Steuern",
+"ru": "Налоги"
+},
+"Магазин": {
+"en": "Shop",
+"it": "Negozio",
+"de": "Shop",
+"ru": "Магазин"
+},
+"%.1f мс": {
+"en": "%.1f ms",
+"it": "%.1f ms",
+"de": "%.1f ms",
+"ru": "%.1f мс"
+},
+"%@ мс": {
+"en": "%@ ms",
+"it": "%@ ms",
+"de": "%@ ms",
+"ru": "%@ мс"
+},
+"%.1f с": {
+"en": "%.1f s",
+"it": "%.1f s",
+"de": "%.1f s",
+"ru": "%.1f с"
+},
+"%.3f Дж": {
+"en": "%.3f J",
+"it": "%.3f J",
+"de": "%.3f J",
+"ru": "%.3f Дж"
+},
+"%.2f Дж": {
+"en": "%.2f J",
+"it": "%.2f J",
+"de": "%.2f J",
+"ru": "%.2f Дж"
+},
+"телефон засумнівався": {
+"en": "the phone had doubts",
+"it": "il telefono ha avuto dei dubbi",
+"de": "das Telefon hatte Zweifel",
+"ru": "телефон засомневался"
+},
+"замасковано %@": {
+"en": "masked %@",
+"it": "mascherato %@",
+"de": "maskiert %@",
+"ru": "замаскировано %@"
+},
+"Правильно": {
+"en": "Correct",
+"it": "Corretto",
+"de": "Richtig",
+"ru": "Правильно"
+},
+"Неправильно": {
+"en": "Incorrect",
+"it": "Errato",
+"de": "Falsch",
+"ru": "Неправильно"
+},
+"На картку": {
+"en": "To a card",
+"it": "A una carta",
+"de": "Auf eine Karte",
+"ru": "На карту"
+},
+"Поповнити": {
+"en": "Top up",
+"it": "Ricarica",
+"de": "Aufladen",
+"ru": "Пополнить"
+},
+"З головного рахунку на картку.": {
+"en": "From the main account to the card.",
+"it": "Dal conto principale alla carta.",
+"de": "Vom Hauptkonto auf die Karte.",
+"ru": "С главного счёта на карту."
+},
+"Закрити картку назавжди?": {
+"en": "Close the card permanently?",
+"it": "Chiudere la carta in modo definitivo?",
+"de": "Karte endgültig schließen?",
+"ru": "Закрыть карту навсегда?"
+},
+"Закрити картку": {
+"en": "Close card",
+"it": "Chiudi carta",
+"de": "Karte schließen",
+"ru": "Закрыть карту"
+},
+"Випустити": {
+"en": "Issue",
+"it": "Emetti",
+"de": "Ausstellen",
+"ru": "Выпустить"
+},
+"Карток ще немає": {
+"en": "No cards yet",
+"it": "Ancora nessuna carta",
+"de": "Noch keine Karten",
+"ru": "Карт пока нет"
+},
+"Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.": {
+"en": "Issue a virtual card and design its look: material, colour, pattern.",
+"it": "Emetti una carta virtuale e crea il suo aspetto: materiale, colore, motivo.",
+"de": "Stellen Sie eine virtuelle Karte aus und gestalten Sie ihr Aussehen: Material, Farbe, Muster.",
+"ru": "Выпустите виртуальную карту и соберите её вид: материал, цвет, узор."
+},
+"Випустити картку": {
+"en": "Issue a card",
+"it": "Emetti una carta",
+"de": "Karte ausstellen",
+"ru": "Выпустить карту"
+},
+"Картка •• %@": {
+"en": "Card •• %@",
+"it": "Carta •• %@",
+"de": "Karte •• %@",
+"ru": "Карта •• %@"
+},
+"Заморожена": {
+"en": "Frozen",
+"it": "Congelata",
+"de": "Gesperrt",
+"ru": "Заморожена"
+},
+"Головна · активна": {
+"en": "Main · active",
+"it": "Principale · attiva",
+"de": "Haupt · aktiv",
+"ru": "Главная · активна"
+},
+"Активна": {
+"en": "Active",
+"it": "Attiva",
+"de": "Aktiv",
+"ru": "Активна"
+},
+"· до %@": {
+"en": "· until %@",
+"it": "· fino a %@",
+"de": "· bis %@",
+"ru": "· до %@"
+},
+"Реквізити": {
+"en": "Details",
+"it": "Dati",
+"de": "Details",
+"ru": "Реквизиты"
+},
+"Сховати": {
+"en": "Hide",
+"it": "Nascondi",
+"de": "Ausblenden",
+"ru": "Скрыть"
+},
+"Розморозити": {
+"en": "Unfreeze",
+"it": "Sblocca",
+"de": "Entsperren",
+"ru": "Разморозить"
+},
+"Заморозити": {
+"en": "Freeze",
+"it": "Congela",
+"de": "Sperren",
+"ru": "Заморозить"
+},
+"Вигляд": {
+"en": "Look",
+"it": "Aspetto",
+"de": "Design",
+"ru": "Вид"
+},
+"Баланс рахунку": {
+"en": "Account balance",
+"it": "Saldo del conto",
+"de": "Kontostand",
+"ru": "Баланс счёта"
+},
+"Баланс картки": {
+"en": "Card balance",
+"it": "Saldo della carta",
+"de": "Kartenguthaben",
+"ru": "Баланс карты"
+},
+"Головна": {
+"en": "Main",
+"it": "Principale",
+"de": "Haupt",
+"ru": "Главная"
+},
+"Головна картка списує з основного рахунку.": {
+"en": "The main card draws from the main account.",
+"it": "La carta principale addebita sul conto principale.",
+"de": "Die Hauptkarte belastet das Hauptkonto.",
+"ru": "Главная карта списывает с основного счёта."
+},
+"За місяць витрачено": {
+"en": "Spent this month",
+"it": "Speso questo mese",
+"de": "Diesen Monat ausgegeben",
+"ru": "За месяц потрачено"
+},
+"Поповнити картку": {
+"en": "Top up the card",
+"it": "Ricarica la carta",
+"de": "Karte aufladen",
+"ru": "Пополнить карту"
+},
+"Номер рахунку скопійовано": {
+"en": "Account number copied",
+"it": "Numero di conto copiato",
+"de": "Kontonummer kopiert",
+"ru": "Номер счёта скопирован"
+},
+"Скопіювати номер рахунку": {
+"en": "Copy account number",
+"it": "Copia numero di conto",
+"de": "Kontonummer kopieren",
+"ru": "Скопировать номер счёта"
+},
+"Зробити головною": {
+"en": "Make main",
+"it": "Rendi principale",
+"de": "Zur Hauptkarte machen",
+"ru": "Сделать главной"
+},
+"Матова": {
+"en": "Matte",
+"it": "Opaco",
+"de": "Matt",
+"ru": "Матовая"
+},
+"Градієнт": {
+"en": "Gradient",
+"it": "Sfumatura",
+"de": "Verlauf",
+"ru": "Градиент"
+},
+"Метал": {
+"en": "Metal",
+"it": "Metallo",
+"de": "Metall",
+"ru": "Металл"
+},
+"Скло": {
+"en": "Glass",
+"it": "Vetro",
+"de": "Glas",
+"ru": "Стекло"
+},
+"Графіт": {
+"en": "Graphite",
+"it": "Grafite",
+"de": "Graphit",
+"ru": "Графит"
+},
+"Чорний": {
+"en": "Black",
+"it": "Nero",
+"de": "Schwarz",
+"ru": "Чёрный"
+},
+"Білий": {
+"en": "White",
+"it": "Bianco",
+"de": "Weiß",
+"ru": "Белый"
+},
+"Золото": {
+"en": "Gold",
+"it": "Oro",
+"de": "Gold",
+"ru": "Золото"
+},
+"Нічний синій": {
+"en": "Midnight blue",
+"it": "Blu notte",
+"de": "Nachtblau",
+"ru": "Ночной синий"
+},
+"Смарагд": {
+"en": "Emerald",
+"it": "Smeraldo",
+"de": "Smaragd",
+"ru": "Изумруд"
+},
+"Бордо": {
+"en": "Burgundy",
+"it": "Bordeaux",
+"de": "Bordeaux",
+"ru": "Бордо"
+},
+"Фіалка": {
+"en": "Violet",
+"it": "Viola",
+"de": "Violett",
+"ru": "Фиалка"
+},
+"Небо": {
+"en": "Sky",
+"it": "Cielo",
+"de": "Himmel",
+"ru": "Небо"
+},
+"Пісок": {
+"en": "Sand",
+"it": "Sabbia",
+"de": "Sand",
+"ru": "Песок"
+},
+"Без візерунка": {
+"en": "No pattern",
+"it": "Nessun motivo",
+"de": "Kein Muster",
+"ru": "Без узора"
+},
+"Гільйош": {
+"en": "Guilloche",
+"it": "Guilloche",
+"de": "Guilloche",
+"ru": "Гильоше"
+},
+"Мікродрук": {
+"en": "Microprint",
+"it": "Microstampa",
+"de": "Mikrodruck",
+"ru": "Микропечать"
+},
+"Лінії": {
+"en": "Lines",
+"it": "Linee",
+"de": "Linien",
+"ru": "Линии"
+},
+"Знак": {
+"en": "Mark",
+"it": "Logo",
+"de": "Zeichen",
+"ru": "Знак"
+},
+"Хвилі": {
+"en": "Waves",
+"it": "Onde",
+"de": "Wellen",
+"ru": "Волны"
+},
+"Без емблеми": {
+"en": "No emblem",
+"it": "Nessun emblema",
+"de": "Kein Emblem",
+"ru": "Без эмблемы"
+},
+"Печатка": {
+"en": "Seal",
+"it": "Sigillo",
+"de": "Siegel",
+"ru": "Печать"
+},
+"Обсидіан": {
+"en": "Obsidian",
+"it": "Ossidiana",
+"de": "Obsidian",
+"ru": "Обсидиан"
+},
+"Шампань": {
+"en": "Champagne",
+"it": "Champagne",
+"de": "Champagner",
+"ru": "Шампань"
+},
+"Аврора": {
+"en": "Aurora",
+"it": "Aurora",
+"de": "Aurora",
+"ru": "Аврора"
+},
+"Океан": {
+"en": "Ocean",
+"it": "Oceano",
+"de": "Ozean",
+"ru": "Океан"
+},
+"Нічне місто": {
+"en": "Night city",
+"it": "Città di notte",
+"de": "Nachtstadt",
+"ru": "Ночной город"
+},
+"Полярна": {
+"en": "Polar",
+"it": "Polare",
+"de": "Polar",
+"ru": "Полярная"
+},
+"CVV · дійсна до %@": {
+"en": "CVV · valid until %@",
+"it": "CVV · valida fino a %@",
+"de": "CVV · gültig bis %@",
+"ru": "CVV · действительна до %@"
+},
+"Тільки для навчання": {
+"en": "For learning only",
+"it": "Solo a scopo didattico",
+"de": "Nur zum Lernen",
+"ru": "Только для обучения"
+},
+"Старі": {
+"en": "Oldest",
+"it": "Meno recenti",
+"de": "Älteste",
+"ru": "Старые"
+},
+"Тиж": {
+"en": "Wk",
+"it": "Sett",
+"de": "Wo",
+"ru": "Нед"
+},
+"Міс": {
+"en": "Mo",
+"it": "Mese",
+"de": "Mo",
+"ru": "Мес"
+},
+"Рік": {
+"en": "Yr",
+"it": "Anno",
+"de": "Jahr",
+"ru": "Год"
+},
+"тиждень": {
+"en": "week",
+"it": "settimana",
+"de": "Woche",
+"ru": "неделя"
+},
+"місяць": {
+"en": "month",
+"it": "mese",
+"de": "Monat",
+"ru": "месяц"
+},
+"рік": {
+"en": "year",
+"it": "anno",
+"de": "Jahr",
+"ru": "год"
+},
+"Усі": {
+"en": "All",
+"it": "Tutti",
+"de": "Alle",
+"ru": "Все"
+},
+"Надходження": {
+"en": "Income",
+"it": "Entrate",
+"de": "Eingänge",
+"ru": "Поступления"
+},
+"Витрати": {
+"en": "Expenses",
+"it": "Spese",
+"de": "Ausgaben",
+"ru": "Расходы"
+},
+"Мої документи": {
+"en": "My documents",
+"it": "I miei documenti",
+"de": "Meine Dokumente",
+"ru": "Мои документы"
+},
+"Пошук транзакцій…": {
+"en": "Search transactions…",
+"it": "Cerca operazioni…",
+"de": "Transaktionen suchen…",
+"ru": "Поиск транзакций…"
+},
+"Витрати за %@": {
+"en": "Expenses for %@",
+"it": "Spese per %@",
+"de": "Ausgaben für %@",
+"ru": "Расходы за %@"
+},
+"Витрат за цей час немає": {
+"en": "No expenses in this period",
+"it": "Nessuna spesa in questo periodo",
+"de": "Keine Ausgaben in diesem Zeitraum",
+"ru": "Расходов за это время нет"
+},
+"Коли": {
+"en": "When",
+"it": "Quando",
+"de": "Wann",
+"ru": "Когда"
+},
+"Витрати за видами": {
+"en": "Expenses by type",
+"it": "Spese per tipo",
+"de": "Ausgaben nach Art",
+"ru": "Расходы по видам"
+},
+"видів": {
+"en": "types",
+"it": "tipi",
+"de": "Arten",
+"ru": "видов"
+},
+"Операцій ще немає": {
+"en": "No transactions yet",
+"it": "Ancora nessuna operazione",
+"de": "Noch keine Transaktionen",
+"ru": "Операций пока нет"
+},
+"Історія": {
+"en": "History",
+"it": "Cronologia",
+"de": "Verlauf",
+"ru": "История"
+},
+"Цілей ще немає": {
+"en": "No goals yet",
+"it": "Ancora nessun obiettivo",
+"de": "Noch keine Ziele",
+"ru": "Целей пока нет"
+},
+"Поставити ціль": {
+"en": "Set a goal",
+"it": "Imposta un obiettivo",
+"de": "Ziel setzen",
+"ru": "Поставить цель"
+},
+"Відкладено": {
+"en": "Saved",
+"it": "Messo da parte",
+"de": "Zurückgelegt",
+"ru": "Отложено"
+},
+"з %@": {
+"en": "of %@",
+"it": "di %@",
+"de": "von %@",
+"ru": "из %@"
+},
+"Нова ціль": {
+"en": "New goal",
+"it": "Nuovo obiettivo",
+"de": "Neues Ziel",
+"ru": "Новая цель"
+},
+"Відкласти": {
+"en": "Set aside",
+"it": "Metti da parte",
+"de": "Zurücklegen",
+"ru": "Отложить"
+},
+"до %@": {
+"en": "until %@",
+"it": "fino al %@",
+"de": "bis %@",
+"ru": "до %@"
+},
+"Видалити ціль": {
+"en": "Delete goal",
+"it": "Elimina obiettivo",
+"de": "Ziel löschen",
+"ru": "Удалить цель"
+},
+"Назва": {
+"en": "Name",
+"it": "Nome",
+"de": "Name",
+"ru": "Название"
+},
+"Скільки потрібно, TAX": {
+"en": "How much is needed, TAX",
+"it": "Quanto serve, TAX",
+"de": "Wie viel wird benötigt, TAX",
+"ru": "Сколько нужно, TAX"
+},
+"Є строк": {
+"en": "Has a deadline",
+"it": "Ha una scadenza",
+"de": "Hat eine Frist",
+"ru": "Есть срок"
+},
+"До": {
+"en": "Until",
+"it": "Fino al",
+"de": "Bis",
+"ru": "До"
+},
+"Створити ціль": {
+"en": "Create goal",
+"it": "Crea obiettivo",
+"de": "Ziel erstellen",
+"ru": "Создать цель"
+},
+"Контакти": {
+"en": "Contacts",
+"it": "Contatti",
+"de": "Kontakte",
+"ru": "Контакты"
+},
+"Контактів немає": {
+"en": "No contacts",
+"it": "Nessun contatto",
+"de": "Keine Kontakte",
+"ru": "Контактов нет"
+},
+"Видалити": {
+"en": "Delete",
+"it": "Elimina",
+"de": "Löschen",
+"ru": "Удалить"
+},
+"Додати контакт": {
+"en": "Add contact",
+"it": "Aggiungi contatto",
+"de": "Kontakt hinzufügen",
+"ru": "Добавить контакт"
+},
+"Шаблонів немає": {
+"en": "No templates",
+"it": "Nessun modello",
+"de": "Keine Vorlagen",
+"ru": "Шаблонов нет"
+},
+"Додати шаблон": {
+"en": "Add template",
+"it": "Aggiungi modello",
+"de": "Vorlage hinzufügen",
+"ru": "Добавить шаблон"
+},
+"Шаблони платежів": {
+"en": "Payment templates",
+"it": "Modelli di pagamento",
+"de": "Zahlungsvorlagen",
+"ru": "Шаблоны платежей"
+},
+"Родина": {
+"en": "Family",
+"it": "Famiglia",
+"de": "Familie",
+"ru": "Семья"
+},
+"Друг": {
+"en": "Friend",
+"it": "Amico",
+"de": "Freund",
+"ru": "Друг"
+},
+"Робота": {
+"en": "Work",
+"it": "Lavoro",
+"de": "Arbeit",
+"ru": "Работа"
+},
+"Ім'я": {
+"en": "Name",
+"it": "Nome",
+"de": "Name",
+"ru": "Имя"
+},
+"Хто це": {
+"en": "Who is it",
+"it": "Chi è",
+"de": "Wer ist das",
+"ru": "Кто это"
+},
+"Рахунок, KP-…": {
+"en": "Account, KP-…",
+"it": "Conto, KP-…",
+"de": "Konto, KP-…",
+"ru": "Счёт, KP-…"
+},
+"Зберегти": {
+"en": "Save",
+"it": "Salva",
+"de": "Speichern",
+"ru": "Сохранить"
+},
+"Новий контакт": {
+"en": "New contact",
+"it": "Nuovo contatto",
+"de": "Neuer Kontakt",
+"ru": "Новый контакт"
+},
+"Рахунок одержувача, KP-…": {
+"en": "Recipient account, KP-…",
+"it": "Conto del destinatario, KP-…",
+"de": "Empfängerkonto, KP-…",
+"ru": "Счёт получателя, KP-…"
+},
+"Сума, TAX (необов'язково)": {
+"en": "Amount, TAX (optional)",
+"it": "Importo, TAX (facoltativo)",
+"de": "Betrag, TAX (optional)",
+"ru": "Сумма, TAX (необязательно)"
+},
+"Призначення": {
+"en": "Purpose",
+"it": "Causale",
+"de": "Verwendungszweck",
+"ru": "Назначение"
+},
+"Новий шаблон": {
+"en": "New template",
+"it": "Nuovo modello",
+"de": "Neue Vorlage",
+"ru": "Новый шаблон"
+},
+"Лімітів немає": {
+"en": "No limits",
+"it": "Nessun limite",
+"de": "Keine Limits",
+"ru": "Лимитов нет"
+},
+"Поставити ліміт": {
+"en": "Set a limit",
+"it": "Imposta un limite",
+"de": "Limit setzen",
+"ru": "Поставить лимит"
+},
+"Місячні ліміти": {
+"en": "Monthly limits",
+"it": "Limiti mensili",
+"de": "Monatslimits",
+"ru": "Месячные лимиты"
+},
+"Скільки можна витратити за місяць за видом операцій.": {
+"en": "How much can be spent per month on each type of operation.",
+"it": "Quanto si può spendere al mese per ogni tipo di operazione.",
+"de": "Wie viel pro Monat für jede Art von Transaktion ausgegeben werden darf.",
+"ru": "Сколько можно потратить за месяц по видам операций."
+},
+"Регулярні платежі": {
+"en": "Recurring payments",
+"it": "Pagamenti ricorrenti",
+"de": "Daueraufträge",
+"ru": "Регулярные платежи"
+},
+"Регулярних платежів немає": {
+"en": "No recurring payments",
+"it": "Nessun pagamento ricorrente",
+"de": "Keine Daueraufträge",
+"ru": "Регулярных платежей нет"
+},
+"%@, далі %@": {
+"en": "%@, next %@",
+"it": "%@, poi %@",
+"de": "%@, nächste %@",
+"ru": "%@, далее %@"
+},
+"Активний": {
+"en": "Active",
+"it": "Attivo",
+"de": "Aktiv",
+"ru": "Активен"
+},
+"Новий регулярний платіж": {
+"en": "New recurring payment",
+"it": "Nuovo pagamento ricorrente",
+"de": "Neuer Dauerauftrag",
+"ru": "Новый регулярный платёж"
+},
+"Ліміти й платежі": {
+"en": "Limits and payments",
+"it": "Limiti e pagamenti",
+"de": "Limits und Zahlungen",
+"ru": "Лимиты и платежи"
+},
+"Вид операцій": {
+"en": "Type of operation",
+"it": "Tipo di operazione",
+"de": "Art der Transaktion",
+"ru": "Вид операций"
+},
+"Ліміт на місяць, TAX": {
+"en": "Monthly limit, TAX",
+"it": "Limite mensile, TAX",
+"de": "Monatslimit, TAX",
+"ru": "Лимит на месяц, TAX"
+},
+"Новий ліміт": {
+"en": "New limit",
+"it": "Nuovo limite",
+"de": "Neues Limit",
+"ru": "Новый лимит"
+},
+"Сума, TAX": {
+"en": "Amount, TAX",
+"it": "Importo, TAX",
+"de": "Betrag, TAX",
+"ru": "Сумма, TAX"
+},
+"Як часто": {
+"en": "How often",
+"it": "Frequenza",
+"de": "Wie oft",
+"ru": "Как часто"
+},
+"Перший платіж": {
+"en": "First payment",
+"it": "Primo pagamento",
+"de": "Erste Zahlung",
+"ru": "Первый платёж"
+},
+"Створити": {
+"en": "Create",
+"it": "Crea",
+"de": "Erstellen",
+"ru": "Создать"
+},
+"Регулярний платіж": {
+"en": "Recurring payment",
+"it": "Pagamento ricorrente",
+"de": "Dauerauftrag",
+"ru": "Регулярный платёж"
+},
+"Перевірка переказу": {
+"en": "Transfer check",
+"it": "Controllo del bonifico",
+"de": "Überweisungsprüfung",
+"ru": "Проверка перевода"
+},
+"Експорт журналу": {
+"en": "Export log",
+"it": "Esporta registro",
+"de": "Protokoll exportieren",
+"ru": "Экспорт журнала"
+},
+"Скинути навчене": {
+"en": "Reset learning",
+"it": "Azzera l'apprendimento",
+"de": "Gelerntes zurücksetzen",
+"ru": "Сбросить обученное"
+},
+"Стерти журнал і все, чого метод навчився?": {
+"en": "Erase the log and everything the method has learned?",
+"it": "Cancellare il registro e tutto ciò che il metodo ha imparato?",
+"de": "Protokoll und alles Gelernte des Verfahrens löschen?",
+"ru": "Стереть журнал и всё, чему научился метод?"
+},
+"Стерти": {
+"en": "Erase",
+"it": "Cancella",
+"de": "Löschen",
+"ru": "Стереть"
+},
+"рішень": {
+"en": "decisions",
+"it": "decisioni",
+"de": "Entscheidungen",
+"ru": "решений"
+},
+"на телефоні": {
+"en": "on the phone",
+"it": "sul telefono",
+"de": "auf dem Telefon",
+"ru": "на телефоне"
+},
+"середня затримка": {
+"en": "average latency",
+"it": "latenza media",
+"de": "durchschnittliche Latenz",
+"ru": "средняя задержка"
+},
+"правильних відповідей": {
+"en": "correct answers",
+"it": "risposte corrette",
+"de": "richtige Antworten",
+"ru": "правильных ответов"
+},
+"Стратегія": {
+"en": "Strategy",
+"it": "Strategia",
+"de": "Strategie",
+"ru": "Стратегия"
+},
+"Чотири базові стратегії потрібні для порівняння з методом у роботі.": {
+"en": "The four baseline strategies are there to compare against the method in use.",
+"it": "Le quattro strategie di base servono per confrontarle con il metodo in uso.",
+"de": "Die vier Basisstrategien dienen dem Vergleich mit dem eingesetzten Verfahren.",
+"ru": "Четыре базовые стратегии нужны для сравнения с методом в работе."
+},
+"Мовна модель на сервері": {
+"en": "Language model on the server",
+"it": "Modello linguistico sul server",
+"de": "Sprachmodell auf dem Server",
+"ru": "Языковая модель на сервере"
+},
+"Текст чека й питання помічнику йдуть на сервер лише без номерів карток, телефонів, пошти й ІПН.": {
+"en": "Receipt text and assistant questions go to the server only without card numbers, phones, emails and tax IDs.",
+"it": "Il testo dello scontrino e le domande all'assistente vanno al server solo senza numeri di carta, telefoni, email e codici fiscali.",
+"de": "Belegtext und Fragen an den Assistenten gehen nur ohne Kartennummern, Telefonnummern, E-Mails und Steuer-IDs an den Server.",
+"ru": "Текст чека и вопросы помощнику идут на сервер только без номеров карт, телефонов, почты и ИНН."
+},
+"Сервер доступний після входу в навчальний банк.": {
+"en": "The server is available after you sign in to the training bank.",
+"it": "Il server è disponibile dopo l'accesso alla banca didattica.",
+"de": "Der Server ist nach der Anmeldung bei der Lernbank verfügbar.",
+"ru": "Сервер доступен после входа в учебный банк."
+},
+"Параметри методу": {
+"en": "Method parameters",
+"it": "Parametri del metodo",
+"de": "Verfahrensparameter",
+"ru": "Параметры метода"
+},
+"Цільова частка помилок α": {
+"en": "Target error rate α",
+"it": "Tasso di errore target α",
+"de": "Ziel-Fehlerquote α",
+"ru": "Целевая доля ошибок α"
+},
+"Компроміс V": {
+"en": "Trade-off V",
+"it": "Compromesso V",
+"de": "Kompromiss V",
+"ru": "Компромисс V"
+},
+"Бюджет енергії, Дж на задачу": {
+"en": "Energy budget, J per task",
+"it": "Budget energetico, J per attività",
+"de": "Energiebudget, J pro Aufgabe",
+"ru": "Бюджет энергии, Дж на задачу"
+},
+"Вага якості": {
+"en": "Quality weight",
+"it": "Peso della qualità",
+"de": "Qualitätsgewicht",
+"ru": "Вес качества"
+},
+"Зараз": {
+"en": "Now",
+"it": "Ora",
+"de": "Jetzt",
+"ru": "Сейчас"
+},
+"Мережа": {
+"en": "Network",
+"it": "Rete",
+"de": "Netzwerk",
+"ru": "Сеть"
+},
+"Заряд": {
+"en": "Battery",
+"it": "Batteria",
+"de": "Akku",
+"ru": "Заряд"
+},
+", заряджається": {
+"en": ", charging",
+"it": ", in carica",
+"de": ", wird geladen",
+"ru": ", заряжается"
+},
+"невідомо": {
+"en": "unknown",
+"it": "sconosciuto",
+"de": "unbekannt",
+"ru": "неизвестно"
+},
+"Енергозбереження": {
+"en": "Low Power Mode",
+"it": "Risparmio energetico",
+"de": "Energiesparmodus",
+"ru": "Энергосбережение"
+},
+"увімкнено": {
+"en": "on",
+"it": "attivo",
+"de": "an",
+"ru": "включено"
+},
+"вимкнено": {
+"en": "off",
+"it": "disattivo",
+"de": "aus",
+"ru": "выключено"
+},
+"Нагрів": {
+"en": "Heat",
+"it": "Temperatura",
+"de": "Erwärmung",
+"ru": "Нагрев"
+},
+"Перевитрата енергії Z": {
+"en": "Energy overspend Z",
+"it": "Eccesso di energia Z",
+"de": "Energieüberschreitung Z",
+"ru": "Перерасход энергии Z"
+},
+"Поріг каскаду, %@": {
+"en": "Cascade threshold, %@",
+"it": "Soglia a cascata, %@",
+"de": "Kaskadenschwelle, %@",
+"ru": "Порог каскада, %@"
+},
+"Модель на телефоні": {
+"en": "Model on the phone",
+"it": "Modello sul telefono",
+"de": "Modell auf dem Telefon",
+"ru": "Модель на телефоне"
+},
+"Підсумки": {
+"en": "Summary",
+"it": "Riepilogo",
+"de": "Zusammenfassung",
+"ru": "Итоги"
+},
+"Ще немає рішень. Перевірте переказ, чек або спитайте помічника.": {
+"en": "No decisions yet. Check a transfer or a receipt, or ask the assistant.",
+"it": "Ancora nessuna decisione. Controlla un bonifico, uno scontrino o chiedi all'assistente.",
+"de": "Noch keine Entscheidungen. Prüfen Sie eine Überweisung oder einen Beleg oder fragen Sie den Assistenten.",
+"ru": "Решений пока нет. Проверьте перевод, чек или спросите помощника."
+},
+"запусків: %@": {
+"en": "runs: %@",
+"it": "esecuzioni: %@",
+"de": "Läufe: %@",
+"ru": "запусков: %@"
+},
+"у середньому %@": {
+"en": "on average %@",
+"it": "in media %@",
+"de": "im Durchschnitt %@",
+"ru": "в среднем %@"
+},
+"правильно %@ з %@": {
+"en": "correct %@ of %@",
+"it": "corrette %@ su %@",
+"de": "richtig %@ von %@",
+"ru": "правильно %@ из %@"
+},
+"Останні рішення": {
+"en": "Recent decisions",
+"it": "Ultime decisioni",
+"de": "Letzte Entscheidungen",
+"ru": "Последние решения"
+},
+"немає": {
+"en": "none",
+"it": "nessuna",
+"de": "keine",
+"ru": "нет"
+},
+"вайфай": {
+"en": "Wi-Fi",
+"it": "Wi-Fi",
+"de": "WLAN",
+"ru": "вайфай"
+},
+"мобільна": {
+"en": "mobile",
+"it": "mobile",
+"de": "Mobilfunk",
+"ru": "мобильная"
+},
+"дротова": {
+"en": "wired",
+"it": "cablata",
+"de": "kabelgebunden",
+"ru": "проводная"
+},
+"інша": {
+"en": "other",
+"it": "altra",
+"de": "andere",
+"ru": "другая"
+},
+"норма": {
+"en": "normal",
+"it": "normale",
+"de": "normal",
+"ru": "норма"
+},
+"теплий": {
+"en": "warm",
+"it": "calda",
+"de": "warm",
+"ru": "тёплый"
+},
+"гарячий": {
+"en": "hot",
+"it": "molto calda",
+"de": "heiß",
+"ru": "горячий"
+},
+"перегрітий": {
+"en": "overheated",
+"it": "surriscaldata",
+"de": "überhitzt",
+"ru": "перегретый"
+},
+"Витрат ще немає": {
+"en": "No expenses yet",
+"it": "Ancora nessuna spesa",
+"de": "Noch keine Ausgaben",
+"ru": "Расходов пока нет"
+},
+"Додайте вручну або сфотографуйте чек": {
+"en": "Add by hand or photograph a receipt",
+"it": "Aggiungi a mano o fotografa uno scontrino",
+"de": "Manuell hinzufügen oder einen Beleg fotografieren",
+"ru": "Добавьте вручную или сфотографируйте чек"
+},
+"Додати": {
+"en": "Add",
+"it": "Aggiungi",
+"de": "Hinzufügen",
+"ru": "Добавить"
+},
+"Демо": {
+"en": "Demo",
+"it": "Demo",
+"de": "Demo",
+"ru": "Демо"
+},
+"у середньому %@ на день": {
+"en": "%@ per day on average",
+"it": "%@ al giorno in media",
+"de": "%@ pro Tag im Durchschnitt",
+"ru": "в среднем %@ в день"
+},
+"День": {
+"en": "Day",
+"it": "Giorno",
+"de": "Tag",
+"ru": "День"
+},
+"Категорії": {
+"en": "Categories",
+"it": "Categorie",
+"de": "Kategorien",
+"ru": "Категории"
+},
+"%@ категорій": {
+"en": "%@ categories",
+"it": "%@ categorie",
+"de": "%@ Kategorien",
+"ru": "%@ категорий"
+},
+"Останні": {
+"en": "Recent",
+"it": "Recenti",
+"de": "Zuletzt",
+"ru": "Последние"
+},
+"Де": {
+"en": "Where",
+"it": "Dove",
+"de": "Wo",
+"ru": "Где"
+},
+"Категорія": {
+"en": "Category",
+"it": "Categoria",
+"de": "Kategorie",
+"ru": "Категория"
+},
+"Нова витрата": {
+"en": "New expense",
+"it": "Nuova spesa",
+"de": "Neue Ausgabe",
+"ru": "Новая трата"
+},
+"Вручну": {
+"en": "Manually",
+"it": "A mano",
+"de": "Manuell",
+"ru": "Вручную"
+},
+"Адреса сервера": {
+"en": "Server address",
+"it": "Indirizzo del server",
+"de": "Serveradresse",
+"ru": "Адрес сервера"
+},
+"Платіть,": {
+"en": "Pay",
+"it": "Paga",
+"de": "Zahlen Sie",
+"ru": "Платите,"
+},
+"як у Римі.": {
+"en": "like Rome.",
+"it": "come a Roma.",
+"de": "wie in Rom.",
+"ru": "как в Риме."
+},
+"Увійти телефоном або поштою": {
+"en": "Sign in with phone or email",
+"it": "Accedi con telefono o email",
+"de": "Mit Telefon oder E-Mail anmelden",
+"ru": "Войти по телефону или почте"
+},
+"Немає акаунта? ": {
+"en": "No account? ",
+"it": "Non hai un account? ",
+"de": "Noch kein Konto? ",
+"ru": "Нет аккаунта? "
+},
+"Apple не віддала токен входу.": {
+"en": "Apple did not return a sign-in token.",
+"it": "Apple non ha restituito il token di accesso.",
+"de": "Apple hat kein Anmeldetoken geliefert.",
+"ru": "Apple не вернула токен входа."
+},
+"Сервер не прийняв вхід через Apple: %@": {
+"en": "The server did not accept the Apple sign-in: %@",
+"it": "Il server non ha accettato l'accesso con Apple: %@",
+"de": "Der Server hat die Anmeldung über Apple nicht akzeptiert: %@",
+"ru": "Сервер не принял вход через Apple: %@"
+},
+"Apple не відповіла (код 1000). Перевірте, що в Параметрах виконано вхід в Apple ID з двоетапною перевіркою, і спробуйте ще раз.": {
+"en": "Apple did not respond (code 1000). Check that you are signed in to an Apple ID with two-factor authentication in Settings, and try again.",
+"it": "Apple non ha risposto (codice 1000). Verifica di aver effettuato l'accesso a un ID Apple con verifica in due passaggi nelle Impostazioni e riprova.",
+"de": "Apple hat nicht geantwortet (Code 1000). Prüfen Sie, ob Sie in den Einstellungen mit einer Apple-ID mit Zwei-Faktor-Authentifizierung angemeldet sind, und versuchen Sie es erneut.",
+"ru": "Apple не ответила (код 1000). Проверьте, что в Настройках выполнен вход в Apple ID с двухэтапной проверкой, и попробуйте ещё раз."
+},
+"Apple не змогла показати вікно входу. Спробуйте ще раз.": {
+"en": "Apple could not show the sign-in window. Try again.",
+"it": "Apple non è riuscita a mostrare la finestra di accesso. Riprova.",
+"de": "Apple konnte das Anmeldefenster nicht anzeigen. Versuchen Sie es erneut.",
+"ru": "Apple не смогла показать окно входа. Попробуйте ещё раз."
+},
+"Apple не завершила вхід (код %@). Спробуйте ще раз або увійдіть поштою.": {
+"en": "Apple did not finish signing in (code %@). Try again or sign in with email.",
+"it": "Apple non ha completato l'accesso (codice %@). Riprova o accedi con l'email.",
+"de": "Apple hat die Anmeldung nicht abgeschlossen (Code %@). Versuchen Sie es erneut oder melden Sie sich per E-Mail an.",
+"ru": "Apple не завершила вход (код %@). Попробуйте ещё раз или войдите по почте."
+},
+"Apple: код %@. %@": {
+"en": "Apple: code %@. %@",
+"it": "Apple: codice %@. %@",
+"de": "Apple: Code %@. %@",
+"ru": "Apple: код %@. %@"
+},
+"Вхід": {
+"en": "Sign in",
+"it": "Accedi",
+"de": "Anmelden",
+"ru": "Вход"
+},
+"Телефон або пошта": {
+"en": "Phone or email",
+"it": "Telefono o email",
+"de": "Telefon oder E-Mail",
+"ru": "Телефон или почта"
+},
+"+380… або you@example.com": {
+"en": "+380… or you@example.com",
+"it": "+380… o you@example.com",
+"de": "+380… oder you@example.com",
+"ru": "+380… или you@example.com"
+},
+"Пароль": {
+"en": "Password",
+"it": "Password",
+"de": "Passwort",
+"ru": "Пароль"
+},
+"Забули пароль?": {
+"en": "Forgot password?",
+"it": "Password dimenticata?",
+"de": "Passwort vergessen?",
+"ru": "Забыли пароль?"
+},
+"Увійти": {
+"en": "Sign in",
+"it": "Accedi",
+"de": "Anmelden",
+"ru": "Войти"
+},
+"Пароль або логін не підходять. Перевірте або відновіть пароль.": {
+"en": "The password or login doesn't match. Check it or reset your password.",
+"it": "Password o login non corrispondono. Controlla o reimposta la password.",
+"de": "Passwort oder Login stimmen nicht. Prüfen Sie die Eingabe oder setzen Sie das Passwort zurück.",
+"ru": "Пароль или логин не подходят. Проверьте или восстановите пароль."
+},
+"Олена Коваленко": {
+"en": "Jane Smith",
+"it": "Giulia Rossi",
+"de": "Anna Müller",
+"ru": "Елена Коваленко"
+},
+"Щонайменше 8 символів": {
+"en": "At least 8 characters",
+"it": "Almeno 8 caratteri",
+"de": "Mindestens 8 Zeichen",
+"ru": "Не менее 8 символов"
+},
+"Створюючи акаунт, ви погоджуєтеся, що це навчальний банк: токени TAX не мають грошової цінності.": {
+"en": "By creating an account you agree that this is a training bank: TAX tokens have no monetary value.",
+"it": "Creando un account accetti che questa è una banca didattica: i token TAX non hanno valore monetario.",
+"de": "Mit der Kontoerstellung stimmen Sie zu, dass dies eine Lernbank ist: TAX-Token haben keinen Geldwert.",
+"ru": "Создавая аккаунт, вы соглашаетесь, что это учебный банк: токены TAX не имеют денежной ценности."
+},
+"Створити акаунт": {
+"en": "Create account",
+"it": "Crea account",
+"de": "Konto erstellen",
+"ru": "Создать аккаунт"
+},
+"Далі": {
+"en": "Next",
+"it": "Avanti",
+"de": "Weiter",
+"ru": "Далее"
+},
+"Назад": {
+"en": "Back",
+"it": "Indietro",
+"de": "Zurück",
+"ru": "Назад"
+},
+"Як вас звати?": {
+"en": "What's your name?",
+"it": "Come ti chiami?",
+"de": "Wie heißen Sie?",
+"ru": "Как вас зовут?"
+},
+"Ваш номер телефону": {
+"en": "Your phone number",
+"it": "Il tuo numero di telefono",
+"de": "Ihre Telefonnummer",
+"ru": "Ваш номер телефона"
+},
+"Пошта для входу": {
+"en": "Email for signing in",
+"it": "Email per l'accesso",
+"de": "E-Mail zum Anmelden",
+"ru": "Почта для входа"
+},
+"Придумайте пароль": {
+"en": "Choose a password",
+"it": "Scegli una password",
+"de": "Passwort wählen",
+"ru": "Придумайте пароль"
+},
+"Так звертатимемося в застосунку й підписуватимемо картки.": {
+"en": "This is how we'll address you in the app and name your cards.",
+"it": "Così ci rivolgeremo a te nell'app e intesteremo le carte.",
+"de": "So sprechen wir Sie in der App an und beschriften Ihre Karten.",
+"ru": "Так будем обращаться в приложении и подписывать карты."
+},
+"Ним теж можна входити. SMS не надсилаємо.": {
+"en": "You can sign in with it too. We don't send SMS.",
+"it": "Puoi usarlo anche per accedere. Non inviamo SMS.",
+"de": "Damit können Sie sich auch anmelden. Wir senden keine SMS.",
+"ru": "Им тоже можно входить. SMS не отправляем."
+},
+"Нею входитимете й відновлюватимете пароль.": {
+"en": "You'll use it to sign in and recover your password.",
+"it": "Lo userai per accedere e recuperare la password.",
+"de": "Damit melden Sie sich an und setzen das Passwort zurück.",
+"ru": "Ею будете входить и восстанавливать пароль."
+},
+"Довгий пароль із цифрами й символами - найкращий.": {
+"en": "A long password with digits and symbols is best.",
+"it": "Una password lunga con cifre e simboli è la migliore.",
+"de": "Ein langes Passwort mit Ziffern und Sonderzeichen ist am besten.",
+"ru": "Длинный пароль с цифрами и символами — лучший."
+},
+"Сервер": {
+"en": "Server",
+"it": "Server",
+"de": "Server",
+"ru": "Сервер"
+},
+"Застосунок працює з навчальним банком. За замовчуванням - публічний сервер; для занять у класі вкажіть адресу локального.": {
+"en": "The app works with the training bank. By default it is the public server; for classroom use, enter the address of a local one.",
+"it": "L'app funziona con la banca didattica. Per impostazione predefinita è il server pubblico; per le lezioni in classe indica l'indirizzo di uno locale.",
+"de": "Die App arbeitet mit der Lernbank. Standard ist der öffentliche Server; für den Unterricht geben Sie die Adresse eines lokalen ein.",
+"ru": "Приложение работает с учебным банком. По умолчанию — публичный сервер; для занятий в классе укажите адрес локального."
+},
+"Повернути стандартний": {
+"en": "Restore default",
+"it": "Ripristina predefinito",
+"de": "Standard wiederherstellen",
+"ru": "Вернуть стандартный"
+},
+"Сховати пароль": {
+"en": "Hide password",
+"it": "Nascondi password",
+"de": "Passwort ausblenden",
+"ru": "Скрыть пароль"
+},
+"Показати пароль": {
+"en": "Show password",
+"it": "Mostra password",
+"de": "Passwort anzeigen",
+"ru": "Показать пароль"
+},
+"8+ символів": {
+"en": "8+ characters",
+"it": "8+ caratteri",
+"de": "8+ Zeichen",
+"ru": "8+ символов"
+},
+"Літери й цифри": {
+"en": "Letters and digits",
+"it": "Lettere e cifre",
+"de": "Buchstaben und Ziffern",
+"ru": "Буквы и цифры"
+},
+"Великі й малі": {
+"en": "Upper and lower case",
+"it": "Maiuscole e minuscole",
+"de": "Groß- und Kleinbuchstaben",
+"ru": "Большие и малые"
+},
+"Спецсимвол": {
+"en": "Special character",
+"it": "Carattere speciale",
+"de": "Sonderzeichen",
+"ru": "Спецсимвол"
+},
+"Слабкий": {
+"en": "Weak",
+"it": "Debole",
+"de": "Schwach",
+"ru": "Слабый"
+},
+"Середній": {
+"en": "Fair",
+"it": "Media",
+"de": "Mittel",
+"ru": "Средний"
+},
+"Надійний": {
+"en": "Strong",
+"it": "Forte",
+"de": "Stark",
+"ru": "Надёжный"
+},
+"Дуже надійний": {
+"en": "Very strong",
+"it": "Molto forte",
+"de": "Sehr stark",
+"ru": "Очень надёжный"
+},
+"Відновлення пароля": {
+"en": "Password recovery",
+"it": "Recupero password",
+"de": "Passwort zurücksetzen",
+"ru": "Восстановление пароля"
+},
+"Новий пароль": {
+"en": "New password",
+"it": "Nuova password",
+"de": "Neues Passwort",
+"ru": "Новый пароль"
+},
+"Код надіслано на %@. Він діє %@ хвилин.": {
+"en": "Code sent to %@. It is valid for %@ minutes.",
+"it": "Codice inviato a %@. Valido per %@ minuti.",
+"de": "Code an %@ gesendet. Er ist %@ Minuten gültig.",
+"ru": "Код отправлен на %@. Он действует %@ минут."
+},
+"Код для %@ діє %@ хвилин.": {
+"en": "The code for %@ is valid for %@ minutes.",
+"it": "Il codice per %@ è valido per %@ minuti.",
+"de": "Der Code für %@ ist %@ Minuten gültig.",
+"ru": "Код для %@ действует %@ минут."
+},
+"Навчальний банк: SMS не надсилаємо": {
+"en": "Training bank: we don't send SMS",
+"it": "Banca didattica: non inviamo SMS",
+"de": "Lernbank: Wir senden keine SMS",
+"ru": "Учебный банк: SMS не отправляем"
+},
+"Вставити": {
+"en": "Paste",
+"it": "Incolla",
+"de": "Einfügen",
+"ru": "Вставить"
+},
+"Код із 6 цифр": {
+"en": "6-digit code",
+"it": "Codice a 6 cifre",
+"de": "6-stelliger Code",
+"ru": "Код из 6 цифр"
+},
+"Змінити пароль і увійти": {
+"en": "Change password and sign in",
+"it": "Cambia password e accedi",
+"de": "Passwort ändern und anmelden",
+"ru": "Сменить пароль и войти"
+},
+"Повторно через %d:%02d": {
+"en": "Again in %d:%02d",
+"it": "Di nuovo tra %d:%02d",
+"de": "Erneut in %d:%02d",
+"ru": "Повторно через %d:%02d"
+},
+"Код не прийшов?": {
+"en": "Code didn't arrive?",
+"it": "Il codice non è arrivato?",
+"de": "Code nicht angekommen?",
+"ru": "Код не пришёл?"
+},
+"Надіслати ще раз": {
+"en": "Send again",
+"it": "Invia di nuovo",
+"de": "Erneut senden",
+"ru": "Отправить ещё раз"
+},
+"Вкажіть телефон або пошту акаунта. Надішлемо код, після нього задасте новий пароль, а всі старі сесії буде завершено.": {
+"en": "Enter the phone or email of your account. We'll send a code, then you set a new password and all old sessions are ended.",
+"it": "Inserisci telefono o email dell'account. Invieremo un codice, poi imposterai una nuova password e tutte le vecchie sessioni verranno terminate.",
+"de": "Geben Sie Telefon oder E-Mail Ihres Kontos ein. Wir senden einen Code, danach legen Sie ein neues Passwort fest und alle alten Sitzungen werden beendet.",
+"ru": "Укажите телефон или почту аккаунта. Отправим код, после него зададите новый пароль, а все старые сессии будут завершены."
+},
+"Надіслати код": {
+"en": "Send code",
+"it": "Invia codice",
+"de": "Code senden",
+"ru": "Отправить код"
+},
+"Випустити віртуальну картку": {
+"en": "Issue a virtual card",
+"it": "Emetti una carta virtuale",
+"de": "Virtuelle Karte ausstellen",
+"ru": "Выпустить виртуальную карту"
+},
+"Нова картка": {
+"en": "New card",
+"it": "Nuova carta",
+"de": "Neue Karte",
+"ru": "Новая карта"
+},
+"Депозитів ще немає": {
+"en": "No deposits yet",
+"it": "Ancora nessun deposito",
+"de": "Noch keine Einlagen",
+"ru": "Депозитов пока нет"
+},
+"Відкрити депозит": {
+"en": "Open a deposit",
+"it": "Apri un deposito",
+"de": "Einlage eröffnen",
+"ru": "Открыть депозит"
+},
+"На депозитах": {
+"en": "In deposits",
+"it": "Nei depositi",
+"de": "In Einlagen",
+"ru": "На депозитах"
+},
+"дохід за строк": {
+"en": "income over the term",
+"it": "rendimento a scadenza",
+"de": "Ertrag über die Laufzeit",
+"ru": "доход за срок"
+},
+"активних": {
+"en": "active",
+"it": "attivi",
+"de": "aktiv",
+"ru": "активных"
+},
+"Закрити депозит?": {
+"en": "Close the deposit?",
+"it": "Chiudere il deposito?",
+"de": "Einlage schließen?",
+"ru": "Закрыть депозит?"
+},
+"Закрити й забрати відсотки": {
+"en": "Close and collect interest",
+"it": "Chiudi e incassa gli interessi",
+"de": "Schließen und Zinsen abholen",
+"ru": "Закрыть и забрать проценты"
+},
+"Закрити достроково, можливий штраф": {
+"en": "Close early, a penalty may apply",
+"it": "Chiudi in anticipo, possibile penale",
+"de": "Vorzeitig schließen, eine Gebühr ist möglich",
+"ru": "Закрыть досрочно, возможен штраф"
+},
+"Депозит на %@ міс.": {
+"en": "Deposit for %@ mo.",
+"it": "Deposito per %@ mesi",
+"de": "Einlage für %@ Mon.",
+"ru": "Депозит на %@ мес."
+},
+"%@% річних": {
+"en": "%@% per year",
+"it": "%@% annuo",
+"de": "%@ % p. a.",
+"ru": "%@% годовых"
+},
+"Забрати з відсотками": {
+"en": "Collect with interest",
+"it": "Incassa con gli interessi",
+"de": "Mit Zinsen abholen",
+"ru": "Забрать с процентами"
+},
+"Закрити достроково": {
+"en": "Close early",
+"it": "Chiudi in anticipo",
+"de": "Vorzeitig schließen",
+"ru": "Закрыть досрочно"
+},
+"Закрито": {
+"en": "Closed",
+"it": "Chiuso",
+"de": "Geschlossen",
+"ru": "Закрыт"
+},
+"Сума, TAX (від 500)": {
+"en": "Amount, TAX (from 500)",
+"it": "Importo, TAX (da 500)",
+"de": "Betrag, TAX (ab 500)",
+"ru": "Сумма, TAX (от 500)"
+},
+"Строк": {
+"en": "Term",
+"it": "Durata",
+"de": "Laufzeit",
+"ru": "Срок"
+},
+"%@ міс. · %@%": {
+"en": "%@ mo. · %@%",
+"it": "%@ mesi · %@%",
+"de": "%@ Mon. · %@ %",
+"ru": "%@ мес. · %@%"
+},
+"Продовжувати автоматично": {
+"en": "Renew automatically",
+"it": "Rinnova automaticamente",
+"de": "Automatisch verlängern",
+"ru": "Продлевать автоматически"
+},
+"Назва (необов'язково)": {
+"en": "Name (optional)",
+"it": "Nome (facoltativo)",
+"de": "Name (optional)",
+"ru": "Название (необязательно)"
+},
+"Дохід приблизно %@.": {
+"en": "Income about %@.",
+"it": "Rendimento circa %@.",
+"de": "Ertrag etwa %@.",
+"ru": "Доход примерно %@."
+},
+"Новий депозит": {
+"en": "New deposit",
+"it": "Nuovo deposito",
+"de": "Neue Einlage",
+"ru": "Новый депозит"
+},
+"Кредитів немає": {
+"en": "No loans",
+"it": "Nessun prestito",
+"de": "Keine Kredite",
+"ru": "Кредитов нет"
+},
+"Оформити кредит": {
+"en": "Take a loan",
+"it": "Richiedi un prestito",
+"de": "Kredit aufnehmen",
+"ru": "Оформить кредит"
+},
+"Залишок боргу": {
+"en": "Remaining debt",
+"it": "Debito residuo",
+"de": "Restschuld",
+"ru": "Остаток долга"
+},
+"платіж на місяць": {
+"en": "monthly payment",
+"it": "rata mensile",
+"de": "Monatsrate",
+"ru": "платёж в месяц"
+},
+"наступний платіж": {
+"en": "next payment",
+"it": "prossima rata",
+"de": "nächste Zahlung",
+"ru": "следующий платёж"
+},
+"Платіж за кредитом": {
+"en": "Loan payment",
+"it": "Rata del prestito",
+"de": "Kreditzahlung",
+"ru": "Платёж по кредиту"
+},
+"Сплатити": {
+"en": "Pay",
+"it": "Paga",
+"de": "Bezahlen",
+"ru": "Оплатить"
+},
+"Залишилось %@.": {
+"en": "%@ left.",
+"it": "Restano %@.",
+"de": "Noch %@.",
+"ru": "Осталось %@."
+},
+"Кредит на %@ міс.": {
+"en": "Loan for %@ mo.",
+"it": "Prestito per %@ mesi",
+"de": "Kredit für %@ Mon.",
+"ru": "Кредит на %@ мес."
+},
+"%@ під %@%": {
+"en": "%@ at %@%",
+"it": "%@ al %@%",
+"de": "%@ zu %@ %",
+"ru": "%@ под %@%"
+},
+"сплачено %@": {
+"en": "paid %@",
+"it": "pagato %@",
+"de": "bezahlt %@",
+"ru": "оплачено %@"
+},
+"Сплатити %@": {
+"en": "Pay %@",
+"it": "Paga %@",
+"de": "%@ bezahlen",
+"ru": "Оплатить %@"
+},
+"Погашено": {
+"en": "Repaid",
+"it": "Estinto",
+"de": "Getilgt",
+"ru": "Погашен"
+},
+"Сума, TAX (1 000 - 500 000)": {
+"en": "Amount, TAX (1,000 - 500,000)",
+"it": "Importo, TAX (1.000 - 500.000)",
+"de": "Betrag, TAX (1.000 - 500.000)",
+"ru": "Сумма, TAX (1 000 - 500 000)"
+},
+"Мета (необов'язково)": {
+"en": "Purpose (optional)",
+"it": "Finalità (facoltativa)",
+"de": "Zweck (optional)",
+"ru": "Цель (необязательно)"
+},
+"Приблизно %@ на місяць.": {
+"en": "About %@ per month.",
+"it": "Circa %@ al mese.",
+"de": "Etwa %@ pro Monat.",
+"ru": "Примерно %@ в месяц."
+},
+"Новий кредит": {
+"en": "New loan",
+"it": "Nuovo prestito",
+"de": "Neuer Kredit",
+"ru": "Новый кредит"
+},
+"Поповнення": {
+"en": "Top-ups",
+"it": "Ricariche",
+"de": "Aufladungen",
+"ru": "Пополнения"
+},
+"Перекази": {
+"en": "Transfers",
+"it": "Bonifici",
+"de": "Überweisungen",
+"ru": "Переводы"
+},
+"Покупки": {
+"en": "Purchases",
+"it": "Acquisti",
+"de": "Käufe",
+"ru": "Покупки"
+},
+"Накопичення": {
+"en": "Savings",
+"it": "Risparmi",
+"de": "Ersparnisse",
+"ru": "Накопления"
+},
+"Погашення кредиту": {
+"en": "Loan repayment",
+"it": "Rimborso del prestito",
+"de": "Kredittilgung",
+"ru": "Погашение кредита"
+},
+"Поповнення картки": {
+"en": "Card top-up",
+"it": "Ricarica della carta",
+"de": "Kartenaufladung",
+"ru": "Пополнение карты"
+},
+"Комунальні послуги": {
+"en": "Utilities",
+"it": "Utenze",
+"de": "Nebenkosten",
+"ru": "Коммунальные услуги"
+},
+"Онлайн-покупки": {
+"en": "Online purchases",
+"it": "Acquisti online",
+"de": "Online-Käufe",
+"ru": "Онлайн-покупки"
+},
+"Кіно": {
+"en": "Cinema",
+"it": "Cinema",
+"de": "Kino",
+"ru": "Кино"
+},
+"Зв'язок": {
+"en": "Telecom",
+"it": "Telefonia",
+"de": "Telekommunikation",
+"ru": "Связь"
+},
+"Щотижня": {
+"en": "Weekly",
+"it": "Ogni settimana",
+"de": "Wöchentlich",
+"ru": "Еженедельно"
+},
+"Щомісяця": {
+"en": "Monthly",
+"it": "Ogni mese",
+"de": "Monatlich",
+"ru": "Ежемесячно"
+},
+"Сьогодні": {
+"en": "Today",
+"it": "Oggi",
+"de": "Heute",
+"ru": "Сегодня"
+},
+"Учора": {
+"en": "Yesterday",
+"it": "Ieri",
+"de": "Gestern",
+"ru": "Вчера"
+},
+"Доступно %@": {
+"en": "Available %@",
+"it": "Disponibile %@",
+"de": "Verfügbar %@",
+"ru": "Доступно %@"
+},
+"Куди": {
+"en": "To",
+"it": "A",
+"de": "An",
+"ru": "Куда"
+},
+"На рахунок": {
+"en": "To an account",
+"it": "A un conto",
+"de": "Auf ein Konto",
+"ru": "На счёт"
+},
+"Номер картки": {
+"en": "Card number",
+"it": "Numero di carta",
+"de": "Kartennummer",
+"ru": "Номер карты"
+},
+"Обрати зі збережених": {
+"en": "Choose from saved",
+"it": "Scegli tra i salvati",
+"de": "Aus gespeicherten wählen",
+"ru": "Выбрать из сохранённых"
+},
+"Шаблон: %@": {
+"en": "Template: %@",
+"it": "Modello: %@",
+"de": "Vorlage: %@",
+"ru": "Шаблон: %@"
+},
+"Перевірити переказ": {
+"en": "Check the transfer",
+"it": "Controlla il bonifico",
+"de": "Überweisung prüfen",
+"ru": "Проверить перевод"
+},
+"Приклад: дроблення під поріг": {
+"en": "Example: splitting under the threshold",
+"it": "Esempio: frazionamento sotto soglia",
+"de": "Beispiel: Aufteilung unter die Schwelle",
+"ru": "Пример: дробление под порог"
+},
+"терміново": {
+"en": "urgent",
+"it": "urgente",
+"de": "dringend",
+"ru": "срочно"
+},
+"Оцінка ризику": {
+"en": "Risk assessment",
+"it": "Valutazione del rischio",
+"de": "Risikobewertung",
+"ru": "Оценка риска"
+},
+"Бал": {
+"en": "Score",
+"it": "Punteggio",
+"de": "Wert",
+"ru": "Балл"
+},
+"%@ з 100": {
+"en": "%@ of 100",
+"it": "%@ su 100",
+"de": "%@ von 100",
+"ru": "%@ из 100"
+},
+"Рівень": {
+"en": "Level",
+"it": "Livello",
+"de": "Stufe",
+"ru": "Уровень"
+},
+"Шарів правил": {
+"en": "Rule layers",
+"it": "Livelli di regole",
+"de": "Regelebenen",
+"ru": "Слоёв правил"
+},
+"%@ з 3": {
+"en": "%@ of 3",
+"it": "%@ su 3",
+"de": "%@ von 3",
+"ru": "%@ из 3"
+},
+"Переказ із критичним ризиком не надсилається.": {
+"en": "A transfer with critical risk is not sent.",
+"it": "Un bonifico a rischio critico non viene inviato.",
+"de": "Eine Überweisung mit kritischem Risiko wird nicht gesendet.",
+"ru": "Перевод с критическим риском не отправляется."
+},
+"Надіслати %@": {
+"en": "Send %@",
+"it": "Invia %@",
+"de": "%@ senden",
+"ru": "Отправить %@"
+},
+"Переказ": {
+"en": "Transfer",
+"it": "Bonifico",
+"de": "Überweisung",
+"ru": "Перевод"
+},
+"Надіслано %@ на %@": {
+"en": "Sent %@ to %@",
+"it": "Inviati %@ a %@",
+"de": "%@ an %@ gesendet",
+"ru": "Отправлено %@ на %@"
+},
+"Банк заблокував переказ: %@": {
+"en": "The bank blocked the transfer: %@",
+"it": "La banca ha bloccato il bonifico: %@",
+"de": "Die Bank hat die Überweisung blockiert: %@",
+"ru": "Банк заблокировал перевод: %@"
+},
+"Низький": {
+"en": "Low",
+"it": "Basso",
+"de": "Niedrig",
+"ru": "Низкий"
+},
+"Високий": {
+"en": "High",
+"it": "Alto",
+"de": "Hoch",
+"ru": "Высокий"
+},
+"Критичний": {
+"en": "Critical",
+"it": "Critico",
+"de": "Kritisch",
+"ru": "Критический"
+},
+"Виконано": {
+"en": "Completed",
+"it": "Eseguito",
+"de": "Ausgeführt",
+"ru": "Выполнено"
+},
+"Вид": {
+"en": "Type",
+"it": "Tipo",
+"de": "Art",
+"ru": "Вид"
+},
+"Від": {
+"en": "From",
+"it": "Da",
+"de": "Von",
+"ru": "От"
+},
+"Кому": {
+"en": "To whom",
+"it": "A chi",
+"de": "An wen",
+"ru": "Кому"
+},
+"Номер операції": {
+"en": "Transaction number",
+"it": "Numero dell'operazione",
+"de": "Transaktionsnummer",
+"ru": "Номер операции"
+},
+"Квитанція %@.pdf": {
+"en": "Receipt %@.pdf",
+"it": "Ricevuta %@.pdf",
+"de": "Beleg %@.pdf",
+"ru": "Квитанция %@.pdf"
+},
+"Переглянути квитанцію": {
+"en": "View receipt",
+"it": "Vedi ricevuta",
+"de": "Beleg ansehen",
+"ru": "Посмотреть квитанцию"
+},
+"Відкрити квитанцію": {
+"en": "Open receipt",
+"it": "Apri ricevuta",
+"de": "Beleg öffnen",
+"ru": "Открыть квитанцию"
+},
+"Хеш запису": {
+"en": "Record hash",
+"it": "Hash del record",
+"de": "Eintrags-Hash",
+"ru": "Хеш записи"
+},
+"Скопійовано": {
+"en": "Copied",
+"it": "Copiato",
+"de": "Kopiert",
+"ru": "Скопировано"
+},
+"Скопіювати хеш": {
+"en": "Copy hash",
+"it": "Copia hash",
+"de": "Hash kopieren",
+"ru": "Скопировать хеш"
+},
+"Додайте нотатку": {
+"en": "Add a note",
+"it": "Aggiungi una nota",
+"de": "Notiz hinzufügen",
+"ru": "Добавьте заметку"
+},
+"Зберегти нотатку": {
+"en": "Save note",
+"it": "Salva nota",
+"de": "Notiz speichern",
+"ru": "Сохранить заметку"
+},
+"Операція": {
+"en": "Transaction",
+"it": "Operazione",
+"de": "Transaktion",
+"ru": "Операция"
+},
+"січ": {
+"en": "Jan",
+"it": "gen",
+"de": "Jan",
+"ru": "янв"
+},
+"лют": {
+"en": "Feb",
+"it": "feb",
+"de": "Feb",
+"ru": "фев"
+},
+"бер": {
+"en": "Mar",
+"it": "mar",
+"de": "Mär",
+"ru": "мар"
+},
+"кві": {
+"en": "Apr",
+"it": "apr",
+"de": "Apr",
+"ru": "апр"
+},
+"тра": {
+"en": "May",
+"it": "mag",
+"de": "Mai",
+"ru": "май"
+},
+"чер": {
+"en": "Jun",
+"it": "giu",
+"de": "Jun",
+"ru": "июн"
+},
+"лип": {
+"en": "Jul",
+"it": "lug",
+"de": "Jul",
+"ru": "июл"
+},
+"сер": {
+"en": "Aug",
+"it": "ago",
+"de": "Aug",
+"ru": "авг"
+},
+"вер": {
+"en": "Sep",
+"it": "set",
+"de": "Sep",
+"ru": "сен"
+},
+"жов": {
+"en": "Oct",
+"it": "ott",
+"de": "Okt",
+"ru": "окт"
+},
+"лис": {
+"en": "Nov",
+"it": "nov",
+"de": "Nov",
+"ru": "ноя"
+},
+"гру": {
+"en": "Dec",
+"it": "dic",
+"de": "Dez",
+"ru": "дек"
+},
+"Витрати цього місяця": {
+"en": "Spending this month",
+"it": "Spese di questo mese",
+"de": "Ausgaben diesen Monat",
+"ru": "Расходы этого месяца"
+},
+"%@%@% до минулого місяця": {
+"en": "%@%@% vs last month",
+"it": "%@%@% rispetto al mese scorso",
+"de": "%@%@ % gegenüber Vormonat",
+"ru": "%@%@% к прошлому месяцу"
+},
+"Надійшло %@, операцій: %@": {
+"en": "Received %@, transactions: %@",
+"it": "Entrate %@, operazioni: %@",
+"de": "Eingegangen %@, Transaktionen: %@",
+"ru": "Поступило %@, операций: %@"
+},
+"Місяці": {
+"en": "Months",
+"it": "Mesi",
+"de": "Monate",
+"ru": "Месяцы"
+},
+"Місяць": {
+"en": "Month",
+"it": "Mese",
+"de": "Monat",
+"ru": "Месяц"
+},
+"Рух": {
+"en": "Flow",
+"it": "Flusso",
+"de": "Verlauf",
+"ru": "Движение"
+},
+"Надійшло": {
+"en": "Received",
+"it": "Entrate",
+"de": "Eingegangen",
+"ru": "Поступило"
+},
+"Витрачено": {
+"en": "Spent",
+"it": "Uscite",
+"de": "Ausgegeben",
+"ru": "Потрачено"
+},
+"Баланс": {
+"en": "Balance",
+"it": "Saldo",
+"de": "Saldo",
+"ru": "Баланс"
+},
+"%@ днів": {
+"en": "%@ days",
+"it": "%@ giorni",
+"de": "%@ Tage",
+"ru": "%@ дней"
+},
+"Період": {
+"en": "Period",
+"it": "Periodo",
+"de": "Zeitraum",
+"ru": "Период"
+},
+"14 днів": {
+"en": "14 days",
+"it": "14 giorni",
+"de": "14 Tage",
+"ru": "14 дней"
+},
+"30 днів": {
+"en": "30 days",
+"it": "30 giorni",
+"de": "30 Tage",
+"ru": "30 дней"
+},
+"90 днів": {
+"en": "90 days",
+"it": "90 giorni",
+"de": "90 Tage",
+"ru": "90 дней"
+},
+"На що йдуть гроші": {
+"en": "Where the money goes",
+"it": "Dove vanno i soldi",
+"de": "Wohin das Geld fließt",
+"ru": "На что идут деньги"
+},
+"%@ оп.": {
+"en": "%@ ops",
+"it": "%@ op.",
+"de": "%@ Trans.",
+"ru": "%@ оп."
+},
+"на день": {
+"en": "per day",
+"it": "al giorno",
+"de": "pro Tag",
+"ru": "в день"
+},
+"вистачить": {
+"en": "will last",
+"it": "durerà",
+"de": "reicht für",
+"ru": "хватит"
+},
+"%@ дн.": {
+"en": "%@ d.",
+"it": "%@ g.",
+"de": "%@ T.",
+"ru": "%@ дн."
+},
+"Кому найбільше": {
+"en": "Most to",
+"it": "Di più a",
+"de": "Am meisten an",
+"ru": "Кому больше всего"
+},
+"%@ операцій": {
+"en": "%@ transactions",
+"it": "%@ operazioni",
+"de": "%@ Transaktionen",
+"ru": "%@ операций"
+},
+"Спостереження": {
+"en": "Insights",
+"it": "Osservazioni",
+"de": "Beobachtungen",
+"ru": "Наблюдения"
+},
+"Усього задоначено": {
+"en": "Total donated",
+"it": "Totale donato",
+"de": "Insgesamt gespendet",
+"ru": "Всего задонатено"
+},
+"Донатів ще немає": {
+"en": "No donations yet",
+"it": "Ancora nessuna donazione",
+"de": "Noch keine Spenden",
+"ru": "Донатов пока нет"
+},
+"Задонатити": {
+"en": "Donate",
+"it": "Dona",
+"de": "Spenden",
+"ru": "Задонатить"
+},
+"Повернись живим": {
+"en": "Come Back Alive",
+"it": "Torna vivo",
+"de": "Komm lebend zurück",
+"ru": "Вернись живым"
+},
+"Фонд Сергія Притули": {
+"en": "Serhiy Prytula Foundation",
+"it": "Fondazione Serhiy Prytula",
+"de": "Serhij-Prytula-Stiftung",
+"ru": "Фонд Сергея Притулы"
+},
+"Госпітальєри": {
+"en": "Hospitallers",
+"it": "Ospitalieri",
+"de": "Hospitaliers",
+"ru": "Госпитальеры"
+},
+"Інший напрям": {
+"en": "Other cause",
+"it": "Altra causa",
+"de": "Anderer Zweck",
+"ru": "Другое направление"
+},
+"Фонд": {
+"en": "Fund",
+"it": "Fondo",
+"de": "Fonds",
+"ru": "Фонд"
+},
+"Коментар": {
+"en": "Comment",
+"it": "Commento",
+"de": "Kommentar",
+"ru": "Комментарий"
+},
+"Донат": {
+"en": "Donation",
+"it": "Donazione",
+"de": "Spende",
+"ru": "Донат"
+},
+"Грошове забезпечення": {
+"en": "Military pay",
+"it": "Indennità militare",
+"de": "Wehrsold",
+"ru": "Денежное довольствие"
+},
+"Премія": {
+"en": "Bonus",
+"it": "Premio",
+"de": "Prämie",
+"ru": "Премия"
+},
+"Компенсація": {
+"en": "Compensation",
+"it": "Compenso",
+"de": "Entschädigung",
+"ru": "Компенсация"
+},
+"Інша виплата": {
+"en": "Other payout",
+"it": "Altro pagamento",
+"de": "Sonstige Auszahlung",
+"ru": "Другая выплата"
+},
+"Виплат ще немає": {
+"en": "No payouts yet",
+"it": "Ancora nessun pagamento",
+"de": "Noch keine Auszahlungen",
+"ru": "Выплат пока нет"
+},
+"Нарахувати": {
+"en": "Accrue",
+"it": "Accredita",
+"de": "Gutschreiben",
+"ru": "Начислить"
+},
+"Виплата": {
+"en": "Payout",
+"it": "Pagamento",
+"de": "Auszahlung",
+"ru": "Выплата"
+},
+"Нова виплата": {
+"en": "New payout",
+"it": "Nuovo pagamento",
+"de": "Neue Auszahlung",
+"ru": "Новая выплата"
+},
+"Мені винні": {
+"en": "Owed to me",
+"it": "Mi devono",
+"de": "Man schuldet mir",
+"ru": "Мне должны"
+},
+"Я винен": {
+"en": "I owe",
+"it": "Devo",
+"de": "Ich schulde",
+"ru": "Я должен"
+},
+"Відкритих боргів немає": {
+"en": "No open debts",
+"it": "Nessun debito aperto",
+"de": "Keine offenen Schulden",
+"ru": "Открытых долгов нет"
+},
+"Закриті": {
+"en": "Closed",
+"it": "Chiusi",
+"de": "Abgeschlossen",
+"ru": "Закрытые"
+},
+"Новий борг": {
+"en": "New debt",
+"it": "Nuovo debito",
+"de": "Neue Schuld",
+"ru": "Новый долг"
+},
+"Позначити повернутим": {
+"en": "Mark as repaid",
+"it": "Segna come restituito",
+"de": "Als zurückgezahlt markieren",
+"ru": "Отметить возвращённым"
+},
+"Хто кому": {
+"en": "Who to whom",
+"it": "Chi a chi",
+"de": "Wer an wen",
+"ru": "Кто кому"
+},
+"За що": {
+"en": "What for",
+"it": "Per cosa",
+"de": "Wofür",
+"ru": "За что"
+},
+"Сповіщень немає": {
+"en": "No notifications",
+"it": "Nessuna notifica",
+"de": "Keine Benachrichtigungen",
+"ru": "Уведомлений нет"
+},
+"Цей місяць": {
+"en": "This month",
+"it": "Questo mese",
+"de": "Dieser Monat",
+"ru": "Этот месяц"
+},
+"Минулий": {
+"en": "Last",
+"it": "Scorso",
+"de": "Letzter",
+"ru": "Прошлый"
+},
+"3 місяці": {
+"en": "3 months",
+"it": "3 mesi",
+"de": "3 Monate",
+"ru": "3 месяца"
+},
+"Свій період": {
+"en": "Custom period",
+"it": "Periodo personalizzato",
+"de": "Eigener Zeitraum",
+"ru": "Свой период"
+},
+"З": {
+"en": "From",
+"it": "Dal",
+"de": "Von",
+"ru": "С"
+},
+"По": {
+"en": "To",
+"it": "Al",
+"de": "Bis",
+"ru": "По"
+},
+"Операцій": {
+"en": "Transactions",
+"it": "Operazioni",
+"de": "Transaktionen",
+"ru": "Операций"
+},
+"Різниця": {
+"en": "Difference",
+"it": "Differenza",
+"de": "Differenz",
+"ru": "Разница"
+},
+"Операції періоду": {
+"en": "Transactions in the period",
+"it": "Operazioni del periodo",
+"de": "Transaktionen im Zeitraum",
+"ru": "Операции периода"
+},
+"і ще %@ у виписці": {
+"en": "and %@ more in the statement",
+"it": "e altre %@ nell'estratto",
+"de": "und %@ weitere im Kontoauszug",
+"ru": "и ещё %@ в выписке"
+},
+"Виписка %@ - %@.pdf": {
+"en": "Statement %@ - %@.pdf",
+"it": "Estratto %@ - %@.pdf",
+"de": "Kontoauszug %@ - %@.pdf",
+"ru": "Выписка %@ - %@.pdf"
+},
+"Виписка PDF": {
+"en": "PDF statement",
+"it": "Estratto PDF",
+"de": "PDF-Kontoauszug",
+"ru": "Выписка PDF"
+},
+"Операції %@ - %@.csv": {
+"en": "Transactions %@ - %@.csv",
+"it": "Operazioni %@ - %@.csv",
+"de": "Transaktionen %@ - %@.csv",
+"ru": "Операции %@ - %@.csv"
+},
+"Таблиця операцій": {
+"en": "Transactions table",
+"it": "Tabella delle operazioni",
+"de": "Transaktionstabelle",
+"ru": "Таблица операций"
+},
+"Мої документи і QR-коди": {
+"en": "My documents and QR codes",
+"it": "I miei documenti e codici QR",
+"de": "Meine Dokumente und QR-Codes",
+"ru": "Мои документы и QR-коды"
+},
+"Пошта": {
+"en": "Email",
+"it": "Email",
+"de": "E-Mail",
+"ru": "Почта"
+},
+"Рахунок": {
+"en": "Account",
+"it": "Conto",
+"de": "Konto",
+"ru": "Счёт"
+},
+"Вхід у банк": {
+"en": "Signing in to the bank",
+"it": "Accesso alla banca",
+"de": "Anmeldung bei der Bank",
+"ru": "Вход в банк"
+},
+"PIN питаємо щоразу, коли застосунок повертається з фону.": {
+"en": "We ask for the PIN every time the app returns from the background.",
+"it": "Chiediamo il PIN ogni volta che l'app torna dallo sfondo.",
+"de": "Wir fragen die PIN jedes Mal ab, wenn die App aus dem Hintergrund zurückkehrt.",
+"ru": "PIN спрашиваем каждый раз, когда приложение возвращается из фона."
+},
+"Без PIN банк відкривається одразу після запуску.": {
+"en": "Without a PIN, the bank opens right after launch.",
+"it": "Senza PIN, la banca si apre subito all'avvio.",
+"de": "Ohne PIN öffnet sich die Bank direkt nach dem Start.",
+"ru": "Без PIN банк открывается сразу после запуска."
+},
+"PIN-код": {
+"en": "PIN code",
+"it": "Codice PIN",
+"de": "PIN-Code",
+"ru": "PIN-код"
+},
+"Увімкнено": {
+"en": "On",
+"it": "Attivo",
+"de": "Ein",
+"ru": "Включён"
+},
+"Вимкнено": {
+"en": "Off",
+"it": "Disattivo",
+"de": "Aus",
+"ru": "Выключен"
+},
+"Змінити": {
+"en": "Change",
+"it": "Cambia",
+"de": "Ändern",
+"ru": "Сменить"
+},
+"Встановити": {
+"en": "Set",
+"it": "Imposta",
+"de": "Festlegen",
+"ru": "Установить"
+},
+"Замість PIN на замку": {
+"en": "Instead of a PIN on the lock",
+"it": "Al posto del PIN sul blocco",
+"de": "Statt PIN auf der Sperre",
+"ru": "Вместо PIN на замке"
+},
+"Спершу встановіть PIN": {
+"en": "Set a PIN first",
+"it": "Imposta prima un PIN",
+"de": "Legen Sie zuerst eine PIN fest",
+"ru": "Сначала установите PIN"
+},
+"Прибрати PIN": {
+"en": "Remove PIN",
+"it": "Rimuovi PIN",
+"de": "PIN entfernen",
+"ru": "Убрать PIN"
+},
+"Після зміни пароля інші пристрої лишаються в акаунті; завершіть їхні сесії нижче, якщо треба.": {
+"en": "After a password change, other devices stay in the account; end their sessions below if needed.",
+"it": "Dopo il cambio password, gli altri dispositivi restano nell'account; termina le loro sessioni qui sotto se serve.",
+"de": "Nach einer Passwortänderung bleiben andere Geräte im Konto; beenden Sie deren Sitzungen unten, falls nötig.",
+"ru": "После смены пароля другие устройства остаются в аккаунте; при необходимости завершите их сессии ниже."
+},
+"Змінити пароль": {
+"en": "Change password",
+"it": "Cambia password",
+"de": "Passwort ändern",
+"ru": "Сменить пароль"
+},
+"Пристрої в акаунті": {
+"en": "Devices in the account",
+"it": "Dispositivi nell'account",
+"de": "Geräte im Konto",
+"ru": "Устройства в аккаунте"
+},
+"цей": {
+"en": "this one",
+"it": "questo",
+"de": "dieses",
+"ru": "это"
+},
+"Завершити": {
+"en": "End",
+"it": "Termina",
+"de": "Beenden",
+"ru": "Завершить"
+},
+"Вийти на всіх інших пристроях": {
+"en": "Sign out on all other devices",
+"it": "Esci da tutti gli altri dispositivi",
+"de": "Auf allen anderen Geräten abmelden",
+"ru": "Выйти на всех других устройствах"
+},
+"Увімкнути %@ для TaxTech": {
+"en": "Enable %@ for TaxTech",
+"it": "Attiva %@ per TaxTech",
+"de": "%@ für TaxTech aktivieren",
+"ru": "Включить %@ для TaxTech"
+},
+"Вхід через Apple": {
+"en": "Sign in with Apple",
+"it": "Accedi con Apple",
+"de": "Mit Apple anmelden",
+"ru": "Вход через Apple"
+},
+"Командний рядок": {
+"en": "Command line",
+"it": "Riga di comando",
+"de": "Befehlszeile",
+"ru": "Командная строка"
+},
+"Пристрій": {
+"en": "Device",
+"it": "Dispositivo",
+"de": "Gerät",
+"ru": "Устройство"
+},
+"Новий PIN": {
+"en": "New PIN",
+"it": "Nuovo PIN",
+"de": "Neue PIN",
+"ru": "Новый PIN"
+},
+"Повторіть PIN": {
+"en": "Repeat PIN",
+"it": "Ripeti PIN",
+"de": "PIN wiederholen",
+"ru": "Повторите PIN"
+},
+"Коди не збіглися. Ще раз.": {
+"en": "The codes didn't match. Try again.",
+"it": "I codici non coincidono. Riprova.",
+"de": "Die Codes stimmen nicht überein. Noch einmal.",
+"ru": "Коды не совпали. Ещё раз."
+},
+"Пароль змінено": {
+"en": "Password changed",
+"it": "Password cambiata",
+"de": "Passwort geändert",
+"ru": "Пароль изменён"
+},
+"Наступного разу входьте з новим паролем. Інші пристрої можна вивести з акаунта на екрані «Безпека».": {
+"en": "Next time sign in with the new password. You can sign other devices out on the \"Security\" screen.",
+"it": "La prossima volta accedi con la nuova password. Puoi disconnettere gli altri dispositivi nella schermata «Sicurezza».",
+"de": "Melden Sie sich beim nächsten Mal mit dem neuen Passwort an. Andere Geräte können Sie auf dem Bildschirm «Sicherheit» abmelden.",
+"ru": "В следующий раз входите с новым паролем. Другие устройства можно вывести из аккаунта на экране «Безопасность»."
+},
+"Поточний пароль": {
+"en": "Current password",
+"it": "Password attuale",
+"de": "Aktuelles Passwort",
+"ru": "Текущий пароль"
+},
+"Новий пароль збігається з поточним": {
+"en": "The new password is the same as the current one",
+"it": "La nuova password coincide con quella attuale",
+"de": "Das neue Passwort entspricht dem aktuellen",
+"ru": "Новый пароль совпадает с текущим"
+},
+"Введіть PIN": {
+"en": "Enter PIN",
+"it": "Inserisci il PIN",
+"de": "PIN eingeben",
+"ru": "Введите PIN"
+},
+"Невірний PIN": {
+"en": "Wrong PIN",
+"it": "PIN errato",
+"de": "Falsche PIN",
+"ru": "Неверный PIN"
+},
+"Відкрити банк TaxTech": {
+"en": "Open TaxTech bank",
+"it": "Apri la banca TaxTech",
+"de": "TaxTech-Bank öffnen",
+"ru": "Открыть банк TaxTech"
+},
+"Сповіщення, нових: %@": {
+"en": "Notifications, new: %@",
+"it": "Notifiche, nuove: %@",
+"de": "Benachrichtigungen, neu: %@",
+"ru": "Уведомления, новых: %@"
+},
+"Основний рахунок · TAX": {
+"en": "Main account · TAX",
+"it": "Conto principale · TAX",
+"de": "Hauptkonto · TAX",
+"ru": "Основной счёт · TAX"
+},
+"Показати баланс": {
+"en": "Show balance",
+"it": "Mostra saldo",
+"de": "Saldo anzeigen",
+"ru": "Показать баланс"
+},
+"Сховати баланс": {
+"en": "Hide balance",
+"it": "Nascondi saldo",
+"de": "Saldo ausblenden",
+"ru": "Скрыть баланс"
+},
+"Швидкий переказ": {
+"en": "Quick transfer",
+"it": "Bonifico rapido",
+"de": "Schnellüberweisung",
+"ru": "Быстрый перевод"
+},
+"за історією": {
+"en": "from history",
+"it": "dallo storico",
+"de": "aus dem Verlauf",
+"ru": "из истории"
+},
+"Новий": {
+"en": "New",
+"it": "Nuovo",
+"de": "Neu",
+"ru": "Новый"
+},
+"Гаманець": {
+"en": "Wallet",
+"it": "Portafoglio",
+"de": "Wallet",
+"ru": "Кошелёк"
+},
+"картка": {
+"en": "card",
+"it": "carta",
+"de": "Karte",
+"ru": "карта"
+},
+"картки": {
+"en": "cards",
+"it": "carte",
+"de": "Karten",
+"ru": "карты"
+},
+"карток": {
+"en": "cards",
+"it": "carte",
+"de": "Karten",
+"ru": "карт"
+},
+"Баланс за 30 днів": {
+"en": "Balance over 30 days",
+"it": "Saldo in 30 giorni",
+"de": "Saldo über 30 Tage",
+"ru": "Баланс за 30 дней"
+},
+"Мін": {
+"en": "Min",
+"it": "Min",
+"de": "Min",
+"ru": "Мин"
+},
+"Усі операції": {
+"en": "All transactions",
+"it": "Tutte le operazioni",
+"de": "Alle Transaktionen",
+"ru": "Все операции"
+},
+"%@%@% до минулого": {
+"en": "%@%@% vs previous",
+"it": "%@%@% rispetto al precedente",
+"de": "%@%@ % ggü. Vorperiode",
+"ru": "%@%@% к прошлому"
+},
+"Строків немає": {
+"en": "No deadlines",
+"it": "Nessuna scadenza",
+"de": "Keine Fristen",
+"ru": "Сроков нет"
+},
+" (віртуальна покупка)": {
+"en": " (virtual purchase)",
+"it": " (acquisto virtuale)",
+"de": " (virtueller Kauf)",
+"ru": " (виртуальная покупка)"
+},
+"Покупка": {
+"en": "Purchase",
+"it": "Acquisto",
+"de": "Kauf",
+"ru": "Покупка"
+},
+"Переказ від %@": {
+"en": "Transfer from %@",
+"it": "Bonifico da %@",
+"de": "Überweisung von %@",
+"ru": "Перевод от %@"
+},
+"Переказ на %@": {
+"en": "Transfer to %@",
+"it": "Bonifico a %@",
+"de": "Überweisung an %@",
+"ru": "Перевод на %@"
+},
+"Списання": {
+"en": "Debit",
+"it": "Addebito",
+"de": "Abbuchung",
+"ru": "Списание"
+},
+"Матеріал": {
+"en": "Material",
+"it": "Materiale",
+"de": "Material",
+"ru": "Материал"
+},
+"Колір · %@": {
+"en": "Color · %@",
+"it": "Colore · %@",
+"de": "Farbe · %@",
+"ru": "Цвет · %@"
+},
+"Візерунок": {
+"en": "Pattern",
+"it": "Motivo",
+"de": "Muster",
+"ru": "Узор"
+},
+"Емблема": {
+"en": "Emblem",
+"it": "Emblema",
+"de": "Emblem",
+"ru": "Эмблема"
+},
+"Навмання": {
+"en": "Random",
+"it": "Casuale",
+"de": "Zufällig",
+"ru": "Случайно"
+},
+"Як було": {
+"en": "As it was",
+"it": "Come prima",
+"de": "Wie vorher",
+"ru": "Как было"
+},
+"Вигляд картки": {
+"en": "Card look",
+"it": "Aspetto della carta",
+"de": "Kartendesign",
+"ru": "Вид карты"
+},
+"Назва на картці": {
+"en": "Name on the card",
+"it": "Nome sulla carta",
+"de": "Name auf der Karte",
+"ru": "Имя на карте"
+},
+"Сфотографувати чек": {
+"en": "Photograph a receipt",
+"it": "Fotografa uno scontrino",
+"de": "Beleg fotografieren",
+"ru": "Сфотографировать чек"
+},
+"Вибрати фото чека": {
+"en": "Choose a receipt photo",
+"it": "Scegli la foto di uno scontrino",
+"de": "Belegfoto auswählen",
+"ru": "Выбрать фото чека"
+},
+"Демо-чек": {
+"en": "Demo receipt",
+"it": "Scontrino demo",
+"de": "Demo-Beleg",
+"ru": "Демо-чек"
+},
+"Фото розпізнається на телефоні. На сервер, якщо знадобиться, іде лише текст без номерів карток, телефонів і ІПН.": {
+"en": "The photo is recognized on the phone. If needed, only text without card numbers, phones and tax IDs goes to the server.",
+"it": "La foto viene riconosciuta sul telefono. Al server, se serve, va solo il testo senza numeri di carta, telefoni e codici fiscali.",
+"de": "Das Foto wird auf dem Telefon erkannt. Falls nötig, geht nur Text ohne Kartennummern, Telefonnummern und Steuer-IDs an den Server.",
+"ru": "Фото распознаётся на телефоне. На сервер, если понадобится, идёт только текст без номеров карт, телефонов и ИНН."
+},
+"Розпізнано": {
+"en": "Recognized",
+"it": "Riconosciuto",
+"de": "Erkannt",
+"ru": "Распознано"
+},
+"Розпізнавання фото на телефоні: %@": {
+"en": "Photo recognition on the phone: %@",
+"it": "Riconoscimento della foto sul telefono: %@",
+"de": "Fotoerkennung auf dem Telefon: %@",
+"ru": "Распознавание фото на телефоне: %@"
+},
+"Зберегти витрату": {
+"en": "Save expense",
+"it": "Salva la spesa",
+"de": "Ausgabe speichern",
+"ru": "Сохранить трату"
+},
+"Віртуальна лабораторія цифрових фінансів і технологій розподіленого реєстру": {
+"en": "Virtual laboratory of digital finance and distributed ledger technologies",
+"it": "Laboratorio virtuale di finanza digitale e tecnologie di registro distribuito",
+"de": "Virtuelles Labor für digitale Finanzen und Distributed-Ledger-Technologien",
+"ru": "Виртуальная лаборатория цифровых финансов и технологий распределённого реестра"
+},
+"Сталь": {
+"en": "Steel",
+"it": "Acciaio",
+"de": "Stahl",
+"ru": "Сталь"
+},
+"ВІРТУАЛЬНА": {
+"en": "VIRTUAL",
+"it": "VIRTUALE",
+"de": "VIRTUELL",
+"ru": "ВИРТУАЛЬНАЯ"
+},
+"Дозволити сервер": {
+"en": "Allow server",
+"it": "Consenti il server",
+"de": "Server erlauben",
+"ru": "Разрешить сервер"
+},
+"Лише на телефоні": {
+"en": "Phone only",
+"it": "Solo telefono",
+"de": "Nur Telefon",
+"ru": "Только на телефоне"
+},
+"Почати": {
+"en": "Start",
+"it": "Inizia",
+"de": "Los geht's",
+"ru": "Начать"
+},
+"Усі гроші\\nв одному місці": {
+"en": "All your money\\nin one place",
+"it": "Tutti i tuoi soldi\\nin un posto solo",
+"de": "Ihr ganzes Geld\\nan einem Ort",
+"ru": "Все деньги\\nв одном месте"
+},
+"Витрати, чеки й нотатки. Усе лишається на цьому телефоні.": {
+"en": "Expenses, receipts and notes. Everything stays on this phone.",
+"it": "Spese, scontrini e note. Tutto resta su questo telefono.",
+"de": "Ausgaben, Belege und Notizen. Alles bleibt auf diesem Telefon.",
+"ru": "Траты, чеки и заметки. Всё остаётся на этом телефоне."
+},
+"Навчальний\\nбанк": {
+"en": "Training\\nbank",
+"it": "Banca\\ndidattica",
+"de": "Lern-\\nbank",
+"ru": "Учебный\\nбанк"
+},
+"Картки, депозити, кредити й цілі - на віртуальних грошах. Справжніх рахунків і переказів немає.": {
+"en": "Cards, deposits, loans and goals - with virtual money. There are no real accounts or transfers.",
+"it": "Carte, depositi, prestiti e obiettivi - con denaro virtuale. Non ci sono conti o bonifici reali.",
+"de": "Karten, Einlagen, Kredite und Ziele - mit virtuellem Geld. Es gibt keine echten Konten oder Überweisungen.",
+"ru": "Карты, депозиты, кредиты и цели - на виртуальных деньгах. Настоящих счетов и переводов нет."
+},
+"Телефон\\nчи сервер": {
+"en": "Phone\\nor server",
+"it": "Telefono\\no server",
+"de": "Telefon\\noder Server",
+"ru": "Телефон\\nили сервер"
+},
+"Кожну розумну задачу застосунок виконує там, де краще: залежно від мережі, заряду й упевненості моделі. Це частина студентського дослідження.": {
+"en": "The app runs each smart task where it works best: depending on the network, battery and the model's confidence. This is part of a student research project.",
+"it": "L'app esegue ogni compito intelligente dove funziona meglio: in base a rete, batteria e affidabilità del modello. Fa parte di una ricerca studentesca.",
+"de": "Die App führt jede intelligente Aufgabe dort aus, wo es am besten passt: je nach Netz, Akku und Sicherheit des Modells. Das ist Teil eines Studentenforschungsprojekts.",
+"ru": "Приложение выполняет каждую умную задачу там, где лучше: в зависимости от сети, заряда и уверенности модели. Это часть студенческого исследования."
+},
+"Ваші дані": {
+"en": "Your data",
+"it": "I tuoi dati",
+"de": "Ihre Daten",
+"ru": "Ваши данные"
+},
+"Лише телефон": {
+"en": "Phone only",
+"it": "Solo telefono",
+"de": "Nur Telefon",
+"ru": "Только телефон"
+},
+"Фото чека розпізнається на телефоні й нікуди не йде.": {
+"en": "The receipt photo is recognized on the phone and goes nowhere.",
+"it": "La foto dello scontrino viene riconosciuta sul telefono e non va da nessuna parte.",
+"de": "Das Belegfoto wird auf dem Telefon erkannt und geht nirgendwohin.",
+"ru": "Фото чека распознаётся на телефоне и никуда не уходит."
+},
+"Що може піти на сервер": {
+"en": "What may go to the server",
+"it": "Cosa può andare al server",
+"de": "Was an den Server gehen kann",
+"ru": "Что может уйти на сервер"
+},
+"Текст чека чи питання помічнику для мовної моделі Anthropic - але спершу телефон прибирає номери карток, рахунків, телефонів, пошту, ІПН і паспорт.": {
+"en": "Receipt text or an assistant question goes to an Anthropic language model - but first the phone removes card and account numbers, phones, emails, tax IDs and passports.",
+"it": "Il testo dello scontrino o la domanda all'assistente vanno a un modello linguistico Anthropic - ma prima il telefono rimuove numeri di carta e conto, telefoni, email, codici fiscali e passaporti.",
+"de": "Belegtext oder Assistentenfrage gehen an ein Anthropic-Sprachmodell - aber zuvor entfernt das Telefon Karten- und Kontonummern, Telefonnummern, E-Mails, Steuer-IDs und Passnummern.",
+"ru": "Текст чека или вопрос помощнику уходит языковой модели Anthropic - но сначала телефон убирает номера карт, счетов, телефоны, почту, ИНН и паспорт."
+},
+"Згоду можна змінити": {
+"en": "Consent can be changed",
+"it": "Il consenso si può modificare",
+"de": "Die Einwilligung lässt sich ändern",
+"ru": "Согласие можно изменить"
+},
+"Будь-коли в «Лабораторії».": {
+"en": "Any time in the \"Lab\".",
+"it": "In qualsiasi momento nel «Laboratorio».",
+"de": "Jederzeit im «Labor».",
+"ru": "В любой момент в «Лаборатории»."
+},
+"Як скласти бюджет на місяць?": {
+"en": "How do I make a monthly budget?",
+"it": "Come si fa un budget mensile?",
+"de": "Wie erstelle ich ein Monatsbudget?",
+"ru": "Как составить бюджет на месяц?"
+},
+"Скільки податку платить ФОП 3 групи?": {
+"en": "How much tax does a Group 3 sole proprietor pay?",
+"it": "Quante tasse paga un imprenditore individuale del 3° gruppo?",
+"de": "Wie viel Steuern zahlt ein Einzelunternehmer der Gruppe 3?",
+"ru": "Сколько налога платит ФОП 3 группы?"
+},
+"Як повернути ПДФО за навчання?": {
+"en": "How do I get an income tax refund for tuition?",
+"it": "Come ottenere il rimborso dell'imposta sul reddito per le tasse universitarie?",
+"de": "Wie bekomme ich Einkommensteuer für Studiengebühren zurück?",
+"ru": "Как вернуть НДФЛ за обучение?"
+},
+"Що таке хеш запису в чеку?": {
+"en": "What is a record hash in a receipt?",
+"it": "Che cos'è l'hash di un record in una ricevuta?",
+"de": "Was ist ein Eintrags-Hash im Beleg?",
+"ru": "Что такое хеш записи в чеке?"
+},
+"Думаю…": {
+"en": "Thinking…",
+"it": "Sto pensando…",
+"de": "Ich denke nach…",
+"ru": "Думаю…"
+},
+"Ваше питання": {
+"en": "Your question",
+"it": "La tua domanda",
+"de": "Ihre Frage",
+"ru": "Ваш вопрос"
+},
+"Ставки": {
+"en": "Rates",
+"it": "Aliquote",
+"de": "Sätze",
+"ru": "Ставки"
+},
+"Зарплата": {
+"en": "Salary",
+"it": "Stipendio",
+"de": "Gehalt",
+"ru": "Зарплата"
+},
+"ФОП": {
+"en": "Sole prop.",
+"it": "Ditta ind.",
+"de": "Einzelunt.",
+"ru": "ФОП"
+},
+"Календар": {
+"en": "Calendar",
+"it": "Calendario",
+"de": "Kalender",
+"ru": "Календарь"
+},
+"Ставки %@ року, 1 TAX = 1 гривня. Розрахунок орієнтовний.": {
+"en": "%@ rates, 1 TAX = 1 hryvnia. The calculation is approximate.",
+"it": "Aliquote %@, 1 TAX = 1 grivna. Il calcolo è indicativo.",
+"de": "Sätze %@, 1 TAX = 1 Hrywnja. Die Berechnung ist ungefähr.",
+"ru": "Ставки %@ года, 1 TAX = 1 гривна. Расчёт ориентировочный."
+},
+"Доходи %@": {
+"en": "Income %@",
+"it": "Reddito %@",
+"de": "Einkommen %@",
+"ru": "Доходы %@"
+},
+"податки, якщо це зарплата": {
+"en": "taxes, if it is salary",
+"it": "imposte, se è stipendio",
+"de": "Steuern, wenn es Gehalt ist",
+"ru": "налоги, если это зарплата"
+},
+"податок з депозитів": {
+"en": "tax on deposits",
+"it": "imposta sui depositi",
+"de": "Steuer auf Einlagen",
+"ru": "налог с депозитов"
+},
+"Найближчий строк": {
+"en": "Nearest deadline",
+"it": "Scadenza più vicina",
+"de": "Nächste Frist",
+"ru": "Ближайший срок"
+},
+"Доходи по місяцях": {
+"en": "Income by month",
+"it": "Reddito per mese",
+"de": "Einkommen nach Monaten",
+"ru": "Доходы по месяцам"
+},
+"Ставки %@": {
+"en": "Rates %@",
+"it": "Aliquote %@",
+"de": "Sätze %@",
+"ru": "Ставки %@"
+},
+"ПДФО з зарплати та інших доходів": {
+"en": "Income tax on salary and other income",
+"it": "Imposta sul reddito da stipendio e altri redditi",
+"de": "Einkommensteuer auf Gehalt und andere Einkünfte",
+"ru": "НДФЛ с зарплаты и других доходов"
+},
+"Військовий збір": {
+"en": "Military levy",
+"it": "Contributo militare",
+"de": "Kriegssteuer",
+"ru": "Военный сбор"
+},
+"ЄСВ роботодавця чи ФОП": {
+"en": "Employer's or sole proprietor's social contribution",
+"it": "Contributo sociale del datore di lavoro o dell'imprenditore",
+"de": "Sozialbeitrag des Arbeitgebers oder Einzelunternehmers",
+"ru": "ЕСВ работодателя или ФОП"
+},
+"Проценти за депозитом": {
+"en": "Deposit interest",
+"it": "Interessi sul deposito",
+"de": "Einlagenzinsen",
+"ru": "Проценты по депозиту"
+},
+"Мінімальна зарплата": {
+"en": "Minimum wage",
+"it": "Salario minimo",
+"de": "Mindestlohn",
+"ru": "Минимальная зарплата"
+},
+"Прожитковий мінімум": {
+"en": "Subsistence minimum",
+"it": "Minimo vitale",
+"de": "Existenzminimum",
+"ru": "Прожиточный минимум"
+},
+"проценти %@, податок %@": {
+"en": "interest %@, tax %@",
+"it": "interessi %@, imposta %@",
+"de": "Zinsen %@, Steuer %@",
+"ru": "проценты %@, налог %@"
+},
+"Податок з процентів банк утримує сам.": {
+"en": "The bank withholds tax on interest itself.",
+"it": "La banca trattiene da sé l'imposta sugli interessi.",
+"de": "Die Bank behält die Steuer auf Zinsen selbst ein.",
+"ru": "Налог с процентов банк удерживает сам."
+},
+"Нараховано": {
+"en": "Accrued",
+"it": "Lordo",
+"de": "Brutto",
+"ru": "Начислено"
+},
+"На руки": {
+"en": "Take-home",
+"it": "Netto",
+"de": "Netto",
+"ru": "На руки"
+},
+"Хочу на руки на місяць": {
+"en": "I want a monthly take-home of",
+"it": "Voglio un netto mensile di",
+"de": "Ich möchte monatlich netto",
+"ru": "Хочу на руки в месяц"
+},
+"Зарплата до податків на місяць": {
+"en": "Monthly salary before tax",
+"it": "Stipendio mensile lordo",
+"de": "Monatsgehalt brutto",
+"ru": "Зарплата до налогов в месяц"
+},
+"Треба нарахувати": {
+"en": "Gross needed",
+"it": "Lordo necessario",
+"de": "Benötigtes Brutto",
+"ru": "Нужно начислить"
+},
+"ПДФО": {
+"en": "Income tax",
+"it": "Imposta sul reddito",
+"de": "Einkommensteuer",
+"ru": "НДФЛ"
+},
+"ВЗ": {
+"en": "Mil. levy",
+"it": "Contr. mil.",
+"de": "Kriegsst.",
+"ru": "ВС"
+},
+"ПДФО %@": {
+"en": "Income tax %@",
+"it": "Imposta sul reddito %@",
+"de": "Einkommensteuer %@",
+"ru": "НДФЛ %@"
+},
+"Військовий збір %@": {
+"en": "Military levy %@",
+"it": "Contributo militare %@",
+"de": "Kriegssteuer %@",
+"ru": "Военный сбор %@"
+},
+"Роботодавець платить": {
+"en": "Employer pays",
+"it": "Paga il datore di lavoro",
+"de": "Arbeitgeber zahlt",
+"ru": "Работодатель платит"
+},
+"ЄСВ %@ понад зарплату": {
+"en": "Social contribution %@ on top of salary",
+"it": "Contributi sociali %@ oltre allo stipendio",
+"de": "Sozialbeitrag %@ zusätzlich zum Gehalt",
+"ru": "ЕСВ %@ сверх зарплаты"
+},
+"Повна вартість працівника": {
+"en": "Total cost of an employee",
+"it": "Costo totale del dipendente",
+"de": "Gesamtkosten eines Mitarbeiters",
+"ru": "Полная стоимость работника"
+},
+"Частка податків у вартості": {
+"en": "Taxes' share of the cost",
+"it": "Quota delle imposte nel costo",
+"de": "Steueranteil an den Kosten",
+"ru": "Доля налогов в стоимости"
+},
+"на руки за рік": {
+"en": "take-home per year",
+"it": "netto all'anno",
+"de": "netto pro Jahr",
+"ru": "на руки за год"
+},
+"податків за рік": {
+"en": "taxes per year",
+"it": "imposte all'anno",
+"de": "Steuern pro Jahr",
+"ru": "налогов за год"
+},
+"Менше за мінімальну зарплату (%@) за повну ставку платити не можна.": {
+"en": "Paying less than the minimum wage (%@) for a full-time position is not allowed.",
+"it": "Per un tempo pieno non si può pagare meno del salario minimo (%@).",
+"de": "Für eine Vollzeitstelle darf nicht weniger als der Mindestlohn (%@) gezahlt werden.",
+"ru": "Меньше минимальной зарплаты (%@) за полную ставку платить нельзя."
+},
+"Дохід за рік": {
+"en": "Income per year",
+"it": "Reddito annuo",
+"de": "Jahreseinkommen",
+"ru": "Доход за год"
+},
+"Податки ФОП за рік": {
+"en": "Sole proprietor taxes per year",
+"it": "Imposte annue dell'imprenditore",
+"de": "Steuern des Einzelunternehmers pro Jahr",
+"ru": "Налоги ФОП за год"
+},
+"у середньому на місяць": {
+"en": "per month on average",
+"it": "al mese in media",
+"de": "im Monat im Schnitt",
+"ru": "в среднем в месяц"
+},
+"від доходу": {
+"en": "of income",
+"it": "del reddito",
+"de": "vom Einkommen",
+"ru": "от дохода"
+},
+"Єдиний": {
+"en": "Single tax",
+"it": "Imposta unica",
+"de": "Einheitssteuer",
+"ru": "Единый"
+},
+"ЄСВ": {
+"en": "Social contr.",
+"it": "Contr. soc.",
+"de": "Sozialbeitr.",
+"ru": "ЕСВ"
+},
+"Єдиний податок": {
+"en": "Single tax",
+"it": "Imposta unica",
+"de": "Einheitssteuer",
+"ru": "Единый налог"
+},
+"ЄСВ «за себе»": {
+"en": "Social contribution \"for yourself\"",
+"it": "Contributo sociale «per sé»",
+"de": "Sozialbeitrag «für sich selbst»",
+"ru": "ЕСВ «за себя»"
+},
+"Лишається": {
+"en": "Left over",
+"it": "Resta",
+"de": "Bleibt übrig",
+"ru": "Остаётся"
+},
+"Ліміт доходу": {
+"en": "Income limit",
+"it": "Limite di reddito",
+"de": "Einkommensgrenze",
+"ru": "Лимит дохода"
+},
+"Дохід більший за ліміт групи: з наступного кварталу доведеться перейти на іншу групу або загальну систему.": {
+"en": "Income exceeds the group limit: from next quarter you will have to move to another group or the general system.",
+"it": "Il reddito supera il limite del gruppo: dal prossimo trimestre dovrai passare a un altro gruppo o al regime generale.",
+"de": "Das Einkommen übersteigt die Gruppengrenze: ab dem nächsten Quartal müssen Sie in eine andere Gruppe oder das allgemeine System wechseln.",
+"ru": "Доход больше лимита группы: со следующего квартала придётся перейти на другую группу или общую систему."
+},
+"Використано %@ ліміту.": {
+"en": "%@ of the limit used.",
+"it": "Usato il %@ del limite.",
+"de": "%@ der Grenze genutzt.",
+"ru": "Использовано %@ лимита."
+},
+"Порівняння із зарплатою": {
+"en": "Comparison with a salary",
+"it": "Confronto con lo stipendio",
+"de": "Vergleich mit einem Gehalt",
+"ru": "Сравнение с зарплатой"
+},
+"ФОП: лишається за рік": {
+"en": "Sole proprietor: left per year",
+"it": "Imprenditore: resta all'anno",
+"de": "Einzelunternehmer: bleibt pro Jahr",
+"ru": "ФОП: остаётся за год"
+},
+"Працівник: на руки за рік": {
+"en": "Employee: take-home per year",
+"it": "Dipendente: netto all'anno",
+"de": "Angestellter: netto pro Jahr",
+"ru": "Работник: на руки за год"
+},
+"Це моя група - строки в календарі": {
+"en": "This is my group - deadlines in the calendar",
+"it": "È il mio gruppo - scadenze nel calendario",
+"de": "Das ist meine Gruppe - Fristen im Kalender",
+"ru": "Это моя группа - сроки в календаре"
+},
+"Я ФОП цієї групи": {
+"en": "I am a sole proprietor of this group",
+"it": "Sono un imprenditore di questo gruppo",
+"de": "Ich bin Einzelunternehmer dieser Gruppe",
+"ru": "Я ФОП этой группы"
+},
+"Зарплата до податків за рік": {
+"en": "Salary before tax per year",
+"it": "Stipendio annuo lordo",
+"de": "Jahresgehalt brutto",
+"ru": "Зарплата до налогов за год"
+},
+"Можна повернути": {
+"en": "Can be refunded",
+"it": "Si può recuperare",
+"de": "Kann erstattet werden",
+"ru": "Можно вернуть"
+},
+"витрати": {
+"en": "expenses",
+"it": "spese",
+"de": "Ausgaben",
+"ru": "расходы"
+},
+"ПДФО за рік": {
+"en": "Income tax per year",
+"it": "Imposta sul reddito annua",
+"de": "Einkommensteuer pro Jahr",
+"ru": "НДФЛ за год"
+},
+"Витрат ще немає.": {
+"en": "No expenses yet.",
+"it": "Ancora nessuna spesa.",
+"de": "Noch keine Ausgaben.",
+"ru": "Расходов ещё нет."
+},
+"18% повернуть: %@": {
+"en": "18% refunded: %@",
+"it": "18% rimborsato: %@",
+"de": "18 % erstattet: %@",
+"ru": "18% вернут: %@"
+},
+"Прибрати": {
+"en": "Remove",
+"it": "Rimuovi",
+"de": "Entfernen",
+"ru": "Убрать"
+},
+"Декларація - до 31 грудня наступного року. Навчання - до %@ на місяць.": {
+"en": "Declaration - by 31 December of the next year. Tuition - up to %@ per month.",
+"it": "Dichiarazione - entro il 31 dicembre dell'anno successivo. Studi - fino a %@ al mese.",
+"de": "Erklärung - bis zum 31. Dezember des Folgejahres. Studium - bis zu %@ pro Monat.",
+"ru": "Декларация - до 31 декабря следующего года. Обучение - до %@ в месяц."
+},
+"Витрата": {
+"en": "Expense",
+"it": "Spesa",
+"de": "Ausgabe",
+"ru": "Расход"
+},
+"Сума за рік, TAX": {
+"en": "Amount per year, TAX",
+"it": "Importo annuo, TAX",
+"de": "Betrag pro Jahr, TAX",
+"ru": "Сумма за год, TAX"
+},
+"Нотатка: заклад, банк, договір": {
+"en": "Note: institution, bank, contract",
+"it": "Nota: istituto, banca, contratto",
+"de": "Notiz: Einrichtung, Bank, Vertrag",
+"ru": "Заметка: заведение, банк, договор"
+},
+"Витрата для знижки": {
+"en": "Expense for the deduction",
+"it": "Spesa per la detrazione",
+"de": "Ausgabe für den Abzug",
+"ru": "Расход для вычета"
+},
+"сьогодні": {
+"en": "today",
+"it": "oggi",
+"de": "heute",
+"ru": "сегодня"
+},
+"завтра": {
+"en": "tomorrow",
+"it": "domani",
+"de": "morgen",
+"ru": "завтра"
+},
+"за %@ дн.": {
+"en": "in %@ d.",
+"it": "tra %@ g.",
+"de": "in %@ T.",
+"ru": "через %@ дн."
+},
+"Строки для фізособи і ФОП, %@.": {
+"en": "Deadlines for individuals and sole proprietors, %@.",
+"it": "Scadenze per persone fisiche e imprenditori, %@.",
+"de": "Fristen für Privatpersonen und Einzelunternehmer, %@.",
+"ru": "Сроки для физлица и ФОП, %@."
+},
+"Строки для фізособи. Оберіть групу у вкладці ФОП, щоб додати строки підприємця.": {
+"en": "Deadlines for individuals. Choose a group in the Sole prop. tab to add entrepreneur deadlines.",
+"it": "Scadenze per persone fisiche. Scegli un gruppo nella scheda Ditta ind. per aggiungere le scadenze da imprenditore.",
+"de": "Fristen für Privatpersonen. Wählen Sie im Tab Einzelunt. eine Gruppe, um Unternehmerfristen hinzuzufügen.",
+"ru": "Сроки для физлица. Выберите группу во вкладке ФОП, чтобы добавить сроки предпринимателя."
+},
+"Мінімальна зарплата, TAX": {
+"en": "Minimum wage, TAX",
+"it": "Salario minimo, TAX",
+"de": "Mindestlohn, TAX",
+"ru": "Минимальная зарплата, TAX"
+},
+"Прожитковий мінімум, TAX": {
+"en": "Subsistence minimum, TAX",
+"it": "Minimo vitale, TAX",
+"de": "Existenzminimum, TAX",
+"ru": "Прожиточный минимум, TAX"
+},
+"На 1 січня": {
+"en": "As of 1 January",
+"it": "Al 1° gennaio",
+"de": "Zum 1. Januar",
+"ru": "На 1 января"
+},
+"Ставки, частки від 1": {
+"en": "Rates, fractions of 1",
+"it": "Aliquote, frazioni di 1",
+"de": "Sätze, Bruchteile von 1",
+"ru": "Ставки, доли от 1"
+},
+"3 група, ставка": {
+"en": "Group 3, rate",
+"it": "Gruppo 3, aliquota",
+"de": "Gruppe 3, Satz",
+"ru": "3 группа, ставка"
+},
+"3 група з ПДВ, ставка": {
+"en": "Group 3 with VAT, rate",
+"it": "Gruppo 3 con IVA, aliquota",
+"de": "Gruppe 3 mit MwSt., Satz",
+"ru": "3 группа с НДС, ставка"
+},
+"ВЗ 3 групи, від доходу": {
+"en": "Group 3 military levy, of income",
+"it": "Contributo militare gruppo 3, sul reddito",
+"de": "Kriegssteuer Gruppe 3, vom Einkommen",
+"ru": "ВС 3 группы, от дохода"
+},
+"Повернути ставки %@ року": {
+"en": "Restore %@ rates",
+"it": "Ripristina le aliquote %@",
+"de": "%@-Sätze wiederherstellen",
+"ru": "Вернуть ставки %@ года"
+},
+"Виписка %@.pdf": {
+"en": "Statement %@.pdf",
+"it": "Estratto %@.pdf",
+"de": "Kontoauszug %@.pdf",
+"ru": "Выписка %@.pdf"
+},
+"QR-код перевірки документа": {
+"en": "Document verification QR code",
+"it": "Codice QR di verifica del documento",
+"de": "QR-Code zur Dokumentenprüfung",
+"ru": "QR-код проверки документа"
+},
+"Код документа": {
+"en": "Document code",
+"it": "Codice del documento",
+"de": "Dokumentcode",
+"ru": "Код документа"
+},
+"Наведіть камеру на QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.": {
+"en": "Point the camera at the QR or enter the code on the verification page: it checks the document against the register and shows no personal data.",
+"it": "Inquadra il QR o inserisci il codice nella pagina di verifica: confronta il documento con il registro e non mostra dati personali.",
+"de": "Richten Sie die Kamera auf den QR-Code oder geben Sie den Code auf der Prüfseite ein: Sie gleicht das Dokument mit dem Register ab und zeigt keine persönlichen Daten.",
+"ru": "Наведите камеру на QR или введите код на странице проверки: она сверяет документ с реестром и не показывает личных данных."
+},
+"Перевірити онлайн": {
+"en": "Verify online",
+"it": "Verifica online",
+"de": "Online prüfen",
+"ru": "Проверить онлайн"
+},
+"Код %@": {
+"en": "Code %@",
+"it": "Codice %@",
+"de": "Code %@",
+"ru": "Код %@"
+},
+"Поділитися посиланням": {
+"en": "Share link",
+"it": "Condividi il link",
+"de": "Link teilen",
+"ru": "Поделиться ссылкой"
+},
+"Код скопійовано": {
+"en": "Code copied",
+"it": "Codice copiato",
+"de": "Code kopiert",
+"ru": "Код скопирован"
+},
+"Скопіювати код": {
+"en": "Copy code",
+"it": "Copia codice",
+"de": "Code kopieren",
+"ru": "Скопировать код"
+},
+"Квитанції": {
+"en": "Receipts",
+"it": "Ricevute",
+"de": "Belege",
+"ru": "Квитанции"
+},
+"Усього": {
+"en": "Total",
+"it": "Totale",
+"de": "Gesamt",
+"ru": "Всего"
+},
+"Кожен документ має власний код і QR. Перевірити його можна в інтернеті: сторінка звіряє запис із реєстром операцій.": {
+"en": "Each document has its own code and QR. You can verify it online: the page checks the record against the transaction register.",
+"it": "Ogni documento ha un proprio codice e QR. Si può verificare online: la pagina confronta il record con il registro delle operazioni.",
+"de": "Jedes Dokument hat einen eigenen Code und QR. Sie können es online prüfen: Die Seite gleicht den Eintrag mit dem Transaktionsregister ab.",
+"ru": "У каждого документа свой код и QR. Проверить его можно в интернете: страница сверяет запись с реестром операций."
+},
+"Не вдалося завантажити документи": {
+"en": "Could not load documents",
+"it": "Impossibile caricare i documenti",
+"de": "Dokumente konnten nicht geladen werden",
+"ru": "Не удалось загрузить документы"
+},
+"Документів поки немає": {
+"en": "No documents yet",
+"it": "Ancora nessun documento",
+"de": "Noch keine Dokumente",
+"ru": "Документов пока нет"
+},
+"Відкрийте операцію й натисніть «Переглянути квитанцію», або сформуйте виписку: вони з'являться тут.": {
+"en": "Open a transaction and tap \"View receipt\", or generate a statement: they will appear here.",
+"it": "Apri un'operazione e tocca «Vedi ricevuta», oppure genera un estratto: appariranno qui.",
+"de": "Öffnen Sie eine Transaktion und tippen Sie auf «Beleg ansehen» oder erstellen Sie einen Kontoauszug: Sie erscheinen hier.",
+"ru": "Откройте операцию и нажмите «Посмотреть квитанцию» или сформируйте выписку: они появятся здесь."
+},
+"Квитанція": {
+"en": "Receipt",
+"it": "Ricevuta",
+"de": "Beleg",
+"ru": "Квитанция"
+},
+"Виписка": {
+"en": "Statement",
+"it": "Estratto",
+"de": "Kontoauszug",
+"ru": "Выписка"
+},
+"Видано": {
+"en": "Issued",
+"it": "Emesso",
+"de": "Ausgestellt",
+"ru": "Выдано"
+},
+"Відкрити PDF": {
+"en": "Open PDF",
+"it": "Apri PDF",
+"de": "PDF öffnen",
+"ru": "Открыть PDF"
+},
+"Мова": {
+"en": "Language",
+"it": "Lingua",
+"de": "Sprache",
+"ru": "Язык"
+}
+}

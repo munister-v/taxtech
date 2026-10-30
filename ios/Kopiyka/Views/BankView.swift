@@ -49,17 +49,17 @@ struct TransactionRow: View {
 
     /// «(віртуальна покупка)» сервер дописує до кожної покупки - тут це зайве, екран і так про віртуальні гроші.
     var title: String {
-        let d = tx.description ?? tx.relatedAccount ?? "Операція"
-        return d.replacingOccurrences(of: " (віртуальна покупка)", with: "")
+        let d = tx.description ?? tx.relatedAccount ?? L("Операція").s
+        return d.replacingOccurrences(of: L(" (віртуальна покупка)").s, with: "")
     }
 
     var kind: String {
         switch tx.txType {
-        case "payment": "Покупка"
-        case "topup": "Поповнення"
+        case "payment": L("Покупка").s
+        case "topup": L("Поповнення").s
         case "transfer":
-            tx.isIncome ? "Переказ від \(tx.relatedAccount ?? "")" : "Переказ на \(tx.relatedAccount ?? "")"
-        default: tx.isIncome ? "Надходження" : "Списання"
+            tx.isIncome ? L("Переказ від \(tx.relatedAccount ?? "")").s : L("Переказ на \(tx.relatedAccount ?? "")").s
+        default: tx.isIncome ? L("Надходження").s : L("Списання").s
         }
     }
 }
@@ -85,7 +85,7 @@ struct CardDesignPicker: View {
                         .rotation3DEffect(.degrees(spin), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
                         .padding(.horizontal, 8)
                         .animation(.smooth(duration: 0.35), value: look)
-                    section("Колекції") {
+                    section(L("Колекції").s) {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(CardPreset.all) { p in
@@ -113,14 +113,14 @@ struct CardDesignPicker: View {
                         .padding(.horizontal, -Theme.gutter)
                     }
                     nameField
-                    section("Матеріал") {
+                    section(L("Матеріал").s) {
                         HStack(spacing: 8) {
                             ForEach(CardMaterial.allCases) { m in
                                 chip(m.title, symbol: m.symbol, on: look.material == m) { look.material = m }
                             }
                         }
                     }
-                    section("Колір · \(look.color.title)") {
+                    section(L("Колір · \(look.color.title)").s) {
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 12) {
                             ForEach(CardColor.allCases) { c in
                                 Button { look.color = c } label: {
@@ -136,7 +136,7 @@ struct CardDesignPicker: View {
                             }
                         }
                     }
-                    section("Візерунок") {
+                    section(L("Візерунок").s) {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(CardPattern.allCases) { p in
@@ -159,7 +159,7 @@ struct CardDesignPicker: View {
                         }
                         .padding(.horizontal, -Theme.gutter)
                     }
-                    section("Емблема") {
+                    section(L("Емблема").s) {
                         HStack(spacing: 8) {
                             ForEach(CardEmblem.allCases) { e in
                                 chip(e.title, symbol: nil, on: look.emblem == e) { look.emblem = e }
@@ -170,9 +170,9 @@ struct CardDesignPicker: View {
                         Button {
                             withAnimation(.spring(response: 0.6, dampingFraction: 0.75)) { spin += 360 }
                             look = CardLook.random().with(name: look.name)
-                        } label: { Label("Навмання", systemImage: "dice") }
+                        } label: { Label(L("Навмання").s, systemImage: "dice") }
                         .buttonStyle(LineButton())
-                        Button("Як було") { look = card.look }
+                        Button(L("Як було").s) { look = card.look }
                             .buttonStyle(LineButton())
                     }
                     if let e = screen.error {
@@ -184,12 +184,12 @@ struct CardDesignPicker: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .screenBackground()
-            .navigationTitle("Вигляд картки")
+            .navigationTitle(L("Вигляд картки").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Зберегти") {
+                    Button(L("Зберегти").s) {
                         Task {
                             // помилка лишає екран відкритим і видна під формою
                             if await screen.run({ try await model.api.setCardStyle(card.id, look) }) {
@@ -209,7 +209,7 @@ struct CardDesignPicker: View {
 
     private var nameField: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Назва на картці").caption()
+            Text(L("Назва на картці").s).caption()
             HStack {
                 TextField(Brand.name, text: $look.name)
                     .focused($naming)

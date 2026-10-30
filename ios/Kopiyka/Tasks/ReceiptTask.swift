@@ -107,7 +107,7 @@ enum ReceiptTask {
     /// Модель відповідає JSON; беремо від першої `{` до останньої `}`.
     static func decode(_ text: String) throws -> Fields {
         guard let a = text.firstIndex(of: "{"), let b = text.lastIndex(of: "}") else {
-            throw API.Failure(message: "Сервер не повернув полів чека")
+            throw API.Failure(message: L("Сервер не повернув полів чека").s)
         }
         let r = try JSONDecoder().decode(Reply.self, from: Data(text[a...b].utf8))
         return Fields(merchant: r.merchant ?? "Без назви", total: r.total, category: r.category ?? "Інше")

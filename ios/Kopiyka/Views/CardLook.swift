@@ -9,10 +9,10 @@ enum CardMaterial: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .solid: "Матова"
-        case .gradient: "Градієнт"
-        case .metal: "Метал"
-        case .glass: "Скло"
+        case .solid: L("Матова").s
+        case .gradient: L("Градієнт").s
+        case .metal: L("Метал").s
+        case .glass: L("Скло").s
         }
     }
 
@@ -32,16 +32,16 @@ enum CardColor: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .graphite: "Графіт"
-        case .black: "Чорний"
-        case .white: "Білий"
-        case .gold: "Золото"
-        case .navy: "Нічний синій"
-        case .emerald: "Смарагд"
-        case .burgundy: "Бордо"
-        case .violet: "Фіалка"
-        case .sky: "Небо"
-        case .sand: "Пісок"
+        case .graphite: L("Графіт").s
+        case .black: L("Чорний").s
+        case .white: L("Білий").s
+        case .gold: L("Золото").s
+        case .navy: L("Нічний синій").s
+        case .emerald: L("Смарагд").s
+        case .burgundy: L("Бордо").s
+        case .violet: L("Фіалка").s
+        case .sky: L("Небо").s
+        case .sand: L("Пісок").s
         }
     }
 
@@ -85,12 +85,12 @@ enum CardPattern: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .none: "Без візерунка"
-        case .guilloche: "Гільйош"
-        case .microprint: "Мікродрук"
-        case .lines: "Лінії"
-        case .mark: "Знак"
-        case .waves: "Хвилі"
+        case .none: L("Без візерунка").s
+        case .guilloche: L("Гільйош").s
+        case .microprint: L("Мікродрук").s
+        case .lines: L("Лінії").s
+        case .mark: L("Знак").s
+        case .waves: L("Хвилі").s
         }
     }
 }
@@ -101,9 +101,9 @@ enum CardEmblem: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .none: "Без емблеми"
-        case .seal: "Печатка"
-        case .mark: "Знак"
+        case .none: L("Без емблеми").s
+        case .seal: L("Печатка").s
+        case .mark: L("Знак").s
         }
     }
 }
@@ -423,15 +423,15 @@ struct CardPreset: Identifiable {
     var id: String { title }
 
     static let all: [CardPreset] = [
-        CardPreset(title: "Обсидіан", look: CardLook(material: .metal, color: .black, pattern: .guilloche, emblem: .seal)),
-        CardPreset(title: "Шампань", look: CardLook(material: .metal, color: .gold, pattern: .microprint, emblem: .seal)),
-        CardPreset(title: "Аврора", look: CardLook(material: .gradient, color: .violet, pattern: .waves, emblem: .mark)),
-        CardPreset(title: "Океан", look: CardLook(material: .glass, color: .sky, pattern: .waves)),
-        CardPreset(title: "Смарагд", look: CardLook(material: .gradient, color: .emerald, pattern: .guilloche, emblem: .seal)),
-        CardPreset(title: "Бордо", look: CardLook(material: .solid, color: .burgundy, pattern: .lines, emblem: .mark)),
-        CardPreset(title: "Нічне місто", look: CardLook(material: .glass, color: .navy, pattern: .microprint)),
-        CardPreset(title: "Пісок", look: CardLook(material: .solid, color: .sand, pattern: .none, emblem: .mark)),
-        CardPreset(title: "Полярна", look: CardLook(material: .metal, color: .white, pattern: .lines)),
+        CardPreset(title: L("Обсидіан").s, look: CardLook(material: .metal, color: .black, pattern: .guilloche, emblem: .seal)),
+        CardPreset(title: L("Шампань").s, look: CardLook(material: .metal, color: .gold, pattern: .microprint, emblem: .seal)),
+        CardPreset(title: L("Аврора").s, look: CardLook(material: .gradient, color: .violet, pattern: .waves, emblem: .mark)),
+        CardPreset(title: L("Океан").s, look: CardLook(material: .glass, color: .sky, pattern: .waves)),
+        CardPreset(title: L("Смарагд").s, look: CardLook(material: .gradient, color: .emerald, pattern: .guilloche, emblem: .seal)),
+        CardPreset(title: L("Бордо").s, look: CardLook(material: .solid, color: .burgundy, pattern: .lines, emblem: .mark)),
+        CardPreset(title: L("Нічне місто").s, look: CardLook(material: .glass, color: .navy, pattern: .microprint)),
+        CardPreset(title: L("Пісок").s, look: CardLook(material: .solid, color: .sand, pattern: .none, emblem: .mark)),
+        CardPreset(title: L("Полярна").s, look: CardLook(material: .metal, color: .white, pattern: .lines)),
     ]
 }
 
@@ -495,9 +495,9 @@ struct CardBack: View {
                         .minimumScaleFactor(0.6).lineLimit(1)
                         .textSelection(.enabled)
                     HStack {
-                        Text("CVV · дійсна до \(expiry ?? "—")")
+                        Text(L("CVV · дійсна до \(expiry ?? "—")").s)
                         Spacer()
-                        Text("Тільки для навчання").opacity(0.7)
+                        Text(L("Тільки для навчання").s).opacity(0.7)
                     }
                     .font(.caption2.weight(.semibold))
                 }

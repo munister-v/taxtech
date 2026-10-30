@@ -26,7 +26,7 @@ struct ShopView: View {
     enum Tab: Hashable, CaseIterable {
         case catalog, orders, invoices
         var title: String {
-            switch self { case .catalog: "Каталог"; case .orders: "Замовлення"; case .invoices: "Інвойси" }
+            switch self { case .catalog: L("Каталог").s; case .orders: L("Замовлення").s; case .invoices: L("Інвойси").s }
         }
     }
 
@@ -42,7 +42,7 @@ struct ShopView: View {
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 9) {
                                 ShopWordmark()
-                                Text("Магазин · оплата TAX").font(ShopStyle.caps(10)).tracking(2).textCase(.uppercase)
+                                Text(L("Магазин · оплата TAX").s).font(ShopStyle.caps(10)).tracking(2).textCase(.uppercase)
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -63,7 +63,7 @@ struct ShopView: View {
                                 }
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Кошик, товарів: \(cartCount)")
+                            .accessibilityLabel(L("Кошик, товарів: \(cartCount)").s)
                         }
                         .padding(.top, 10)
                         ShopTabBar(items: Tab.allCases.map { ($0, $0.title) }, selection: $tab)
@@ -151,14 +151,14 @@ struct ShopView: View {
         if browsing {
             ShopHero { scrollToGrid(proxy) }
             ShopTrust()
-            ShopHeading(title: "Колекції", sub: "Оригінальні бренди з Європи")
+            ShopHeading(title: L("Колекції").s, sub: L("Оригінальні бренди з Європи").s)
             ShopCollections { c in
                 withAnimation(.snappy) { category = c }
                 Task { try? await Task.sleep(for: .milliseconds(120)); scrollToGrid(proxy) }
             }
         }
 
-        ShopHeading(title: category == .all ? "Добірка" : category.title, sub: browsing ? "Обране цього тижня" : nil)
+        ShopHeading(title: category == .all ? L("Добірка").s : category.title, sub: browsing ? L("Обране цього тижня").s : nil)
             .padding(.top, browsing ? 10 : 0)
             .id("shop-grid")
 
@@ -168,7 +168,7 @@ struct ShopView: View {
 
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass").font(.system(size: 16, weight: .light)).foregroundStyle(.secondary)
-            TextField("Пошук товарів…", text: $search).autocorrectionDisabled()
+            TextField(L("Пошук товарів…").s, text: $search).autocorrectionDisabled()
             if !search.isEmpty {
                 Button { search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary) }
                     .buttonStyle(.plain)
@@ -179,10 +179,10 @@ struct ShopView: View {
         .padding(.bottom, 4)
 
         HStack(alignment: .firstTextBaseline) {
-            Text("\(total) товарів").font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+            Text(L("\(total) товарів").s).font(.footnote).foregroundStyle(.secondary).monospacedDigit()
             Spacer()
             Menu {
-                Picker("Сортування", selection: $sort) {
+                Picker(L("Сортування").s, selection: $sort) {
                     ForEach(ShopSort.allCases) { Text($0.title).tag($0) }
                 }
             } label: {
@@ -195,7 +195,7 @@ struct ShopView: View {
             }
         }
 
-        if items.isEmpty && !loading { BrandEmpty(title: "Нічого не знайдено") }
+        if items.isEmpty && !loading { BrandEmpty(title: L("Нічого не знайдено").s) }
         LazyVGrid(columns: [GridItem(.flexible(), spacing: 14, alignment: .top), GridItem(.flexible(), alignment: .top)], spacing: 26) {
             ForEach(items) { p in
                 // Швидке «додати» відкриває картку: розмір треба обрати до кошика.
@@ -212,11 +212,11 @@ struct ShopView: View {
         Button { showCart = true } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(cartCount) у кошику").font(.caption).foregroundStyle(Theme.onAccent.opacity(0.7))
+                    Text(L("\(cartCount) у кошику").s).font(.caption).foregroundStyle(Theme.onAccent.opacity(0.7))
                     Text(Format.money(cartTotal)).font(.headline).monospacedDigit()
                 }
                 Spacer()
-                Text("Оформити").font(.headline)
+                Text(L("Оформити").s).font(.headline)
                 Image(systemName: "arrow.right")
             }
             .padding(.horizontal, 20)
@@ -234,17 +234,17 @@ struct ShopView: View {
 
     @ViewBuilder private var ordersList: some View {
         if orders.isEmpty {
-            BrandEmpty(title: "Замовлень ще немає", action: "До каталогу") { tab = .catalog }
+            BrandEmpty(title: L("Замовлень ще немає").s, action: L("До каталогу").s) { tab = .catalog }
         }
         ForEach(orders) { o in OrderRow(order: o) }
     }
 
     @ViewBuilder private var invoicesList: some View {
         if invoices.isEmpty {
-            BrandEmpty(title: "Інвойсів ще немає")
+            BrandEmpty(title: L("Інвойсів ще немає").s)
         } else {
             HeroPanel {
-                HeroCaption("Оплачено інвойсів")
+                HeroCaption(L("Оплачено інвойсів").s)
                 BigAmount(value: invoices.filter { $0.status == "paid" }.reduce(0) { $0 + $1.amount }, size: 30)
                     .padding(.top, 6)
             }
@@ -267,21 +267,21 @@ enum ShopCategory: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .all: "Усе"
-        case .phones: "Смартфони"
-        case .laptops: "Ноутбуки"
-        case .audio: "Аудіо"
-        case .gaming: "Ігри"
-        case .appliances: "Техніка"
-        case .home: "Для дому"
-        case .wearables: "Годинники"
-        case .tablets: "Планшети"
-        case .gadgets: "Гаджети"
-        case .women: "Жінкам"
-        case .men: "Чоловікам"
-        case .shoes: "Взуття"
-        case .bags: "Сумки"
-        case .accessories: "Аксесуари"
+        case .all: L("Усе").s
+        case .phones: L("Смартфони").s
+        case .laptops: L("Ноутбуки").s
+        case .audio: L("Аудіо").s
+        case .gaming: L("Ігри").s
+        case .appliances: L("Техніка").s
+        case .home: L("Для дому").s
+        case .wearables: L("Годинники").s
+        case .tablets: L("Планшети").s
+        case .gadgets: L("Гаджети").s
+        case .women: L("Жінкам").s
+        case .men: L("Чоловікам").s
+        case .shoes: L("Взуття").s
+        case .bags: L("Сумки").s
+        case .accessories: L("Аксесуари").s
         }
     }
 
@@ -320,19 +320,19 @@ enum ShopSort: String, CaseIterable, Identifiable {
     }
     var title: String {
         switch self {
-        case .popular: "Популярні"
-        case .cheap: "Дешевші"
-        case .expensive: "Дорожчі"
-        case .newest: "Нові"
-        case .name: "За назвою"
+        case .popular: L("Популярні").s
+        case .cheap: L("Дешевші").s
+        case .expensive: L("Дорожчі").s
+        case .newest: L("Нові").s
+        case .name: L("За назвою").s
         }
     }
 }
 
 enum ShopText {
     static func status(_ s: String) -> String {
-        ["paid": "Оплачено", "awaiting_payment": "Очікує оплати", "issued": "Виставлено", "expired": "Прострочено",
-         "cancelled": "Скасовано", "shipped": "Відправлено", "delivered": "Доставлено", "processing": "Обробляється"][s] ?? s
+        ["paid": L("Оплачено").s, "awaiting_payment": L("Очікує оплати").s, "issued": L("Виставлено").s, "expired": L("Прострочено").s,
+         "cancelled": L("Скасовано").s, "shipped": L("Відправлено").s, "delivered": L("Доставлено").s, "processing": L("Обробляється").s][s] ?? s
     }
 
     /// Крок замовлення: 0 - оплачено, 1 - обробляється, 2 - відправлено, 3 - доставлено.
@@ -387,18 +387,18 @@ struct ProductArt: View {
     /// Мітка в куті: серверна або застереження про малий залишок.
     static func label(_ p: API.Product) -> String? {
         if let b = p.badge, !b.isEmpty { return badgeTitle(b) }
-        if let n = p.stock, n > 0, n <= 5 { return "Лишилось \(n)" }
+        if let n = p.stock, n > 0, n <= 5 { return L("Лишилось \(n)").s }
         return nil
     }
 
     /// Серверні мітки латиницею показуємо звичайним українським словом.
     static func badgeTitle(_ raw: String) -> String {
         switch raw.uppercased() {
-        case "HOT": "Хіт"
-        case "NEW": "Новинка"
-        case "TOP": "Топ"
-        case "DEAL": "Вигідно"
-        case "SALE": "Знижка"
+        case "HOT": L("Хіт").s
+        case "NEW": L("Новинка").s
+        case "TOP": L("Топ").s
+        case "DEAL": L("Вигідно").s
+        case "SALE": L("Знижка").s
         case "PRO": "Pro"
         default: raw
         }
@@ -491,8 +491,8 @@ struct ProductView: View {
     private var shippingText: String {
         let left = Self.freeFrom - subtotal
         return left > 0
-            ? "Нова пошта · безкоштовно від 3 000 TAX, ще \(Format.money(left)) до безкоштовної"
-            : "Нова пошта · доставка безкоштовна"
+            ? L("Нова пошта · безкоштовно від 3 000 TAX, ще \(Format.money(left)) до безкоштовної").s
+            : L("Нова пошта · доставка безкоштовна").s
     }
 
     private func chip(_ s: API.ProductSize) -> some View {
@@ -514,7 +514,7 @@ struct ProductView: View {
         }
         .buttonStyle(.plain)
         .disabled(out)
-        .accessibilityLabel(out ? "Розмір \(s.size), немає" : "Розмір \(s.size)")
+        .accessibilityLabel(out ? L("Розмір \(s.size), немає").s : L("Розмір \(s.size)").s)
     }
 
     var body: some View {
@@ -543,16 +543,16 @@ struct ProductView: View {
                             Text("TAX").font(.system(size: 14, weight: .medium)).tracking(0.8).foregroundStyle(.tertiary)
                         }
                         Spacer()
-                        Text(soldOut ? "Немає в наявності" : "В наявності")
+                        Text(soldOut ? L("Немає в наявності").s : L("В наявності").s)
                             .font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                     }
                     Rule()
                     if needsSize {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text("Розмір").font(.headline)
+                                Text(L("Розмір").s).font(.headline)
                                 Spacer()
-                                if needsPick { Text("Оберіть розмір").font(.footnote).foregroundStyle(.secondary) }
+                                if needsPick { Text(L("Оберіть розмір").s).font(.footnote).foregroundStyle(.secondary) }
                             }
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 56), spacing: 8)], spacing: 8) {
                                 ForEach(sizes, id: \.size) { chip($0) }
@@ -560,14 +560,14 @@ struct ProductView: View {
                             if let c = chosen, c.available <= 2 {
                                 HStack(spacing: 6) {
                                     Circle().fill(Color.orange).frame(width: 7, height: 7)
-                                    Text(c.available == 1 ? "Остання одиниця в розмірі \(c.size)" : "Лишилось \(c.available) шт. у розмірі \(c.size)")
+                                    Text(c.available == 1 ? L("Остання одиниця в розмірі \(c.size)").s : L("Лишилось \(c.available) шт. у розмірі \(c.size)").s)
                                         .font(.footnote).foregroundStyle(.secondary)
                                 }
                             }
                         }
                     }
                     HStack {
-                        Text("Кількість").font(.headline)
+                        Text(L("Кількість").s).font(.headline)
                         Spacer()
                         HStack(spacing: 0) {
                             Button { qty = max(1, qty - 1) } label: { Image(systemName: "minus").frame(width: 44, height: 40) }
@@ -583,31 +583,31 @@ struct ProductView: View {
                     }
                     let already = inCart(size)
                     if already > 0 {
-                        Text("Уже в кошику: \(already)").font(.subheadline).foregroundStyle(.secondary)
+                        Text(L("Уже в кошику: \(already)").s).font(.subheadline).foregroundStyle(.secondary)
                     }
                     VStack(spacing: 10) {
-                        Button(soldOut ? "Немає в наявності" : needsPick ? "Оберіть розмір" : "Купити зараз · \(Format.money(subtotal))") {
+                        Button(soldOut ? L("Немає в наявності").s : needsPick ? L("Оберіть розмір").s : L("Купити зараз · \(Format.money(subtotal))").s) {
                             dismiss()
                             buyNow(size, qty)
                         }
                         .buttonStyle(InkButton())
                         .disabled(!canBuy)
-                        Button("Додати в кошик") { add(size, qty); dismiss() }
+                        Button(L("Додати в кошик").s) { add(size, qty); dismiss() }
                             .buttonStyle(LineButton())
                             .disabled(!canBuy)
                     }
                     VStack(alignment: .leading, spacing: 14) {
                         perk("shippingbox", shippingText)
-                        perk("clock", "Відправка за 1–2 робочі дні, до \(dispatchBy)")
-                        perk("arrow.2.squarepath", "Обмін і повернення 14 днів")
-                        perk("checkmark.shield", "Лише оригінал, з гарантією")
+                        perk("clock", L("Відправка за 1–2 робочі дні, до \(dispatchBy)").s)
+                        perk("arrow.2.squarepath", L("Обмін і повернення 14 днів").s)
+                        perk("checkmark.shield", L("Лише оригінал, з гарантією").s)
                     }
                     .padding(.top, 8)
                 }
                 .padding(Theme.gutter)
             }
             .screenBackground()
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Готово") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } } }
             .task {
                 sizes = await model.api.sizes(for: product.id)
                 sizesLoaded = true
@@ -626,15 +626,15 @@ struct OrderRow: View {
     @State private var preview: URL?
     @State private var busy = false
 
-    private static let steps = ["Оплачено", "Обробка", "Відправлено", "Доставлено"]
+    private static var steps: [String] { [L("Оплачено").s, L("Обробка").s, L("Відправлено").s, L("Доставлено").s] }
 
     var body: some View {
         Surface {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Замовлення #\(order.id)").font(.headline)
-                        Text("\(order.itemsCount ?? 1) поз., \(BankText.date(order.createdAt))").font(.footnote).foregroundStyle(.secondary)
+                        Text(L("Замовлення #\(order.id)").s).font(.headline)
+                        Text(L("\(order.itemsCount ?? 1) поз., \(BankText.date(order.createdAt))").s).font(.footnote).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Text(Format.money(order.totalAmount)).font(.headline).monospacedDigit()
@@ -659,18 +659,18 @@ struct OrderRow: View {
                     }
                     Spacer()
                     if receipt != nil {
-                        Button { preview = receipt } label: { Label("Чек", systemImage: "doc.richtext") }
+                        Button { preview = receipt } label: { Label(L("Чек").s, systemImage: "doc.richtext") }
                     } else {
                         Button {
                             busy = true
                             Task {
                                 receipt = try? await model.api.document("marketplace/order/\(order.id)/receipt",
-                                                                        name: "Чек замовлення \(order.id).pdf")
+                                                                        name: L("Чек замовлення \(order.id).pdf").s)
                                 preview = receipt
                                 busy = false
                             }
                         } label: {
-                            Label(busy ? "Готую…" : "Чек", systemImage: "doc.text")
+                            Label(busy ? L("Готую…").s : L("Чек").s, systemImage: "doc.text")
                         }
                         .disabled(busy)
                     }
@@ -710,21 +710,21 @@ struct CartView: View {
     private var nameError: String? {
         let n = name.trimmingCharacters(in: .whitespaces)
         let ok = n.filter(\.isLetter).count >= 2 && n.allSatisfy { $0.isLetter || " '’ʼ-.".contains($0) }
-        return ok ? nil : "Вкажіть ім'я та прізвище, лише літери"
+        return ok ? nil : L("Вкажіть ім'я та прізвище, лише літери").s
     }
 
     private var phoneError: String? {
         let p = phone.filter { !" ()-\u{00A0}".contains($0) }
-        if p.isEmpty { return "Вкажіть номер телефону" }
+        if p.isEmpty { return L("Вкажіть номер телефону").s }
         guard p.range(of: #"^\+?\d{9,15}$"#, options: .regularExpression) != nil,
               !(p.hasPrefix("0") && p.count != 10)
-        else { return "Невірний номер, приклад: +380 50 123 45 67" }
+        else { return L("Невірний номер, приклад: +380 50 123 45 67").s }
         return nil
     }
 
     private var addressError: String? {
         address.trimmingCharacters(in: .whitespacesAndNewlines).count >= 8
-            ? nil : "Вкажіть адресу: місто, вулиця або відділення (від 8 символів)"
+            ? nil : L("Вкажіть адресу: місто, вулиця або відділення (від 8 символів)").s
     }
 
     private func pay() {
@@ -740,34 +740,34 @@ struct CartView: View {
                     if let bought {
                         VStack(alignment: .leading, spacing: 10) {
                             PaidMark()
-                            Text("Оплачено").font(.display(34)).tracking(-0.8).rise(1)
-                            Text("Замовлення #\(bought.orderId)\(bought.invoiceNumber.map { ", \($0)" } ?? "")")
+                            Text(L("Оплачено").s).font(.display(34)).tracking(-0.8).rise(1)
+                            Text(L("Замовлення #\(bought.orderId)\(bought.invoiceNumber.map { ", \($0)" } ?? "")").s)
                                 .foregroundStyle(.secondary)
-                            if let b = bought.newBalance { Text("Залишок \(Format.money(b))").foregroundStyle(.secondary) }
+                            if let b = bought.newBalance { Text(L("Залишок \(Format.money(b))").s).foregroundStyle(.secondary) }
                         }
                         .padding(.top, 40)
                     } else if cart.isEmpty {
-                        BrandEmpty(title: "Кошик порожній")
+                        BrandEmpty(title: L("Кошик порожній").s)
                     } else {
-                        Text("Кошик").font(.display(28)).tracking(-0.8)
+                        Text(L("Кошик").s).font(.display(28)).tracking(-0.8)
                         VStack(spacing: 0) {
                             ForEach(lines, id: \.line) { cartLine($0.line, $0.qty) }
                         }
                         HStack(alignment: .firstTextBaseline) {
-                            Text("Разом").font(.headline).foregroundStyle(.secondary)
+                            Text(L("Разом").s).font(.headline).foregroundStyle(.secondary)
                             Spacer()
                             PriceText(value: total, size: 30, color: Theme.ink)
                         }
                         .padding(.top, 4)
 
-                        Text("Доставка").font(.title3.weight(.bold)).padding(.top, 6)
+                        Text(L("Доставка").s).font(.title3.weight(.bold)).padding(.top, 6)
                         Surface {
                             VStack(spacing: 0) {
-                                field("Ім'я та прізвище", text: $name, content: .name, error: nameError)
+                                field(L("Ім'я та прізвище").s, text: $name, content: .name, error: nameError)
                                 Rule()
-                                field("Телефон", text: $phone, content: .telephoneNumber, keyboard: .phonePad, error: phoneError)
+                                field(L("Телефон").s, text: $phone, content: .telephoneNumber, keyboard: .phonePad, error: phoneError)
                                 Rule()
-                                field("Адреса", text: $address, content: .fullStreetAddress, axis: .vertical, error: addressError)
+                                field(L("Адреса").s, text: $address, content: .fullStreetAddress, axis: .vertical, error: addressError)
                             }
                         }
                         if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.red) }
@@ -780,7 +780,7 @@ struct CartView: View {
             .screenBackground()
             .safeAreaInset(edge: .bottom) {
                 if bought == nil && !cart.isEmpty {
-                    Button("Оплатити \(Format.money(total))", action: pay)
+                    Button(L("Оплатити \(Format.money(total))").s, action: pay)
                         .buttonStyle(InkButton())
                         .disabled(screen.busy)
                         .padding(.horizontal, Theme.gutter)
@@ -788,7 +788,7 @@ struct CartView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(bought == nil ? "Закрити" : "Готово") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(bought == nil ? L("Закрити").s : L("Готово").s) { dismiss() } } }
             .task {
                 if name.isEmpty, let me = try? await model.api.me() {
                     name = me.fullName
@@ -819,7 +819,7 @@ struct CartView: View {
                 }
                 Text(p.shortName).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
                 if !line.size.isEmpty {
-                    Text("Розмір \(line.size)").font(.caption.weight(.semibold)).foregroundStyle(Theme.ink.opacity(0.7))
+                    Text(L("Розмір \(line.size)").s).font(.caption.weight(.semibold)).foregroundStyle(Theme.ink.opacity(0.7))
                 }
                 PriceText(value: p.price * Double(qty), size: 16, color: Theme.accent)
             }
@@ -873,16 +873,16 @@ struct ThreeDSView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 18) {
                 MarkView(height: 32)
-                Text("Підтвердження оплати").font(.title2.weight(.semibold))
+                Text(L("Підтвердження оплати").s).font(.title2.weight(.semibold))
                 Surface {
-                    Line2("Отримувач", merchant)
+                    Line2(L("Отримувач").s, merchant)
                     Rule()
-                    Line2("Сума", Format.money(amount))
+                    Line2(L("Сума").s, Format.money(amount))
                 }
-                Text("Код надіслано на \(challenge.maskedPhone ?? "ваш телефон").")
+                Text(L("Код надіслано на \(challenge.maskedPhone ?? L("ваш телефон").s).").s)
                     .font(.footnote).foregroundStyle(.secondary)
                 if let demo = challenge.demoOtp {
-                    Text("Навчальний банк: ваш код \(demo)").font(.footnote.monospaced())
+                    Text(L("Навчальний банк: ваш код \(demo)").s).font(.footnote.monospaced())
                 }
                 TextField("000000", text: $code)
                     .keyboardType(.numberPad)
@@ -892,11 +892,11 @@ struct ThreeDSView: View {
                     .padding(.vertical, 12)
                     .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
                     .onChange(of: code) { code = String(code.filter(\.isNumber).prefix(6)) }
-                Text(left > 0 ? String(format: "Код дійсний ще %d:%02d", left / 60, left % 60) : "Час вийшов - почніть оплату знову")
+                Text(left > 0 ? String(format: L("Код дійсний ще %d:%02d").s, left / 60, left % 60) : L("Час вийшов - почніть оплату знову").s)
                     .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
                 if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
                 Spacer()
-                Button("Підтвердити") {
+                Button(L("Підтвердити").s) {
                     Task {
                         if await screen.run({ try await model.api.verify(challenge, code: code) }) {
                             await verified()
@@ -906,11 +906,11 @@ struct ThreeDSView: View {
                 }
                 .buttonStyle(InkButton())
                 .disabled(code.count != 6 || left <= 0 || screen.busy)
-                Text("3-D Secure · навчальний банк TaxTech").font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
+                Text(L("3-D Secure · навчальний банк TaxTech").s).font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
             }
             .padding(24)
             .screenBackground()
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
             .task {
                 left = challenge.expiresIn
                 while left > 0 && !Task.isCancelled {

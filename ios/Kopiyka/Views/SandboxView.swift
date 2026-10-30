@@ -12,16 +12,16 @@ struct TopUpView: View {
     var body: some View {
         NavigationStack {
             LabForm {
-                TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
+                TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
                 if let error { Text(error).foregroundStyle(.secondary) }
             }
             .labForm()
-            .navigationTitle("Поповнення")
+            .navigationTitle(L("Поповнення").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Поповнити") {
+                    Button(L("Поповнити").s) {
                         busy = true
                         Task {
                             do {
@@ -75,7 +75,7 @@ struct TransferView: View {
                             .font(Theme.balance(48))
                             .multilineTextAlignment(.center)
                             .monospacedDigit()
-                        Text("Доступно \(Format.money(balance))")
+                        Text(L("Доступно \(Format.money(balance))").s)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -84,25 +84,25 @@ struct TransferView: View {
                     .listRowBackground(Color.clear)
                 }
                 Section {
-                    Picker("Куди", selection: $byCard) {
-                        Text("На рахунок").tag(false)
-                        Text("На картку").tag(true)
+                    Picker(L("Куди").s, selection: $byCard) {
+                        Text(L("На рахунок").s).tag(false)
+                        Text(L("На картку").s).tag(true)
                     }
                     .pickerStyle(.segmented)
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
-                    TextField(byCard ? "Номер картки" : "Рахунок одержувача, KP-…", text: $recipient)
+                    TextField(byCard ? L("Номер картки").s : L("Рахунок одержувача, KP-…").s, text: $recipient)
                         .keyboardType(byCard ? .numberPad : .default)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                    TextField("Призначення", text: $note)
+                    TextField(L("Призначення").s, text: $note)
                     if !contacts.isEmpty || !templates.isEmpty {
-                        Menu("Обрати зі збережених") {
+                        Menu(L("Обрати зі збережених").s) {
                             ForEach(contacts.filter { ($0.accountNumber ?? "").isEmpty == false }) { c in
                                 Button(c.contactName) { byCard = false; recipient = c.accountNumber ?? "" }
                             }
                             ForEach(templates) { t in
-                                Button("Шаблон: \(t.name)") {
+                                Button(L("Шаблон: \(t.name)").s) {
                                     byCard = false
                                     recipient = t.recipientAccount ?? ""
                                     if let a = t.amount { amount = a }
@@ -119,21 +119,21 @@ struct TransferView: View {
 
                 if verdict == nil {
                     Section {
-                        Button("Перевірити переказ") { Task { await check() } }
+                        Button(L("Перевірити переказ").s) { Task { await check() } }
                             .disabled(!valid || busy)
-                        Button("Приклад: дроблення під поріг") {
+                        Button(L("Приклад: дроблення під поріг").s) {
                             recipient = "KP-100003"
                             amount = 9_950
-                            note = "терміново"
+                            note = L("терміново").s
                         }
                     }
                 }
 
                 if let verdict, let record {
-                    Section("Оцінка ризику") {
-                        LabeledContent("Бал", value: "\(verdict.score) з 100").monospacedDigit()
-                        LabeledContent("Рівень", value: Self.levels[verdict.level] ?? verdict.level)
-                        LabeledContent("Шарів правил", value: "\(verdict.layers) з 3")
+                    Section(L("Оцінка ризику").s) {
+                        LabeledContent(L("Бал").s, value: L("\(verdict.score) з 100").s).monospacedDigit()
+                        LabeledContent(L("Рівень").s, value: Self.levels[verdict.level] ?? verdict.level)
+                        LabeledContent(L("Шарів правил").s, value: L("\(verdict.layers) з 3").s)
                         if !verdict.flags.isEmpty {
                             Text(verdict.flags.map { Self.flags[$0] ?? $0 }.joined(separator: "\n"))
                                 .font(.footnote)
@@ -143,10 +143,10 @@ struct TransferView: View {
                     if outcome == nil {
                         Section {
                             if verdict.level == "critical" {
-                                Text("Переказ із критичним ризиком не надсилається.")
+                                Text(L("Переказ із критичним ризиком не надсилається.").s)
                                     .foregroundStyle(.secondary)
                             } else {
-                                Button("Надіслати \(Format.money(amount ?? 0))") { Task { await send() } }
+                                Button(L("Надіслати \(Format.money(amount ?? 0))").s) { Task { await send() } }
                                     .disabled(busy)
                             }
                         }
@@ -164,10 +164,10 @@ struct TransferView: View {
                 }
                 await loadSaved()
             }
-            .navigationTitle("Переказ")
+            .navigationTitle(L("Переказ").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(outcome == nil ? "Скасувати" : "Готово") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(outcome == nil ? L("Скасувати").s : L("Готово").s) { dismiss() } }
             }
         }
     }
@@ -210,18 +210,18 @@ struct TransferView: View {
             } else {
                 _ = try await model.api.transfer(amount ?? 0, to: recipient, description: note)
             }
-            outcome = "Надіслано \(Format.money(amount ?? 0)) на \(recipient)"
+            outcome = L("Надіслано \(Format.money(amount ?? 0)) на \(recipient)").s
             await model.feedback(record.id, correct: true)
             await done()
         } catch {
             // банк відмовив повним антифродом, а попередня оцінка пропустила - це помилка оцінки
             let blocked = error.localizedDescription.contains("заблоковано")
             if blocked { await model.feedback(record.id, correct: false) }
-            outcome = blocked ? "Банк заблокував переказ: \(error.localizedDescription)" : nil
+            outcome = blocked ? L("Банк заблокував переказ: \(error.localizedDescription)").s : nil
             if !blocked { self.error = error.localizedDescription }
         }
     }
 
-    static let levels = ["low": "Низький", "medium": "Середній", "high": "Високий", "critical": "Критичний"]
+    static var levels: [String: String] { ["low": L("Низький").s, "medium": L("Середній").s, "high": L("Високий").s, "critical": L("Критичний").s] }
     static let flags = FraudFlags.titles
 }

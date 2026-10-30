@@ -16,10 +16,10 @@ struct AssistantView: View {
     }
 
     static let suggestions = [
-        "Як скласти бюджет на місяць?",
-        "Скільки податку платить ФОП 3 групи?",
-        "Як повернути ПДФО за навчання?",
-        "Що таке хеш запису в чеку?",
+        L("Як скласти бюджет на місяць?").s,
+        L("Скільки податку платить ФОП 3 групи?").s,
+        L("Як повернути ПДФО за навчання?").s,
+        L("Що таке хеш запису в чеку?").s,
     ]
 
     var body: some View {
@@ -38,7 +38,7 @@ struct AssistantView: View {
                         if working {
                             HStack {
                                 ProgressView()
-                                Text("Думаю…").foregroundStyle(.secondary)
+                                Text(L("Думаю…").s).foregroundStyle(.secondary)
                                 Spacer()
                             }
                             .padding(.horizontal, 4)
@@ -50,11 +50,11 @@ struct AssistantView: View {
                 .onChange(of: turns.count) { withAnimation { proxy.scrollTo(turns.last?.id, anchor: .bottom) } }
             }
             .screenBackground()
-            .navigationTitle("Помічник")
+            .navigationTitle(L("Помічник").s)
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom) {
                 HStack(alignment: .bottom) {
-                    TextField("Ваше питання", text: $question, axis: .vertical)
+                    TextField(L("Ваше питання").s, text: $question, axis: .vertical)
                         .lineLimit(1...4)
                         .onSubmit(ask)
                     Button(action: ask) {

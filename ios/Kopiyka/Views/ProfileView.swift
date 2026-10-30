@@ -76,41 +76,49 @@ struct ProfileView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    ScreenTitle("Профіль")
+                    ScreenTitle(L("Профіль").s)
                     header
-                    RowGroup(title: "Гроші") {
-                        nav("Депозити", "banknote") { DepositsView() }
-                        nav("Кредити", "percent") { CreditsView() }
-                        nav("Цілі", "target") { GoalsView() }
-                        nav("Донати", "heart") { DonationsView() }
-                        nav("Виплати", "arrow.down") { PayoutsView() }
-                        nav("Борги", "person.2") { DebtsView() }
+                    RowGroup(title: L("Гроші").s) {
+                        nav(L("Депозити").s, "banknote") { DepositsView() }
+                        nav(L("Кредити").s, "percent") { CreditsView() }
+                        nav(L("Цілі").s, "target") { GoalsView() }
+                        nav(L("Донати").s, "heart") { DonationsView() }
+                        nav(L("Виплати").s, "arrow.down") { PayoutsView() }
+                        nav(L("Борги").s, "person.2") { DebtsView() }
                     }
-                    RowGroup(title: "Платежі") {
-                        nav("Контакти й шаблони", "person.crop.rectangle.stack") { ContactsView() }
-                        nav("Ліміти й регулярні платежі", "calendar") { LimitsView() }
-                        nav("Виписки", "doc.text") { StatementsView() }
-                        nav("Аналітика", "chart.bar") { AnalyticsView() }
+                    RowGroup(title: L("Платежі").s) {
+                        nav(L("Контакти й шаблони").s, "person.crop.rectangle.stack") { ContactsView() }
+                        nav(L("Ліміти й регулярні платежі").s, "calendar") { LimitsView() }
+                        nav(L("Виписки").s, "doc.text") { StatementsView() }
+                        nav(L("Аналітика").s, "chart.bar") { AnalyticsView() }
                     }
-                    RowGroup(title: "Безпека") {
-                        nav(Biometrics.kind == .none ? "PIN, пароль і пристрої" : "PIN, \(Biometrics.title), пароль", "lock") { SecurityView() }
-                        nav("Сповіщення", "bell") { NoticesView() }
+                    RowGroup(title: L("Безпека").s) {
+                        nav(Biometrics.kind == .none ? L("PIN, пароль і пристрої").s : L("PIN, \(Biometrics.title), пароль").s, "lock") { SecurityView() }
+                        nav(L("Сповіщення").s, "bell") { NoticesView() }
                         NavigationLink { AchievementsView() } label: {
-                            IconRow(title: "Досягнення", symbol: "trophy",
-                                    detail: achievements.map { "\($0.done) з \($0.total)" })
+                            IconRow(title: L("Досягнення").s, symbol: "trophy",
+                                    detail: achievements.map { L("\($0.done) з \($0.total)").s })
                         }
                         .buttonStyle(.plain)
                     }
-                    RowGroup(title: "На телефоні") {
-                        sheet("Облік витрат", "list.bullet.rectangle", .money)
-                        sheet("Розпізнати чек", "doc.text.viewfinder", .receipt)
-                        sheet("Помічник", "text.bubble", .assistant)
-                        sheet("Лабораторія", "flask", .lab)
+                    RowGroup(title: L("На телефоні").s) {
+                        sheet(L("Облік витрат").s, "list.bullet.rectangle", .money)
+                        sheet(L("Розпізнати чек").s, "doc.text.viewfinder", .receipt)
+                        sheet(L("Помічник").s, "text.bubble", .assistant)
+                        sheet(L("Лабораторія").s, "flask", .lab)
+                    }
+                    RowGroup(title: L("Мова").s) {
+                        ForEach(Lang.allCases) { l in
+                            Button { Lang.set(l) } label: {
+                                IconRow(title: l.title, symbol: Lang.current == l ? "checkmark.circle.fill" : "circle")
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                     invite
                     VStack(spacing: 10) {
-                        Button("Вийти") { model.signOut() }.buttonStyle(LineButton())
-                        Button("Видалити акаунт") { confirmDelete = true }
+                        Button(L("Вийти").s) { model.signOut() }.buttonStyle(LineButton())
+                        Button(L("Видалити акаунт").s) { confirmDelete = true }
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -142,17 +150,17 @@ struct ProfileView: View {
                 }
                 .presentationDragIndicator(.visible)
             }
-            .confirmationDialog("Видалити акаунт назавжди?", isPresented: $confirmDelete, titleVisibility: .visible) {
-                Button("Видалити акаунт і всі дані", role: .destructive) {
+            .confirmationDialog(L("Видалити акаунт назавжди?").s, isPresented: $confirmDelete, titleVisibility: .visible) {
+                Button(L("Видалити акаунт і всі дані").s, role: .destructive) {
                     Task {
                         do { try await model.deleteAccount() } catch { deleteError = error.localizedDescription }
                     }
                 }
             } message: {
-                Text("Рахунок, картки, депозити, кредити й історія операцій зникнуть. Облік витрат на телефоні залишиться.")
+                Text(L("Рахунок, картки, депозити, кредити й історія операцій зникнуть. Облік витрат на телефоні залишиться.").s)
             }
-            .alert("Не вдалося видалити", isPresented: .init(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) {
-                Button("Гаразд") {}
+            .alert(L("Не вдалося видалити").s, isPresented: .init(get: { deleteError != nil }, set: { if !$0 { deleteError = nil } })) {
+                Button(L("Гаразд").s) {}
             } message: { Text(deleteError ?? "") }
         }
     }
@@ -173,10 +181,10 @@ struct ProfileView: View {
                                 .offset(x: 2, y: 2)
                         }
                 }
-                .accessibilityLabel("Змінити фото")
+                .accessibilityLabel(L("Змінити фото").s)
                 .contextMenu {
                     if ProfilePhoto.load() != nil {
-                        Button("Видалити фото", systemImage: "trash", role: .destructive) { ProfilePhoto.remove() }
+                        Button(L("Видалити фото").s, systemImage: "trash", role: .destructive) { ProfilePhoto.remove() }
                     }
                 }
                 .onChange(of: pick) { _, item in
@@ -196,7 +204,7 @@ struct ProfileView: View {
             if let me {
                 HStack(spacing: 10) {
                     if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") {
-                        fact(p, "Телефон", "phone")
+                        fact(p, L("Телефон").s, "phone")
                     }
                 }
                 .padding(.top, 18)
@@ -229,12 +237,12 @@ struct ProfileView: View {
     private var invite: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Запросити друга").font(.headline)
+                Text(L("Запросити друга").s).font(.headline)
                 Text(inviteCode).font(.title3.monospaced().weight(.bold))
             }
             Spacer()
             ShareLink(item: URL(string: "https://bank.munister.com.ua/?ref=\(inviteCode)")!,
-                      message: Text("TaxTech: картки, депозити й перекази на токенах TAX")) {
+                      message: Text(L("TaxTech: картки, депозити й перекази на токенах TAX").s)) {
                 Image(systemName: "square.and.arrow.up")
                     .font(.system(size: 17, weight: .semibold))
                     .frame(width: 48, height: 48)
@@ -242,7 +250,7 @@ struct ProfileView: View {
                     .foregroundStyle(Theme.onInk)
             }
             .buttonStyle(PressScale())
-            .accessibilityLabel("Поділитися")
+            .accessibilityLabel(L("Поділитися").s)
         }
         .padding(16)
         .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))

@@ -3,7 +3,7 @@ import SwiftUI
 /// Назва й позиціонування. Одне місце, щоб не розходилось між екранами.
 enum Brand {
     static let name = "TaxTech"
-    static let lab = "Віртуальна лабораторія цифрових фінансів і технологій розподіленого реєстру"
+    static var lab: String { L("Віртуальна лабораторія цифрових фінансів і технологій розподіленого реєстру").s }
 }
 
 /// Візуальна мова TaxTech: чорне тло й теплий папір, один сигнальний жовтий - колір токена TAX.
@@ -289,12 +289,12 @@ enum CardDesign: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .dark: "Чорний"
-        case .slate: "Графіт"
-        case .navy: "Сталь"
-        case .forest: "Білий"
-        case .gold: "Золото"
-        case .rose: "Скло"
+        case .dark: L("Чорний").s
+        case .slate: L("Графіт").s
+        case .navy: L("Сталь").s
+        case .forest: L("Білий").s
+        case .gold: L("Золото").s
+        case .rose: L("Скло").s
         }
     }
 
@@ -348,7 +348,7 @@ struct VirtualCardView: View {
             if !compact { face }
             if frozen {
                 shape.fill(.black.opacity(0.62))
-                Label("Заморожена", systemImage: "snowflake")
+                Label(L("Заморожена").s, systemImage: "snowflake")
                     .font(compact ? .caption2 : .headline)
                     .labelStyle(compact ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleAndIcon))
                     .foregroundStyle(.white)
@@ -394,7 +394,7 @@ struct VirtualCardView: View {
                 Text(holder ?? "").lineLimit(1)
                 Spacer()
                 if let expiry { Text(expiry).monospacedDigit() }
-                Text("ВІРТУАЛЬНА").font(.system(size: 9, weight: .bold)).tracking(1.4).opacity(0.7)
+                Text(L("ВІРТУАЛЬНА").s).font(.system(size: 9, weight: .bold)).tracking(1.4).opacity(0.7)
             }
             .font(.caption.weight(.medium))
             .opacity(0.85)

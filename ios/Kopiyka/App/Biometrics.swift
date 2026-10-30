@@ -20,7 +20,7 @@ enum Biometrics {
         case .faceID: "Face ID"
         case .touchID: "Touch ID"
         case .opticID: "Optic ID"
-        case .none: "Біометрія"
+        case .none: L("Біометрія").s
         }
     }
 
@@ -35,7 +35,7 @@ enum Biometrics {
     /// true - власника впізнано; скасування чи збій - false, тоді лишається PIN.
     static func unlock(reason: String) async -> Bool {
         let context = LAContext()
-        context.localizedCancelTitle = "Ввести PIN"
+        context.localizedCancelTitle = L("Ввести PIN").s
         return (try? await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)) ?? false
     }
 }

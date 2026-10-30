@@ -19,11 +19,11 @@ struct RootView: View {
                 PinLockView()
             } else {
                 TabView(selection: $selection) {
-                    Tab("Огляд", systemImage: "square.grid.2x2", value: AppTab.overview) { OverviewView { selection = $0 } }
-                    Tab("Операції", systemImage: "waveform.path.ecg", value: AppTab.operations) { OperationsView() }
-                    Tab("Картки", systemImage: "creditcard", value: AppTab.cards) { CardsTab() }
-                    Tab("Податки", systemImage: "percent", value: AppTab.taxes) { TaxesView() }
-                    Tab("Магазин", systemImage: "bag", value: AppTab.shop) { ShopView() }
+                    Tab(L("Огляд").s, systemImage: "square.grid.2x2", value: AppTab.overview) { OverviewView { selection = $0 } }
+                    Tab(L("Операції").s, systemImage: "waveform.path.ecg", value: AppTab.operations) { OperationsView() }
+                    Tab(L("Картки").s, systemImage: "creditcard", value: AppTab.cards) { CardsTab() }
+                    Tab(L("Податки").s, systemImage: "percent", value: AppTab.taxes) { TaxesView() }
+                    Tab(L("Магазин").s, systemImage: "bag", value: AppTab.shop) { ShopView() }
                 }
                 .tint(Theme.tint)
                 .tabBarMinimizeBehavior(.onScrollDown)
@@ -76,7 +76,7 @@ enum Format {
     }
 
     static func ms(_ v: Double) -> String {
-        v < 10 ? String(format: "%.1f мс", v) : v < 1000 ? "\(Int(v)) мс" : String(format: "%.1f с", v / 1000)
+        v < 10 ? String(format: L("%.1f мс").s, v) : v < 1000 ? L("\(Int(v)) мс").s : String(format: L("%.1f с").s, v / 1000)
     }
 
     static func ms(_ d: Duration) -> String {
@@ -84,7 +84,7 @@ enum Format {
     }
 
     static func joules(_ v: Double) -> String {
-        v < 0.1 ? String(format: "%.3f Дж", v) : String(format: "%.2f Дж", v)
+        v < 0.1 ? String(format: L("%.3f Дж").s, v) : String(format: L("%.2f Дж").s, v)
     }
 }
 
@@ -105,8 +105,8 @@ struct RoutedNote: View {
 
     var summary: String {
         var parts = [record.placement.title, Format.ms(record.latencyMs), Format.joules(record.energyJ)]
-        if record.escalated { parts.append("телефон засумнівався") }
-        if record.redactions > 0 { parts.append("замасковано \(record.redactions)") }
+        if record.escalated { parts.append(L("телефон засумнівався").s) }
+        if record.redactions > 0 { parts.append(L("замасковано \(record.redactions)").s) }
         return parts.joined(separator: ", ")
     }
 }
@@ -120,9 +120,9 @@ struct FeedbackButtons: View {
     var body: some View {
         HStack(spacing: 16) {
             Button { send(true) } label: { Image(systemName: sent == true ? "hand.thumbsup.fill" : "hand.thumbsup") }
-                .accessibilityLabel("Правильно")
+                .accessibilityLabel(L("Правильно").s)
             Button { send(false) } label: { Image(systemName: sent == false ? "hand.thumbsdown.fill" : "hand.thumbsdown") }
-                .accessibilityLabel("Неправильно")
+                .accessibilityLabel(L("Неправильно").s)
         }
         .font(.footnote)
         .foregroundStyle(.secondary)

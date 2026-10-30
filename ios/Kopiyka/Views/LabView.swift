@@ -7,7 +7,7 @@ struct LabView: View {
     @Environment(AppModel.self) private var model
     @State private var confirmReset = false
 
-    static let taskTitles = ["fraud": "Перевірка переказу", "receipt": "Чек", "assistant": "Помічник"]
+    static var taskTitles: [String: String] { ["fraud": L("Перевірка переказу").s, "receipt": L("Чек").s, "assistant": L("Помічник").s] }
 
     var body: some View {
         NavigationStack {
@@ -22,21 +22,21 @@ struct LabView: View {
                 journal
             }
             .labForm()
-            .navigationTitle("Лабораторія")
+            .navigationTitle(L("Лабораторія").s)
             .refreshable { await model.refresh() }
             .task { await model.refresh() }
             .toolbar {
                 ToolbarItem {
-                    ShareLink("Експорт журналу", item: model.router.telemetry.url)
+                    ShareLink(L("Експорт журналу").s, item: model.router.telemetry.url)
                         .disabled(model.decisions.isEmpty)
                 }
                 ToolbarItem {
-                    Button("Скинути навчене", systemImage: "arrow.counterclockwise") { confirmReset = true }
+                    Button(L("Скинути навчене").s, systemImage: "arrow.counterclockwise") { confirmReset = true }
                 }
             }
-            .confirmationDialog("Стерти журнал і все, чого метод навчився?", isPresented: $confirmReset,
+            .confirmationDialog(L("Стерти журнал і все, чого метод навчився?").s, isPresented: $confirmReset,
                                 titleVisibility: .visible) {
-                Button("Стерти", role: .destructive) { Task { await model.resetLearning() } }
+                Button(L("Стерти").s, role: .destructive) { Task { await model.resetLearning() } }
             }
         }
     }
@@ -62,10 +62,10 @@ struct LabView: View {
         let judged = d.compactMap { model.feedback[$0.id] }
         return Section {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                StatTile(value: "\(d.count)", title: "рішень")
-                StatTile(value: d.isEmpty ? "-" : "\(Int(Double(device) / n * 100))%", title: "на телефоні")
-                StatTile(value: d.isEmpty ? "-" : Format.ms(d.map(\.latencyMs).reduce(0, +) / n), title: "середня затримка")
-                StatTile(value: judged.isEmpty ? "-" : "\(Int(Double(judged.filter { $0 }.count) / Double(judged.count) * 100))%", title: "правильних відповідей")
+                StatTile(value: "\(d.count)", title: L("рішень").s)
+                StatTile(value: d.isEmpty ? "-" : "\(Int(Double(device) / n * 100))%", title: L("на телефоні").s)
+                StatTile(value: d.isEmpty ? "-" : Format.ms(d.map(\.latencyMs).reduce(0, +) / n), title: L("середня затримка").s)
+                StatTile(value: judged.isEmpty ? "-" : "\(Int(Double(judged.filter { $0 }.count) / Double(judged.count) * 100))%", title: L("правильних відповідей").s)
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -74,35 +74,35 @@ struct LabView: View {
 
     private var strategy: some View {
         Section {
-            Picker("Стратегія", selection: Binding(
+            Picker(L("Стратегія").s, selection: Binding(
                 get: { model.snapshot.config.strategy },
                 set: { s in Task { await model.configure { $0.config.strategy = s } } }
             )) {
                 ForEach(Strategy.allCases, id: \.self) { Text($0.title) }
             }
         } footer: {
-            Text("Чотири базові стратегії потрібні для порівняння з методом у роботі.")
+            Text(L("Чотири базові стратегії потрібні для порівняння з методом у роботі.").s)
         }
     }
 
     private var privacy: some View {
         @Bindable var model = model
         return Section {
-            Toggle("Мовна модель на сервері", isOn: $model.cloudAIAllowed)
+            Toggle(L("Мовна модель на сервері").s, isOn: $model.cloudAIAllowed)
                 .tint(Theme.ink.opacity(0.6))
         } footer: {
             Text(model.signedIn
-                 ? "Текст чека й питання помічнику йдуть на сервер лише без номерів карток, телефонів, пошти й ІПН."
-                 : "Сервер доступний після входу в навчальний банк.")
+                 ? L("Текст чека й питання помічнику йдуть на сервер лише без номерів карток, телефонів, пошти й ІПН.").s
+                 : L("Сервер доступний після входу в навчальний банк.").s)
         }
     }
 
     private var parameters: some View {
-        Section("Параметри методу") {
-            slider("Цільова частка помилок α", \.alpha, 0.01...0.3, "%.2f")
-            slider("Компроміс V", \.lyapunovV, 0.1...10, "%.1f")
-            slider("Бюджет енергії, Дж на задачу", \.energyBudgetJ, 0.1...5, "%.1f")
-            slider("Вага якості", \.qualityWeight, 0...10, "%.1f")
+        Section(L("Параметри методу").s) {
+            slider(L("Цільова частка помилок α").s, \.alpha, 0.01...0.3, "%.2f")
+            slider(L("Компроміс V").s, \.lyapunovV, 0.1...10, "%.1f")
+            slider(L("Бюджет енергії, Дж на задачу").s, \.energyBudgetJ, 0.1...5, "%.1f")
+            slider(L("Вага якості").s, \.qualityWeight, 0...10, "%.1f")
         }
     }
 
@@ -121,25 +121,25 @@ struct LabView: View {
     private var now: some View {
         let c = model.context
         let s = model.snapshot
-        return Section("Зараз") {
-            LabeledContent("Мережа", value: Self.network[c.network] ?? c.network.rawValue)
-            LabeledContent("Заряд", value: c.batteryLevel.map { "\(Int($0 * 100))%\(c.isCharging ? ", заряджається" : "")" } ?? "невідомо")
-            LabeledContent("Енергозбереження", value: c.lowPowerMode ? "увімкнено" : "вимкнено")
-            LabeledContent("Нагрів", value: Self.thermal[c.thermal] ?? "")
-            LabeledContent("Перевитрата енергії Z", value: Format.joules(s.state.energyQueue))
+        return Section(L("Зараз").s) {
+            LabeledContent(L("Мережа").s, value: Self.network[c.network] ?? c.network.rawValue)
+            LabeledContent(L("Заряд").s, value: c.batteryLevel.map { "\(Int($0 * 100))%\(c.isCharging ? L(", заряджається").s : "")" } ?? L("невідомо").s)
+            LabeledContent(L("Енергозбереження").s, value: c.lowPowerMode ? L("увімкнено").s : L("вимкнено").s)
+            LabeledContent(L("Нагрів").s, value: Self.thermal[c.thermal] ?? "")
+            LabeledContent(L("Перевитрата енергії Z").s, value: Format.joules(s.state.energyQueue))
             ForEach(Self.taskTitles.sorted(by: <), id: \.key) { id, title in
-                LabeledContent("Поріг каскаду, \(title.lowercased())",
+                LabeledContent(L("Поріг каскаду, \(title.lowercased())").s,
                                value: String(format: "%.2f", s.state.lambda(id)))
             }
-            LabeledContent("Модель на телефоні", value: AssistantTask.deviceStatus)
+            LabeledContent(L("Модель на телефоні").s, value: AssistantTask.deviceStatus)
         }
         .monospacedDigit()
     }
 
     private var summary: some View {
-        Section("Підсумки") {
+        Section(L("Підсумки").s) {
             if model.decisions.isEmpty {
-                Text("Ще немає рішень. Перевірте переказ, чек або спитайте помічника.")
+                Text(L("Ще немає рішень. Перевірте переказ, чек або спитайте помічника.").s)
                     .foregroundStyle(.secondary)
             }
             ForEach(stats, id: \.title) { row in
@@ -163,10 +163,10 @@ struct LabView: View {
             let first = rs[0]
             let n = Double(rs.count)
             let judged = rs.compactMap { model.feedback[$0.id] }
-            var parts = ["запусків: \(rs.count)", "у середньому \(Format.ms(rs.map(\.latencyMs).reduce(0, +) / n))",
+            var parts = [L("запусків: \(rs.count)").s, L("у середньому \(Format.ms(rs.map(\.latencyMs).reduce(0, +) / n))").s,
                          Format.joules(rs.map(\.energyJ).reduce(0, +) / n)]
             if !judged.isEmpty {
-                parts.append("правильно \(judged.filter { $0 }.count) з \(judged.count)")
+                parts.append(L("правильно \(judged.filter { $0 }.count) з \(judged.count)").s)
             }
             return Row(title: "\(Self.taskTitles[first.task] ?? first.task), \(first.placement.title.lowercased())",
                        detail: parts.joined(separator: ", "))
@@ -174,7 +174,7 @@ struct LabView: View {
     }
 
     private var journal: some View {
-        Section("Останні рішення") {
+        Section(L("Останні рішення").s) {
             ForEach(model.decisions.prefix(30)) { r in
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(Self.taskTitles[r.task] ?? r.task): \(r.plan.title.lowercased())")
@@ -187,10 +187,10 @@ struct LabView: View {
         }
     }
 
-    static let network: [Network: String] = [.offline: "немає", .wifi: "вайфай", .cellular: "мобільна",
-                                             .wired: "дротова", .other: "інша"]
-    static let thermal: [Thermal: String] = [.nominal: "норма", .fair: "теплий", .serious: "гарячий",
-                                             .critical: "перегрітий"]
+    static var network: [Network: String] { [.offline: L("немає").s, .wifi: L("вайфай").s, .cellular: L("мобільна").s,
+                                             .wired: L("дротова").s, .other: L("інша").s] }
+    static var thermal: [Thermal: String] { [.nominal: L("норма").s, .fair: L("теплий").s, .serious: L("гарячий").s,
+                                             .critical: L("перегрітий").s] }
 }
 
 struct StatTile: View {

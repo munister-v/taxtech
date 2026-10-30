@@ -4,12 +4,15 @@ import SwiftUI
 @main
 struct KopiykaApp: App {
     @State private var model = AppModel()
+    @AppStorage(Lang.key) private var langRaw = Lang.current.rawValue
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(model)
                 .preferredColorScheme(.dark)
+                .environment(\.locale, Lang.current.locale)
+                .id(langRaw)
                 .task {
                     #if DEBUG && targetEnvironment(simulator)
                     await model.debugSignIn()

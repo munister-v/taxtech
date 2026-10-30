@@ -15,17 +15,17 @@ struct DonationsView: View {
         LabForm {
             Section {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Усього задоначено").caption()
+                    Text(L("Усього задоначено").s).caption()
                     Text(Format.money(total)).font(Theme.balance(40)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
                 }
                 .padding(.vertical, 6)
                 .listRowBackground(Color.clear)
             }
             if loaded && items.isEmpty {
-                Section { BrandEmpty(title: "Донатів ще немає").listRowBackground(Color.clear) }
+                Section { BrandEmpty(title: L("Донатів ще немає").s).listRowBackground(Color.clear) }
             }
             if !items.isEmpty {
-                Section("Історія") {
+                Section(L("Історія").s) {
                     ForEach(items) { d in
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 3) {
@@ -41,9 +41,9 @@ struct DonationsView: View {
             }
         }
         .labForm()
-        .navigationTitle("Донати")
+        .navigationTitle(L("Донати").s)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { Button("Задонатити", systemImage: "plus") { giving = true } }
+        .toolbar { Button(L("Задонатити").s, systemImage: "plus") { giving = true } }
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $giving) { DonateView { await load() } }
@@ -64,18 +64,18 @@ struct DonateView: View {
     @State private var comment = ""
     @State private var screen = Screen()
 
-    static let funds = ["Повернись живим", "Фонд Сергія Притули", "United24", "Госпітальєри", "Інший напрям"]
+    static var funds: [String] { [L("Повернись живим").s, L("Фонд Сергія Притули").s, "United24", L("Госпітальєри").s, L("Інший напрям").s] }
 
     var body: some View {
         NavigationStack {
             LabForm {
                 Section {
-                    Picker("Фонд", selection: $fund) { ForEach(Self.funds, id: \.self, content: Text.init) }
-                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
-                    TextField("Коментар", text: $comment)
+                    Picker(L("Фонд").s, selection: $fund) { ForEach(Self.funds, id: \.self, content: Text.init) }
+                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField(L("Коментар").s, text: $comment)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Задонатити", disabled: (amount ?? 0) <= 0 || screen.busy) {
+                FormAction(title: L("Задонатити").s, disabled: (amount ?? 0) <= 0 || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.donate(fund: fund, amount: amount ?? 0, comment: comment) }) {
                             await done()
@@ -85,9 +85,9 @@ struct DonateView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Донат")
+            .navigationTitle(L("Донат").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium, .large])
     }
@@ -101,12 +101,12 @@ struct PayoutsView: View {
     @State private var accruing = false
     @State private var loaded = false
 
-    static let types = [("salary", "Грошове забезпечення"), ("bonus", "Премія"), ("compensation", "Компенсація"), ("general", "Інша виплата")]
+    static var types: [(String, String)] { [("salary", L("Грошове забезпечення").s), ("bonus", L("Премія").s), ("compensation", L("Компенсація").s), ("general", L("Інша виплата").s)] }
 
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { BrandEmpty(title: "Виплат ще немає").listRowBackground(Color.clear) }
+                Section { BrandEmpty(title: L("Виплат ще немає").s).listRowBackground(Color.clear) }
             }
             ForEach(items) { p in
                 HStack(alignment: .firstTextBaseline) {
@@ -120,9 +120,9 @@ struct PayoutsView: View {
             }
         }
         .labForm()
-        .navigationTitle("Виплати")
+        .navigationTitle(L("Виплати").s)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { Button("Нарахувати", systemImage: "plus") { accruing = true } }
+        .toolbar { Button(L("Нарахувати").s, systemImage: "plus") { accruing = true } }
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $accruing) { AccrueView { await load() } }
@@ -146,12 +146,12 @@ struct AccrueView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    Picker("Вид", selection: $type) { ForEach(PayoutsView.types, id: \.0) { Text($0.1).tag($0.0) } }
-                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
+                    Picker(L("Вид").s, selection: $type) { ForEach(PayoutsView.types, id: \.0) { Text($0.1).tag($0.0) } }
+                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Нарахувати", disabled: (amount ?? 0) <= 0 || screen.busy) {
-                    let title = PayoutsView.types.first { $0.0 == type }?.1 ?? "Виплата"
+                FormAction(title: L("Нарахувати").s, disabled: (amount ?? 0) <= 0 || screen.busy) {
+                    let title = PayoutsView.types.first { $0.0 == type }?.1 ?? L("Виплата").s
                     Task {
                         if await screen.run({ try await model.api.accruePayout(title: title, amount: amount ?? 0, type: type) }) {
                             await done()
@@ -161,9 +161,9 @@ struct AccrueView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Нова виплата")
+            .navigationTitle(L("Нова виплата").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium])
     }
@@ -186,20 +186,20 @@ struct DebtsView: View {
         LabForm {
             Section {
                 HStack(spacing: 0) {
-                    figure("Мені винні", toMe.reduce(0) { $0 + $1.amount })
+                    figure(L("Мені винні").s, toMe.reduce(0) { $0 + $1.amount })
                     Rectangle().fill(Theme.line).frame(width: Theme.hairline)
-                    figure("Я винен", mine.reduce(0) { $0 + $1.amount })
+                    figure(L("Я винен").s, mine.reduce(0) { $0 + $1.amount })
                 }
                 .listRowInsets(EdgeInsets())
             }
             if loaded && open.isEmpty {
-                Section { BrandEmpty(title: "Відкритих боргів немає").listRowBackground(Color.clear) }
+                Section { BrandEmpty(title: L("Відкритих боргів немає").s).listRowBackground(Color.clear) }
             }
-            group("Мені винні", toMe)
-            group("Я винен", mine)
+            group(L("Мені винні").s, toMe)
+            group(L("Я винен").s, mine)
             let closed = items.filter(\.isSettled)
             if !closed.isEmpty {
-                Section("Закриті") {
+                Section(L("Закриті").s) {
                     ForEach(closed) { d in
                         Line(d.contactName, Format.money(d.amount)).foregroundStyle(.secondary)
                     }
@@ -209,9 +209,9 @@ struct DebtsView: View {
             ErrorSection(error: screen.error)
         }
         .labForm()
-        .navigationTitle("Борги")
+        .navigationTitle(L("Борги").s)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { Button("Новий борг", systemImage: "plus") { adding = true } }
+        .toolbar { Button(L("Новий борг").s, systemImage: "plus") { adding = true } }
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $adding) { NewDebtView { await load() } }
@@ -239,7 +239,7 @@ struct DebtsView: View {
                             Spacer()
                             Text(Format.money(d.amount)).fontWeight(.semibold).monospacedDigit()
                         }
-                        Button("Позначити повернутим") {
+                        Button(L("Позначити повернутим").s) {
                             Task {
                                 await screen.run { try await model.api.settleDebt(d.id) }
                                 await load()
@@ -281,21 +281,21 @@ struct NewDebtView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    Picker("Хто кому", selection: $owedToMe) {
-                        Text("Мені винні").tag(true)
-                        Text("Я винен").tag(false)
+                    Picker(L("Хто кому").s, selection: $owedToMe) {
+                        Text(L("Мені винні").s).tag(true)
+                        Text(L("Я винен").s).tag(false)
                     }
                     .pickerStyle(.segmented)
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
                 }
                 Section {
-                    TextField("Ім'я", text: $name)
-                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
-                    TextField("За що", text: $note)
+                    TextField(L("Ім'я").s, text: $name)
+                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField(L("За що").s, text: $note)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Додати", disabled: name.isEmpty || (amount ?? 0) <= 0 || screen.busy) {
+                FormAction(title: L("Додати").s, disabled: name.isEmpty || (amount ?? 0) <= 0 || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.addDebt(name: name, amount: amount ?? 0, owedToMe: owedToMe, note: note) }) {
                             await done()
@@ -305,9 +305,9 @@ struct NewDebtView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Новий борг")
+            .navigationTitle(L("Новий борг").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium, .large])
     }
@@ -323,7 +323,7 @@ struct NoticesView: View {
     var body: some View {
         LabForm {
             if loaded && items.isEmpty {
-                Section { BrandEmpty(title: "Сповіщень немає").listRowBackground(Color.clear) }
+                Section { BrandEmpty(title: L("Сповіщень немає").s).listRowBackground(Color.clear) }
             }
             ForEach(items) { n in
                 VStack(alignment: .leading, spacing: 3) {
@@ -334,7 +334,7 @@ struct NoticesView: View {
             }
         }
         .labForm()
-        .navigationTitle("Сповіщення")
+        .navigationTitle(L("Сповіщення").s)
         .navigationBarTitleDisplayMode(.inline)
         .task {
             items = (try? await model.api.notices()) ?? []
@@ -371,13 +371,13 @@ struct StatementsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                SegmentBar(items: [(Period.month, "Цей місяць"), (.previous, "Минулий"), (.quarter, "3 місяці"),
-                                   (.year, "Рік"), (.custom, "Свій період")], selection: $period)
+                SegmentBar(items: [(Period.month, L("Цей місяць").s), (.previous, L("Минулий").s), (.quarter, L("3 місяці").s),
+                                   (.year, L("Рік").s), (.custom, L("Свій період").s)], selection: $period)
                 if period == .custom {
                     Surface {
-                        DatePicker("З", selection: $from, in: ...to, displayedComponents: .date).padding(14)
+                        DatePicker(L("З").s, selection: $from, in: ...to, displayedComponents: .date).padding(14)
                         Rule()
-                        DatePicker("По", selection: $to, in: from...Date.now, displayedComponents: .date).padding(14)
+                        DatePicker(L("По").s, selection: $to, in: from...Date.now, displayedComponents: .date).padding(14)
                     }
                 }
                 let rows = inRange
@@ -386,20 +386,20 @@ struct StatementsView: View {
                 HeroPanel {
                     Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
-                    Text("Витрачено").font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 14)
+                    Text(L("Витрачено").s).font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 14)
                     Text(Format.short(spent))
                         .font(.system(size: 44, weight: .semibold)).monospacedDigit()
                         .minimumScaleFactor(0.5).lineLimit(1).frame(maxWidth: .infinity)
                     Rule().padding(.horizontal, -16).padding(.top, 14)
                     HStack(alignment: .top, spacing: 12) {
-                        summary("Надійшло", Format.short(income), tint: .green)
-                        summary("Операцій", "\(rows.count)")
-                        summary("Різниця", (income - spent >= 0 ? "+" : "−") + Format.short(abs(income - spent)))
+                        summary(L("Надійшло").s, Format.short(income), tint: .green)
+                        summary(L("Операцій").s, "\(rows.count)")
+                        summary(L("Різниця").s, (income - spent >= 0 ? "+" : "−") + Format.short(abs(income - spent)))
                     }
                     .padding(.top, 6)
                 }
                 if !rows.isEmpty {
-                    BlockTitle("Операції періоду", trailing: "\(rows.count)")
+                    BlockTitle(L("Операції періоду").s, trailing: "\(rows.count)")
                     Surface {
                         ForEach(Array(rows.prefix(8).enumerated()), id: \.element.id) { i, tx in
                             if i > 0 { Rule() }
@@ -407,21 +407,21 @@ struct StatementsView: View {
                         }
                     }
                     if rows.count > 8 {
-                        Text("і ще \(rows.count - 8) у виписці")
+                        Text(L("і ще \(rows.count - 8) у виписці").s)
                             .font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                     }
                 }
                 VStack(spacing: 10) {
-                    Button { open("transactions/statement?\(range)", "Виписка \(BankText.isoDay(from)) - \(BankText.isoDay(to)).pdf") } label: {
-                        Label("Виписка PDF", systemImage: "doc.richtext")
+                    Button { open("transactions/statement?\(range)", L("Виписка \(BankText.isoDay(from)) - \(BankText.isoDay(to)).pdf").s) } label: {
+                        Label(L("Виписка PDF").s, systemImage: "doc.richtext")
                     }
                     .buttonStyle(InkButton())
-                    Button { open("transactions/export?\(range)", "Операції \(BankText.isoDay(from)) - \(BankText.isoDay(to)).csv") } label: {
-                        Label("Таблиця операцій", systemImage: "tablecells")
+                    Button { open("transactions/export?\(range)", L("Операції \(BankText.isoDay(from)) - \(BankText.isoDay(to)).csv").s) } label: {
+                        Label(L("Таблиця операцій").s, systemImage: "tablecells")
                     }
                     .buttonStyle(LineButton())
                     NavigationLink { DocumentsView() } label: {
-                        Label("Мої документи і QR-коди", systemImage: "qrcode")
+                        Label(L("Мої документи і QR-коди").s, systemImage: "qrcode")
                     }
                     .buttonStyle(LineButton())
                 }
@@ -432,7 +432,7 @@ struct StatementsView: View {
             .padding(Theme.gutter)
         }
         .screenBackground()
-        .navigationTitle("Виписки")
+        .navigationTitle(L("Виписки").s)
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: period) { apply() }
         .task { all = (try? await model.api.history(.init())) ?? [] }
@@ -487,24 +487,24 @@ struct SecurityView: View {
                 if let me {
                     Surface {
                         VStack(spacing: 0) {
-                            Line2("Ім'я", me.fullName)
-                            if let e = me.email, !e.isEmpty { Rule(); Line2("Пошта", e) }
-                            if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") { Rule(); Line2("Телефон", p) }
-                            if let a = me.bankAccountNumber { Rule(); Line2("Рахунок", a) }
+                            Line2(L("Ім'я").s, me.fullName)
+                            if let e = me.email, !e.isEmpty { Rule(); Line2(L("Пошта").s, e) }
+                            if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") { Rule(); Line2(L("Телефон").s, p) }
+                            if let a = me.bankAccountNumber { Rule(); Line2(L("Рахунок").s, a) }
                         }
                     }
                 }
 
-                section("Вхід у банк", footer: hasPin
-                        ? "PIN питаємо щоразу, коли застосунок повертається з фону."
-                        : "Без PIN банк відкривається одразу після запуску.") {
-                    actionRow("PIN-код", value: hasPin ? "Увімкнено" : "Вимкнено", action: hasPin ? "Змінити" : "Встановити") { settingPin = true }
+                section(L("Вхід у банк").s, footer: hasPin
+                        ? L("PIN питаємо щоразу, коли застосунок повертається з фону.").s
+                        : L("Без PIN банк відкривається одразу після запуску.").s) {
+                    actionRow(L("PIN-код").s, value: hasPin ? L("Увімкнено").s : L("Вимкнено").s, action: hasPin ? L("Змінити").s : L("Встановити").s) { settingPin = true }
                     if bioAvailable {
                         Rule()
                         Toggle(isOn: Binding(get: { model.biometricsEnabled && hasPin }, set: { on in Task { await setBiometrics(on) } })) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(Biometrics.title)
-                                Text(hasPin ? "Замість PIN на замку" : "Спершу встановіть PIN").font(.footnote).foregroundStyle(.secondary)
+                                Text(hasPin ? L("Замість PIN на замку").s : L("Спершу встановіть PIN").s).font(.footnote).foregroundStyle(.secondary)
                             }
                         }
                         .tint(Theme.ink)
@@ -519,16 +519,16 @@ struct SecurityView: View {
                                 await load()
                             }
                         } label: {
-                            Text("Прибрати PIN").frame(maxWidth: .infinity, alignment: .leading).padding(16).contentShape(.rect)
+                            Text(L("Прибрати PIN").s).frame(maxWidth: .infinity, alignment: .leading).padding(16).contentShape(.rect)
                         }
                         .buttonStyle(.plain)
                     }
                 }
 
-                section("Пароль", footer: "Після зміни пароля інші пристрої лишаються в акаунті; завершіть їхні сесії нижче, якщо треба.") {
+                section(L("Пароль").s, footer: L("Після зміни пароля інші пристрої лишаються в акаунті; завершіть їхні сесії нижче, якщо треба.").s) {
                     Button { changingPassword = true } label: {
                         HStack {
-                            Text("Змінити пароль")
+                            Text(L("Змінити пароль").s)
                             Spacer()
                             Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
                         }
@@ -537,7 +537,7 @@ struct SecurityView: View {
                     .buttonStyle(.plain)
                 }
 
-                section("Пристрої в акаунті", footer: nil) {
+                section(L("Пристрої в акаунті").s, footer: nil) {
                     ForEach(Array(sessions.enumerated()), id: \.element.id) { i, s in
                         if i > 0 { Rule() }
                         HStack(spacing: 12) {
@@ -545,7 +545,7 @@ struct SecurityView: View {
                                 HStack(spacing: 6) {
                                     Text(device(s)).fontWeight(.semibold)
                                     if s.isCurrent {
-                                        Text("цей").font(.caption.weight(.semibold))
+                                        Text(L("цей").s).font(.caption.weight(.semibold))
                                             .padding(.horizontal, 8).padding(.vertical, 2)
                                             .background(Theme.ink.opacity(0.1), in: .capsule)
                                     }
@@ -555,7 +555,7 @@ struct SecurityView: View {
                             }
                             Spacer()
                             if !s.isCurrent {
-                                Button("Завершити") {
+                                Button(L("Завершити").s) {
                                     Task {
                                         await screen.run { try await model.api.endSession(s.id) }
                                         await load()
@@ -572,7 +572,7 @@ struct SecurityView: View {
                     }
                 }
                 if sessions.count > 1 {
-                    Button("Вийти на всіх інших пристроях") {
+                    Button(L("Вийти на всіх інших пристроях").s) {
                         Task {
                             await screen.run { try await model.api.endOtherSessions() }
                             await load()
@@ -590,7 +590,7 @@ struct SecurityView: View {
             .padding(.bottom, 32)
         }
         .screenBackground()
-        .navigationTitle("Безпека")
+        .navigationTitle(L("Безпека").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
@@ -626,16 +626,16 @@ struct SecurityView: View {
     /// Вмикаємо лише після успішної перевірки обличчя: так людина бачить, що біометрія справді працює.
     private func setBiometrics(_ on: Bool) async {
         guard on else { model.biometricsEnabled = false; return }
-        model.biometricsEnabled = await Biometrics.unlock(reason: "Увімкнути \(Biometrics.title) для TaxTech")
+        model.biometricsEnabled = await Biometrics.unlock(reason: L("Увімкнути \(Biometrics.title) для TaxTech").s)
     }
 
     private func device(_ s: API.Device) -> String {
         let ua = s.userAgent ?? ""
-        if s.authMethod == "apple" { return "Вхід через Apple" }
+        if s.authMethod == "apple" { return L("Вхід через Apple").s }
         if ua.contains("iPhone") || ua.contains("CFNetwork") || ua.contains("TaxTech") || ua.contains("Kopiyka") { return "iPhone" }
         if ua.contains("Mac") { return "Mac" }
-        if ua.contains("curl") { return "Командний рядок" }
-        return ua.isEmpty ? "Пристрій" : String(ua.prefix(32))
+        if ua.contains("curl") { return L("Командний рядок").s }
+        return ua.isEmpty ? L("Пристрій").s : String(ua.prefix(32))
     }
 
     private func load() async {
@@ -657,9 +657,9 @@ struct NewPinView: View {
     @State private var mismatches = 0
 
     var body: some View {
-        PinPad(title: first == nil ? "Новий PIN" : "Повторіть PIN", error: error, shake: mismatches) { pin in
+        PinPad(title: first == nil ? L("Новий PIN").s : L("Повторіть PIN").s, error: error, shake: mismatches) { pin in
             guard let f = first else { first = pin; error = nil; return true }
-            guard f == pin else { first = nil; error = "Коди не збіглися. Ще раз."; mismatches += 1; return true }
+            guard f == pin else { first = nil; error = L("Коди не збіглися. Ще раз.").s; mismatches += 1; return true }
             do {
                 try await model.api.setPin(pin)
                 model.bankUnlocked = true
@@ -686,23 +686,23 @@ struct PasswordView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    Text(done ? "Пароль змінено" : "Новий пароль").font(.display(30)).tracking(-0.8)
+                    Text(done ? L("Пароль змінено").s : L("Новий пароль").s).font(.display(30)).tracking(-0.8)
                     if done {
-                        Text("Наступного разу входьте з новим паролем. Інші пристрої можна вивести з акаунта на екрані «Безпека».")
+                        Text(L("Наступного разу входьте з новим паролем. Інші пристрої можна вивести з акаунта на екрані «Безпека».").s)
                             .foregroundStyle(.secondary)
-                        Button("Готово") { dismiss() }.buttonStyle(InkButton())
+                        Button(L("Готово").s) { dismiss() }.buttonStyle(InkButton())
                     } else {
-                        AuthField(title: "Поточний пароль", placeholder: "Пароль", text: $old, secure: true, content: .password)
+                        AuthField(title: L("Поточний пароль").s, placeholder: L("Пароль").s, text: $old, secure: true, content: .password)
                         VStack(alignment: .leading, spacing: 10) {
-                            AuthField(title: "Новий пароль", placeholder: "Щонайменше 8 символів", text: $new,
+                            AuthField(title: L("Новий пароль").s, placeholder: L("Щонайменше 8 символів").s, text: $new,
                                       secure: true, content: .newPassword, submit: .done)
                             if !new.isEmpty { PasswordStrength(password: new) }
                             if !new.isEmpty && new == old {
-                                Text("Новий пароль збігається з поточним").font(.footnote).foregroundStyle(Theme.ink.opacity(0.75))
+                                Text(L("Новий пароль збігається з поточним").s).font(.footnote).foregroundStyle(Theme.ink.opacity(0.75))
                             }
                         }
                         if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
-                        Button("Змінити пароль") {
+                        Button(L("Змінити пароль").s) {
                             Task { if await screen.run({ try await model.api.changePassword(old: old, new: new) }) { done = true } }
                         }
                         .buttonStyle(InkButton())
@@ -712,7 +712,7 @@ struct PasswordView: View {
                 .padding(24)
             }
             .screenBackground()
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(done ? "Закрити" : "Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(done ? L("Закрити").s : L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.large])
     }
@@ -730,12 +730,12 @@ struct PinLockView: View {
     private var biometrics: Bool { model.biometricsEnabled && Biometrics.kind != .none }
 
     var body: some View {
-        PinPad(title: "Введіть PIN", error: error, footer: "Вийти", shake: failures, submit: { pin in
+        PinPad(title: L("Введіть PIN").s, error: error, footer: L("Вийти").s, shake: failures, submit: { pin in
             do {
                 try await model.api.verifyPin(pin)
                 model.bankUnlocked = true
             } catch {
-                self.error = "Невірний PIN"
+                self.error = L("Невірний PIN").s
                 failures += 1
             }
             return true
@@ -751,7 +751,7 @@ struct PinLockView: View {
     }
 
     private func unlock() async {
-        if await Biometrics.unlock(reason: "Відкрити банк TaxTech") { model.bankUnlocked = true }
+        if await Biometrics.unlock(reason: L("Відкрити банк TaxTech").s) { model.bankUnlocked = true }
     }
 }
 
@@ -816,7 +816,7 @@ struct PinPad: View {
                             }
                             .buttonStyle(.plain)
                             .disabled((key.isEmpty && biometric == nil) || busy)
-                            .accessibilityLabel(key == "⌫" ? "Стерти" : key.isEmpty && biometric != nil ? Biometrics.title : key)
+                            .accessibilityLabel(key == "⌫" ? L("Стерти").s : key.isEmpty && biometric != nil ? Biometrics.title : key)
                         }
                     }
                 }

@@ -22,8 +22,8 @@ struct MoneyView: View {
                 VStack(spacing: 28) {
                     hero
                     if expenses.isEmpty {
-                        ContentUnavailableView("Витрат ще немає", systemImage: "list.bullet.rectangle",
-                                               description: Text("Додайте вручну або сфотографуйте чек"))
+                        ContentUnavailableView(L("Витрат ще немає").s, systemImage: "list.bullet.rectangle",
+                                               description: Text(L("Додайте вручну або сфотографуйте чек").s))
                             .padding(.top, 40)
                     } else {
                         chart
@@ -35,11 +35,11 @@ struct MoneyView: View {
                 .padding(.bottom, 24)
             }
             .screenBackground()
-            .navigationTitle("Гроші")
+            .navigationTitle(L("Гроші").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                Button("Чек", systemImage: "doc.text.viewfinder") { scanning = true }
-                Button("Додати", systemImage: "plus") { adding = true }
+                Button(L("Чек").s, systemImage: "doc.text.viewfinder") { scanning = true }
+                Button(L("Додати").s, systemImage: "plus") { adding = true }
             }
             .sheet(isPresented: $adding) { AddExpenseView() }
             .sheet(isPresented: $scanning) { ReceiptView(closable: true) }
@@ -63,14 +63,14 @@ struct MoneyView: View {
             let s = samples[i % samples.count]
             let day = Calendar.current.date(byAdding: .day, value: -(i % today), to: .now)!
             context.insert(Expense(amount: s.2 * Double(1 + i % 3) / 2, merchant: s.0, category: s.1,
-                                   date: day, source: "Демо"))
+                                   date: day, source: L("Демо").s))
         }
     }
     #endif
 
     private var hero: some View {
         VStack(spacing: 6) {
-            Text("Витрати за \(Date.now.formatted(.dateTime.month(.wide).locale(Locale(identifier: "uk_UA"))))")
+            Text(L("Витрати за \(Date.now.formatted(.dateTime.month(.wide).locale(Locale(identifier: "uk_UA"))))").s)
                 .caption()
             Text(Format.money(total))
                 .font(Theme.balance())
@@ -79,7 +79,7 @@ struct MoneyView: View {
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             if let avg = dailyAverage {
-                Text("у середньому \(Format.money(avg)) на день")
+                Text(L("у середньому \(Format.money(avg)) на день").s)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -102,7 +102,7 @@ struct MoneyView: View {
     private var chart: some View {
         Surface {
             Chart(byDay, id: \.day) { d in
-                BarMark(x: .value("День", d.day, unit: .day), y: .value("Сума", d.sum), width: .ratio(0.62))
+                BarMark(x: .value(L("День").s, d.day, unit: .day), y: .value(L("Сума").s, d.sum), width: .ratio(0.62))
                     .foregroundStyle(Theme.ink)
             }
             .chartXScale(domain: monthRange)
@@ -138,16 +138,16 @@ struct MoneyView: View {
 
     private var categories: some View {
         VStack(alignment: .leading, spacing: 12) {
-            BlockTitle("Категорії")
+            BlockTitle(L("Категорії").s)
             Surface {
                 // кільце й смуги одного відтінку - легенда не потрібна
                 Chart(byCategory, id: \.name) { c in
-                    SectorMark(angle: .value("Сума", c.sum), innerRadius: .ratio(0.72), angularInset: 1.5)
+                    SectorMark(angle: .value(L("Сума").s, c.sum), innerRadius: .ratio(0.72), angularInset: 1.5)
                         .foregroundStyle(Theme.shade(rank(c.name)))
                 }
                 .chartBackground { _ in
                     VStack(spacing: 2) {
-                        Text("\(byCategory.count) категорій")
+                        Text(L("\(byCategory.count) категорій").s)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                         Text(Format.money(total))
@@ -191,7 +191,7 @@ struct MoneyView: View {
 
     private var recent: some View {
         VStack(alignment: .leading, spacing: 12) {
-            BlockTitle("Останні")
+            BlockTitle(L("Останні").s)
             Surface {
                 ForEach(Array(expenses.prefix(20).enumerated()), id: \.element.id) { i, e in
                     if i > 0 { Rule() }
@@ -200,7 +200,7 @@ struct MoneyView: View {
                               amount: "−" + Format.money(e.amount))
                         .contentShape(.rect)
                         .contextMenu {
-                            Button("Видалити", systemImage: "trash", role: .destructive) { context.delete(e) }
+                            Button(L("Видалити").s, systemImage: "trash", role: .destructive) { context.delete(e) }
                         }
                 }
             }
@@ -220,21 +220,21 @@ struct AddExpenseView: View {
     var body: some View {
         NavigationStack {
             LabForm {
-                TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
-                TextField("Де", text: $merchant)
-                Picker("Категорія", selection: $category) {
+                TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                TextField(L("Де").s, text: $merchant)
+                Picker(L("Категорія").s, selection: $category) {
                     ForEach(Self.categories, id: \.self, content: Text.init)
                 }
             }
             .labForm()
-            .navigationTitle("Нова витрата")
+            .navigationTitle(L("Нова витрата").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Зберегти") {
+                    Button(L("Зберегти").s) {
                         context.insert(Expense(amount: amount ?? 0, merchant: merchant.isEmpty ? "Без назви" : merchant,
-                                               category: category, source: "Вручну"))
+                                               category: category, source: L("Вручну").s))
                         dismiss()
                     }
                     .disabled((amount ?? 0) <= 0)

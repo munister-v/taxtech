@@ -95,7 +95,7 @@ struct AmountSheet: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
                 } footer: {
                     if let hint { Text(hint) }
                 }
@@ -109,28 +109,28 @@ struct AmountSheet: View {
             .labForm()
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium])
     }
 }
 
 enum BankText {
-    static let types = ["topup": "Поповнення", "transfer": "Перекази", "payment": "Покупки", "payout": "Виплати",
-                        "donation": "Донати", "credit": "Кредити", "deposit": "Депозити", "savings": "Накопичення",
-                        "marketplace": "Магазин", "credit_repay": "Погашення кредиту", "card_topup": "Поповнення картки"]
+    static var types: [String: String] { ["topup": L("Поповнення").s, "transfer": L("Перекази").s, "payment": L("Покупки").s, "payout": L("Виплати").s,
+                        "donation": L("Донати").s, "credit": L("Кредити").s, "deposit": L("Депозити").s, "savings": L("Накопичення").s,
+                        "marketplace": L("Магазин").s, "credit_repay": L("Погашення кредиту").s, "card_topup": L("Поповнення картки").s] }
 
     static func type(_ t: String) -> String { types[t] ?? t.capitalized }
 
     /// Службові рахунки продавців навчального банку - людською мовою.
-    static let merchants = ["MRC-UTILITIES-01": "Комунальні послуги", "MRC-ONLINE-01": "Онлайн-покупки",
+    static var merchants: [String: String] { ["MRC-UTILITIES-01": L("Комунальні послуги").s, "MRC-ONLINE-01": L("Онлайн-покупки").s,
                             "MRC-FUEL-01": "Пальне", "MRC-GROCERY-01": "Продукти", "MRC-CAFE-01": "Кафе",
                             "MRC-GROCERY-02": "Продукти", "MRC-TRANSPORT-01": "Транспорт", "MRC-PHARMA-01": "Аптека",
-                            "MRC-CINEMA-01": "Кіно", "MRC-TELECOM-01": "Зв'язок"]
+                            "MRC-CINEMA-01": L("Кіно").s, "MRC-TELECOM-01": L("Зв'язок").s] }
 
     static func recipient(_ account: String) -> String { merchants[account] ?? account }
 
-    static let frequencies = [("weekly", "Щотижня"), ("monthly", "Щомісяця")]
+    static var frequencies: [(String, String)] { [("weekly", L("Щотижня").s), ("monthly", L("Щомісяця").s)] }
 
     static func frequency(_ f: String) -> String { frequencies.first { $0.0 == f }?.1 ?? f }
 
@@ -165,8 +165,8 @@ enum BankText {
     /// «Сьогодні», «Учора» або «27 жовтня».
     static func dayTitle(_ day: Date) -> String {
         let cal = Calendar.current
-        if cal.isDateInToday(day) { return "Сьогодні" }
-        if cal.isDateInYesterday(day) { return "Учора" }
+        if cal.isDateInToday(day) { return L("Сьогодні").s }
+        if cal.isDateInYesterday(day) { return L("Учора").s }
         return day.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA")))
     }
 

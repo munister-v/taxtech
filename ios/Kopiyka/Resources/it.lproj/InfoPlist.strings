@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Per fotografare uno scontrino. La foto viene riconosciuta sul telefono e non viene inviata da nessuna parte.";
+"NSFaceIDUsageDescription" = "Per sbloccare la banca con il volto al posto del PIN.";
+"NSLocalNetworkUsageDescription" = "Per collegarsi al server didattico nella rete locale.";
+"CFBundleDisplayName" = "TaxTech";

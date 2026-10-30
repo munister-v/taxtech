@@ -33,7 +33,7 @@ struct IssueCardView: View {
                     }
                     .padding(.horizontal, Theme.gutter)
                     if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
-                    Button("Випустити віртуальну картку") {
+                    Button(L("Випустити віртуальну картку").s) {
                         Task {
                             if await screen.run({ try await model.api.issueCard(design: design.rawValue) }) {
                                 await done()
@@ -48,9 +48,9 @@ struct IssueCardView: View {
                 .padding(.vertical, 20)
             }
             .screenBackground()
-            .navigationTitle("Нова картка")
+            .navigationTitle(L("Нова картка").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
     }
 }
@@ -71,33 +71,33 @@ struct DepositsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 if loaded && items.isEmpty {
-                    BrandEmpty(title: "Депозитів ще немає", action: "Відкрити депозит") { opening = true }
+                    BrandEmpty(title: L("Депозитів ще немає").s, action: L("Відкрити депозит").s) { opening = true }
                 } else if !items.isEmpty {
                     HeroPanel {
-                        HeroCaption("На депозитах")
+                        HeroCaption(L("На депозитах").s)
                         BigAmount(value: active.reduce(0) { $0 + $1.amount }, size: 40).padding(.top, 6)
                         HStack(alignment: .top, spacing: 16) {
-                            Stat(value: "+" + Format.money(active.reduce(0) { $0 + $1.interestEarned }), label: "дохід за строк", inverted: true)
-                            Stat(value: "\(active.count)", label: "активних", inverted: true)
+                            Stat(value: "+" + Format.money(active.reduce(0) { $0 + $1.interestEarned }), label: L("дохід за строк").s, inverted: true)
+                            Stat(value: "\(active.count)", label: L("активних").s, inverted: true)
                         }
                         .padding(.top, 14)
                     }
                     ForEach(items) { d in card(d) }
-                    Button("Відкрити депозит") { opening = true }.buttonStyle(InkButton())
+                    Button(L("Відкрити депозит").s) { opening = true }.buttonStyle(InkButton())
                 }
                 if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
         .screenBackground()
-        .navigationTitle("Депозити")
+        .navigationTitle(L("Депозити").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $opening) { OpenDepositView { await load() } }
-        .confirmationDialog("Закрити депозит?", isPresented: .init(get: { closing != nil }, set: { if !$0 { closing = nil } }),
+        .confirmationDialog(L("Закрити депозит?").s, isPresented: .init(get: { closing != nil }, set: { if !$0 { closing = nil } }),
                             titleVisibility: .visible, presenting: closing) { d in
-            Button(d.matured == true ? "Закрити й забрати відсотки" : "Закрити достроково, можливий штраф",
+            Button(d.matured == true ? L("Закрити й забрати відсотки").s : L("Закрити достроково, можливий штраф").s,
                    role: .destructive) {
                 Task {
                     await screen.run { try await model.api.closeDeposit(d.id, early: d.matured != true) }
@@ -112,8 +112,8 @@ struct DepositsView: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(d.description?.isEmpty == false ? d.description! : "Депозит на \(d.termMonths) міс.").font(.headline)
-                        Text("\(d.interestRate.formatted())% річних").font(.subheadline).foregroundStyle(.secondary)
+                        Text(d.description?.isEmpty == false ? d.description! : L("Депозит на \(d.termMonths) міс.").s).font(.headline)
+                        Text(L("\(d.interestRate.formatted())% річних").s).font(.subheadline).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Text(Format.money(d.amount)).font(.title3.weight(.bold)).monospacedDigit()
@@ -123,13 +123,13 @@ struct DepositsView: View {
                     HStack {
                         Text("+\(Format.money(d.interestEarned))").font(.subheadline.weight(.semibold)).monospacedDigit()
                         Spacer()
-                        Text("до \(BankText.date(d.maturityDate))").font(.subheadline).foregroundStyle(.secondary)
+                        Text(L("до \(BankText.date(d.maturityDate))").s).font(.subheadline).foregroundStyle(.secondary)
                     }
-                    Button(d.matured == true ? "Забрати з відсотками" : "Закрити достроково") { closing = d }
+                    Button(d.matured == true ? L("Забрати з відсотками").s : L("Закрити достроково").s) { closing = d }
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.ink)
                 } else {
-                    Text("Закрито").font(.subheadline).foregroundStyle(.secondary)
+                    Text(L("Закрито").s).font(.subheadline).foregroundStyle(.secondary)
                 }
             }
             .padding(16)
@@ -159,18 +159,18 @@ struct OpenDepositView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Сума, TAX (від 500)", value: $amount, format: .number).keyboardType(.decimalPad)
-                    Picker("Строк", selection: $months) {
-                        ForEach(Self.rates.keys.sorted(), id: \.self) { Text("\($0) міс. · \(Self.rates[$0]!.formatted())%").tag($0) }
+                    TextField(L("Сума, TAX (від 500)").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    Picker(L("Строк").s, selection: $months) {
+                        ForEach(Self.rates.keys.sorted(), id: \.self) { Text(L("\($0) міс. · \(Self.rates[$0]!.formatted())%").s).tag($0) }
                     }
-                    Toggle("Продовжувати автоматично", isOn: $renew)
+                    Toggle(L("Продовжувати автоматично").s, isOn: $renew)
                         .tint(Theme.ink.opacity(0.6))
-                    TextField("Назва (необов'язково)", text: $note)
+                    TextField(L("Назва (необов'язково)").s, text: $note)
                 } footer: {
-                    Text("Дохід приблизно \(Format.money(estimate)).")
+                    Text(L("Дохід приблизно \(Format.money(estimate)).").s)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Відкрити депозит", disabled: (amount ?? 0) < 500 || screen.busy) {
+                FormAction(title: L("Відкрити депозит").s, disabled: (amount ?? 0) < 500 || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.openDeposit(amount: amount ?? 0, months: months, autoRenew: renew, note: note) }) {
                             await done()
@@ -180,9 +180,9 @@ struct OpenDepositView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Новий депозит")
+            .navigationTitle(L("Новий депозит").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
     }
 
@@ -205,34 +205,34 @@ struct CreditsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 if loaded && items.isEmpty {
-                    BrandEmpty(title: "Кредитів немає", action: "Оформити кредит") { applying = true }
+                    BrandEmpty(title: L("Кредитів немає").s, action: L("Оформити кредит").s) { applying = true }
                 } else if !items.isEmpty {
                     HeroPanel {
-                        HeroCaption("Залишок боргу")
+                        HeroCaption(L("Залишок боргу").s)
                         BigAmount(value: active.reduce(0) { $0 + $1.balanceRemaining }, size: 40).padding(.top, 6)
                         HStack(alignment: .top, spacing: 16) {
-                            Stat(value: Format.money(active.reduce(0) { $0 + $1.monthlyPayment }), label: "платіж на місяць", inverted: true)
+                            Stat(value: Format.money(active.reduce(0) { $0 + $1.monthlyPayment }), label: L("платіж на місяць").s, inverted: true)
                             Stat(value: active.compactMap(\.nextPaymentDate).min().map { BankText.date($0) } ?? "-",
-                                 label: "наступний платіж", inverted: true)
+                                 label: L("наступний платіж").s, inverted: true)
                         }
                         .padding(.top, 14)
                     }
                     ForEach(items) { c in card(c) }
-                    Button("Оформити кредит") { applying = true }.buttonStyle(LineButton())
+                    Button(L("Оформити кредит").s) { applying = true }.buttonStyle(LineButton())
                 }
                 if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
         .screenBackground()
-        .navigationTitle("Кредити")
+        .navigationTitle(L("Кредити").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $applying) { TakeCreditView { await load() } }
         .sheet(item: $repaying) { c in
-            AmountSheet(title: "Платіж за кредитом", action: "Сплатити",
-                        hint: "Залишилось \(Format.money(c.balanceRemaining)).",
+            AmountSheet(title: L("Платіж за кредитом").s, action: L("Сплатити").s,
+                        hint: L("Залишилось \(Format.money(c.balanceRemaining)).").s,
                         amount: min(c.monthlyPayment, c.balanceRemaining)) { a in
                 try await model.api.repayCredit(c.id, amount: a)
                 await load()
@@ -245,8 +245,8 @@ struct CreditsView: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(c.description?.isEmpty == false ? c.description! : "Кредит на \(c.termMonths) міс.").font(.headline)
-                        Text("\(Format.money(c.principal)) під \(c.interestRate.formatted())%").font(.subheadline).foregroundStyle(.secondary)
+                        Text(c.description?.isEmpty == false ? c.description! : L("Кредит на \(c.termMonths) міс.").s).font(.headline)
+                        Text(L("\(Format.money(c.principal)) під \(c.interestRate.formatted())%").s).font(.subheadline).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Text(Format.money(c.balanceRemaining)).font(.title3.weight(.bold)).monospacedDigit()
@@ -254,14 +254,14 @@ struct CreditsView: View {
                 if c.isActive {
                     Meter(value: c.progress ?? 0)
                     HStack {
-                        Text("сплачено \(Format.money(c.totalPaid))").font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
+                        Text(L("сплачено \(Format.money(c.totalPaid))").s).font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
                         Spacer()
                         Text(BankText.date(c.nextPaymentDate)).font(.subheadline).foregroundStyle(.secondary)
                     }
-                    Button("Сплатити \(Format.money(min(c.monthlyPayment, c.balanceRemaining)))") { repaying = c }
+                    Button(L("Сплатити \(Format.money(min(c.monthlyPayment, c.balanceRemaining)))").s) { repaying = c }
                         .buttonStyle(InkButton())
                 } else {
-                    Text("Погашено").font(.subheadline.weight(.semibold))
+                    Text(L("Погашено").s).font(.subheadline.weight(.semibold))
                 }
             }
             .padding(16)
@@ -290,16 +290,16 @@ struct TakeCreditView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Сума, TAX (1 000 - 500 000)", value: $amount, format: .number).keyboardType(.decimalPad)
-                    Picker("Строк", selection: $months) {
-                        ForEach(Self.rates.keys.sorted(), id: \.self) { Text("\($0) міс. · \(Self.rates[$0]!.formatted())%").tag($0) }
+                    TextField(L("Сума, TAX (1 000 - 500 000)").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    Picker(L("Строк").s, selection: $months) {
+                        ForEach(Self.rates.keys.sorted(), id: \.self) { Text(L("\($0) міс. · \(Self.rates[$0]!.formatted())%").s).tag($0) }
                     }
-                    TextField("Мета (необов'язково)", text: $note)
+                    TextField(L("Мета (необов'язково)").s, text: $note)
                 } footer: {
-                    Text("Приблизно \(Format.money(monthly)) на місяць.")
+                    Text(L("Приблизно \(Format.money(monthly)) на місяць.").s)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Оформити кредит", disabled: (amount ?? 0) < 1000 || screen.busy) {
+                FormAction(title: L("Оформити кредит").s, disabled: (amount ?? 0) < 1000 || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.takeCredit(amount: amount ?? 0, months: months, note: note) }) {
                             await done()
@@ -309,9 +309,9 @@ struct TakeCreditView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Новий кредит")
+            .navigationTitle(L("Новий кредит").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
     }
 

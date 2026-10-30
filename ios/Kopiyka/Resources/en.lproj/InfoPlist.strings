@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "To photograph a receipt. The photo is recognized on the phone and is never sent anywhere.";
+"NSFaceIDUsageDescription" = "To unlock the bank with your face instead of a PIN.";
+"NSLocalNetworkUsageDescription" = "To connect to the training server on the local network.";
+"CFBundleDisplayName" = "TaxTech";

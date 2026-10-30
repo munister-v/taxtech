@@ -227,7 +227,7 @@ struct API: Sendable {
         guard (200..<300).contains(status) else {
             let message = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])
                 .flatMap { ($0["error"] as? String) ?? ($0["message"] as? String) }
-            throw Failure(message: message ?? "Сервер відповів кодом \(status)")
+            throw Failure(message: message ?? L("Сервер відповів кодом \(status)").s)
         }
         return try decoder.decode(T.self, from: data)
     }

@@ -14,32 +14,32 @@ struct GoalsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 if loaded && items.isEmpty {
-                    BrandEmpty(title: "Цілей ще немає", action: "Поставити ціль") { adding = true }
+                    BrandEmpty(title: L("Цілей ще немає").s, action: L("Поставити ціль").s) { adding = true }
                 } else if !items.isEmpty {
                     let saved = items.reduce(0) { $0 + $1.currentAmount }, target = items.reduce(0) { $0 + $1.targetAmount }
                     HeroPanel {
-                        HeroCaption("Відкладено")
+                        HeroCaption(L("Відкладено").s)
                         BigAmount(value: saved, size: 40).padding(.top, 6)
-                        Text("з \(Format.money(target))").font(.subheadline.weight(.medium))
+                        Text(L("з \(Format.money(target))").s).font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                         ForEach(items) { g in tile(g) }
                     }
-                    Button("Нова ціль") { adding = true }.buttonStyle(LineButton())
+                    Button(L("Нова ціль").s) { adding = true }.buttonStyle(LineButton())
                 }
                 if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
         .screenBackground()
-        .navigationTitle("Цілі")
+        .navigationTitle(L("Цілі").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
         .sheet(isPresented: $adding) { NewGoalView { await load() } }
         .sheet(item: $funding) { g in
-            AmountSheet(title: g.title, action: "Відкласти", amount: 500) { a in
+            AmountSheet(title: g.title, action: L("Відкласти").s, amount: 500) { a in
                 try await model.api.contribute(g.id, a)
                 await load()
             }
@@ -60,8 +60,8 @@ struct GoalsView: View {
             Text(g.title).font(.headline).lineLimit(2, reservesSpace: true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(Format.money(g.currentAmount)).font(.subheadline.weight(.bold)).monospacedDigit()
-                Text("з \(Format.money(g.targetAmount))").font(.caption).foregroundStyle(.secondary).monospacedDigit()
-                if let d = g.deadline, !d.isEmpty { Text("до \(BankText.date(d))").font(.caption).foregroundStyle(.secondary) }
+                Text(L("з \(Format.money(g.targetAmount))").s).font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                if let d = g.deadline, !d.isEmpty { Text(L("до \(BankText.date(d))").s).font(.caption).foregroundStyle(.secondary) }
             }
             HStack {
                 Button { funding = g } label: {
@@ -71,10 +71,10 @@ struct GoalsView: View {
                         .foregroundStyle(Theme.onAccent)
                 }
                 .buttonStyle(PressScale())
-                .accessibilityLabel("Відкласти")
+                .accessibilityLabel(L("Відкласти").s)
                 Spacer()
                 Menu {
-                    Button("Видалити ціль", role: .destructive) {
+                    Button(L("Видалити ціль").s, role: .destructive) {
                         Task {
                             await screen.run { try await model.api.deleteGoal(g.id) }
                             await load()
@@ -111,14 +111,14 @@ struct NewGoalView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Назва", text: $title)
-                    TextField("Скільки потрібно, TAX", value: $target, format: .number).keyboardType(.decimalPad)
-                    Toggle("Є строк", isOn: $hasDeadline)
+                    TextField(L("Назва").s, text: $title)
+                    TextField(L("Скільки потрібно, TAX").s, value: $target, format: .number).keyboardType(.decimalPad)
+                    Toggle(L("Є строк").s, isOn: $hasDeadline)
                         .tint(Theme.ink.opacity(0.6))
-                    if hasDeadline { DatePicker("До", selection: $deadline, in: Date.now..., displayedComponents: .date) }
+                    if hasDeadline { DatePicker(L("До").s, selection: $deadline, in: Date.now..., displayedComponents: .date) }
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Створити ціль", disabled: title.isEmpty || (target ?? 0) <= 0 || screen.busy) {
+                FormAction(title: L("Створити ціль").s, disabled: title.isEmpty || (target ?? 0) <= 0 || screen.busy) {
                     Task {
                         let day = hasDeadline ? BankText.isoDay(deadline) : nil
                         if await screen.run({ try await model.api.addGoal(title: title, target: target ?? 0, deadline: day) }) {
@@ -129,9 +129,9 @@ struct NewGoalView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Нова ціль")
+            .navigationTitle(L("Нова ціль").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium, .large])
     }
@@ -150,8 +150,8 @@ struct ContactsView: View {
 
     var body: some View {
         LabForm {
-            Section("Контакти") {
-                if loaded && contacts.isEmpty { Text("Контактів немає").foregroundStyle(.secondary) }
+            Section(L("Контакти").s) {
+                if loaded && contacts.isEmpty { Text(L("Контактів немає").s).foregroundStyle(.secondary) }
                 ForEach(contacts) { c in
                     VStack(alignment: .leading, spacing: 3) {
                         Text(c.contactName)
@@ -159,7 +159,7 @@ struct ContactsView: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                     .swipeActions {
-                        Button("Видалити", role: .destructive) {
+                        Button(L("Видалити").s, role: .destructive) {
                             Task {
                                 await screen.run { try await model.api.deleteContact(c.id) }
                                 await load()
@@ -167,10 +167,10 @@ struct ContactsView: View {
                         }
                     }
                 }
-                Button("Додати контакт") { addingContact = true }
+                Button(L("Додати контакт").s) { addingContact = true }
             }
             Section {
-                if loaded && templates.isEmpty { Text("Шаблонів немає").foregroundStyle(.secondary) }
+                if loaded && templates.isEmpty { Text(L("Шаблонів немає").s).foregroundStyle(.secondary) }
                 ForEach(templates) { t in
                     VStack(alignment: .leading, spacing: 3) {
                         HStack {
@@ -181,7 +181,7 @@ struct ContactsView: View {
                         Text(t.recipientAccount ?? "").font(.footnote).foregroundStyle(.secondary)
                     }
                     .swipeActions {
-                        Button("Видалити", role: .destructive) {
+                        Button(L("Видалити").s, role: .destructive) {
                             Task {
                                 await screen.run { try await model.api.deleteTemplate(t.id) }
                                 await load()
@@ -189,14 +189,14 @@ struct ContactsView: View {
                         }
                     }
                 }
-                Button("Додати шаблон") { addingTemplate = true }
+                Button(L("Додати шаблон").s) { addingTemplate = true }
             } header: {
-                Text("Шаблони платежів")
+                Text(L("Шаблони платежів").s)
             }
             ErrorSection(error: screen.error)
         }
         .labForm()
-        .navigationTitle("Контакти")
+        .navigationTitle(L("Контакти").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
@@ -221,23 +221,23 @@ struct NewContactView: View {
     @State private var phone = ""
     @State private var screen = Screen()
 
-    static let relations = [("family", "Родина"), ("friend", "Друг"), ("work", "Робота"), ("other", "Інше")]
+    static var relations: [(String, String)] { [("family", L("Родина").s), ("friend", L("Друг").s), ("work", L("Робота").s), ("other", "Інше")] }
 
     var body: some View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Ім'я", text: $name)
-                    Picker("Хто це", selection: $relation) {
+                    TextField(L("Ім'я").s, text: $name)
+                    Picker(L("Хто це").s, selection: $relation) {
                         ForEach(Self.relations, id: \.0) { Text($0.1).tag($0.0) }
                     }
-                    TextField("Рахунок, KP-…", text: $account)
+                    TextField(L("Рахунок, KP-…").s, text: $account)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                    TextField("Телефон", text: $phone).keyboardType(.phonePad)
+                    TextField(L("Телефон").s, text: $phone).keyboardType(.phonePad)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Зберегти", disabled: name.isEmpty || screen.busy) {
+                FormAction(title: L("Зберегти").s, disabled: name.isEmpty || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.addContact(name: name, relation: relation, account: account, phone: phone) }) {
                             await done()
@@ -247,9 +247,9 @@ struct NewContactView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Новий контакт")
+            .navigationTitle(L("Новий контакт").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium, .large])
     }
@@ -269,15 +269,15 @@ struct NewTemplateView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Назва", text: $name)
-                    TextField("Рахунок одержувача, KP-…", text: $recipient)
+                    TextField(L("Назва").s, text: $name)
+                    TextField(L("Рахунок одержувача, KP-…").s, text: $recipient)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                    TextField("Сума, TAX (необов'язково)", value: $amount, format: .number).keyboardType(.decimalPad)
-                    TextField("Призначення", text: $note)
+                    TextField(L("Сума, TAX (необов'язково)").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField(L("Призначення").s, text: $note)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Зберегти", disabled: name.isEmpty || recipient.isEmpty || screen.busy) {
+                FormAction(title: L("Зберегти").s, disabled: name.isEmpty || recipient.isEmpty || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.addTemplate(name: name, recipient: recipient, amount: amount, note: note) }) {
                             await done()
@@ -287,9 +287,9 @@ struct NewTemplateView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Новий шаблон")
+            .navigationTitle(L("Новий шаблон").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium, .large])
     }
@@ -309,19 +309,19 @@ struct LimitsView: View {
     var body: some View {
         LabForm {
             Section {
-                if loaded && limits.isEmpty { Text("Лімітів немає").foregroundStyle(.secondary) }
+                if loaded && limits.isEmpty { Text(L("Лімітів немає").s).foregroundStyle(.secondary) }
                 ForEach(limits) { l in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text(BankText.type(l.txType))
                             Spacer()
-                            Text("\(Format.money(l.spent ?? 0)) з \(Format.money(l.monthlyLimit))")
+                            Text(L("\(Format.money(l.spent ?? 0)) з \(Format.money(l.monthlyLimit))").s)
                                 .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
                         }
                         Meter(value: (l.pct ?? 0) / 100)
                     }
                     .swipeActions {
-                        Button("Видалити", role: .destructive) {
+                        Button(L("Видалити").s, role: .destructive) {
                             Task {
                                 await screen.run { try await model.api.deleteLimit(l.txType) }
                                 await load()
@@ -329,24 +329,24 @@ struct LimitsView: View {
                         }
                     }
                 }
-                Button("Поставити ліміт") { addingLimit = true }
+                Button(L("Поставити ліміт").s) { addingLimit = true }
             } header: {
-                Text("Місячні ліміти")
+                Text(L("Місячні ліміти").s)
             } footer: {
-                Text("Скільки можна витратити за місяць за видом операцій.")
+                Text(L("Скільки можна витратити за місяць за видом операцій.").s)
             }
-            Section("Регулярні платежі") {
-                if loaded && recurring.isEmpty { Text("Регулярних платежів немає").foregroundStyle(.secondary) }
+            Section(L("Регулярні платежі").s) {
+                if loaded && recurring.isEmpty { Text(L("Регулярних платежів немає").s).foregroundStyle(.secondary) }
                 ForEach(recurring) { r in
                     HStack {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(r.title)
-                            Text("\(BankText.frequency(r.frequency)), далі \(BankText.date(r.nextRunDate))")
+                            Text(L("\(BankText.frequency(r.frequency)), далі \(BankText.date(r.nextRunDate))").s)
                                 .font(.footnote).foregroundStyle(.secondary)
                         }
                         Spacer()
                         Text(Format.money(r.amount)).monospacedDigit()
-                        Toggle("Активний", isOn: .init(get: { r.isActive != 0 }, set: { _ in
+                        Toggle(L("Активний").s, isOn: .init(get: { r.isActive != 0 }, set: { _ in
                             Task {
                                 await screen.run { try await model.api.toggleRecurring(r.id) }
                                 await load()
@@ -356,7 +356,7 @@ struct LimitsView: View {
                         .tint(Theme.ink.opacity(0.6))
                     }
                     .swipeActions {
-                        Button("Видалити", role: .destructive) {
+                        Button(L("Видалити").s, role: .destructive) {
                             Task {
                                 await screen.run { try await model.api.deleteRecurring(r.id) }
                                 await load()
@@ -364,12 +364,12 @@ struct LimitsView: View {
                         }
                     }
                 }
-                Button("Новий регулярний платіж") { addingRecurring = true }
+                Button(L("Новий регулярний платіж").s) { addingRecurring = true }
             }
             ErrorSection(error: screen.error)
         }
         .labForm()
-        .navigationTitle("Ліміти й платежі")
+        .navigationTitle(L("Ліміти й платежі").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
         .refreshable { await load() }
@@ -396,13 +396,13 @@ struct NewLimitView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    Picker("Вид операцій", selection: $type) {
+                    Picker(L("Вид операцій").s, selection: $type) {
                         ForEach(["payment", "transfer", "donation"], id: \.self) { Text(BankText.type($0)).tag($0) }
                     }
-                    TextField("Ліміт на місяць, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField(L("Ліміт на місяць, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Поставити ліміт", disabled: (amount ?? 0) <= 0 || screen.busy) {
+                FormAction(title: L("Поставити ліміт").s, disabled: (amount ?? 0) <= 0 || screen.busy) {
                     Task {
                         if await screen.run({ try await model.api.setLimit(txType: type, amount: amount ?? 0) }) {
                             await done()
@@ -412,9 +412,9 @@ struct NewLimitView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Новий ліміт")
+            .navigationTitle(L("Новий ліміт").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium])
     }
@@ -435,18 +435,18 @@ struct NewRecurringView: View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField("Назва", text: $title)
-                    TextField("Рахунок одержувача, KP-…", text: $recipient)
+                    TextField(L("Назва").s, text: $title)
+                    TextField(L("Рахунок одержувача, KP-…").s, text: $recipient)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
-                    TextField("Сума, TAX", value: $amount, format: .number).keyboardType(.decimalPad)
-                    Picker("Як часто", selection: $frequency) {
+                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    Picker(L("Як часто").s, selection: $frequency) {
                         ForEach(BankText.frequencies, id: \.0) { Text($0.1).tag($0.0) }
                     }
-                    DatePicker("Перший платіж", selection: $first, in: Date.now..., displayedComponents: .date)
+                    DatePicker(L("Перший платіж").s, selection: $first, in: Date.now..., displayedComponents: .date)
                 }
                 ErrorSection(error: screen.error)
-                FormAction(title: "Створити", disabled: title.isEmpty || recipient.isEmpty || (amount ?? 0) <= 0 || screen.busy) {
+                FormAction(title: L("Створити").s, disabled: title.isEmpty || recipient.isEmpty || (amount ?? 0) <= 0 || screen.busy) {
                     Task {
                         if await screen.run({
                             try await model.api.addRecurring(title: title, recipient: recipient, amount: amount ?? 0,
@@ -459,9 +459,9 @@ struct NewRecurringView: View {
                 }
             }
             .labForm()
-            .navigationTitle("Регулярний платіж")
+            .navigationTitle(L("Регулярний платіж").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Скасувати") { dismiss() } } }
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
         }
         .presentationDetents([.medium, .large])
     }

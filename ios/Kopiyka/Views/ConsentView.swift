@@ -38,15 +38,15 @@ struct ConsentView: View {
             }
             if page == last {
                 VStack(spacing: 10) {
-                    Button("Дозволити сервер") { decide(true) }.buttonStyle(InkButton())
-                    Button("Лише на телефоні") { decide(false) }.buttonStyle(LineButton())
+                    Button(L("Дозволити сервер").s) { decide(true) }.buttonStyle(InkButton())
+                    Button(L("Лише на телефоні").s) { decide(false) }.buttonStyle(LineButton())
                 }
             } else {
                 HStack(spacing: 10) {
                     if page > 0 {
-                        Button("Назад") { page -= 1 }.buttonStyle(LineButton()).frame(width: 110)
+                        Button(L("Назад").s) { page -= 1 }.buttonStyle(LineButton()).frame(width: 110)
                     }
-                    Button(page == 0 ? "Почати" : "Далі") { page += 1 }.buttonStyle(InkButton())
+                    Button(page == 0 ? L("Почати").s : L("Далі").s) { page += 1 }.buttonStyle(InkButton())
                 }
             }
         }
@@ -84,9 +84,9 @@ struct ConsentView: View {
     private var ledger: some View {
         Slide {
             Text("01").caption()
-            Text("Усі гроші\nв одному місці")
+            Text(L("Усі гроші\nв одному місці").s)
                 .headline1()
-            Text("Витрати, чеки й нотатки. Усе лишається на цьому телефоні.")
+            Text(L("Витрати, чеки й нотатки. Усе лишається на цьому телефоні.").s)
                 .lead()
             Spacer(minLength: 24)
             BarsSketch()
@@ -98,9 +98,9 @@ struct ConsentView: View {
     private var bank: some View {
         Slide {
             Text("02").caption()
-            Text("Навчальний\nбанк")
+            Text(L("Навчальний\nбанк").s)
                 .headline1()
-            Text("Картки, депозити, кредити й цілі - на віртуальних грошах. Справжніх рахунків і переказів немає.")
+            Text(L("Картки, депозити, кредити й цілі - на віртуальних грошах. Справжніх рахунків і переказів немає.").s)
                 .lead()
             Spacer(minLength: 24)
             VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", design: .dark)
@@ -112,9 +112,9 @@ struct ConsentView: View {
     private var router: some View {
         Slide {
             Text("03").caption()
-            Text("Телефон\nчи сервер")
+            Text(L("Телефон\nчи сервер").s)
                 .headline1()
-            Text("Кожну розумну задачу застосунок виконує там, де краще: залежно від мережі, заряду й упевненості моделі. Це частина студентського дослідження.")
+            Text(L("Кожну розумну задачу застосунок виконує там, де краще: залежно від мережі, заряду й упевненості моделі. Це частина студентського дослідження.").s)
                 .lead()
             Spacer(minLength: 24)
             RouteSketch()
@@ -126,15 +126,15 @@ struct ConsentView: View {
     private var privacy: some View {
         Slide {
             Text("04").caption()
-            Text("Ваші дані")
+            Text(L("Ваші дані").s)
                 .headline1()
             VStack(alignment: .leading, spacing: 0) {
-                fact("Лише телефон",
-                     "Фото чека розпізнається на телефоні й нікуди не йде.")
-                fact("Що може піти на сервер",
-                     "Текст чека чи питання помічнику для мовної моделі Anthropic - але спершу телефон прибирає номери карток, рахунків, телефонів, пошту, ІПН і паспорт.")
-                fact("Згоду можна змінити",
-                     "Будь-коли в «Лабораторії».")
+                fact(L("Лише телефон").s,
+                     L("Фото чека розпізнається на телефоні й нікуди не йде.").s)
+                fact(L("Що може піти на сервер").s,
+                     L("Текст чека чи питання помічнику для мовної моделі Anthropic - але спершу телефон прибирає номери карток, рахунків, телефонів, пошту, ІПН і паспорт.").s)
+                fact(L("Згоду можна змінити").s,
+                     L("Будь-коли в «Лабораторії».").s)
             }
             .padding(.top, 8)
             Spacer(minLength: 0)
@@ -208,9 +208,9 @@ private struct BarsSketch: View {
 private struct RouteSketch: View {
     var body: some View {
         HStack(spacing: 0) {
-            node("Телефон", filled: true)
+            node(L("Телефон").s, filled: true)
             Rectangle().fill(Theme.ink).frame(height: 1.5)
-            node("Сервер", filled: false)
+            node(L("Сервер").s, filled: false)
         }
         .accessibilityHidden(true)
     }

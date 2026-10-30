@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Щоб сфотографувати чек. Фото розпізнається на телефоні й нікуди не надсилається.";
+"NSFaceIDUsageDescription" = "Щоб відмикати банк обличчям замість PIN-коду.";
+"NSLocalNetworkUsageDescription" = "Щоб підключитися до навчального сервера в локальній мережі.";
+"CFBundleDisplayName" = "TaxTech";

@@ -42,13 +42,13 @@ struct CardsTab: View {
             .sheet(isPresented: $issuing) { IssueCardView { await load() } }
             .sheet(item: $designing) { c in CardDesignPicker(card: c) { await load() } }
             .sheet(item: $topping) { c in
-                AmountSheet(title: "На картку", action: "Поповнити", hint: "З головного рахунку на картку.", amount: 500) { a in
+                AmountSheet(title: L("На картку").s, action: L("Поповнити").s, hint: L("З головного рахунку на картку.").s, amount: 500) { a in
                     try await model.api.topUpCard(c.id, a)
                     await load()
                 }
             }
-            .confirmationDialog("Закрити картку назавжди?", isPresented: $confirmClose, titleVisibility: .visible) {
-                Button("Закрити картку", role: .destructive) {
+            .confirmationDialog(L("Закрити картку назавжди?").s, isPresented: $confirmClose, titleVisibility: .visible) {
+                Button(L("Закрити картку").s, role: .destructive) {
                     if let card { act { try await model.api.closeCard(card.id) } }
                 }
             }
@@ -75,9 +75,9 @@ struct CardsTab: View {
     // MARK: Тло, шапка, стрічка
 
     private var header: some View {
-        ScreenTitle(title: "Картки") {
+        ScreenTitle(title: L("Картки").s) {
             Button { issuing = true } label: {
-                Label("Випустити", systemImage: "plus")
+                Label(L("Випустити").s, systemImage: "plus")
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
@@ -94,10 +94,10 @@ struct CardsTab: View {
             VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil,
                             look: CardLook(material: .glass, color: .graphite, pattern: .waves))
                 .opacity(0.6)
-            Text("Карток ще немає").font(.title3.weight(.semibold))
-            Text("Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.")
+            Text(L("Карток ще немає").s).font(.title3.weight(.semibold))
+            Text(L("Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.").s)
                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            Button("Випустити картку") { issuing = true }.buttonStyle(InkButton())
+            Button(L("Випустити картку").s) { issuing = true }.buttonStyle(InkButton())
         }
         .frame(maxWidth: .infinity)
     }
@@ -136,13 +136,13 @@ struct CardsTab: View {
             .sensoryFeedback(.selection, trigger: index)
             if let card {
                 VStack(spacing: 4) {
-                    Text(card.look.name.isEmpty ? "Картка •• \(card.maskedNumber.suffix(4))" : card.look.name)
+                    Text(card.look.name.isEmpty ? L("Картка •• \(card.maskedNumber.suffix(4))").s : card.look.name)
                         .font(.headline)
                         .contentTransition(.opacity)
                     HStack(spacing: 6) {
                         Circle().fill(card.isBlocked ? Color.cyan : Color.green).frame(width: 6, height: 6)
-                        Text(card.isBlocked ? "Заморожена" : (card.isPrimary ? "Головна · активна" : "Активна"))
-                        if let e = card.expiryDisplay { Text("· до \(e)") }
+                        Text(card.isBlocked ? L("Заморожена").s : (card.isPrimary ? L("Головна · активна").s : L("Активна").s))
+                        if let e = card.expiryDisplay { Text(L("· до \(e)").s) }
                     }
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
@@ -170,24 +170,24 @@ struct CardsTab: View {
     private func details(_ c: API.Card) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 0) {
-                RoundAction(title: revealed == nil ? "Реквізити" : "Сховати", symbol: revealed == nil ? "eye" : "eye.slash") {
+                RoundAction(title: revealed == nil ? L("Реквізити").s : L("Сховати").s, symbol: revealed == nil ? "eye" : "eye.slash") {
                     toggleReveal(c)
                 }
-                RoundAction(title: c.isBlocked ? "Розморозити" : "Заморозити", symbol: c.isBlocked ? "sun.max" : "snowflake",
+                RoundAction(title: c.isBlocked ? L("Розморозити").s : L("Заморозити").s, symbol: c.isBlocked ? "sun.max" : "snowflake",
                             on: c.isBlocked) {
                     act { try await model.api.toggleCardBlock(c.id) }
                 }
-                RoundAction(title: "Вигляд", symbol: "paintpalette") { revealed = nil; designing = c }
+                RoundAction(title: L("Вигляд").s, symbol: "paintpalette") { revealed = nil; designing = c }
                 NavigationLink { SecurityView() } label: { RoundActionLabel(title: "PIN", symbol: "lock") }
                     .buttonStyle(PressScale())
             }
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text(c.isPrimary ? "Баланс рахунку" : "Баланс картки").caption()
+                        Text(c.isPrimary ? L("Баланс рахунку").s : L("Баланс картки").s).caption()
                         Spacer()
                         if c.isPrimary {
-                            Text("Головна")
+                            Text(L("Головна").s)
                                 .font(.caption.weight(.semibold))
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
@@ -197,17 +197,17 @@ struct CardsTab: View {
                     BigAmount(value: c.displayBalance ?? 0, size: 38)
                     if c.isPrimary {
                         // головна картка не має окремих грошей - вона платить з рахунку
-                        Text("Головна картка списує з основного рахунку.").font(.footnote).foregroundStyle(.secondary)
+                        Text(L("Головна картка списує з основного рахунку.").s).font(.footnote).foregroundStyle(.secondary)
                     }
                     if let monthOut {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text("За місяць витрачено").font(.footnote).foregroundStyle(.secondary)
+                            Text(L("За місяць витрачено").s).font(.footnote).foregroundStyle(.secondary)
                             Spacer()
                             BigAmount(value: monthOut, size: 17)
                         }
                     }
                     Button { topping = c } label: {
-                        Label("Поповнити картку", systemImage: "plus")
+                        Label(L("Поповнити картку").s, systemImage: "plus")
                             .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity, minHeight: 50)
                             .background(Theme.ink, in: .capsule)
@@ -219,14 +219,14 @@ struct CardsTab: View {
             }
             Surface {
                 VStack(alignment: .leading, spacing: 0) {
-                    row(copied ? "Номер рахунку скопійовано" : "Скопіювати номер рахунку",
+                    row(copied ? L("Номер рахунку скопійовано").s : L("Скопіювати номер рахунку").s,
                         symbol: copied ? "checkmark.circle.fill" : "doc.on.doc") { copyAccount() }
                     if !c.isPrimary {
                         Rule()
-                        row("Зробити головною", symbol: "star") { act { try await model.api.setPrimary(c.id) } }
+                        row(L("Зробити головною").s, symbol: "star") { act { try await model.api.setPrimary(c.id) } }
                     }
                     Rule()
-                    row("Закрити картку", symbol: "xmark.circle", destructive: true) { confirmClose = true }
+                    row(L("Закрити картку").s, symbol: "xmark.circle", destructive: true) { confirmClose = true }
                 }
             }
             .sensoryFeedback(.success, trigger: copied) { _, v in v }

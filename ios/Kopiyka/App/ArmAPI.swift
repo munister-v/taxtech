@@ -169,7 +169,7 @@ extension API {
     func document(_ path: String, name: String) async throws -> URL {
         let (data, response) = try await URLSession.shared.data(for: request(path, method: "GET"))
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw Failure(message: "Сервер не віддав документ")
+            throw Failure(message: L("Сервер не віддав документ").s)
         }
         let url = URL.temporaryDirectory.appending(path: name)
         try data.write(to: url, options: .atomic)

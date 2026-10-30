@@ -40,7 +40,7 @@ extension API.Product {
     /// Мітка на фото: серверна або «Остання одиниця».
     @MainActor var tag: String? {
         if let b = badge, !b.isEmpty { return ProductArt.badgeTitle(b) }
-        if stock == 1 { return "Остання одиниця" }
+        if stock == 1 { return L("Остання одиниця").s }
         return nil
     }
 }
@@ -102,8 +102,8 @@ struct ShopHero: View {
             ], startPoint: .top, endPoint: .bottom)
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Осінь").foregroundStyle(ShopStyle.cream)
-                    Text("вже тут").foregroundStyle(ShopStyle.tan)
+                    Text(L("Осінь").s).foregroundStyle(ShopStyle.cream)
+                    Text(L("вже тут").s).foregroundStyle(ShopStyle.tan)
                 }
                 .font(.system(size: 40, weight: .medium).width(.expanded))
                 .textCase(.uppercase)
@@ -111,7 +111,7 @@ struct ShopHero: View {
                 HStack(spacing: 16) {
                     Button(action: onShop) {
                         HStack(spacing: 10) {
-                            Text("До каталогу").textCase(.uppercase).tracking(1.2).lineLimit(1).fixedSize()
+                            Text(L("До каталогу").s).textCase(.uppercase).tracking(1.2).lineLimit(1).fixedSize()
                             Image(systemName: "arrow.right").font(.footnote.weight(.semibold))
                         }
                         .font(ShopStyle.caps(12, .semibold))
@@ -122,7 +122,7 @@ struct ShopHero: View {
                     .buttonStyle(PressScale())
                     HStack(spacing: 8) {
                         TaxPayMark()
-                        Text("Оплата TaxPay").font(.footnote).foregroundStyle(ShopStyle.cream.opacity(0.85))
+                        Text(L("Оплата TaxPay").s).font(.footnote).foregroundStyle(ShopStyle.cream.opacity(0.85))
                     }
                     .lineLimit(1).minimumScaleFactor(0.8)
                 }
@@ -136,8 +136,8 @@ struct ShopHero: View {
 /// Чотири гарантії магазину 2 x 2 між тонкими лініями.
 struct ShopTrust: View {
     private let items: [(icon: String?, text: String)] = [
-        ("shippingbox", "Нова пошта"), ("checkmark.shield", "100% оригінал"),
-        ("arrow.2.squarepath", "Обмін 14 днів"), (nil, "Оплата TaxPay"),
+        ("shippingbox", L("Нова пошта").s), ("checkmark.shield", L("100% оригінал").s),
+        ("arrow.2.squarepath", L("Обмін 14 днів").s), (nil, L("Оплата TaxPay").s),
     ]
 
     var body: some View {
@@ -169,8 +169,8 @@ struct ShopCollections: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            tile("ShopWomen", .women, "Жінкам", "Сукні · верхній одяг · взуття")
-            tile("ShopMen", .men, "Чоловікам", "Сорочки · поло · костюми")
+            tile("ShopWomen", .women, L("Жінкам").s, L("Сукні · верхній одяг · взуття").s)
+            tile("ShopMen", .men, L("Чоловікам").s, L("Сорочки · поло · костюми").s)
         }
     }
 
@@ -290,7 +290,7 @@ struct ShopCard: View {
                 .disabled(out)
                 .opacity(out ? 0.45 : 1)
                 .padding(10)
-                .accessibilityLabel("У кошик")
+                .accessibilityLabel(L("У кошик").s)
             }
             Button(action: open) {
                 VStack(alignment: .leading, spacing: 4) {
