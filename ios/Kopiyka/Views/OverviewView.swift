@@ -420,7 +420,7 @@ struct OverviewView: View {
 
     /// Сума без копійок для вузьких місць.
     static func compact(_ v: Double) -> String {
-        v.formatted(.number.precision(.fractionLength(0)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+        v.formatted(.number.precision(.fractionLength(0)).locale(Lang.current.locale)) + " TAX"
     }
 }
 
@@ -474,13 +474,13 @@ struct ActivityRow: View {
             TxGlyph(tx: tx)
             VStack(alignment: .leading, spacing: 3) {
                 Text(row.title).font(.body.weight(.medium)).lineLimit(2)
-                Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Locale(identifier: "uk_UA"))))
+                Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Lang.current.locale)))
                     .font(.footnote).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
-                Text((tx.isIncome ? "+" : "−") + tx.amount.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
-                    .font(.title3.weight(.semibold)).monospacedDigit()
+                Text((tx.isIncome ? "+" : "−") + tx.amount.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
+                    .font(.custom("Futura-Medium", size: 20)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
                     .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
                 Text("TAX").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
@@ -495,7 +495,7 @@ struct ActivityRow: View {
 extension OverviewView {
     /// Сума з копійками лише коли вони є.
     static func compactCents(_ v: Double) -> String {
-        v.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+        v.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)) + " TAX"
     }
 }
 
@@ -505,7 +505,7 @@ struct HeroAmount: View {
     var hidden = false
 
     var body: some View {
-        let s = value.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "uk_UA")))
+        let s = value.formatted(.number.precision(.fractionLength(2)).locale(Lang.current.locale))
         let parts = s.split(separator: ",", maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {

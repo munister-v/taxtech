@@ -79,7 +79,7 @@ struct TaxesView: View {
                     }
                     Spacer(minLength: 8)
                     VStack(alignment: .trailing, spacing: 3) {
-                        Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA"))))
+                        Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Lang.current.locale)))
                             .font(.subheadline.weight(.semibold))
                         Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(.secondary)
                     }
@@ -119,7 +119,7 @@ private struct OverviewPart: View {
                         }
                         .chartXAxis {
                             AxisMarks(values: .stride(by: .month)) {
-                                AxisValueLabel(format: .dateTime.month(.abbreviated).locale(Locale(identifier: "uk_UA")))
+                                AxisValueLabel(format: .dateTime.month(.abbreviated).locale(Lang.current.locale))
                             }
                         }
                         .chartYAxis {
@@ -412,7 +412,7 @@ private struct CalendarPart: View {
                             HStack(alignment: .top, spacing: 14) {
                                 VStack(spacing: 0) {
                                     Text(d.date.formatted(.dateTime.day())).font(.title3.weight(.bold)).monospacedDigit()
-                                    Text(d.date.formatted(.dateTime.weekday(.abbreviated).locale(Locale(identifier: "uk_UA"))))
+                                    Text(d.date.formatted(.dateTime.weekday(.abbreviated).locale(Lang.current.locale)))
                                         .font(.caption2).foregroundStyle(.secondary)
                                 }
                                 .frame(width: 40)

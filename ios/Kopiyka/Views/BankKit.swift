@@ -142,7 +142,7 @@ enum BankText {
         f.dateFormat = "yyyy-MM-dd"
         guard let d = f.date(from: String(s.prefix(10))) else { return s }
         // без «р.»: «27 жовтня 2026»
-        return d.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA"))) + " "
+        return d.formatted(.dateTime.day().month(.wide).locale(Lang.current.locale)) + " "
             + String(Calendar.current.component(.year, from: d))
     }
 
@@ -157,7 +157,7 @@ enum BankText {
     /// «Травень 2027» - без «р.» і без розділювача тисяч у році.
     static func monthYear(_ d: Date) -> String {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "uk_UA")
+        f.locale = Lang.current.locale
         f.dateFormat = "LLLL"
         return f.string(from: d).capitalized + " " + String(Calendar.current.component(.year, from: d))
     }
@@ -167,7 +167,7 @@ enum BankText {
         let cal = Calendar.current
         if cal.isDateInToday(day) { return L("Сьогодні").s }
         if cal.isDateInYesterday(day) { return L("Учора").s }
-        return day.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA")))
+        return day.formatted(.dateTime.day().month(.wide).locale(Lang.current.locale))
     }
 
     static func isoDay(_ d: Date) -> String {

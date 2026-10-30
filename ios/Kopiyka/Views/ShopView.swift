@@ -432,7 +432,7 @@ struct PriceText: View {
     var color: Color = Paper.ink
 
     var body: some View {
-        (Text(value.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
+        (Text(value.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
             .font(.system(size: size, weight: .bold)).monospacedDigit()
          + Text(" TAX").font(.system(size: size * 0.62, weight: .semibold)).foregroundColor(color.opacity(0.5)))
             .foregroundStyle(color)
@@ -477,7 +477,7 @@ struct ProductView: View {
             day = cal.date(byAdding: .day, value: 1, to: day) ?? day
             if !cal.isDateInWeekend(day) { left -= 1 }
         }
-        return day.formatted(.dateTime.day().month(.wide).locale(Locale(identifier: "uk_UA")))
+        return day.formatted(.dateTime.day().month(.wide).locale(Lang.current.locale))
     }
 
     private func perk(_ icon: String, _ text: String) -> some View {
@@ -532,13 +532,13 @@ struct ProductView: View {
                             Text(product.brand).font(ShopStyle.caps(12, .semibold)).tracking(2.2).textCase(.uppercase)
                                 .foregroundStyle(.secondary)
                         }
-                        Text(product.shortName).font(.system(size: 28, weight: .medium).width(.expanded)).tracking(0.3)
+                        Text(product.shortName).font(.custom("Futura-Medium", size: 28)).tracking(0.3)
                             .foregroundStyle(Theme.ink)
                         if let code = product.code { Text(code).font(.footnote).foregroundStyle(.tertiary) }
                     }
                     HStack(alignment: .firstTextBaseline) {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
+                            Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
                                 .font(.system(size: 34, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
                             Text("TAX").font(.system(size: 14, weight: .medium)).tracking(0.8).foregroundStyle(.tertiary)
                         }

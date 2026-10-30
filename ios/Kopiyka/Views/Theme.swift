@@ -22,12 +22,12 @@ enum Theme {
     static let ink = dynamic(light: 0x111114, dark: 0xF2F2F5)
     /// Текст на заливці кольору тексту.
     static let onInk = dynamic(light: 0xFFFFFF, dark: 0x111114)
-    /// Сигнальний жовтий - колір токена TAX: головні панелі, кнопки, вибране.
-    static let accent = Color(UIColor(hex: 0xFFD400))
+    /// Світле золото - єдиний акцент: головні кнопки, вибране, суми TAX.
+    static let accent = Color(UIColor(hex: 0xDCC195))
     /// Текст на жовтому - завжди чорний.
     static let onAccent = Color(UIColor(hex: 0x0E0E0C))
-    /// Колір вибраного: жовтий.
-    static let tint = dynamic(light: 0x0E0E0C, dark: 0xFFD400)
+    /// Колір вибраного: золото.
+    static let tint = dynamic(light: 0x0E0E0C, dark: 0xDCC195)
     /// Тепле золото лендингу: рамки, капітелі, гільйош.
     static let gold = Color(UIColor(hex: 0xC7A46F))
     static let goldLight = Color(UIColor(hex: 0xDCC195))

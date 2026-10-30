@@ -9,7 +9,7 @@ enum ShopStyle {
 
     /// Широкий гротеск, як геометричний шрифт на сайті.
     static func caps(_ size: CGFloat, _ weight: Font.Weight = .medium) -> Font {
-        .system(size: size, weight: weight).width(.expanded)
+        .custom("Futura-Medium", size: size)
     }
 }
 
@@ -50,7 +50,7 @@ struct ShopWordmark: View {
 
     var body: some View {
         Text("SAINT AGNES")
-            .font(.system(size: size, weight: .regular).width(.expanded))
+            .font(.custom("Futura-Medium", size: size))
             .tracking(size * 0.3)
             .foregroundStyle(Theme.ink)
             .lineLimit(1)
@@ -105,7 +105,7 @@ struct ShopHero: View {
                     Text(L("Осінь").s).foregroundStyle(ShopStyle.cream)
                     Text(L("вже тут").s).foregroundStyle(ShopStyle.tan)
                 }
-                .font(.system(size: 40, weight: .medium).width(.expanded))
+                .font(.custom("Futura-Medium", size: 40))
                 .textCase(.uppercase)
                 .tracking(0.8)
                 HStack(spacing: 16) {
@@ -300,7 +300,7 @@ struct ShopCard: View {
                     }
                     Text(product.shortName).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))))
+                        Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
                             .font(.system(size: 16, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
                         Text("TAX").font(.system(size: 10, weight: .medium)).tracking(0.6).foregroundStyle(.tertiary)
                     }

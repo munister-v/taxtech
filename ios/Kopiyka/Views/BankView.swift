@@ -49,7 +49,7 @@ struct TransactionRow: View {
 
     /// «(віртуальна покупка)» сервер дописує до кожної покупки - тут це зайве, екран і так про віртуальні гроші.
     var title: String {
-        let d = tx.description ?? tx.relatedAccount ?? L("Операція").s
+        let d = Translator.server(tx.description ?? tx.relatedAccount ?? L("Операція").s)
         return d.replacingOccurrences(of: L(" (віртуальна покупка)").s, with: "")
     }
 

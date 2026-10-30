@@ -228,7 +228,7 @@ struct AnalyticsView: View {
                     .chartYScale(domain: .automatic(includesZero: false))
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 4)) {
-                            AxisValueLabel(format: .dateTime.day().month(.abbreviated).locale(Locale(identifier: "uk_UA")))
+                            AxisValueLabel(format: .dateTime.day().month(.abbreviated).locale(Lang.current.locale))
                         }
                     }
                     .chartYAxis {

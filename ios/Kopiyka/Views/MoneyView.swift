@@ -70,7 +70,7 @@ struct MoneyView: View {
 
     private var hero: some View {
         VStack(spacing: 6) {
-            Text(L("Витрати за \(Date.now.formatted(.dateTime.month(.wide).locale(Locale(identifier: "uk_UA"))))").s)
+            Text(L("Витрати за \(Date.now.formatted(.dateTime.month(.wide).locale(Lang.current.locale)))").s)
                 .caption()
             Text(Format.money(total))
                 .font(Theme.balance())

@@ -43,6 +43,17 @@ enum Translator {
         return t
     }()
 
+    /// Назви операцій, які пише сервер українською: точні збіги й шаблони з номером чи приміткою.
+    static func server(_ d: String) -> String {
+        guard Lang.current != .uk else { return d }
+        if d.hasPrefix("Надходження: ") { return text("Надходження: %@", [String(d.dropFirst("Надходження: ".count))]) }
+        if d.hasPrefix("Оплата інвойсу "), d.hasSuffix(" у магазині TaxTech") {
+            let n = d.dropFirst("Оплата інвойсу ".count).dropLast(" у магазині TaxTech".count)
+            return text("Оплата інвойсу %@ у магазині TaxTech", [String(n)])
+        }
+        return text(d, [])
+    }
+
     static func text(_ key: String, _ args: [String]) -> String {
         var s = Lang.current == .uk ? key : (table[key]?[Lang.current.rawValue] ?? key)
         guard !args.isEmpty else { return s }

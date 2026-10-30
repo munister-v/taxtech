@@ -5158,5 +5158,35 @@
 "it": "Lingua",
 "de": "Sprache",
 "ru": "Язык"
+},
+"Поповнення рахунку": {
+"en": "Account top-up",
+"it": "Ricarica del conto",
+"de": "Kontoaufladung",
+"ru": "Пополнение счёта"
+},
+"Поповнити рахунок": {
+"en": "Top up account",
+"it": "Ricarica il conto",
+"de": "Konto aufladen",
+"ru": "Пополнить счёт"
+},
+"Надходження: %@": {
+"en": "Received: %@",
+"it": "Accredito: %@",
+"de": "Eingang: %@",
+"ru": "Поступление: %@"
+},
+"Оплата у магазині TaxTech": {
+"en": "Payment in the TaxTech shop",
+"it": "Pagamento nello shop TaxTech",
+"de": "Zahlung im TaxTech-Shop",
+"ru": "Оплата в магазине TaxTech"
+},
+"Оплата інвойсу %@ у магазині TaxTech": {
+"en": "Payment of invoice %@ in the TaxTech shop",
+"it": "Pagamento della fattura %@ nello shop TaxTech",
+"de": "Zahlung der Rechnung %@ im TaxTech-Shop",
+"ru": "Оплата инвойса %@ в магазине TaxTech"
 }
 }

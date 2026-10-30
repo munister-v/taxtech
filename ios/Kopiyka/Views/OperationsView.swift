@@ -153,8 +153,8 @@ struct OperationsView: View {
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 4)) {
                             AxisValueLabel(format: period == .year
-                                ? .dateTime.month(.abbreviated).locale(Locale(identifier: "uk_UA"))
-                                : .dateTime.day().month(.twoDigits).locale(Locale(identifier: "uk_UA")))
+                                ? .dateTime.month(.abbreviated).locale(Lang.current.locale)
+                                : .dateTime.day().month(.twoDigits).locale(Lang.current.locale))
                         }
                     }
                     .frame(height: 130)

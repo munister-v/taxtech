@@ -67,12 +67,12 @@ struct RootView: View {
 enum Format {
     static func money(_ v: Double) -> String {
         // валюта застосунку - навчальний токен TAX, не гривня
-        v.formatted(.number.precision(.fractionLength(2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+        v.formatted(.number.precision(.fractionLength(2)).locale(Lang.current.locale)) + " TAX"
     }
 
     /// Сума без «,00»: копійки лише якщо вони є.
     static func short(_ v: Double) -> String {
-        v.formatted(.number.precision(.fractionLength(0...2)).locale(Locale(identifier: "uk_UA"))) + " TAX"
+        v.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)) + " TAX"
     }
 
     static func ms(_ v: Double) -> String {
