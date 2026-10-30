@@ -158,8 +158,10 @@
 .bl-card-brand img { width: 6.4cqi; height: 6.4cqi; display: block; }
 .bl-card-guil .bl-card-virt { padding: .9cqi 2.2cqi; border-radius: 99px; background: rgba(255,212,0,.14); box-shadow: inset 0 0 0 1px rgba(255,212,0,.5); color: #ffd400; opacity: 1; }
 .bl-card-shade { inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(0,0,0,.28), transparent 35%, rgba(0,0,0,.5)); }
-.bl-card-sheen { inset: 0; z-index: 3; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.2) 46%, transparent 60%); background-size: 250% 100%; animation: bl-sheen 7s ease-in-out infinite; mix-blend-mode: soft-light; pointer-events: none; }
-@keyframes bl-sheen { 0%, 55% { background-position: 120% 0; } 100% { background-position: -60% 0; } }
+.bl-card-sheen { inset: 0; z-index: 3; overflow: hidden; border-radius: inherit; pointer-events: none; }
+/* The strip slides by transform (compositor only): animating background-position repainted every card each frame. */
+.bl-card-sheen::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 250%; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.13) 46%, transparent 60%); animation: bl-sheen 7s ease-in-out infinite; will-change: transform; }
+@keyframes bl-sheen { 0%, 55% { transform: translateX(-72%); } 100% { transform: translateX(36%); } }
 .bl-card-brand { left: 7%; top: 10%; font-size: 5.2cqi; font-weight: 500; letter-spacing: .02em; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
 .bl-card-brand b { font-weight: 300; }
 .bl-card-nfc { right: 7%; top: 10%; width: 6.5cqi; height: 6.5cqi; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; opacity: .85; }
@@ -385,7 +387,7 @@
 .bl-hero-photo { scale: calc(1.1 + var(--hp, 0) * .32); }
 .bl .bl-hero h1 { animation: none; }
 .bl-w { display: inline-block; margin-right: .24em; animation: bl-word 1.4s cubic-bezier(.2,.7,.2,1) calc(1.5s + var(--i, 0) * .16s) both; }
-@keyframes bl-word { from { opacity: 0; filter: blur(20px); transform: translateY(.3em) scale(1.06); } to { opacity: 1; filter: blur(0); transform: none; } }
+@keyframes bl-word { from { opacity: 0; transform: translateY(.3em) scale(1.06); } to { opacity: 1; transform: none; } }
 .bl-cue { position: absolute; z-index: 2; left: 50%; bottom: 22px; width: 1px; height: 54px; background: linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)); overflow: hidden; opacity: calc(1 - var(--hp, 0) * 4); }
 .bl-cue i { display: block; width: 100%; height: 40%; background: #fff; animation: bl-cue 2.2s cubic-bezier(.6,0,.2,1) infinite; }
 @keyframes bl-cue { from { transform: translateY(-110%); } to { transform: translateY(260%); } }
@@ -693,7 +695,7 @@
 .bl-tx-art::after { content: ""; position: absolute; inset: 0; z-index: -1; background:
   linear-gradient(180deg, rgba(10,8,5,.45) 0%, rgba(10,8,5,.1) 34%, rgba(12,10,7,.88) 82%, #0c0a07 100%),
   radial-gradient(80% 90% at 100% 0%, rgba(199,164,111,.3), transparent 62%); }
-.bl-tx-rose { position: absolute; z-index: -2; right: -34%; top: -58%; width: 118%; aspect-ratio: 1; color: var(--gold-l); opacity: .5; mix-blend-mode: screen; animation: bl-rose-turn 120s linear infinite; }
+.bl-tx-rose { position: absolute; z-index: -2; right: -34%; top: -58%; width: 118%; aspect-ratio: 1; color: var(--gold-l); opacity: .5; will-change: transform; animation: bl-rose-turn 120s linear infinite; }
 @keyframes bl-rose-turn { to { transform: rotate(360deg); } }
 .bl-tx-num { position: absolute; left: 20px; top: 14px; font-family: var(--roman); font-weight: 300; font-size: 40px; line-height: 1; letter-spacing: .06em;
   background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 55%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(0,0,0,.65)); }
