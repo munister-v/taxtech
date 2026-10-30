@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
@@ -226,6 +226,40 @@ function useNear<T extends HTMLElement>(margin = 1100) {
   return [ref, near] as const;
 }
 
+// One reveal observer per scroller, shared by the sections that are on the page from the start and the ones mounted later.
+const revealObservers = new WeakMap<Element, IntersectionObserver>();
+function revealObserver(root: Element) {
+  let io = revealObservers.get(root);
+  if (!io) {
+    io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io!.unobserve(e.target); } }), { root, threshold: 0.12 });
+    revealObservers.set(root, io);
+  }
+  return io;
+}
+
+// A section below the fold: an empty box of about its final height until the visitor is a screen or so away, then its content mounts.
+// This keeps the first render small; the box keeps its id so menu anchors work before and after.
+function Lazy({ id, className, h, children }: { id?: string; className: string; h: [number, number]; children: React.ReactNode }) {
+  const ref = useRef<HTMLElement | null>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } },
+      { root: el.closest('.bl'), rootMargin: '1500px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
+  useEffect(() => {
+    const el = ref.current, root = el?.closest('.bl');
+    if (!near || !el || !root) return;
+    const io = revealObserver(root);
+    el.querySelectorAll('.bl-rv').forEach(x => io.observe(x));
+    root.dispatchEvent(new Event('bl-mounted'));
+  }, [near]);
+  return <section id={id} className={className} ref={ref} style={near ? undefined : { minHeight: window.innerWidth <= 560 ? h[1] : h[0] }}>{near ? children : null}</section>;
+}
+
 // Section label in inscription capitals with a Roman numeral: "II · Вигляд картки".
 function Card({ finish, n = '6595', name = 'DEMO USER' }: { finish: Finish; n?: string; name?: string }) {
   const f = FINISHES.find(x => x.id === finish)!;
@@ -270,8 +304,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   };
   const [holder, setHolder] = useState('');
   const hoodRef = useRef<HTMLDivElement | null>(null);
-  const [facesRef, facesNear] = useNear<HTMLElement>();
-  const [hoodNearRef, hoodNear] = useNear<HTMLDivElement>();
+  // the faces and station sections mount only when near, so their photos may load as soon as they exist
+  const facesNear = true, hoodNear = true;
   const hoodIdle = useRef<{ since: number; user: number; going?: boolean }>({ since: Date.now(), user: 0 });
   // The train runs the line by itself while the section is on screen, and waits a while after the visitor picks a station.
   useEffect(() => {
@@ -321,7 +355,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     const root = rootRef.current;
     if (!root) return;
     root.classList.add('bl-js');
-    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { root, threshold: 0.12 });
+    const io = revealObserver(root);
     root.querySelectorAll('.bl-rv').forEach(el => io.observe(el));
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const rome = root.querySelector<HTMLElement>('.bl-rome');
@@ -329,7 +363,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     const romeItems = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome [data-i].bl-rome-item'));
     const clockEl = root.querySelector<HTMLElement>('.bl-rome-time');
     const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
-    const photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
+    let photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
+    const refreshPhotos = () => { photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo')); onScroll(); };
+    root.addEventListener('bl-mounted', refreshPhotos);
     const hero = root.querySelector<HTMLElement>('.bl-hero');
     let raf = 0;
     // Photos drift slower than the page (parallax), the hero lets go as you leave it.
@@ -396,7 +432,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     const untilt = () => { hero?.style.setProperty('--ry', '0deg'); hero?.style.setProperty('--rx', '0deg'); };
     if (fine && !still && hero) { hero.addEventListener('pointermove', tilt); hero.addEventListener('pointerleave', untilt); }
     return () => {
-      io.disconnect();
+      root.removeEventListener('bl-mounted', refreshPhotos);
       root.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       if (raf) cancelAnimationFrame(raf);
@@ -548,12 +584,12 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         />
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
-        <section id="inside" className="bl-sec bl-inside">
+        <Lazy id="inside" className="bl-sec bl-inside" h={[1527, 1568]}>
           <div className="bl-wrap">
             <div className="bl-inside-head bl-rv">
               <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
-            <div className="bl-hood bl-rv" ref={el => { hoodRef.current = el; hoodNearRef.current = el; }}>
+            <div className="bl-hood bl-rv" ref={hoodRef}>
               <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} rose={CARD_ROSETTE} />
               <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
                 onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
@@ -581,10 +617,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
             </div>
           </div>
-        </section>
+        </Lazy>
 
         {/* ── Six faces: a 3D cover-flow of the card designs ── */}
-        <section id="card" className="bl-sec bl-faces" ref={facesRef}>
+        <Lazy id="card" className="bl-sec bl-faces" h={[808, 606]}>
           <div className="bl-faces-bg" aria-hidden>
             {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={facesNear ? { backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` } : undefined} />)}
           </div>
@@ -602,10 +638,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             </div>
             <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
           </div>
-        </section>
+        </Lazy>
 
         {/* ── Saint Agnes: a cream lookbook page like the shop itself; the shoot on the left, four pieces priced in TAX ── */}
-        <section id="shop" className="bl-shopx">
+        <Lazy id="shop" className="bl-shopx" h={[1400, 1225]}>
           <div className="bl-wrap">
             <div className="bl-shopx-head bl-rv">
               <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
@@ -634,10 +670,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             </div>
             <div className="bl-shopx-foot bl-rv"><a className="bl-pill bl-pill-dark" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')} ›</a></div>
           </div>
-        </section>
+        </Lazy>
 
         {/* ── Final CTA: the Colosseum at blue hour ── */}
-        <section className="bl-scene bl-final">
+        <Lazy className="bl-scene bl-final" h={[900, 726]}>
           <FireScene className="bl-photo bl-photo-final" src="/landing/colosseum-sun.webp" ratio={1.504} focusX={0.12} focusY={0.5} spots={SUN_SPOTS} embers={50} />
           <div className="bl-wrap bl-center">
             <h2 className="bl-h bl-h-xl bl-rv">{t('Ваша картка чекає.', 'Your card is waiting.')}</h2>
@@ -660,7 +696,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <button type="button" className="bl-ghost" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
             </div>
           </div>
-        </section>
+        </Lazy>
 
         <section id="faq" className="bl-sec bl-sec-faq">
           <div className="bl-wrap bl-faq-wrap">

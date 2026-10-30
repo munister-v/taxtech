@@ -1,7 +1,15 @@
+import './index.css';
 import markSvg from './assets/mark.svg?raw';
 import BankLanding from './BankLanding';
 import { initialLandingLang, saveLandingLang, type LandingLang } from './landingLang';
 import { setTrLang, tr, trLang } from './appI18n';
+// Onest is only for the banking app; the landing does not pay for it.
+if (typeof document !== 'undefined' && !document.getElementById('onest-font')) {
+  const l = document.createElement('link');
+  l.id = 'onest-font'; l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap';
+  document.head.appendChild(l);
+}
 import React, { useState, Fragment, useEffect, createContext, useContext, Component, useRef, useMemo, useId } from 'react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import { createPortal } from 'react-dom';
