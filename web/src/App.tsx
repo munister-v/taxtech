@@ -411,6 +411,7 @@ const translations = {
     profile_security: 'Безпека',
     profile_password: 'Пароль',
     profile_change_photo: 'Змінити фото',
+    profile_add_photo: 'Додати фото',
     profile_remove_photo: 'Видалити',
     profile_change_password: 'Змінити пароль',
     profile_current_password: 'Поточний пароль',
@@ -740,6 +741,7 @@ const translations = {
     profile_security: 'Security',
     profile_password: 'Password',
     profile_change_photo: 'Change photo',
+    profile_add_photo: 'Add photo',
     profile_remove_photo: 'Remove',
     profile_change_password: 'Change password',
     profile_current_password: 'Current password',
@@ -1069,6 +1071,7 @@ const translations = {
     profile_security: 'Sicurezza',
     profile_password: 'Password',
     profile_change_photo: 'Cambia foto',
+    profile_add_photo: 'Aggiungi foto',
     profile_remove_photo: 'Rimuovi',
     profile_change_password: 'Cambia password',
     profile_current_password: 'Password attuale',
@@ -1398,6 +1401,7 @@ const translations = {
     profile_security: 'Sicherheit',
     profile_password: 'Passwort',
     profile_change_photo: 'Foto ändern',
+    profile_add_photo: 'Foto hinzufügen',
     profile_remove_photo: 'Entfernen',
     profile_change_password: 'Passwort ändern',
     profile_current_password: 'Aktuelles Passwort',
@@ -1727,6 +1731,7 @@ const translations = {
     profile_security: 'Безопасность',
     profile_password: 'Пароль',
     profile_change_photo: 'Сменить фото',
+    profile_add_photo: 'Добавить фото',
     profile_remove_photo: 'Удалить',
     profile_change_password: 'Сменить пароль',
     profile_current_password: 'Текущий пароль',
@@ -7174,23 +7179,28 @@ function ProfileScreen() {
       toast(t('pick_image'));
       return;
     }
-    if (file.size > 3 * 1024 * 1024) {
+    if (file.size > 25 * 1024 * 1024) {
       toast(t('photo_too_large'));
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const value = typeof reader.result === 'string' ? reader.result : '';
-      if (!value) {
-        toast(t('photo_read_error'));
-        return;
-      }
+    // Центральний квадрат 320x320: будь-яке фото вміщується в сховище і гарно лягає в коло
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 320;
+      const ctx = canvas.getContext('2d');
+      if (!ctx || !side) { URL.revokeObjectURL(url); toast(t('photo_read_error')); return; }
+      ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, 320, 320);
+      URL.revokeObjectURL(url);
+      const value = canvas.toDataURL('image/jpeg', 0.88);
       setProfilePhoto(value);
       setProfilePhotoValue(value);
       toast(t('photo_updated'));
     };
-    reader.onerror = () => toast(t('photo_upload_error'));
-    reader.readAsDataURL(file);
+    img.onerror = () => { URL.revokeObjectURL(url); toast(t('photo_read_error')); };
+    img.src = url;
     e.target.value = '';
   }
 
@@ -7237,49 +7247,43 @@ function ProfileScreen() {
           onChange={onPickProfilePhoto}
           style={{ display: 'none' }}
         />
-        <div style={{
-          width: 80, height: 80, borderRadius: '50%',
-          background: `${gold}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 28, fontWeight: 700, color: '#242424', letterSpacing: 0.5,
-          boxShadow: `0 0 0 3px rgba(0,0,0, 0.6), 0 0 0 5px ${gold}55`,
-          marginBottom: 14,
-          overflow: 'hidden',
-        }}>
-          {profilePhoto ? (
-            <img src={profilePhoto} alt={t('profile_photo_alt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            userInitials
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <button
-            onClick={() => photoInputRef.current?.click()}
-            style={{
-              padding: '6px 12px', borderRadius: 10, border: '1px solid transparent',
-              background: 'rgba(255,255,255, 0.1)', color: text.secondary, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            }}
-          >
-            {t('profile_change_photo')}
+        <button
+          type="button"
+          onClick={() => photoInputRef.current?.click()}
+          aria-label={t('profile_change_photo')}
+          className="kp-avatar"
+          style={{ position: 'relative', width: 96, height: 96, padding: 0, border: 'none', background: 'none', cursor: 'pointer', marginBottom: 12 }}
+        >
+          <span style={{
+            width: 96, height: 96, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+            background: gold, fontFamily: DISPLAY, fontSize: 32, fontWeight: 500, color: '#242424', letterSpacing: 1,
+            boxShadow: '0 0 0 3px #0c0b09, 0 0 0 4.5px rgba(220,193,149,0.7)',
+          }}>
+            {profilePhoto ? (
+              <img src={profilePhoto} alt={t('profile_photo_alt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              userInitials
+            )}
+          </span>
+          <span aria-hidden className="kp-avatar-badge" style={{
+            position: 'absolute', right: 0, bottom: 2, width: 30, height: 30, borderRadius: '50%',
+            display: 'grid', placeItems: 'center', background: 'linear-gradient(180deg, #ffe45a, #ffd400 55%, #e6b800)', color: '#17140a',
+            boxShadow: '0 0 0 3px #0c0b09, 0 6px 14px rgba(0,0,0,0.5)',
+          }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3v11H4V8Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" /><circle cx="12" cy="13.2" r="3.2" stroke="currentColor" strokeWidth="1.9" /></svg>
+          </span>
+        </button>
+        <div style={{ display: 'flex', gap: 14, marginBottom: 14, fontFamily: DISPLAY, fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+          <button onClick={() => photoInputRef.current?.click()} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--kp-gold-l)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit', textTransform: 'inherit' }}>
+            {profilePhoto ? t('profile_change_photo') : t('profile_add_photo')}
           </button>
           {profilePhoto && (
-            <button
-              onClick={removeProfilePhoto}
-              style={{
-                padding: '6px 12px', borderRadius: 10, border: '1px solid transparent',
-                background: 'rgba(255,255,255, 0.1)', color: '#c3c3c3', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              }}
-            >
+            <button onClick={removeProfilePhoto} style={{ background: 'none', border: 'none', padding: 0, color: text.dim, cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit', textTransform: 'inherit' }}>
               {t('profile_remove_photo')}
             </button>
           )}
         </div>
-        <div style={{ ...T.h2, color: text.primary, marginBottom: 4 }}>{displayName}</div>
-        <div style={{ fontSize: 12, color: text.muted, marginBottom: 12 }}>{account?.account_number ?? '—'}</div>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5fd68a', fontSize: 12.5, fontWeight: 600 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.4 2 3.1-.3 1 3 2.7 1.6-.9 3 .9 3-2.7 1.6-1 3-3.1-.3L12 22l-2.4-2-3.1.3-1-3L2.8 15.7l.9-3-.9-3 2.7-1.6 1-3 3.1.3L12 2z" fill="currentColor" opacity="0.22" /><path d="M8.5 12.2l2.4 2.4 4.6-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          {t('profile_verified')}
-        </div>
+        <div style={{ ...T.h2, color: text.primary, marginBottom: 2 }}>{displayName}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1px minmax(0, 1fr)', width: '100%', marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.07)', alignItems: 'center' }}>
           <div style={{ textAlign: 'center', padding: '0 8px' }}>
             <div style={{ fontSize: 11.5, color: text.muted, marginBottom: 6 }}>{t('profile_phone')}</div>

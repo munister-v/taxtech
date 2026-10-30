@@ -1,4 +1,58 @@
+import PhotosUI
 import SwiftUI
+
+/// Фото профілю: лежить у пам'яті телефону, центральний квадрат 320 пт. Лічильник `rev` оновлює всі аватари.
+enum ProfilePhoto {
+    static let revKey = "profilePhotoRev"
+    private static var url: URL { URL.applicationSupportDirectory.appending(path: "profile.jpg") }
+
+    static func load() -> UIImage? { UIImage(contentsOfFile: url.path) }
+
+    static func save(_ data: Data) -> Bool {
+        guard let src = UIImage(data: data) else { return false }
+        let side = min(src.size.width, src.size.height)
+        let fmt = UIGraphicsImageRendererFormat(); fmt.scale = 1
+        let img = UIGraphicsImageRenderer(size: CGSize(width: 320, height: 320), format: fmt).image { _ in
+            let k = 320 / side
+            src.draw(in: CGRect(x: -(src.size.width - side) / 2 * k, y: -(src.size.height - side) / 2 * k,
+                                width: src.size.width * k, height: src.size.height * k))
+        }
+        guard let jpeg = img.jpegData(compressionQuality: 0.88) else { return false }
+        try? FileManager.default.createDirectory(at: .applicationSupportDirectory, withIntermediateDirectories: true)
+        guard (try? jpeg.write(to: url, options: .atomic)) != nil else { return false }
+        UserDefaults.standard.set(UserDefaults.standard.integer(forKey: revKey) + 1, forKey: revKey)
+        return true
+    }
+
+    static func remove() {
+        try? FileManager.default.removeItem(at: url)
+        UserDefaults.standard.set(UserDefaults.standard.integer(forKey: revKey) + 1, forKey: revKey)
+    }
+}
+
+/// Круглий аватар: фото, а без нього - ініціали.
+struct AvatarView: View {
+    let initials: String
+    var size: CGFloat = 40
+    @AppStorage(ProfilePhoto.revKey) private var rev = 0
+
+    var body: some View {
+        Group {
+            if let img = ProfilePhoto.load() {
+                Image(uiImage: img).resizable().scaledToFill()
+            } else {
+                Text(initials).font(.custom("Futura-Medium", size: size * 0.38))
+                    .foregroundStyle(Theme.onAccent)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Theme.goldFill)
+            }
+        }
+        .id(rev)
+        .frame(width: size, height: size)
+        .clipShape(.circle)
+        .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 1))
+    }
+}
 
 /// Профіль: жовта картка власника, розділи банку, безпека, особистий облік і лабораторія, запрошення, вихід.
 struct ProfileView: View {
@@ -8,7 +62,8 @@ struct ProfileView: View {
     @State private var personal: Personal?
     @State private var confirmDelete = false
     @State private var deleteError: String?
-    @State private var copied = false
+    @State private var pick: PhotosPickerItem?
+    @AppStorage(ProfilePhoto.revKey) private var photoRev = 0
 
     enum Personal: String, Identifiable {
         case money, receipt, assistant, lab
@@ -106,14 +161,33 @@ struct ProfileView: View {
 
     private var header: some View {
         HeroPanel {
-            HStack(alignment: .center, spacing: 14) {
-                Text(initials)
-                    .font(.display(26)).tracking(-0.8)
-                    .frame(width: 64, height: 64)
-                    .background(Theme.ink, in: .circle)
-                    .foregroundStyle(Theme.onInk)
+            HStack(alignment: .center, spacing: 16) {
+                PhotosPicker(selection: $pick, matching: .images) {
+                    AvatarView(initials: initials, size: 76)
+                        .overlay(alignment: .bottomTrailing) {
+                            Image(systemName: "camera.fill").font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Theme.onAccent)
+                                .frame(width: 26, height: 26)
+                                .background(Theme.accent, in: .circle)
+                                .overlay(Circle().strokeBorder(Theme.bg, lineWidth: 2.5))
+                                .offset(x: 2, y: 2)
+                        }
+                }
+                .accessibilityLabel("Змінити фото")
+                .contextMenu {
+                    if ProfilePhoto.load() != nil {
+                        Button("Видалити фото", systemImage: "trash", role: .destructive) { ProfilePhoto.remove() }
+                    }
+                }
+                .onChange(of: pick) { _, item in
+                    guard let item else { return }
+                    Task {
+                        if let data = try? await item.loadTransferable(type: Data.self) { _ = ProfilePhoto.save(data) }
+                        pick = nil
+                    }
+                }
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(me?.fullName ?? " ").font(.title2.weight(.bold)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(me?.fullName ?? " ").font(.custom("Futura-Medium", size: 24)).lineLimit(1).minimumScaleFactor(0.7)
                     if let e = me?.email, !e.isEmpty {
                         Text(e).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                     }
@@ -121,12 +195,6 @@ struct ProfileView: View {
             }
             if let me {
                 HStack(spacing: 10) {
-                    if let a = me.bankAccountNumber {
-                        Button { UIPasteboard.general.string = a; copied = true } label: {
-                            fact(copied ? "Скопійовано" : a, "Рахунок", copied ? "checkmark" : "doc.on.doc")
-                        }
-                        .buttonStyle(.plain)
-                    }
                     if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") {
                         fact(p, "Телефон", "phone")
                     }

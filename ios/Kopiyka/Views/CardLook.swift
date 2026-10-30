@@ -125,7 +125,7 @@ struct CardLook: Codable, Equatable, Sendable {
         case .slate: self.init(material: .solid, color: .graphite, pattern: .mark)
         case .navy: self.init(material: .metal, color: .graphite, pattern: .lines)
         case .forest: self.init(material: .solid, color: .white, pattern: .mark)
-        case .gold: self.init(material: .gradient, color: .gold, pattern: .guilloche)
+        case .gold: self.init(material: .solid, color: .black, pattern: .guilloche)
         case .rose: self.init(material: .glass, color: .graphite, pattern: .waves)
         }
     }
@@ -163,7 +163,7 @@ struct CardSurface: View {
         let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
         ZStack {
             fill
-            CardPatternLayer(pattern: look.pattern, ink: look.text)
+            CardPatternLayer(pattern: look.pattern, ink: look.color == .black && look.pattern == .guilloche ? Theme.goldLight : look.text)
                 .opacity(look.material == .glass ? 0.8 : 1)
             if look.material == .metal { brushed }
             CardGrain(light: look.color.isLight)

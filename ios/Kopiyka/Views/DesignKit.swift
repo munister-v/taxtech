@@ -55,7 +55,7 @@ struct HeroPanel<Content: View>: View {
             .clipShape(.rect(cornerRadius: 24, style: .continuous))
             .overlay {
                 if !yellow {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline)
+                    RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.edge, lineWidth: 0.8)
                 }
             }
     }

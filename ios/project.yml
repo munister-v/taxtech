@@ -39,6 +39,7 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: TaxTech
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         INFOPLIST_KEY_NSCameraUsageDescription: Щоб сфотографувати чек. Фото розпізнається на телефоні й нікуди не надсилається.
         INFOPLIST_KEY_NSFaceIDUsageDescription: Щоб відмикати банк обличчям замість PIN-коду.
         INFOPLIST_KEY_NSLocalNetworkUsageDescription: Щоб підключитися до навчального сервера в локальній мережі.

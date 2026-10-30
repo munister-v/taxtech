@@ -731,3 +731,9 @@
 /* Sign-in column: never narrower than a comfortable form; the picture panel gives way first */
 .ap-auth-wrap { flex: 1 1 440px !important; min-width: min(100%, 440px) !important; }
 @media (max-width: 1000px) { .ap-brand { display: none !important; } }
+
+/* Аватар профілю: фокус і наведення як у кнопки */
+.kp-avatar { transition: transform 0.18s var(--kp-ease); }
+.kp-avatar:hover { transform: scale(1.03); }
+.kp-avatar:active { transform: scale(0.98); }
+.kp-avatar:hover .kp-avatar-badge { filter: brightness(1.08); }

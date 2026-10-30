@@ -9,6 +9,7 @@ struct KopiykaApp: App {
         WindowGroup {
             RootView()
                 .environment(model)
+                .preferredColorScheme(.dark)
                 .task {
                     #if DEBUG && targetEnvironment(simulator)
                     await model.debugSignIn()

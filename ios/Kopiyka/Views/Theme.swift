@@ -13,13 +13,12 @@ enum Theme {
     static let gutter: CGFloat = 16
     static let hairline: CGFloat = 0.5
 
-    private static func dynamic(light: UInt32, dark: UInt32) -> Color {
-        Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: dark) : UIColor(hex: light) })
-    }
+    /// Тема одна - темна. Пари (світла, темна) лишилися з часів двох тем: береться темне значення.
+    private static func dynamic(light: UInt32, dark: UInt32) -> Color { Color(UIColor(hex: dark)) }
 
-    static let bg = dynamic(light: 0xF2F2F5, dark: 0x000000)
-    static let surface = dynamic(light: 0xFFFFFF, dark: 0x1C1C1F)
-    static let line = dynamic(light: 0xE3E3E8, dark: 0x2C2C30)
+    static let bg = dynamic(light: 0xF2F2F5, dark: 0x050504)
+    static let surface = dynamic(light: 0xFFFFFF, dark: 0x171614)
+    static let line = dynamic(light: 0xE3E3E8, dark: 0x3A3427)
     static let ink = dynamic(light: 0x111114, dark: 0xF2F2F5)
     /// Текст на заливці кольору тексту.
     static let onInk = dynamic(light: 0xFFFFFF, dark: 0x111114)
@@ -27,11 +26,24 @@ enum Theme {
     static let accent = Color(UIColor(hex: 0xFFD400))
     /// Текст на жовтому - завжди чорний.
     static let onAccent = Color(UIColor(hex: 0x0E0E0C))
-    /// Колір вибраного там, де жовтий на папері не читається (вкладки, перемикачі).
+    /// Колір вибраного: жовтий.
     static let tint = dynamic(light: 0x0E0E0C, dark: 0xFFD400)
+    /// Тепле золото лендингу: рамки, капітелі, гільйош.
+    static let gold = Color(UIColor(hex: 0xC7A46F))
+    static let goldLight = Color(UIColor(hex: 0xDCC195))
+    /// Золотий градієнт для великих цифр і заголовків.
+    static let goldFill = LinearGradient(colors: [Color(UIColor(hex: 0xFFF3D2)), Color(UIColor(hex: 0xDCC195)), Color(UIColor(hex: 0xCFA862))],
+                                         startPoint: .top, endPoint: .bottom)
+    /// Золота волоскова рамка поверхні: світліша зверху-ліворуч, тихіша в середині.
+    static let edge = LinearGradient(stops: [
+        .init(color: Color(UIColor(hex: 0xDCC195)).opacity(0.5), location: 0),
+        .init(color: .white.opacity(0.07), location: 0.3),
+        .init(color: .white.opacity(0.04), location: 0.7),
+        .init(color: Color(UIColor(hex: 0xC7A46F)).opacity(0.32), location: 1),
+    ], startPoint: .topLeading, endPoint: .bottomTrailing)
 
     static func balance(_ size: CGFloat = 46) -> Font {
-        .system(size: size, weight: .semibold)
+        .custom("Futura-Medium", size: size)
     }
 
     /// Відтінок за місцем у переліку: найбільша категорія найтемніша.
@@ -94,8 +106,15 @@ struct MarkView: View {
 extension View {
     /// Мала підпис-мітка над блоком: капітель, розряджений набір.
     func caption() -> some View {
-        font(.subheadline.weight(.semibold))
-            .foregroundStyle(.secondary)
+        font(.custom("Futura-Medium", size: 12))
+            .tracking(2.2)
+            .textCase(.uppercase)
+            .foregroundStyle(Theme.gold)
+    }
+
+    /// Золота волоскова рамка, як на панелях лендингу.
+    func goldEdge(_ radius: CGFloat = 22) -> some View {
+        overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(Theme.edge, lineWidth: 0.8))
     }
 }
 
@@ -108,7 +127,7 @@ struct Surface<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
             .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline))
+            .goldEdge(22)
     }
 }
 
@@ -141,7 +160,7 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(.title3.weight(.bold))
+            Text(text).font(.custom("Futura-Medium", size: 21))
             Spacer()
             if let trailing {
                 Text(trailing).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary).monospacedDigit()
@@ -169,7 +188,9 @@ struct InkButton: ButtonStyle {
             .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(Theme.accent.opacity(configuration.isPressed ? 0.82 : 1), in: .capsule)
+            .background(LinearGradient(colors: [Color(UIColor(hex: 0xFFE45A)), Theme.accent, Color(UIColor(hex: 0xE6B800))],
+                                       startPoint: .top, endPoint: .bottom).opacity(configuration.isPressed ? 0.82 : 1), in: .capsule)
+            .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 0.8))
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .opacity(enabled ? 1 : 0.35)
     }
@@ -184,7 +205,7 @@ struct LineButton: ButtonStyle {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
             .background(Theme.surface, in: .capsule)
-            .overlay(Capsule().strokeBorder(Theme.ink.opacity(0.14), lineWidth: 1))
+            .overlay(Capsule().strokeBorder(Theme.line, lineWidth: 1))
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .opacity(configuration.isPressed ? 0.75 : 1)
     }
@@ -221,6 +242,7 @@ struct ActionBar: View {
             }
         }
         .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
+        .goldEdge(Theme.corner)
         .sensoryFeedback(.selection, trigger: items.count)
     }
 }

@@ -5,7 +5,7 @@ import SwiftUI
 extension Font {
     /// Заголовки й великі цифри: системний шрифт без засічок, жирний для сум, напівжирний для решти.
     static func display(_ size: CGFloat, _ weight: Font.Weight = .heavy) -> Font {
-        .system(size: size, weight: weight == .heavy ? .bold : .semibold)
+        .custom(weight == .heavy ? "Futura-Bold" : "Futura-Medium", size: size)
     }
 }
 

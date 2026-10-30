@@ -93,14 +93,7 @@ struct OverviewView: View {
             HStack {
                 Button { showProfile = true } label: {
                     // поки профіль не прийшов - значок, а не чужі «TT», що потім стрибають на справжні
-                    Group {
-                        if let initials { Text(initials).font(.system(size: 14, weight: .semibold)) }
-                        else { Image(systemName: "person.fill").font(.system(size: 15)) }
-                    }
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: 40, height: 40)
-                    .background(Theme.surface, in: .circle)
-                    .overlay(Circle().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+                    AvatarView(initials: initials ?? "TT", size: 40)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Профіль")
@@ -121,7 +114,7 @@ struct OverviewView: View {
             .rise(0)
 
             VStack(spacing: 6) {
-                Text("Основний рахунок · TAX").font(.footnote.weight(.medium)).foregroundStyle(.secondary)
+                Text("Основний рахунок · TAX").caption()
                 Button { withAnimation(.snappy) { hidden.toggle() } } label: {
                     HeroAmount(value: shown, hidden: hidden)
                 }
@@ -157,6 +150,16 @@ struct OverviewView: View {
             .rise(2)
         }
         .padding(.horizontal, Theme.gutter)
+        .background(alignment: .top) {
+            Canvas { ctx, size in
+                let c = CGPoint(x: size.width * 0.5, y: size.height * 0.34)
+                Engraving.rosette(in: &ctx, center: c, radius: size.width * 0.62, curves: 26, lobes: 8, depth: 0.2, second: 0.06,
+                                  steps: 220, color: Theme.goldLight.opacity(0.11), width: 0.4)
+                Engraving.rings(in: &ctx, center: c, from: size.width * 0.58, to: size.width * 0.61, count: 3, color: Theme.goldLight.opacity(0.14))
+            }
+            .mask(LinearGradient(colors: [.black, .black.opacity(0.6), .clear], startPoint: .top, endPoint: .bottom))
+            .allowsHitTesting(false)
+        }
     }
 
     private var initials: String? {
@@ -430,6 +433,7 @@ struct Card<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
             .clipShape(.rect(cornerRadius: 24, style: .continuous))
+            .goldEdge(24)
             .contentShape(.rect(cornerRadius: 24, style: .continuous))
     }
 }
@@ -505,17 +509,17 @@ struct HeroAmount: View {
         let parts = s.split(separator: ",", maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {
-                Text("••••••").font(.system(size: 52, weight: .bold))
+                Text("••••••").font(.custom("Futura-Medium", size: 52))
             } else {
-                Text(parts.first ?? s).font(.system(size: 56, weight: .bold)).tracking(-1.5)
+                Text(parts.first ?? s).font(.custom("Futura-Medium", size: 58)).tracking(-1)
                 if parts.count > 1, parts[1] != "00" {
-                    Text(",\(parts[1])").font(.system(size: 28, weight: .semibold)).opacity(0.75)
+                    Text(",\(parts[1])").font(.custom("Futura-Medium", size: 28)).opacity(0.55)
                 }
             }
-            Text(" TAX").font(.system(size: 20, weight: .semibold)).opacity(0.75)
+            Text(" TAX").font(.custom("Futura-Medium", size: 20)).tracking(2).foregroundStyle(Theme.accent)
         }
         .monospacedDigit()
-        .foregroundStyle(Theme.ink)
+        .foregroundStyle(Theme.goldFill)
         .lineLimit(1)
         .minimumScaleFactor(0.5)
         .contentTransition(.numericText(value: value))

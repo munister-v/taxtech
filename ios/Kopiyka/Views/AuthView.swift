@@ -6,7 +6,6 @@ import SwiftUI
 /// Форми не тут: вхід відкривається аркушем, реєстрація - кроками по одному питанню.
 struct AuthView: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.colorScheme) private var scheme
     @State private var status: String?
     @State private var working = false
     @State private var nonce = ""
@@ -16,34 +15,44 @@ struct AuthView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
+            HStack(spacing: 10) {
+                MarkView(height: 26, color: .white)
+                (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
+                    .font(.custom("Futura-Medium", size: 22)).tracking(0.6).foregroundStyle(.white)
                 Spacer()
                 Button { server = true } label: {
-                    Image(systemName: "network").font(.system(size: 17, weight: .medium)).foregroundStyle(.secondary)
+                    Image(systemName: "network").font(.system(size: 16, weight: .medium)).foregroundStyle(.white.opacity(0.55))
                         .frame(width: 40, height: 40)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Адреса сервера")
             }
             .padding(.top, 4)
+            .rise(0)
 
             Spacer(minLength: 0)
-            CardFan()
+
+            WelcomeCard()
                 .frame(maxWidth: .infinity)
-                .frame(height: 250)
                 .rise(1)
-            BrandLockup(height: 70)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 44)
-                .rise(2)
-            Spacer(minLength: 24)
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Платіть,")
+                    .foregroundStyle(.white)
+                Text("як у Римі.")
+                    .foregroundStyle(Theme.goldFill)
+            }
+            .font(.system(size: 44, weight: .medium)).tracking(-1)
+            .lineLimit(1).minimumScaleFactor(0.7)
+            .padding(.top, 30)
+            .rise(2)
 
             if let status {
                 Label(status, systemImage: "exclamationmark.circle")
                     .font(.subheadline)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
-                    .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
+                    .background(.white.opacity(0.08), in: .rect(cornerRadius: 14, style: .continuous))
                     .padding(.top, 14)
                     .transition(.opacity)
             }
@@ -56,7 +65,7 @@ struct AuthView: View {
                 } onCompletion: { result in
                     Task { await finishApple(result) }
                 }
-                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
+                .signInWithAppleButtonStyle(.white)
                 .frame(height: 54)
                 .clipShape(.capsule)
                 .disabled(working)
@@ -65,18 +74,18 @@ struct AuthView: View {
                     .buttonStyle(InkButton())
 
                 Button { signingUp = true } label: {
-                    (Text("Немає акаунта? ").foregroundStyle(.secondary) + Text("Створити").fontWeight(.semibold))
+                    (Text("Немає акаунта? ").foregroundStyle(.white.opacity(0.6)) + Text("Створити").fontWeight(.semibold).foregroundStyle(Theme.goldLight))
                         .font(.subheadline)
                         .frame(maxWidth: .infinity, minHeight: 40)
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.top, 24)
+            .padding(.top, 22)
             .rise(4)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 12)
-        .background { Aurora() }
+        .background { WelcomeBackdrop() }
         .animation(.smooth(duration: 0.2), value: status)
         .sheet(isPresented: $signingIn) { SignInSheet() }
         .sheet(isPresented: $signingUp) { SignUpFlow() }
@@ -136,28 +145,76 @@ struct AuthView: View {
     }
 }
 
-/// Три картки віялом, що повільно дихають і нахиляються за телефоном.
-struct CardFan: View {
+/// Одна пряма чорна картка із золотим гільйошем: без нахилу й поворотів, лише ковзний золотий відблиск.
+struct WelcomeCard: View {
     @Environment(\.accessibilityReduceMotion) private var reduce
+    private let look = CardLook(material: .solid, color: .black, pattern: .guilloche)
 
     var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
         TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
-            let t = reduce ? 0 : tl.date.timeIntervalSinceReferenceDate
-            ZStack {
-                card(.forest, number: "•••• 2048", angle: -16, x: -58, y: 22, t: t, phase: 0)
-                card(.dark, number: "•••• 6897", angle: -3, x: 0, y: -2, t: t, phase: 1.3)
-                card(.gold, number: "•••• 1755", angle: 12, x: 58, y: 26, t: t, phase: 2.6)
-            }
+            let t = reduce ? 0.5 : (tl.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 5.5) / 5.5)
+            VirtualCardView(number: "•••• 2048", expiry: "09/29", holder: nil, design: .gold, look: look)
+                .background(.black, in: shape)
+                .overlay {
+                    // золотий відблиск проходить картку зліва направо й зникає
+                    GeometryReader { g in
+                        LinearGradient(colors: [.clear, Theme.goldLight.opacity(0.28), .clear], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: g.size.width * 0.35)
+                            .rotationEffect(.degrees(18))
+                            .offset(x: -g.size.width * 0.4 + g.size.width * 1.5 * t)
+                            .blendMode(.plusLighter)
+                    }
+                    .clipShape(shape)
+                    .allowsHitTesting(false)
+                }
+                .overlay(shape.strokeBorder(Theme.edge, lineWidth: 1.2))
+                .shadow(color: Theme.accent.opacity(0.22), radius: 46, y: 6)
+                .shadow(color: .black.opacity(0.7), radius: 24, y: 18)
         }
-        .tilt()
+        .frame(width: 304)
     }
+}
 
-    private func card(_ design: CardDesign, number: String, angle: Double, x: CGFloat, y: CGFloat, t: Double, phase: Double) -> some View {
-        VirtualCardView(number: number, expiry: "09/29", holder: nil, design: design)
-            .frame(width: 236)
-            .shadow(color: .black.opacity(0.22), radius: 18, y: 12)
-            .rotationEffect(.degrees(angle + sin(t * 0.6 + phase) * 1.6))
-            .offset(x: x, y: y + CGFloat(sin(t * 0.8 + phase) * 6))
+/// Тло вітання: римське фото під затемненням, розетка гільйошу, золоте сяйво зверху.
+struct WelcomeBackdrop: View {
+    var body: some View {
+        ZStack {
+            Color(red: 0.02, green: 0.02, blue: 0.015)
+            GeometryReader { g in
+                Image("RomeHero").resizable().scaledToFill()
+                    .frame(width: g.size.width, height: g.size.height * 0.62, alignment: .top)
+                    .clipped()
+                    .saturation(0.55)
+                    .opacity(0.5)
+                    .mask(LinearGradient(colors: [.black, .black.opacity(0.7), .clear], startPoint: .top, endPoint: .bottom))
+                Canvas { ctx, size in
+                    let c = CGPoint(x: size.width * 0.5, y: size.height * 0.30)
+                    Engraving.rosette(in: &ctx, center: c, radius: size.width * 0.78, curves: 28, lobes: 8, depth: 0.2, second: 0.06,
+                                      steps: 240, color: Theme.goldLight.opacity(0.10), width: 0.4)
+                    Engraving.rings(in: &ctx, center: c, from: size.width * 0.74, to: size.width * 0.77, count: 3, color: Theme.goldLight.opacity(0.14))
+                    // медальйон за карткою: подвійне кільце й шкала, як на римській монеті
+                    let m = CGPoint(x: size.width * 0.5, y: size.height * 0.455)
+                    let R = size.width * 0.56
+                    for (r, w, o) in [(R, 1.2, 0.5), (R * 0.965, 0.5, 0.35), (R * 0.78, 0.5, 0.22)] as [(CGFloat, CGFloat, Double)] {
+                        ctx.stroke(Path(ellipseIn: CGRect(x: m.x - r, y: m.y - r, width: r * 2, height: r * 2)),
+                                   with: .color(Theme.goldLight.opacity(o)), lineWidth: w)
+                    }
+                    for i in 0..<120 {
+                        let a = Double(i) / 120 * .pi * 2, long = i % 10 == 0
+                        var p = Path()
+                        p.move(to: CGPoint(x: m.x + R * 0.965 * cos(a), y: m.y + R * 0.965 * sin(a)))
+                        p.addLine(to: CGPoint(x: m.x + R * (long ? 0.915 : 0.94) * cos(a), y: m.y + R * (long ? 0.915 : 0.94) * sin(a)))
+                        ctx.stroke(p, with: .color(Theme.goldLight.opacity(long ? 0.5 : 0.28)), lineWidth: long ? 1 : 0.5)
+                    }
+                }
+                RadialGradient(colors: [Theme.accent.opacity(0.16), .clear], center: .init(x: 0.5, y: 0.46), startRadius: 0, endRadius: 360)
+            }
+            LinearGradient(colors: [.clear, Color(red: 0.02, green: 0.02, blue: 0.015).opacity(0.85), Color(red: 0.02, green: 0.02, blue: 0.015)],
+                           startPoint: .init(x: 0.5, y: 0.35), endPoint: .init(x: 0.5, y: 0.7))
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
     }
 }
 
