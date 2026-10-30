@@ -65,7 +65,7 @@ export default function TapScene({ src, tapText, paidText, toast, receipt }: Pro
     <section id="tap" ref={sec} className="bl-tap">
       <div className="bl-tap-stage">
         <div ref={cam} className="bl-tap-cam" aria-hidden>
-          <img src={src} alt="" draggable={false} />
+          <img src={src} alt="" draggable={false} loading="lazy" decoding="async" />
           <svg className="bl-tap-charge" viewBox="0 0 100 100"><circle className="t" cx="50" cy="50" r="46" /><circle className="f" cx="50" cy="50" r="46" pathLength="1" /></svg>
           <span className="bl-tap-spot" />
           {[0, 1, 2, 3].map(i => <span key={i} className="bl-ripple" style={{ ['--i' as string]: i }} />)}

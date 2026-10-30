@@ -106,7 +106,7 @@ export default function FireScene({ src, ratio, focusX = 0.5, focusY = 0.4, spot
   return (
     <div ref={box} className={`bl-fire ${dawn ? 'bl-fire-dawn' : ''} ${className}`} aria-hidden>
       <div ref={wrap} className="bl-fire-in">
-        <img src={src} alt="" draggable={false} />
+        <img src={src} alt="" draggable={false} loading="lazy" decoding="async" />
         {spots.map((s, i) => (
           <i key={i} className="bl-fire-glow" style={{
             left: `${s[0]}%`, top: `${s[1]}%`, width: `${Math.max(s[2] * 2.6, 3)}%`, height: `${Math.max(s[3] * 2.2, 4)}%`,

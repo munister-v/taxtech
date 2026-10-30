@@ -73,11 +73,19 @@ export default function HoodPlatform({ phase, roman, name, next, going, rose }: 
     let dead = false;
     let a: TrainApi | null = null;
     try { const c = document.createElement('canvas'); if (!(c.getContext('webgl2') || c.getContext('webgl'))) return; } catch { return; }
-    import('./hoodTrain3d').then(m => {
-      if (dead || !host.current) return;
-      try { a = m.mountTrain(host.current, rose); api.current = a; a.setLed(last.current.led); a.setPhase(last.current.phase); setGl(true); } catch { a?.dispose(); a = null; }
-    }).catch(() => {});
-    return () => { dead = true; a?.dispose(); api.current = null; };
+    // three.js (~120 KB) is fetched only when the platform is a couple of screens away, not on first paint.
+    const el = host.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      import('./hoodTrain3d').then(m => {
+        if (dead || !host.current) return;
+        try { a = m.mountTrain(host.current, rose); api.current = a; a.setLed(last.current.led); a.setPhase(last.current.phase); setGl(true); } catch { a?.dispose(); a = null; }
+      }).catch(() => {});
+    }, { root: el.closest('.bl'), rootMargin: '1800px 0px' });
+    io.observe(el);
+    return () => { dead = true; io.disconnect(); a?.dispose(); api.current = null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => { api.current?.setPhase(phase); }, [phase]);

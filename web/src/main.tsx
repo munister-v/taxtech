@@ -20,8 +20,12 @@ function Root() {
     hasToken() || location.hash === '#login' || location.hash === '#register' ? 'app' : null);
   useEffect(() => {
     if (view) return;
-    const idle = window.requestIdleCallback ?? ((f: () => void) => window.setTimeout(f, 2500));
-    idle(() => { loadApp().catch(() => {}); });
+    // The app chunk is prefetched after the page has settled, and not at all on a saver/slow connection.
+    const net = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (net?.saveData || /(^|-)2g$/.test(net?.effectiveType ?? '')) return;
+    const run = () => { loadApp().catch(() => {}); };
+    const go = () => { if (window.requestIdleCallback) window.requestIdleCallback(run, { timeout: 6000 }); else window.setTimeout(run, 4000); };
+    if (document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true });
   }, [view]);
   if (!view) return <BankLanding onAuth={setView} />;
   return (

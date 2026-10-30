@@ -211,11 +211,27 @@ const IC = {
   face: <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M9 10v1.5M15 10v1.5M12 10v3.5h-1M9 16.2c1.6 1.2 4.4 1.2 6 0" /></svg>,
 };
 
+// True once the element is within a screen or so of the viewport: photos below the fold are fetched only then.
+function useNear<T extends HTMLElement>(margin = 1100) {
+  const ref = useRef<T | null>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } },
+      { root: el.closest('.bl'), rootMargin: `${margin}px 0px` });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near, margin]);
+  return [ref, near] as const;
+}
+
 // Section label in inscription capitals with a Roman numeral: "II · Вигляд картки".
 function Card({ finish, n = '6595', name = 'DEMO USER' }: { finish: Finish; n?: string; name?: string }) {
   const f = FINISHES.find(x => x.id === finish)!;
+  const [ref, near] = useNear<HTMLDivElement>();
   return (
-    <div className={`bl-card${f.photo ? ' bl-card-photo' : ' bl-card-guil'}`} style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>
+    <div ref={ref} className={`bl-card${f.photo ? ' bl-card-photo' : ' bl-card-guil'}`} style={f.photo && near ? { backgroundImage: `url(${f.photo})` } : undefined}>
       {!f.photo && <svg className="bl-card-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeWidth=".3" /></svg>}
       <span className="bl-card-shade" aria-hidden />
       <span className="bl-card-sheen" aria-hidden />
@@ -254,6 +270,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   };
   const [holder, setHolder] = useState('');
   const hoodRef = useRef<HTMLDivElement | null>(null);
+  const [facesRef, facesNear] = useNear<HTMLElement>();
+  const [hoodNearRef, hoodNear] = useNear<HTMLDivElement>();
   const hoodIdle = useRef<{ since: number; user: number; going?: boolean }>({ since: Date.now(), user: 0 });
   // The train runs the line by itself while the section is on screen, and waits a while after the visitor picks a station.
   useEffect(() => {
@@ -535,7 +553,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-inside-head bl-rv">
               <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
-            <div className="bl-hood bl-rv" ref={hoodRef}>
+            <div className="bl-hood bl-rv" ref={el => { hoodRef.current = el; hoodNearRef.current = el; }}>
               <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} rose={CARD_ROSETTE} />
               <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
                 onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
@@ -544,7 +562,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                 const x = HOOD[hood];
                 return (
                   <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite">
-                    <div className="bl-tx-art" style={{ ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` }}>
+                    <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
                       <svg className="bl-tx-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="currentColor" strokeWidth=".25" /></svg>
                       <span className="bl-tx-num" aria-hidden>{ROMAN[hood]}</span>
                       <span className="bl-tx-place" aria-hidden>{HOOD_PLACES[hood].name}</span>
@@ -566,9 +584,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         </section>
 
         {/* ── Six faces: a 3D cover-flow of the card designs ── */}
-        <section id="card" className="bl-sec bl-faces">
+        <section id="card" className="bl-sec bl-faces" ref={facesRef}>
           <div className="bl-faces-bg" aria-hidden>
-            {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={{ backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` }} />)}
+            {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={facesNear ? { backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` } : undefined} />)}
           </div>
           <div className="bl-wrap bl-center">
             <h2 className="bl-h bl-rv">{t('Шість облич Рима.', 'Six faces of Rome.')}</h2>
@@ -579,7 +597,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-thumbs bl-rv" role="radiogroup" aria-label={t('Оздоблення', 'Design')}>
               {FINISHES.map(f => (
                 <button key={f.id} type="button" role="radio" aria-checked={finish === f.id} aria-label={t(f.uk, f.en)} className={`bl-thumb${finish === f.id ? ' on' : ''}`} onClick={() => setFinish(f.id)}
-                  style={f.photo ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeOpacity=".75" strokeWidth=".5" /></svg>}</button>
+                  style={f.photo && facesNear ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeOpacity=".75" strokeWidth=".5" /></svg>}</button>
               ))}
             </div>
             <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
