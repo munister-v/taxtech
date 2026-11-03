@@ -195,7 +195,7 @@ def login_verify():
     response = jsonify({
         'ok': True,
         'data': {
-            'cookie_auth': True,
+            'token': token,   # the web app keeps its bearer in localStorage, as after a password login
             'user': {
                 'id': user['id'],
                 'full_name': user.get('full_name'),

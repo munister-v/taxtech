@@ -9865,6 +9865,7 @@ function LoginScreen({ onLogin, initialMode = 'login', onBack }: { onLogin: () =
       });
       const verJson = await verRes.json();
       if (!verRes.ok || !verJson.ok) throw new Error(verJson.error || t('verification_error'));
+      if (!verJson.data?.token) throw new Error(t('verification_error'));
       localStorage.setItem('army_bank_token', verJson.data.token);
       onLogin();
     } catch (err: unknown) {
