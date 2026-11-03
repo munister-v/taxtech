@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
 import TapScene from './TapScene';
 import RomeMap from './RomeMap';
-import HoodMap, { HOOD_PLACES } from './HoodMap';
+import HoodMap, { HOOD_PLACES, HOOD_DWELL } from './HoodMap';
 import HoodPlatform, { type PlatPhase } from './HoodPlatform';
 import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import { autoplay } from './autoplay';
@@ -307,23 +307,27 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   };
   const [holder, setHolder] = useState('');
   const hoodRef = useRef<HTMLDivElement | null>(null);
+  const [hoodEl, setHoodEl] = useState<HTMLDivElement | null>(null); // the section mounts lazily, so the clock waits for it
+  const hoodRefCb = useCallback((el: HTMLDivElement | null) => { hoodRef.current = el; setHoodEl(el); }, []);
   // the faces and station sections mount only when near, so their photos may load as soon as they exist
   const facesNear = true, hoodNear = true;
-  const hoodIdle = useRef<{ since: number; user: number; going?: boolean }>({ since: Date.now(), user: 0 });
-  // The train runs the line by itself while the section is on screen, and waits a while after the visitor picks a station.
+  const hoodIdle = useRef<{ since: number; going?: boolean; hold?: boolean }>({ since: Date.now() });
+  // The train runs the line by itself while the map is on screen: it stands HOOD_DWELL at each station and goes on to the next.
+  // The clock stops while the map is off screen or the pointer is over the card being read.
   useEffect(() => {
-    const el = hoodRef.current;
+    const el = hoodEl?.querySelector('.hm');
     if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let seen = false;
-    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; }, { threshold: 0.35 });
+    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; }, { threshold: 0.5 });
     io.observe(el);
     const id = window.setInterval(() => {
-      const q = hoodIdle.current, now = Date.now();
-      if (seen && !q.going && now - q.since > 5200 && now - q.user > 9000) setHoodTo(h => (h + 1) % HOOD.length);
-    }, 600);
+      const q = hoodIdle.current;
+      if (!seen || q.hold) { q.since += 300; return; }
+      if (!q.going && Date.now() - q.since > HOOD_DWELL) setHoodTo(h => (h + 1) % HOOD.length);
+    }, 300);
     return () => { io.disconnect(); window.clearInterval(id); };
-  }, []);
-  const pickHood = (i: number) => { hoodIdle.current.user = Date.now(); setHoodTo(i); };
+  }, [hoodEl]);
+  const pickHood = (i: number) => setHoodTo(i);
   useEffect(() => {
     const root = rootRef.current;
     if (!menu || !root) return;
@@ -600,13 +604,35 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           })()}
         />
 
+        {/* ── A word from TaxTech General: who is behind it and what it is for ── */}
+        <section id="hello" className="bl-hello">
+          <div className="bl-wrap bl-hello-in">
+            <div className="bl-hello-card bl-rv">
+              <figure className="bl-hello-photo">
+                <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="640" height="640" loading="lazy" decoding="async" />
+              </figure>
+              <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
+              <p className="bl-hello-role">TaxTech General</p>
+              <p className="bl-hello-bio">{t('Автор і дослідник цифрової спадщини. Працює з архітектурою, міською культурою та колективною пам’яттю.', 'Author and digital heritage researcher. Works with architecture, urban culture and collective memory.')}</p>
+            </div>
+            <div className="bl-hello-text">
+              <h2 className="bl-h bl-rv">{t('Про проєкт', 'About the project')}</h2>
+              <p className="bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
+              <p className="bl-rv">{t('Він потрібен, щоб вивчати платіжні системи на живому прикладі: провести платіж, спробувати обійти антифрод, підмінити запис і побачити, як це виявить система. Saint Agnes — дослідницька вітрина для тих самих експериментів.', 'It exists to study payment systems on a live example: make a payment, try to get past the fraud engine, tamper with a record and watch the system catch it. Saint Agnes is a research storefront for the same experiments.')}</p>
+              <div className="bl-cta bl-rv">
+                <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside" h={[1527, 1568]}>
           <div className="bl-wrap">
             <div className="bl-inside-head bl-rv">
               <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
-            <div className="bl-hood bl-rv" ref={hoodRef}>
+            <div className="bl-hood bl-rv" ref={hoodRefCb}>
               <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} rose={CARD_ROSETTE} />
               <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
                 onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
@@ -614,7 +640,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               {(() => {
                 const x = HOOD[hood];
                 return (
-                  <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite">
+                  <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite"
+                    onPointerEnter={() => { hoodIdle.current.hold = true; hoodRef.current?.classList.add('hold'); }}
+                    onPointerLeave={() => { hoodIdle.current.hold = false; hoodRef.current?.classList.remove('hold'); }}>
                     <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
                       <svg className="bl-tx-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="currentColor" strokeWidth=".25" /></svg>
                       <span className="bl-tx-num" aria-hidden>{ROMAN[hood]}</span>

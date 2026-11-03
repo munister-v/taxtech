@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 // "Under the hood": the night map of Rome from the hero (romeMapData.ts, loaded on demand) with one rail line across it.
 // Nine stations, one architectural feature each, in the order a payment goes through the bank. An electric train runs the
 // line, brakes into a station, stands there while the card shows the feature, then goes on. A pin sends it to that station.
-// Streets are painted once on a canvas; the line, the train and the pins share one projection.
+// Streets are painted once on a canvas; the line, the train and the pins share one projection. A camera rides with the train:
+// it dives in when the section comes into view, leads the train along the line, pulls back a little at speed and settles
+// on each station. The whole map sits in one transformed "world", so the canvas is painted at twice the pixel density.
 
 type Data = typeof import('./romeMapData')['ROME'];
 type Side = 'l' | 'r' | 't' | 'b';
@@ -25,6 +27,8 @@ const BENDS: Record<number, { x: number; y: number }[]> = { 3: [{ x: 1290, y: 64
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 const X0 = 463, X1 = 1740, Y0 = 493, Y1 = 1382;
 const N_CARS = 4;
+// How long the train stands at a station while the card is read, ms.
+export const HOOD_DWELL = 6000;
 
 const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
@@ -60,6 +64,14 @@ export default function HoodMap({ titles, shown, target, onSelect, onDepart, onA
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [geo, setGeo] = useState<{ d: string; total: number; st: { x: number; y: number; s: number }[] } | null>(null);
   const pos = useRef(0);                 // train position along the line, px
+  const world = useRef<HTMLDivElement | null>(null);
+  const boxRef = useRef(box); boxRef.current = box;
+  const cam = useRef({ x: 0, y: 0, z: 1, ready: false });
+  const head = useRef({ x: 0, y: 0 });
+  const moving = useRef(false);
+  const seen = useRef(false);            // the map is on screen
+  const engaged = useRef(false);         // ... and has been, so the camera has dived in
+  const camKick = useRef<() => void>(() => {});
   const cb = useRef({ onDepart, onArrive });
   cb.current = { onDepart, onArrive };
 
@@ -91,7 +103,8 @@ export default function HoodMap({ titles, shown, target, onSelect, onDepart, onA
     if (!D || !canvas || !box.w || !box.h) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // painted at up to twice the density of the page: the camera zooms into this canvas
+    const dpr = Math.max(1, Math.min(Math.min(window.devicePixelRatio || 1, 2) * 2, Math.sqrt(7e6 / (box.w * box.h))));
     canvas.width = Math.round(box.w * dpr); canvas.height = Math.round(box.h * dpr);
     ctx.setTransform(dpr * sc, 0, 0, dpr * sc, dpr * (box.w / 2 - cx * sc), dpr * (box.h / 2 - cy * sc));
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -136,10 +149,12 @@ export default function HoodMap({ titles, shown, target, onSelect, onDepart, onA
       if (!g) return;
       const sk = clamp(s - k * (L + gap), 0, geo.total);
       const a = p.getPointAtLength(sk), b = p.getPointAtLength(Math.min(geo.total, sk + 1.5)), c = p.getPointAtLength(Math.max(0, sk - 1.5));
+      if (k === 0) { head.current.x = a.x; head.current.y = a.y; }
       g.setAttribute('transform', `translate(${a.x.toFixed(1)} ${a.y.toFixed(1)}) rotate(${(Math.atan2(b.y - c.y, b.x - c.x) * 180 / Math.PI).toFixed(1)})`);
     });
     if (done.current) { done.current.style.strokeDasharray = `${geo.total}`; done.current.style.strokeDashoffset = `${geo.total - s}`; }
     geo.st.forEach((q, i) => pinEls.current[i]?.classList.toggle('pass', q.s <= s + 1));
+    camKick.current();
   };
 
   // Drive the train: from where it stands to the target station, easing out of one and into the next.
@@ -159,26 +174,69 @@ export default function HoodMap({ titles, shown, target, onSelect, onDepart, onA
     const to = g.st[target].s, from = pos.current;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { pos.current = to; place(to); cb.current.onArrive(target); return; }
     if (Math.abs(to - from) < 1) { cb.current.onArrive(target); return; }
-    const dur = clamp(Math.abs(to - from) / (g.total / 5.5) * 1000, 1000, 3800);
+    const dur = clamp(Math.abs(to - from) / (g.total / 4.2) * 1000, 1900, 4400);
     let raf = 0, t0 = 0;
     cb.current.onDepart(dur);
+    moving.current = true;
     const step = (now: number) => {
       if (!t0) t0 = now;
       const k = clamp((now - t0) / dur);
       pos.current = from + (to - from) * ease(k);
       place(pos.current);
-      if (k < 1) raf = requestAnimationFrame(step); else cb.current.onArrive(target);
+      if (k < 1) raf = requestAnimationFrame(step); else { moving.current = false; cb.current.onArrive(target); camKick.current(); }
     };
     raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); moving.current = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target]);
+
+  // The camera: runs while the map is on screen and has anywhere left to go.
+  useEffect(() => {
+    const el = wrap.current, wd = world.current;
+    if (!el || !wd) return;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf = 0, t0 = 0;
+    const frame = (now: number) => {
+      raf = 0;
+      const g = geoRef.current, p = probe.current, { w: W, h: H } = boxRef.current;
+      if (still || !g || !p || !W || !H) return;
+      const dt = Math.min(0.05, t0 ? (now - t0) / 1000 : 0.016); t0 = now;
+      const c = cam.current, wideNow = W > 560;
+      const go = moving.current, dive = engaged.current;
+      // Where to look: on the whole line before the dive; afterwards at the train, a little ahead of it while it runs.
+      let tx = W / 2, ty = H / 2, tz = 1;
+      if (dive) {
+        tz = go ? (wideNow ? 1.6 : 1.45) : (wideNow ? 2.3 : 2.0);
+        tx = head.current.x; ty = head.current.y;
+        if (go) {
+          const a = p.getPointAtLength(Math.min(g.total, pos.current + 70));
+          tx += (a.x - tx) * 0.65; ty += (a.y - ty) * 0.65;
+        }
+      }
+      if (!c.ready) { c.x = W / 2; c.y = H / 2; c.z = 1; c.ready = true; }
+      const kp = 1 - Math.exp(-dt * (go ? 3.4 : 2.4)), kz = 1 - Math.exp(-dt * 2.6);
+      c.x += (tx - c.x) * kp; c.y += (ty - c.y) * kp; c.z += (tz - c.z) * kz;
+      const ox = clamp(W / 2 - c.z * c.x, W - c.z * W, 0), oy = clamp(H / 2 - c.z * c.y, H - c.z * H, 0);
+      wd.style.transform = `translate3d(${ox.toFixed(1)}px, ${oy.toFixed(1)}px, 0) scale(${c.z.toFixed(4)})`;
+      wd.style.setProperty('--iz', (1 / c.z).toFixed(4));
+      const settled = Math.abs(tx - c.x) < 0.3 && Math.abs(ty - c.y) < 0.3 && Math.abs(tz - c.z) < 0.004;
+      if (seen.current && !(settled && !go)) raf = requestAnimationFrame(frame); else t0 = 0;
+    };
+    camKick.current = () => { if (!raf && seen.current) raf = requestAnimationFrame(frame); };
+    const io = new IntersectionObserver(([e]) => {
+      seen.current = e.isIntersecting;
+      el.classList.toggle('off', !e.isIntersecting);
+      if (e.isIntersecting) { engaged.current = true; camKick.current(); }
+    }, { threshold: 0.5 });
+    io.observe(el);
+    return () => { io.disconnect(); if (raf) cancelAnimationFrame(raf); camKick.current = () => {}; };
+  }, []);
 
   const L = wide ? 36 : 26, W = wide ? 14 : 11, nWin = Math.floor((L - 8) / 7);
   return (
     <div className="hm" ref={wrap}>
+      <div className="hm-world" ref={world}>
       <canvas ref={cvs} className={`hm-cv${D ? ' on' : ''}`} aria-hidden />
-      <div className="hm-vig" aria-hidden />
       <svg className="hm-rail" width={box.w} height={box.h} aria-hidden>
         <defs>
           <linearGradient id="hmbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffe55c" /><stop offset="1" stopColor="#e0b000" /></linearGradient>
@@ -201,11 +259,26 @@ export default function HoodMap({ titles, shown, target, onSelect, onDepart, onA
       {geo && HOOD_PLACES.map((p, i) => (
         <button key={p.name} type="button" ref={el => { pinEls.current[i] = el; }}
           className={`hm-pin hm-${p.side}${i === shown ? ' on' : ''}${i === target && i !== shown ? ' next' : ''}`}
-          style={{ transform: `translate(${geo.st[i].x.toFixed(1)}px, ${geo.st[i].y.toFixed(1)}px)` }}
+          style={{ transform: `translate(${geo.st[i].x.toFixed(1)}px, ${geo.st[i].y.toFixed(1)}px) scale(var(--iz, 1))` }}
           aria-label={`${ROMAN[i]}. ${titles[i]} — ${p.name}`} aria-pressed={i === shown} onClick={() => onSelect(i)}>
           <i className="hm-ring" /><b>{ROMAN[i]}</b><span>{p.name}</span>
         </button>
       ))}
+      </div>
+      <div className="hm-vig" aria-hidden />
+      {geo && (
+        <div className="hm-strip" role="group" aria-label={titles.join(' · ')}>
+          {HOOD_PLACES.map((p, i) => {
+            const rest = shown === target;
+            return (
+              <button key={p.name} type="button" className={`hm-tick${i < shown ? ' done' : ''}${i === shown ? (rest ? ' cur rest' : ' cur') : ''}${i === target && !rest ? ' nxt' : ''}`}
+                aria-label={`${ROMAN[i]}. ${titles[i]}`} onClick={() => onSelect(i)}>
+                <u><i key={rest ? 'r' : 'g'} /></u><span>{ROMAN[i]}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
