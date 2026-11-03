@@ -11,6 +11,7 @@ struct NetworkLab: View {
         VStack(alignment: .leading, spacing: 16) {
             status
             controls
+            schemes
             banks
             clearing
             quality
@@ -72,6 +73,42 @@ struct NetworkLab: View {
                       x: Binding(get: { params.threshold }, set: { params.threshold = ($0 / 5).rounded() * 5 }), range: 30...95)
             Toggle(L("Шар історії").s, isOn: $params.history).tint(Theme.accent)
             Toggle(L("Автоплатежі").s, isOn: $params.autopay).tint(Theme.accent)
+        }
+    }
+
+    // MARK: Схеми
+
+    private var schemes: some View {
+        LabPanel(title: L("Схеми шахрайства").s) {
+            ForEach(NetSim.Scheme.allCases, id: \.self) { s in
+                let on = params.schemes.contains(s)
+                let r = sim.results[s] ?? NetSim.Outcome()
+                Button {
+                    if on { params.schemes.remove(s) } else { params.schemes.insert(s) }
+                } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 10) {
+                            Image(systemName: on ? "checkmark.circle.fill" : "circle").foregroundStyle(on ? Theme.accent : Color.secondary)
+                            Text(s.title).font(.subheadline.weight(.medium)).foregroundStyle(on ? Color.primary : Color.secondary)
+                            Spacer(minLength: 8)
+                            Text(r.total == 0 ? "-" : L("зупинено \(r.caught) з \(r.total)").s)
+                                .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                        }
+                        GeometryReader { g in
+                            Rectangle().fill(Theme.ink.opacity(0.1))
+                                .overlay(alignment: .leading) {
+                                    Rectangle().fill(r.missed > 0 && r.caught == 0 ? Theme.alert : Theme.accent)
+                                        .frame(width: g.size.width * (r.total == 0 ? 0 : Double(r.caught) / Double(r.total)))
+                                }
+                        }
+                        .frame(height: 3)
+                    }
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+            }
+            Text(L("Кожна схема лишає свій слід в історії: одні видно одразу, інші лише за кілька кроків або зовсім не видно. Вимкніть шар історії й порівняйте.").s)
+                .font(.footnote).foregroundStyle(.secondary)
         }
     }
 

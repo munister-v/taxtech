@@ -2253,7 +2253,7 @@
 "en": "Active",
 "it": "Attivo",
 "de": "Aktiv",
-"ru": "Активен"
+"ru": "Активный"
 },
 "Новий регулярний платіж": {
 "en": "New recurring payment",
@@ -3750,9 +3750,9 @@
 "ru": "Кому больше всего"
 },
 "%@ операцій": {
-"en": "%@ transactions",
+"en": "%@ operations",
 "it": "%@ operazioni",
-"de": "%@ Transaktionen",
+"de": "%@ Vorgänge",
 "ru": "%@ операций"
 },
 "Спостереження": {
@@ -7762,5 +7762,383 @@
 "it": "Il blocco dura venti passi, ma puoi rimuoverlo toccando il conto.",
 "de": "Eine Sperre dauert zwanzig Schritte, lässt sich aber per Tippen auf das Konto aufheben.",
 "ru": "Бан действует двадцать шагов, но его можно снять вручную, коснувшись счёта."
+},
+"Найбільша витрата цього місяця: %@ (%@ TAX)": {
+"en": "Biggest expense this month: %@ (%@ TAX)",
+"it": "Spesa maggiore di questo mese: %@ (%@ TAX)",
+"de": "Größte Ausgabe diesen Monat: %@ (%@ TAX)",
+"ru": "Крупнейший расход в этом месяце: %@ (%@ TAX)"
+},
+"Найактивніший день — %@: %@ за 30 днів": {
+"en": "Busiest day: %@, %@ over 30 days",
+"it": "Giorno più attivo: %@, %@ in 30 giorni",
+"de": "Aktivster Tag: %@, %@ in 30 Tagen",
+"ru": "Самый активный день — %@: %@ за 30 дней"
+},
+"Середня операція цього місяця: %@ TAX, усього %@": {
+"en": "Average transaction this month: %@ TAX, %@ in total",
+"it": "Operazione media di questo mese: %@ TAX, %@ in totale",
+"de": "Durchschnittlicher Vorgang diesen Monat: %@ TAX, insgesamt %@",
+"ru": "Средняя операция в этом месяце: %@ TAX, всего %@"
+},
+"Норма заощадження: %@%, надходження %@ TAX, витрати %@ TAX": {
+"en": "Savings rate: %@%, income %@ TAX, expenses %@ TAX",
+"it": "Tasso di risparmio: %@%, entrate %@ TAX, uscite %@ TAX",
+"de": "Sparquote: %@%, Einnahmen %@ TAX, Ausgaben %@ TAX",
+"ru": "Норма сбережений: %@%, поступления %@ TAX, расходы %@ TAX"
+},
+"неділя": {
+"en": "Sunday",
+"it": "domenica",
+"de": "Sonntag",
+"ru": "воскресенье"
+},
+"понеділок": {
+"en": "Monday",
+"it": "lunedì",
+"de": "Montag",
+"ru": "понедельник"
+},
+"вівторок": {
+"en": "Tuesday",
+"it": "martedì",
+"de": "Dienstag",
+"ru": "вторник"
+},
+"середа": {
+"en": "Wednesday",
+"it": "mercoledì",
+"de": "Mittwoch",
+"ru": "среда"
+},
+"четвер": {
+"en": "Thursday",
+"it": "giovedì",
+"de": "Donnerstag",
+"ru": "четверг"
+},
+"пʼятниця": {
+"en": "Friday",
+"it": "venerdì",
+"de": "Freitag",
+"ru": "пятница"
+},
+"субота": {
+"en": "Saturday",
+"it": "sabato",
+"de": "Samstag",
+"ru": "суббота"
+},
+"%@ операція": {
+"en": "%@ operation",
+"it": "%@ operazione",
+"de": "%@ Vorgang",
+"ru": "%@ операция"
+},
+"%@ операції": {
+"en": "%@ operations",
+"it": "%@ operazioni",
+"de": "%@ Vorgänge",
+"ru": "%@ операции"
+},
+"Бюджет перевищено (%@)": {
+"en": "Budget exceeded (%@)",
+"it": "Budget superato (%@)",
+"de": "Budget überschritten (%@)",
+"ru": "Бюджет превышен (%@)"
+},
+"Витрачено %@ TAX з %@ TAX ліміту цього місяця": {
+"en": "Spent %@ TAX of the %@ TAX limit this month",
+"it": "Spesi %@ TAX su un limite di %@ TAX questo mese",
+"de": "%@ TAX von %@ TAX Monatslimit ausgegeben",
+"ru": "Потрачено %@ TAX из лимита %@ TAX в этом месяце"
+},
+"Бюджет майже вичерпано (%@)": {
+"en": "Budget almost used up (%@)",
+"it": "Budget quasi esaurito (%@)",
+"de": "Budget fast aufgebraucht (%@)",
+"ru": "Бюджет почти исчерпан (%@)"
+},
+"Витрачено %@% від %@ TAX ліміту": {
+"en": "Spent %@% of the %@ TAX limit",
+"it": "Speso il %@% del limite di %@ TAX",
+"de": "%@% des Limits von %@ TAX ausgegeben",
+"ru": "Потрачено %@% от лимита %@ TAX"
+},
+"Картку випущено": {
+"en": "Card issued",
+"it": "Carta emessa",
+"de": "Karte ausgestellt",
+"ru": "Карта выпущена"
+},
+"Ваша нова %@ картка %@ готова.": {
+"en": "Your new %@ card %@ is ready.",
+"it": "La tua nuova carta %@ %@ è pronta.",
+"de": "Ihre neue %@-Karte %@ ist bereit.",
+"ru": "Ваша новая %@ карта %@ готова."
+},
+"Картку заблоковано": {
+"en": "Card blocked",
+"it": "Carta bloccata",
+"de": "Karte gesperrt",
+"ru": "Карта заблокирована"
+},
+"Картку розблоковано": {
+"en": "Card unblocked",
+"it": "Carta sbloccata",
+"de": "Karte entsperrt",
+"ru": "Карта разблокирована"
+},
+"Картку %@ заблоковано.": {
+"en": "Card %@ was blocked.",
+"it": "La carta %@ è stata bloccata.",
+"de": "Karte %@ wurde gesperrt.",
+"ru": "Карта %@ заблокирована."
+},
+"Картку %@ розблоковано.": {
+"en": "Card %@ was unblocked.",
+"it": "La carta %@ è stata sbloccata.",
+"de": "Karte %@ wurde entsperrt.",
+"ru": "Карта %@ разблокирована."
+},
+"Картку закрито": {
+"en": "Card closed",
+"it": "Carta chiusa",
+"de": "Karte geschlossen",
+"ru": "Карта закрыта"
+},
+"Картку %@ успішно закрито.": {
+"en": "Card %@ was closed.",
+"it": "La carta %@ è stata chiusa.",
+"de": "Karte %@ wurde geschlossen.",
+"ru": "Карта %@ успешно закрыта."
+},
+"Картку поповнено": {
+"en": "Card topped up",
+"it": "Carta ricaricata",
+"de": "Karte aufgeladen",
+"ru": "Карта пополнена"
+},
+"Картку •••• %@ поповнено на %@ TAX.": {
+"en": "Card •••• %@ topped up by %@ TAX.",
+"it": "Carta •••• %@ ricaricata di %@ TAX.",
+"de": "Karte •••• %@ um %@ TAX aufgeladen.",
+"ru": "Карта •••• %@ пополнена на %@ TAX."
+},
+"Надходження %@ TAX": {
+"en": "Received %@ TAX",
+"it": "Accredito di %@ TAX",
+"de": "Eingang %@ TAX",
+"ru": "Поступление %@ TAX"
+},
+"Від %@: %@": {
+"en": "From %@: %@",
+"it": "Da %@: %@",
+"de": "Von %@: %@",
+"ru": "От %@: %@"
+},
+"Перша операція": {
+"en": "First transaction",
+"it": "Prima operazione",
+"de": "Erster Vorgang",
+"ru": "Первая операция"
+},
+"Виконайте першу транзакцію": {
+"en": "Make your first transaction",
+"it": "Esegui la prima transazione",
+"de": "Führen Sie die erste Transaktion aus",
+"ru": "Выполните первую транзакцию"
+},
+"10 операцій": {
+"en": "10 transactions",
+"it": "10 operazioni",
+"de": "10 Vorgänge",
+"ru": "10 операций"
+},
+"Виконайте 10 транзакцій": {
+"en": "Make 10 transactions",
+"it": "Esegui 10 transazioni",
+"de": "Führen Sie 10 Transaktionen aus",
+"ru": "Выполните 10 транзакций"
+},
+"50 операцій": {
+"en": "50 transactions",
+"it": "50 operazioni",
+"de": "50 Vorgänge",
+"ru": "50 операций"
+},
+"Виконайте 50 транзакцій": {
+"en": "Make 50 transactions",
+"it": "Esegui 50 transazioni",
+"de": "Führen Sie 50 Transaktionen aus",
+"ru": "Выполните 50 транзакций"
+},
+"Перший донат": {
+"en": "First donation",
+"it": "Prima donazione",
+"de": "Erste Spende",
+"ru": "Первый донат"
+},
+"Задонатьте будь-яку суму": {
+"en": "Donate any amount",
+"it": "Dona qualsiasi importo",
+"de": "Spenden Sie einen beliebigen Betrag",
+"ru": "Задонатьте любую сумму"
+},
+"Донат 1 000 TAX": {
+"en": "Donate 1,000 TAX",
+"it": "Dona 1.000 TAX",
+"de": "1.000 TAX spenden",
+"ru": "Донат 1 000 TAX"
+},
+"Задонатьте загалом 1 000 TAX": {
+"en": "Donate 1,000 TAX in total",
+"it": "Dona 1.000 TAX in totale",
+"de": "Spenden Sie insgesamt 1.000 TAX",
+"ru": "Задонатьте всего 1 000 TAX"
+},
+"Меценат": {
+"en": "Patron",
+"it": "Mecenate",
+"de": "Mäzen",
+"ru": "Меценат"
+},
+"Задонатьте загалом 10 000 TAX": {
+"en": "Donate 10,000 TAX in total",
+"it": "Dona 10.000 TAX in totale",
+"de": "Spenden Sie insgesamt 10.000 TAX",
+"ru": "Задонатьте всего 10 000 TAX"
+},
+"Перша ціль": {
+"en": "First goal",
+"it": "Primo obiettivo",
+"de": "Erstes Ziel",
+"ru": "Первая цель"
+},
+"Досягніть першої цілі": {
+"en": "Reach your first goal",
+"it": "Raggiungi il primo obiettivo",
+"de": "Erreichen Sie Ihr erstes Ziel",
+"ru": "Достигните первой цели"
+},
+"Три цілі": {
+"en": "Three goals",
+"it": "Tre obiettivi",
+"de": "Drei Ziele",
+"ru": "Три цели"
+},
+"Досягніть 3 цілі накопичень": {
+"en": "Reach 3 savings goals",
+"it": "Raggiungi 3 obiettivi di risparmio",
+"de": "Erreichen Sie 3 Sparziele",
+"ru": "Достигните 3 целей накопления"
+},
+"Накопичувач": {
+"en": "Saver",
+"it": "Risparmiatore",
+"de": "Sparer",
+"ru": "Накопитель"
+},
+"Накопичте загалом 1 000 TAX": {
+"en": "Save 1,000 TAX in total",
+"it": "Risparmia 1.000 TAX in totale",
+"de": "Sparen Sie insgesamt 1.000 TAX",
+"ru": "Накопите всего 1 000 TAX"
+},
+"Великий заощаджувач": {
+"en": "Big saver",
+"it": "Grande risparmiatore",
+"de": "Großer Sparer",
+"ru": "Крупный накопитель"
+},
+"Накопичте загалом 10 000 TAX": {
+"en": "Save 10,000 TAX in total",
+"it": "Risparmia 10.000 TAX in totale",
+"de": "Sparen Sie insgesamt 10.000 TAX",
+"ru": "Накопите всего 10 000 TAX"
+},
+"Близькі поруч": {
+"en": "Loved ones nearby",
+"it": "Vicini ai cari",
+"de": "Nahestehende in der Nähe",
+"ru": "Близкие рядом"
+},
+"Додайте 3 контакти": {
+"en": "Add 3 contacts",
+"it": "Aggiungi 3 contatti",
+"de": "Fügen Sie 3 Kontakte hinzu",
+"ru": "Добавьте 3 контакта"
+},
+"Виконайте 5 переказів": {
+"en": "Make 5 transfers",
+"it": "Esegui 5 bonifici",
+"de": "Führen Sie 5 Überweisungen aus",
+"ru": "Выполните 5 переводов"
+},
+"Схеми шахрайства": {
+"en": "Fraud schemes",
+"it": "Schemi di frode",
+"de": "Betrugsmuster",
+"ru": "Схемы мошенничества"
+},
+"зупинено %@ з %@": {
+"en": "stopped %@ of %@",
+"it": "fermati %@ su %@",
+"de": "%@ von %@ gestoppt",
+"ru": "остановлено %@ из %@"
+},
+"Кожна схема лишає свій слід в історії: одні видно одразу, інші лише за кілька кроків або зовсім не видно. Вимкніть шар історії й порівняйте.": {
+"en": "Each scheme leaves its own trace in the history: some are visible at once, others only after a few steps or not at all. Turn the history layer off and compare.",
+"it": "Ogni schema lascia la sua traccia nella storia: alcuni si vedono subito, altri solo dopo qualche passo o per niente. Disattiva il livello storico e confronta.",
+"de": "Jedes Muster hinterlässt eine eigene Spur im Verlauf: manche sieht man sofort, andere erst nach einigen Schritten oder gar nicht. Schalten Sie die Verlaufsschicht aus und vergleichen Sie.",
+"ru": "Каждая схема оставляет свой след в истории: одни видны сразу, другие только через несколько шагов или вовсе не видны. Отключите слой истории и сравните."
+},
+"Дроблення під поріг": {
+"en": "Structuring below the threshold",
+"it": "Frazionamento sotto soglia",
+"de": "Stückelung unter dem Schwellenwert",
+"ru": "Дробление под порог"
+},
+"Розсилка багатьом": {
+"en": "Fan-out to many",
+"it": "Invio a molti",
+"de": "Streuung an viele",
+"ru": "Рассылка многим"
+},
+"Транзитний рахунок": {
+"en": "Pass-through account",
+"it": "Conto di transito",
+"de": "Durchlaufkonto",
+"ru": "Транзитный счёт"
+},
+"Туди й назад": {
+"en": "Back and forth",
+"it": "Avanti e indietro",
+"de": "Hin und zurück",
+"ru": "Туда и обратно"
+},
+"Карусель": {
+"en": "Carousel",
+"it": "Carosello",
+"de": "Karussell",
+"ru": "Карусель"
+},
+"Автоматичні перекази": {
+"en": "Automated transfers",
+"it": "Bonifici automatici",
+"de": "Automatische Überweisungen",
+"ru": "Автоматические переводы"
+},
+"Гроші ходять по колу": {
+"en": "Money goes in circles",
+"it": "I soldi girano in cerchio",
+"de": "Geld kreist im Kreis",
+"ru": "Деньги ходят по кругу"
+},
+"Весь залишок": {
+"en": "Whole balance",
+"it": "Intero saldo",
+"de": "Gesamtes Guthaben",
+"ru": "Весь остаток"
 }
 }

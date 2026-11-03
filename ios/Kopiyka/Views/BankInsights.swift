@@ -301,7 +301,7 @@ struct AnalyticsView: View {
             Surface {
                 ForEach(Array(recipients.prefix(5).enumerated()), id: \.element.id) { i, r in
                     if i > 0 { Rule() }
-                    AmountRow(title: BankText.recipient(r.relatedAccount), subtitle: L("\(r.txCount) операцій").s, amount: Format.money(r.totalSent))
+                    AmountRow(title: BankText.recipient(r.relatedAccount), subtitle: Translator.fragment("\(r.txCount) операцій"), amount: Format.money(r.totalSent))
                 }
             }
         }
@@ -313,7 +313,7 @@ struct AnalyticsView: View {
             Surface {
                 ForEach(Array(insights.enumerated()), id: \.offset) { i, ins in
                     if i > 0 { Rule() }
-                    Text(ins.text).padding(16)
+                    Text(Translator.server(ins.text)).padding(16)
                 }
             }
         }
@@ -332,8 +332,8 @@ struct AchievementsView: View {
                     ForEach(list.achievements) { a in
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 3) {
-                                Text(a.title).fontWeight(a.done ? .semibold : .regular)
-                                Text(a.desc).font(.footnote).foregroundStyle(.secondary)
+                                Text(Translator.server(a.title)).fontWeight(a.done ? .semibold : .regular)
+                                Text(Translator.server(a.desc)).font(.footnote).foregroundStyle(.secondary)
                             }
                             Spacer()
                             if a.done { Image(systemName: "checkmark") }

@@ -222,7 +222,7 @@ struct OperationsView: View {
                         let marks = ["flame", "calendar", "sum", "leaf", "sparkles"]
                         let tints: [Color] = [.orange, .blue, .purple, .green, Theme.accent]
                         GuillocheBadge(symbol: marks[i % marks.count], tint: tints[i % tints.count], size: 36)
-                        Text(ins.text).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
+                        Text(Translator.server(ins.text)).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(16)
                 }

@@ -43,15 +43,42 @@ enum Translator {
         return t
     }()
 
-    /// Назви операцій, які пише сервер українською: точні збіги й шаблони з номером чи приміткою.
+    /// Шаблони з %@ у таблиці, зібрані в регулярні вирази: за ними впізнаємо речення сервера зі змінними частинами.
+    nonisolated(unsafe) private static let templates: [(regex: NSRegularExpression, key: String)] = table.keys
+        .filter { $0.contains("%@") }
+        .sorted { $0.count > $1.count }
+        .compactMap { key in
+            let body = NSRegularExpression.escapedPattern(for: key).replacingOccurrences(of: "%@", with: "(.+?)")
+            return (try? NSRegularExpression(pattern: "^" + body + "$")).map { ($0, key) }
+        }
+
+    /// Тексти, які пише сервер українською: назви операцій, спостереження, сповіщення, досягнення.
+    /// Точні збіги беруться з таблиці, речення зі змінними частинами - за шаблоном.
     static func server(_ d: String) -> String {
         guard Lang.current != .uk else { return d }
-        if d.hasPrefix("Надходження: ") { return text("Надходження: %@", [String(d.dropFirst("Надходження: ".count))]) }
-        if d.hasPrefix("Оплата інвойсу "), d.hasSuffix(" у магазині TaxTech") {
-            let n = d.dropFirst("Оплата інвойсу ".count).dropLast(" у магазині TaxTech".count)
-            return text("Оплата інвойсу %@ у магазині TaxTech", [String(n)])
+        if let exact = table[d]?[Lang.current.rawValue] { return exact }
+        let ns = d as NSString
+        for (regex, key) in templates {
+            guard let m = regex.firstMatch(in: d, range: NSRange(location: 0, length: ns.length)), m.numberOfRanges > 1 else { continue }
+            return text(key, (1..<m.numberOfRanges).map { fragment(ns.substring(with: m.range(at: $0))) })
         }
         return text(d, [])
+    }
+
+    /// Змінна частина серверного речення: кількість операцій, сума або вкладений текст.
+    static func fragment(_ s: String) -> String {
+        if let m = s.wholeMatch(of: /(\d+) (операція|операції|операцій)/), let n = Int(m.1) {
+            // українська форма за числом, а в мовах без трьох форм - однина й множина
+            let one = n % 10 == 1 && n % 100 != 11
+            let few = (2...4).contains(n % 10) && !(12...14).contains(n % 100)
+            let key = Lang.current == .ru ? (one ? "%@ операція" : few ? "%@ операції" : "%@ операцій") : (n == 1 ? "%@ операція" : "%@ операцій")
+            return text(key, [String(n)])
+        }
+        if s.wholeMatch(of: /(\d{1,3}([\u00a0 ]\d{3})+|\d{1,3})(,\d+)?|\d+\.\d{2}/) != nil {
+            let clean = s.replacingOccurrences(of: "\u{00a0}", with: "").replacingOccurrences(of: " ", with: "").replacingOccurrences(of: ",", with: ".")
+            if let v = Double(clean) { return v.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)) }
+        }
+        return server(s)
     }
 
     static func text(_ key: String, _ args: [String]) -> String {

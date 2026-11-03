@@ -13,7 +13,32 @@ struct NetSim {
     /// Бан діє двадцять кроків, потім рахунок розблоковується після перегляду.
     static let banTerm = 20
 
+    /// Схеми шахрайства, з яких складається потік.
+    enum Scheme: String, CaseIterable, Hashable {
+        case structuring, fanout, mule, drain, pingpong, carousel, bot
+
+        var title: String {
+            switch self {
+            case .structuring: L("Дроблення під поріг").s
+            case .fanout: L("Розсилка багатьом").s
+            case .mule: L("Транзитний рахунок").s
+            case .drain: L("Весь залишок").s
+            case .pingpong: L("Туди й назад").s
+            case .carousel: L("Карусель").s
+            case .bot: L("Автоматичні перекази").s
+            }
+        }
+    }
+
+    struct Outcome {
+        var caught = 0
+        var missed = 0
+        var leaked = 0.0
+        var total: Int { caught + missed }
+    }
+
     struct Params: Equatable {
+        var schemes = Set(Scheme.allCases)
         var intensity = 2.0
         var fraudShare = 0.2
         var threshold = 55.0
@@ -52,8 +77,17 @@ struct NetSim {
 
     private struct Move { let tick: Int; let peer: Int; let amount: Double }
     private struct Order { let from: Int; let to: Int; let amount: Double; let every: Int; let offset: Int; let note: String }
-    private struct Transfer { let from: Int; let to: Int; let amount: Double; let note: String; let fraud: Bool; let auto: Bool }
-    private struct Forward { let due: Int; let from: Int; let to: Int; let amount: Double }
+    private struct Transfer {
+        let from: Int
+        let to: Int
+        let amount: Double
+        let note: String
+        var scheme: Scheme?
+        var auto = false
+        var fraud: Bool { scheme != nil }
+    }
+    private struct Scheduled { let due: Int; let transfer: Transfer }
+    private struct Edge { let tick: Int; let from: Int; let to: Int }
     private struct Clearing { let fromBank: Int; let toBank: Int; let to: Int; let amount: Double }
 
     private(set) var tick = 0
@@ -72,11 +106,13 @@ struct NetSim {
     private(set) var leaked = 0.0
     private(set) var bansRight = 0
     private(set) var bansWrong = 0
+    private(set) var results: [Scheme: Outcome] = [:]
 
     private var outs: [[Move]]
     private var ins: [[Move]]
     private var clearing: [Clearing] = []
-    private var forwards: [Forward] = []
+    private var scheduled: [Scheduled] = []
+    private var edges: [Edge] = []
     private var orders: [Order] = []
     private var eventSeq = 0
 
@@ -121,15 +157,13 @@ struct NetSim {
         var batch: [Transfer] = []
         if p.autopay {
             for o in orders where tick % o.every == o.offset {
-                batch.append(Transfer(from: o.from, to: o.to, amount: o.amount, note: o.note, fraud: false, auto: true))
+                batch.append(Transfer(from: o.from, to: o.to, amount: o.amount, note: o.note, scheme: nil, auto: true))
             }
         }
-        for f in forwards where f.due <= tick {
-            batch.append(Transfer(from: f.from, to: f.to, amount: f.amount, note: "", fraud: true, auto: false))
-        }
-        forwards.removeAll { $0.due <= tick }
+        batch += scheduled.filter { $0.due <= tick }.map(\.transfer)
+        scheduled.removeAll { $0.due <= tick }
         for _ in 0..<Int(p.intensity) {
-            batch += Double.random(in: 0..<1) < p.fraudShare ? fraud() : [honest()]
+            batch += Double.random(in: 0..<1) < p.fraudShare && !p.schemes.isEmpty ? fraud(p.schemes) : [honest()]
         }
         for t in batch { process(t, p) }
         if tick % Self.settleEvery == 0 { settle() }
@@ -137,6 +171,7 @@ struct NetSim {
             outs[i].removeAll { tick - $0.tick > 12 }
             ins[i].removeAll { tick - $0.tick > 12 }
         }
+        edges.removeAll { tick - $0.tick > 8 }
     }
 
     // MARK: Потік
@@ -154,37 +189,58 @@ struct NetSim {
     private func honest() -> Transfer {
         let (a, b) = pair()
         if Int.random(in: 0..<20) == 0 {
-            return Transfer(from: a, to: b, amount: 3_000, note: L("Оренда").s, fraud: false, auto: false)
+            return Transfer(from: a, to: b, amount: 3_000, note: L("Оренда").s)
         }
         let amount = exp(Double.random(in: log(20)...log(600))).rounded()
         let note = [L("Кава").s, L("Обід").s, L("Книжки").s, L("Подарунок").s, ""].randomElement() ?? ""
-        return Transfer(from: a, to: b, amount: amount, note: note, fraud: false, auto: false)
+        return Transfer(from: a, to: b, amount: amount, note: note)
     }
 
-    /// Чотири схеми: дроблення під поріг, розсилка багатьом, транзитний рахунок і «весь залишок».
-    private mutating func fraud() -> [Transfer] {
+    /// Одна схема з обраних: кожна лишає свій слід в історії рахунку.
+    private mutating func fraud(_ schemes: Set<Scheme>) -> [Transfer] {
         let (a, b) = pair()
-        switch Int.random(in: 0..<4) {
-        case 0:
-            return (0..<3).map { _ in
-                Transfer(from: a, to: b, amount: Double(Int.random(in: 4_900...4_990)), note: "", fraud: true, auto: false)
-            }
-        case 1:
+        func other(_ ex: [Int]) -> Int {
+            var z = accounts.indices.randomElement() ?? 0
+            while ex.contains(z) { z = accounts.indices.randomElement() ?? 0 }
+            return z
+        }
+        func make(_ f: Int, _ t: Int, _ amount: Double, _ s: Scheme, note: String = "") -> Transfer {
+            Transfer(from: f, to: t, amount: amount.rounded(), note: note, scheme: s)
+        }
+        let scheme = Scheme.allCases.filter { schemes.contains($0) }.randomElement() ?? .structuring
+        switch scheme {
+        case .structuring:
+            return (0..<3).map { _ in make(a, b, Double(Int.random(in: 4_900...4_990)), scheme) }
+        case .fanout:
             var peers: [Int] = []
             while peers.count < 4 {
-                let c = accounts.indices.randomElement() ?? 0
-                if c != a && !peers.contains(c) { peers.append(c) }
+                let c = other([a] + peers)
+                peers.append(c)
             }
-            return peers.map { Transfer(from: a, to: $0, amount: Double(Int.random(in: 300...900)), note: "", fraud: true, auto: false) }
-        case 2:
+            return peers.map { make(a, $0, Double(Int.random(in: 300...900)), scheme) }
+        case .mule:
             let amount = Double(Int.random(in: 1_500...3_000))
-            var z = accounts.indices.randomElement() ?? 0
-            while z == b || z == a { z = accounts.indices.randomElement() ?? 0 }
-            forwards.append(Forward(due: tick + 1, from: b, to: z, amount: (amount * 0.95).rounded()))
-            return [Transfer(from: a, to: b, amount: amount, note: "", fraud: true, auto: false)]
-        default:
-            let amount = (accounts[a].balance * 0.9).rounded()
-            return [Transfer(from: a, to: b, amount: amount, note: L("терміново крипто").s, fraud: true, auto: false)]
+            scheduled.append(Scheduled(due: tick + 1, transfer: make(b, other([a, b]), amount * 0.95, scheme)))
+            return [make(a, b, amount, scheme)]
+        case .drain:
+            return [make(a, b, accounts[a].balance * 0.9, scheme, note: L("терміново крипто").s)]
+        case .pingpong:
+            let amount = Double(Int.random(in: 400...900))
+            for k in 1...4 {
+                let from = k % 2 == 1 ? b : a
+                scheduled.append(Scheduled(due: tick + k, transfer: make(from, from == a ? b : a, amount * (1 - 0.05 * Double(k)), scheme)))
+            }
+            return [make(a, b, amount, scheme)]
+        case .carousel:
+            let c = other([a, b])
+            let amount = Double(Int.random(in: 1_000...2_500))
+            scheduled.append(Scheduled(due: tick + 1, transfer: make(b, c, amount * 0.97, scheme)))
+            scheduled.append(Scheduled(due: tick + 2, transfer: make(c, a, amount * 0.94, scheme)))
+            return [make(a, b, amount, scheme)]
+        case .bot:
+            let amount = Double(Int.random(in: 150...450))
+            for k in 1...5 { scheduled.append(Scheduled(due: tick + k, transfer: make(a, b, amount, scheme))) }
+            return [make(a, b, amount, scheme)]
         }
     }
 
@@ -201,6 +257,14 @@ struct NetSim {
         if t.amount >= 4_500 && big >= 2 { points += 50; flags.append("smurfing") }
         let received = ins[t.from].filter { tick - $0.tick <= 2 }.reduce(0) { $0 + $1.amount }
         if received >= 0.8 * t.amount && outs[t.from].isEmpty { points += 55; flags.append("pass_through") }
+        let backAndForth = ins[t.from].contains { $0.peer == t.to && tick - $0.tick <= 8 } && outs[t.from].contains { $0.peer == t.to }
+        if backAndForth { points += 45; flags.append("transfer_pingpong") }
+        let cycle = edges.contains { e in
+            e.from == t.to && edges.contains { $0.from == e.to && $0.to == t.from }
+        }
+        if cycle { points += 55; flags.append("carousel") }
+        let same = outs[t.from].filter { tick - $0.tick <= 8 && $0.amount == t.amount }.count
+        if same >= 3 { points += 45; flags.append("behavioral_entropy_amounts") }
         return (points, flags)
     }
 
@@ -208,6 +272,16 @@ struct NetSim {
         eventSeq += 1
         events.insert(Event(id: eventSeq, tick: tick, kind: kind, text: text, detail: detail), at: 0)
         if events.count > 40 { events.removeLast() }
+    }
+
+    private mutating func tally(_ t: Transfer, stopped: Bool) {
+        guard let scheme = t.scheme else {
+            if stopped { falseBlocks += 1 } else { clean += 1 }
+            return
+        }
+        var r = results[scheme, default: Outcome()]
+        if stopped { caught += 1; r.caught += 1 } else { missed += 1; leaked += t.amount; r.missed += 1; r.leaked += t.amount }
+        results[scheme] = r
     }
 
     private func line(_ t: Transfer) -> String { "\(name(t.from)) → \(name(t.to))  \(Format.short(t.amount))" }
@@ -218,7 +292,7 @@ struct NetSim {
         if accounts[t.from].banned || accounts[t.to].banned {
             let who = accounts[t.from].banned ? t.from : t.to
             record(.rejected, line(t), L("рахунок \(name(who)) заблоковано").s)
-            if t.fraud { caught += 1 } else { falseBlocks += 1 }
+            tally(t, stopped: true)
             if t.auto { autoFailed += 1 }
             return
         }
@@ -234,7 +308,7 @@ struct NetSim {
 
         if Double(score) >= p.threshold {
             accounts[t.from].strikes += 1
-            if t.fraud { caught += 1 } else { falseBlocks += 1 }
+            tally(t, stopped: true)
             if t.auto { autoFailed += 1 }
             let reasons = (base.flags + extra.flags).compactMap { FraudFlags.titles[$0] }.prefix(2).joined(separator: ", ")
             record(.blocked, line(t), L("бал \(score)").s + (reasons.isEmpty ? "" : ": " + reasons))
@@ -247,10 +321,11 @@ struct NetSim {
             return
         }
 
-        if t.fraud { missed += 1; leaked += t.amount } else { clean += 1 }
+        tally(t, stopped: false)
         if t.auto { autoDone += 1 }
         accounts[t.from].balance -= t.amount
         ins[t.to].append(Move(tick: tick, peer: t.from, amount: t.amount))
+        edges.append(Edge(tick: tick, from: t.from, to: t.to))
         if accounts[t.from].bank == accounts[t.to].bank {
             accounts[t.to].balance += t.amount
             record(t.auto ? .auto : .ok, line(t), t.note.isEmpty ? nil : t.note)

@@ -37,6 +37,7 @@ enum FraudFlags {
         "counterparty_concentration": L("Майже всі перекази одному одержувачу").s,
         "transfer_fanout": L("Розсилка багатьом одержувачам").s,
         "transfer_pingpong": L("Гроші ходять туди й назад").s,
+        "carousel": L("Гроші ходять по колу").s,
         "pass_through": L("Гроші одразу йдуть далі").s,
         "money_mule_suspected": L("Одержувач схожий на підставний рахунок").s,
         "money_mule_pattern": L("Схема підставного рахунку").s,

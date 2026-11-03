@@ -327,8 +327,8 @@ struct NoticesView: View {
             }
             ForEach(items) { n in
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(n.title).fontWeight(n.isRead ? .regular : .semibold)
-                    if let b = n.body, !b.isEmpty { Text(b).font(.footnote).foregroundStyle(.secondary) }
+                    Text(Translator.server(n.title)).fontWeight(n.isRead ? .regular : .semibold)
+                    if let b = n.body, !b.isEmpty { Text(Translator.server(b)).font(.footnote).foregroundStyle(.secondary) }
                     Text(BankText.date(n.createdAt)).font(.caption).foregroundStyle(.tertiary)
                 }
             }
