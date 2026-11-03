@@ -355,9 +355,15 @@
 @media (prefers-reduced-motion: reduce) { .bl-fire-dawn .bl-fire-glow { opacity: .9; } }
 
 
-/* One evening in Rome: pinned stage, the scroll runs the clock */
-.bl-rome { position: relative; height: 440svh; background: #000; }
-.bl-rome-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+/* One evening in Rome: one screen tall, the page scrolls through it; the clock runs by itself once it is on screen */
+.bl-rome { position: relative; height: max(620px, 100svh); background: #000; }
+.bl-rome-stage { position: relative; height: 100%; overflow: hidden; }
+.bl-rome-bars { position: absolute; z-index: 3; left: 0; right: 0; bottom: max(26px, 5svh); display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.bl .bl-rome-bar { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 8px 0; text-align: left; color: rgba(255,255,255,.5); transition: color .3s; }
+.bl .bl-rome-bar:hover, .bl .bl-rome-bar:focus-visible { color: #fff; }
+.bl-rome-bar u { display: block; position: relative; width: 100%; height: 3px; border-radius: 2px; overflow: hidden; background: rgba(255,255,255,.22); text-decoration: none; }
+.bl-rome-bar u i { position: absolute; inset: 0; border-radius: inherit; background: var(--yellow); transform-origin: 0 50%; transform: scaleX(var(--f, 0)); opacity: 1; translate: none; }
+.bl-rome-bar span { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
 .bl-rome-layer { position: absolute; inset: 0; background-size: cover; background-position: var(--pos, 50% 50%); opacity: var(--o, 0); scale: var(--z, 1.05); will-change: opacity, scale; }
 .bl-rome-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.16) 48%, rgba(0,0,0,.32) 100%), linear-gradient(180deg, #000 0%, transparent 16%, transparent 74%, #000 100%); }
 .bl-rome-in { position: relative; z-index: 2; height: 100%; display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; gap: 40px; }
@@ -375,7 +381,7 @@
 .bl-rome-dots { position: absolute; z-index: 3; right: max(22px, 2.4vw); top: 50%; translate: 0 -50%; display: flex; flex-direction: column; gap: 14px; }
 .bl-rome-dots i { display: block; width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,.55); background: rgba(255,212,0, var(--a, 0)); translate: none; opacity: 1; transform: scale(calc(1 + var(--a, 0) * .5)); }
 @media (max-width: 860px) {
-  .bl-rome-in { grid-template-columns: 1fr; align-content: space-between; padding-top: 92px; padding-bottom: 7svh; gap: 0; }
+  .bl-rome-in { grid-template-columns: 1fr; align-content: space-between; padding-top: 92px; padding-bottom: calc(7svh + 54px); gap: 0; }
   .bl-rome-time { font-size: clamp(84px, 27vw, 140px); }
   .bl-rome-right { gap: 16px; }
   .bl-rome-card { width: min(300px, 78%); }
@@ -391,13 +397,13 @@
 .bl-cue { position: absolute; z-index: 2; left: 50%; bottom: 22px; width: 1px; height: 54px; background: linear-gradient(rgba(255,255,255,.12), rgba(255,255,255,.12)); overflow: hidden; opacity: calc(1 - var(--hp, 0) * 4); }
 .bl-cue i { display: block; width: 100%; height: 40%; background: #fff; animation: bl-cue 2.2s cubic-bezier(.6,0,.2,1) infinite; }
 @keyframes bl-cue { from { transform: translateY(-110%); } to { transform: translateY(260%); } }
-@media (max-width: 960px) { .bl-cue { display: none; } }
+@media (max-width: 860px) { .bl-cue { left: 22px; bottom: 30px; } }
 @media (prefers-reduced-motion: reduce) { .bl-w { animation: none; } .bl-cue i { animation: none; } }
 
 
-/* Tap. Paid.: pinned, camera pushes in, the tap rings out */
-.bl-tap { position: relative; height: 300svh; background: #000; }
-.bl-tap-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: #000; }
+/* Tap. Paid.: one screen tall; the camera pushes in by itself, the tap rings out */
+.bl-tap { position: relative; height: max(600px, 100svh); background: #000; }
+.bl-tap-stage { position: relative; height: 100%; overflow: hidden; background: #000; }
 .bl-tap.hit .bl-tap-stage { animation: bl-shake .42s cubic-bezier(.2,.8,.2,1); }
 @keyframes bl-shake { 0% { translate: 0 0; } 18% { translate: -7px 4px; } 36% { translate: 6px -4px; } 56% { translate: -3px 2px; } 100% { translate: 0 0; } }
 .bl-tap-cam { position: absolute; transform-origin: 47% 52.5%; transform: scale(var(--pz, 1)); will-change: transform; }

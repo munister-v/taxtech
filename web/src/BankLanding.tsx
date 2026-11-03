@@ -7,6 +7,8 @@ import RomeMap from './RomeMap';
 import HoodMap, { HOOD_PLACES } from './HoodMap';
 import HoodPlatform, { type PlatPhase } from './HoodPlatform';
 import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
+import { autoplay } from './autoplay';
+import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
@@ -285,6 +287,7 @@ function Card({ finish, n = '6595', name = 'DEMO USER' }: { finish: Finish; n?: 
 
 export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const seekRome = useRef<(stop: number) => void>(() => {});
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
   const [scrolled, setScrolled] = useState(false);
   const [sound, setSound] = useState(false);
@@ -361,6 +364,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     const rome = root.querySelector<HTMLElement>('.bl-rome');
     const romeLayers = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome-layer'));
     const romeItems = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome [data-i].bl-rome-item'));
+    const romeBars = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome-bar'));
     const clockEl = root.querySelector<HTMLElement>('.bl-rome-time');
     const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
     let photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
@@ -368,45 +372,48 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     root.addEventListener('bl-mounted', refreshPhotos);
     const hero = root.querySelector<HTMLElement>('.bl-hero');
     let raf = 0;
+    // The evening in Rome plays by itself once it is on screen; the page scrolls like any other page.
+    let lastClock = '', lastStop = -1;
+    const n = DAY.length;
+    const renderRome = (p: number, g: number) => {
+      if (!rome) return;
+      const s = p * n;
+      // Each new stop on the evening is a payment: the terminal chimes (once the visitor has turned sound on).
+      const stop = p > 0 && p < 1 ? Math.min(n - 1, Math.floor(s)) : -1;
+      if (stop > lastStop && stop >= 0) chime(0.55);
+      lastStop = stop;
+      rome.style.setProperty('--ry', `${((p - 0.5) * 52).toFixed(2)}deg`);
+      romeLayers.forEach((el, i) => {
+        el.style.setProperty('--o', (i === 0 ? 1 : clamp((s - (i - 0.35)) / 0.7)).toFixed(3));
+        el.style.setProperty('--z', (1.05 + clamp(s - i, -0.35, 1.35) * 0.1).toFixed(3));
+      });
+      romeItems.forEach(el => {
+        const i = Number(el.dataset.i);
+        const d = i === 0 && s < 0.5 ? 0 : i === n - 1 && s > n - 0.5 ? 0 : Math.abs(s - (i + 0.5));
+        el.style.setProperty('--a', clamp(1 - d * 2.4).toFixed(3));
+      });
+      romeBars.forEach((el, i) => el.style.setProperty('--f', clamp(s - i).toFixed(3)));
+      if (clockEl) {
+        const m = Math.round(CLOCK_FROM + p * (CLOCK_TO - CLOCK_FROM));
+        const txt = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+        if (txt !== lastClock) { clockEl.textContent = txt; lastClock = txt; }
+      }
+      setRomeClock(p, g);
+    };
+    const romePlay = rome ? autoplay(rome, { duration: n * 3800, delay: 350, enter: 0.6, leave: 'up', still, onFrame: renderRome }) : null;
+    seekRome.current = i => romePlay?.seek((i + 0.5) / n);
     // Photos drift slower than the page (parallax), the hero lets go as you leave it.
     // Each frame reads every box first and only then writes, so the browser lays the page out once per frame.
-    let lastClock = '', lastStop = -1;
     const frame = () => {
       raf = 0;
       const box = root.getBoundingClientRect();
       const top = root.scrollTop;
-      const romeTop = rome ? rome.getBoundingClientRect().top : 0;
-      const romeH = rome ? rome.offsetHeight : 0;
       const heroH = hero ? hero.offsetHeight : 0;
       const drift = still ? [] : photos.map(el => {
         const r = el.parentElement?.getBoundingClientRect();
         if (!r || r.bottom < box.top - 150 || r.top > box.bottom + 150) return null;
         return { el, d: (r.top + r.height / 2) - (box.top + box.height / 2), lim: el.offsetHeight * (el.classList.contains('bl-hero-photo') ? 0.04 : 0.08) };
       });
-      if (rome) {
-        const n = DAY.length;
-        const p = clamp(-(romeTop - box.top) / Math.max(1, romeH - root.clientHeight));
-        const s = p * n;
-        // Each new stop on the evening is a payment: the terminal chimes (once the visitor has turned sound on).
-        const stop = p > 0 && p < 1 ? Math.min(n - 1, Math.floor(s)) : -1;
-        if (stop > lastStop && stop >= 0) chime(0.55);
-        lastStop = stop;
-        rome.style.setProperty('--ry', `${((p - 0.5) * 52).toFixed(2)}deg`);
-        romeLayers.forEach((el, i) => {
-          el.style.setProperty('--o', (i === 0 ? 1 : clamp((s - (i - 0.35)) / 0.7)).toFixed(3));
-          el.style.setProperty('--z', (1.05 + clamp(s - i, -0.35, 1.35) * 0.1).toFixed(3));
-        });
-        romeItems.forEach(el => {
-          const i = Number(el.dataset.i);
-          const d = i === 0 && s < 0.5 ? 0 : i === n - 1 && s > n - 0.5 ? 0 : Math.abs(s - (i + 0.5));
-          el.style.setProperty('--a', clamp(1 - d * 2.4).toFixed(3));
-        });
-        if (clockEl) {
-          const m = Math.round(CLOCK_FROM + p * (CLOCK_TO - CLOCK_FROM));
-          const txt = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-          if (txt !== lastClock) { clockEl.textContent = txt; lastClock = txt; }
-        }
-      }
       if (still) return;
       for (const q of drift) if (q) q.el.style.setProperty('--py', `${Math.max(-q.lim, Math.min(q.lim, -q.d * 0.1)).toFixed(1)}px`);
       if (hero) hero.style.setProperty('--hp', Math.max(0, Math.min(1, top / (heroH * 0.75))).toFixed(3));
@@ -433,6 +440,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
     if (fine && !still && hero) { hero.addEventListener('pointermove', tilt); hero.addEventListener('pointerleave', untilt); }
     return () => {
       root.removeEventListener('bl-mounted', refreshPhotos);
+      romePlay?.dispose();
+      seekRome.current = () => {};
       root.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       if (raf) cancelAnimationFrame(raf);
@@ -520,6 +529,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-hero-pay" aria-hidden>
               <div className="bl-hero-card"><Card finish="guilloche" /></div>
             </div>
+            <div className="bl-cue" aria-hidden><i /></div>
           </section>
 
         {/* ── One evening in Rome: the scroll runs the clock, the photographs change, the card pays ── */}
@@ -548,6 +558,13 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                 </div>
                 <div className="bl-rome-card"><Card finish="guilloche" /></div>
               </div>
+            </div>
+            <div className="bl-wrap bl-rome-bars" role="group" aria-label={t('Вечір у Римі', 'An evening in Rome')}>
+              {DAY.map((d, i) => (
+                <button key={d.img} type="button" className="bl-rome-bar" onClick={() => seekRome.current(i)} aria-label={t(d.place.uk, d.place.en)}>
+                  <u><i /></u><span>{t(d.place.uk, d.place.en)}</span>
+                </button>
+              ))}
             </div>
           </div>
         </section>

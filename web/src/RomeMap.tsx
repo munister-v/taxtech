@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { romeClock } from './romeClock';
 
 // Night map of central Rome drawn from OpenStreetMap streets (romeMapData.ts, loaded on demand).
 // It is the background of the hero and of "One evening in Rome": the camera starts wide over the city, then
-// follows a payment along real streets from the Forum to the Pantheon to the Trevi Fountain as the page scrolls.
+// follows a payment along real streets from the Forum to the Pantheon to the Trevi Fountain on the evening's own clock (romeClock).
 // The streets are painted on a canvas (thousands of segments, redrawn only when the camera moves or while the hero
 // pulses); pins and the moving point are a handful of DOM nodes positioned with transforms.
 
@@ -35,10 +36,9 @@ export default function RomeMap() {
     if (!D || !el || !canvas || !svg) return;
     const root = el.closest<HTMLElement>('.bl');
     const hero = root?.querySelector<HTMLElement>('.bl-hero');
-    const rome = root?.querySelector<HTMLElement>('.bl-rome');
     const ctx = canvas.getContext('2d');
     const dot = el.querySelector<HTMLElement>('.rm-dot');
-    if (!root || !hero || !rome || !ctx || !dot) return;
+    if (!root || !hero || !ctx || !dot) return;
     const pinEls = PINS.map(k => ({ k, g: el.querySelector<HTMLElement>(`[data-pin="${k}"]`)! }));
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -77,34 +77,31 @@ export default function RomeMap() {
         if (!introT0) introT0 = now;
         intro = clamp((now - introT0 - 250) / 2600);
       }
-      const box = root.getBoundingClientRect();
       const h = clamp(root.scrollTop / Math.max(1, hero.offsetHeight));
-      const p = clamp(-(rome.getBoundingClientRect().top - box.top) / Math.max(1, rome.offsetHeight - root.clientHeight));
+      const { p, g } = romeClock;
+      const live = g > 0.001;
       const s = p * STOPS.length;
       const u = clamp(s - 0.5, 0, STOPS.length - 1);
       const k = Math.min(legs.length - 1, Math.floor(u));
       const e = smooth(0.2, 0.8, u - k);
       const pt = legs[k].getPointAtLength(e * lens[k]);
-      let fx: number, fy: number, z: number;
-      if (p > 0) {
-        fx = pt.x; fy = pt.y; z = Z_NEAR - 1.1 * Math.sin(Math.PI * e);
-      } else {
-        const he = smooth(0, 1, h);
-        // Wide screens: the camera puts the Colosseum where the card hovers (right of the headline), the place it pays.
-        const hz = W > 860 ? Z_HERO : 1;
-        const hx = W > 860 ? col.x - (0.7 * W - W / 2 - 0.02 * W) / (ppu * hz) : HERO.x;
-        const hy = W > 860 ? col.y - (0.72 * Hh - Hh / 2 - 0.2 * Hh) / (ppu * hz) : HERO.y;
-        fx = lerp(hx, foro.x, he); fy = lerp(hy, foro.y, he); z = lerp(hz, Z_NEAR, he);
-      }
+      // The camera starts on the headline's view (it follows the scroll through the hero) and, once the evening starts, eases onto the route.
+      const he = smooth(0, 1, h);
+      const hz = W > 860 ? Z_HERO : 1;
+      const hx = W > 860 ? col.x - (0.7 * W - W / 2 - 0.02 * W) / (ppu * hz) : HERO.x;
+      const hy = W > 860 ? col.y - (0.72 * Hh - Hh / 2 - 0.2 * Hh) / (ppu * hz) : HERO.y;
+      const gg = smooth(0, 1, g);
+      const fx = lerp(lerp(hx, foro.x, he), pt.x, gg), fy = lerp(lerp(hy, foro.y, he), pt.y, gg);
+      const z = lerp(lerp(hz, Z_NEAR, he), Z_NEAR - 1.1 * Math.sin(Math.PI * e), gg);
       const wide = W > 860;
       const ox = wide ? 0.02 * W / ppu : 0, oy = wide ? 0.2 * Hh / ppu : 0.02 * Hh / ppu;
-      const pulsing = !still && h < 0.95 && p <= 0;
+      const pulsing = !still && h < 0.95 && !live;
       const pulseA = pulsing ? 1 - smooth(0, 0.9, h) : 0;
       const t = now / 1000;
-      const animating = intro < 1 || pulsing;
+      const animating = intro < 1 || pulsing || (g > 0 && g < 1);
 
       // Repaint only when something visible changed.
-      const key = animating ? '' : `${W}|${Hh}|${fx.toFixed(1)}|${fy.toFixed(1)}|${z.toFixed(3)}|${e.toFixed(3)}|${k}|${u < 1 ? 0 : 1}|${p > 0 ? 1 : 0}`;
+      const key = animating ? '' : `${W}|${Hh}|${fx.toFixed(1)}|${fy.toFixed(1)}|${z.toFixed(3)}|${e.toFixed(3)}|${k}|${u < 1 ? 0 : 1}|${g.toFixed(3)}`;
       if (key === '' || key !== lastKey) {
         lastKey = key;
         const sc = ppu * z, sw = 0.75 + 0.25 * z, px = (n: number) => (n * sw) / sc;
@@ -128,7 +125,7 @@ export default function RomeMap() {
           });
           ctx.setLineDash([]); ctx.lineDashOffset = 0; ctx.globalAlpha = 1;
         }
-        if (p > 0) {
+        if (live) {
           const trail = (name: 'l1' | 'l2', prog: number) => {
             if (prog <= 0.001) return;
             const r = routes[name];
@@ -167,7 +164,7 @@ export default function RomeMap() {
         g.style.opacity = String(fade);
         const i = STOPS.indexOf(name as typeof STOPS[number]);
         g.style.setProperty('--on', i < 0 ? '0' : clamp(1 - Math.abs(s - (i + 0.5)) * 2).toFixed(2));
-        if (name === 'colosseo') g.classList.toggle('rm-pay', p <= 0 && h < 0.5);
+        if (name === 'colosseo') g.classList.toggle('rm-pay', !live && h < 0.5);
       }
       dot.style.transform = `translate3d(${sx(pt.x).toFixed(1)}px, ${sy(pt.y).toFixed(1)}px, 0)`;
       // The hero card hovers over the Colosseum pin: hand its screen position to the page as CSS variables.
@@ -177,7 +174,7 @@ export default function RomeMap() {
         cine.style.setProperty('--pin-x', `${sx(col.x).toFixed(0)}px`);
         cine.style.setProperty('--pin-y', `${sy(col.y).toFixed(0)}px`);
       }
-      dot.style.opacity = p > 0 ? '1' : '0';
+      dot.style.opacity = gg.toFixed(2);
 
       if (animating && visible) raf = requestAnimationFrame(frame);
     };
@@ -192,10 +189,12 @@ export default function RomeMap() {
     const ro = new ResizeObserver(onResize);
     ro.observe(el);
     root.addEventListener('scroll', request, { passive: true });
+    romeClock.subs.add(request);
     resize();
     request();
     return () => {
       root.removeEventListener('scroll', request);
+      romeClock.subs.delete(request);
       io.disconnect(); ro.disconnect();
       if (raf) cancelAnimationFrame(raf);
     };

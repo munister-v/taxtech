@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { chime } from './paySound';
+import { autoplay } from './autoplay';
 
 type Props = { src: string; tapText: string; paidText: string; toast: ReactNode; receipt?: ReactNode };
 
@@ -8,8 +9,9 @@ type Props = { src: string; tapText: string; paidText: string; toast: ReactNode;
 const PX = 0.47, PY = 0.525, RATIO = 1600 / 2400;
 
 /**
- * Pinned scene: the camera pushes in on the terminal as you scroll; at the moment of the tap the NFC waves
- * ring out, the frame flashes and "Tap." turns into "Paid.". Scrolling back un-pays it.
+ * The camera pushes in on the terminal by itself once the scene is on screen; at the moment of the tap the NFC waves
+ * ring out, the frame flashes and "Tap." turns into "Paid.". The page scrolls through it like any other page, and
+ * the scene plays again the next time it is scrolled to.
  */
 export default function TapScene({ src, tapText, paidText, toast, receipt }: Props) {
   const sec = useRef<HTMLElement | null>(null);
@@ -17,10 +19,9 @@ export default function TapScene({ src, tapText, paidText, toast, receipt }: Pro
 
   useEffect(() => {
     const s = sec.current, c = cam.current;
-    const root = s?.closest('.bl') as HTMLElement | null;
-    if (!s || !c || !root) return;
+    if (!s || !c) return;
     const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
-    let raf = 0, cnt = 0;
+    let cnt = 0;
     // The amount on the receipt runs up from zero at the moment of the tap.
     const countUp = () => {
       const els = Array.from(s.querySelectorAll<HTMLElement>('.bl-count'));
@@ -34,7 +35,7 @@ export default function TapScene({ src, tapText, paidText, toast, receipt }: Pro
       cnt = requestAnimationFrame(step);
     };
     const fit = () => {
-      const W = s.clientWidth, H = root.clientHeight;
+      const W = s.clientWidth, H = s.clientHeight;
       const cx = W > 860 ? W * 0.6 : W * 0.5, cy = W > 860 ? H * 0.5 : H * 0.4;
       // Smallest image that still covers the stage with the contact point sitting at (cx, cy).
       const w = Math.max(W * 1.3, H * RATIO * 1.05, (cx / PX) * 1.03, ((W - cx) / (1 - PX)) * 1.03);
@@ -42,9 +43,7 @@ export default function TapScene({ src, tapText, paidText, toast, receipt }: Pro
       c.style.width = `${w}px`; c.style.height = `${h}px`;
       c.style.left = `${cx - PX * w}px`; c.style.top = `${cy - PY * h}px`;
     };
-    const frame = () => {
-      raf = 0;
-      const p = clamp(-(s.getBoundingClientRect().top - root.getBoundingClientRect().top) / Math.max(1, s.offsetHeight - root.clientHeight));
+    const frame = (p: number) => {
       const k = Math.min(1, p / 0.5);
       s.style.setProperty('--pz', (1 + 0.95 * k * k * (3 - 2 * k) + 0.25 * Math.max(0, p - 0.5) * 2).toFixed(3));
       s.style.setProperty('--pd', (0.12 + 0.5 * p).toFixed(3));
@@ -53,12 +52,12 @@ export default function TapScene({ src, tapText, paidText, toast, receipt }: Pro
       if (hit && !s.classList.contains('hit')) { chime(); countUp(); try { navigator.vibrate?.(35); } catch { /* not supported */ } }
       s.classList.toggle('hit', hit);
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
-    const onResize = () => { fit(); onScroll(); };
-    fit(); frame();
-    root.addEventListener('scroll', onScroll, { passive: true });
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    fit(); frame(0);
+    const play = autoplay(s, { duration: 4600, delay: 250, enter: 0.6, leave: 'any', still, onFrame: frame });
+    const onResize = () => fit();
     window.addEventListener('resize', onResize);
-    return () => { cancelAnimationFrame(cnt); root.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onResize); if (raf) cancelAnimationFrame(raf); };
+    return () => { cancelAnimationFrame(cnt); play.dispose(); window.removeEventListener('resize', onResize); };
   }, []);
 
   return (
