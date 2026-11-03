@@ -604,24 +604,46 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           })()}
         />
 
-        {/* ── A word from TaxTech General: who is behind it and what it is for ── */}
+        {/* ── About the project, with a compact author card ── */}
         <section id="hello" className="bl-hello">
           <div className="bl-wrap bl-hello-in">
-            <div className="bl-hello-card bl-rv">
-              <figure className="bl-hello-photo">
-                <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="640" height="640" loading="lazy" decoding="async" />
-              </figure>
-              <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-              <p className="bl-hello-role">TaxTech General</p>
-              <p className="bl-hello-bio">{t('Автор і дослідник цифрової спадщини. Працює з архітектурою, міською культурою та колективною пам’яттю.', 'Author and digital heritage researcher. Works with architecture, urban culture and collective memory.')}</p>
-            </div>
             <div className="bl-hello-text">
               <h2 className="bl-h bl-rv">{t('Про проєкт', 'About the project')}</h2>
-              <p className="bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
-              <p className="bl-rv">{t('Він потрібен, щоб вивчати платіжні системи на живому прикладі: провести платіж, спробувати обійти антифрод, підмінити запис і побачити, як це виявить система. Saint Agnes — дослідницька вітрина для тих самих експериментів.', 'It exists to study payment systems on a live example: make a payment, try to get past the fraud engine, tamper with a record and watch the system catch it. Saint Agnes is a research storefront for the same experiments.')}</p>
+              <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
               <div className="bl-cta bl-rv">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
               </div>
+            </div>
+            <aside className="bl-hello-card bl-rv">
+              <figure className="bl-hello-photo">
+                <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="160" height="160" loading="lazy" decoding="async" />
+              </figure>
+              <div className="bl-hello-who">
+                <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
+                <p className="bl-hello-bio">{t('Дослідник цифрової спадщини. Архітектура, міська культура, колективна пам’ять.', 'Digital heritage researcher. Architecture, urban culture, collective memory.')}</p>
+              </div>
+            </aside>
+          </div>
+          <ol className="bl-wrap bl-aims">
+            {([
+              ['Проведи платіж', 'Make a payment', 'Картка, переказ і подвійний запис на токені TAX.', 'Card, transfer and double entry on the TAX token.'],
+              ['Обійди антифрод', 'Get past the fraud engine', 'Три шари правил вирішують, пропустити переказ чи зупинити.', 'Three layers of rules decide whether a transfer goes through.'],
+              ['Підміни запис', 'Tamper with a record', 'Хеш-ланцюг покаже, на якому саме блоці він порвався.', 'The hash chain shows the exact block where it broke.'],
+            ] as const).map(([tu, te, du, de], i) => (
+              <li key={i} className="bl-aim bl-rv" style={{ ['--d' as string]: `${i * 0.08}s` }}>
+                <span className="bl-aim-n">{String(i + 1).padStart(2, '0')}</span>
+                <h4>{t(tu, te)}</h4>
+                <p>{t(du, de)}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="bl-wrap">
+            <div className="bl-agnes bl-agnes-soon bl-rv">
+              <div className="bl-agnes-text">
+                <h4>{t('Незабаром в App Store.', 'Coming soon to the App Store.')}</h4>
+                <img className="bl-appbadge" src="/app-store-black.svg" alt="App Store" width="180" height="60" loading="lazy" decoding="async" />
+              </div>
+              <div className="bl-agnes-img"><img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" /></div>
             </div>
           </div>
         </section>
@@ -630,6 +652,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <Lazy id="inside" className="bl-sec bl-inside" h={[1527, 1568]}>
           <div className="bl-wrap">
             <div className="bl-inside-head bl-rv">
+              <span className="bl-inside-eyebrow" aria-hidden>S · P · Q · R</span>
               <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
             <div className="bl-hood bl-rv" ref={hoodRefCb}>
