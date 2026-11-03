@@ -8290,5 +8290,35 @@
 "it": "Frode",
 "de": "Betrug",
 "ru": "Мошенничество"
+},
+"Підмінити запис": {
+"en": "Tamper with record",
+"it": "Altera il record",
+"de": "Eintrag fälschen",
+"ru": "Подменить запись"
+},
+"Перевірити доказ": {
+"en": "Verify proof",
+"it": "Verifica la prova",
+"de": "Beweis prüfen",
+"ru": "Проверить доказательство"
+},
+"Шлях запису": {
+"en": "Record path",
+"it": "Percorso del record",
+"de": "Pfad des Eintrags",
+"ru": "Путь записи"
+},
+"Відбитки доказу": {
+"en": "Proof hashes",
+"it": "Hash della prova",
+"de": "Beweis-Hashes",
+"ru": "Отпечатки доказательства"
+},
+"Змінено": {
+"en": "Changed",
+"it": "Modificato",
+"de": "Geändert",
+"ru": "Изменено"
 }
 }
