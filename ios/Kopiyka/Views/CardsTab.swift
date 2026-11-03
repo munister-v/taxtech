@@ -181,6 +181,7 @@ struct CardsTab: View {
                 NavigationLink { SecurityView() } label: { RoundActionLabel(title: "PIN", symbol: "lock") }
                     .buttonStyle(PressScale())
             }
+            Surface { LearnLink(.hold).padding(.horizontal, 16).padding(.vertical, 8) }
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {

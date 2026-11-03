@@ -13,6 +13,9 @@ struct ChainLab: View {
 
     private static let zero = String(repeating: "0", count: 64)
 
+    @Environment(AppModel.self) private var model
+    @State private var mine = false
+    @State private var rows = ChainLab.sample()
     @State private var blocks: [Block] = ChainLab.seed()
     /// Останній відбиток, який «записано окремо» - наприклад, у квитанції чи в іншому сховищі.
     @State private var anchor = ChainLab.seed().last?.hash ?? ChainLab.zero
@@ -24,8 +27,13 @@ struct ChainLab: View {
             .map { String(format: "%02x", $0) }.joined()
     }
 
-    static func seed() -> [Block] {
-        let rows: [(String, Double)] = [(L("Поповнення").s, 1_000), (L("Кава").s, 85), (L("Переказ Ірині").s, 250), (L("Метро").s, 40), (L("Книжки").s, 420)]
+    static func sample() -> [(String, Double)] {
+        [(L("Поповнення").s, 1_000), (L("Кава").s, 85), (L("Переказ Ірині").s, 250), (L("Метро").s, 40), (L("Книжки").s, 420)]
+    }
+
+    static func seed() -> [Block] { build(sample()) }
+
+    static func build(_ rows: [(String, Double)]) -> [Block] {
         var prev = zero
         return rows.enumerated().map { i, r in
             let h = digest(i + 1, r.0, r.1, prev: prev)
@@ -55,6 +63,9 @@ struct ChainLab: View {
         VStack(alignment: .leading, spacing: 16) {
             status
             LabPanel(title: L("Записи").s) {
+                if model.signedIn {
+                    SegmentBar(items: [(false, L("Приклад").s), (true, L("Мої операції").s)], selection: $mine)
+                }
                 ForEach(blocks.indices, id: \.self) { i in
                     row(i, bad: bad[i])
                     if i < blocks.count - 1 { Rule() }
@@ -77,6 +88,18 @@ struct ChainLab: View {
         }
         .animation(.snappy, value: bad)
         .animation(.snappy, value: anchorMatches)
+        .onChange(of: mine) { _, on in
+            Task {
+                if on {
+                    let ops = await LiveData.operations(model, limit: 5)
+                    if !ops.isEmpty { rows = ops.map { ($0.title, $0.amount) } } else { mine = false; return }
+                } else {
+                    rows = Self.sample()
+                }
+                blocks = Self.build(rows)
+                anchor = blocks.last?.hash ?? Self.zero
+            }
+        }
         #if DEBUG
         // simctl launch з SIMCTL_CHILD_KOPIYKA_CHAIN_TAMPER=1: другий запис уже змінено
         .onAppear { if ProcessInfo.processInfo.environment["KOPIYKA_CHAIN_TAMPER"] == "1" { blocks[1].amount = 8_500 } }
@@ -129,7 +152,7 @@ struct ChainLab: View {
                 Button(L("Додати запис").s) { append() }.buttonStyle(LineButton())
                     .disabled(!anchorMatches)
                 Button(L("Скинути").s) {
-                    blocks = Self.seed()
+                    blocks = Self.build(rows)
                     anchor = blocks.last?.hash ?? Self.zero
                 }
                 .buttonStyle(LineButton())

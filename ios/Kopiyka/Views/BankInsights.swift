@@ -72,6 +72,8 @@ struct TransactionDetailView: View {
                                     copied = true
                                 }
                                 .font(.footnote.weight(.semibold)).foregroundStyle(Theme.ink)
+                                Rule()
+                                LearnLink(.chain)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(16)

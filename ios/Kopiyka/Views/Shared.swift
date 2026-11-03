@@ -38,6 +38,11 @@ struct RootView: View {
         .task(id: model.signedIn) {
             pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
         }
+        .onChange(of: model.jumpTab) { _, tab in
+            guard let tab else { return }
+            selection = tab
+            model.jumpTab = nil
+        }
         .onChange(of: model.signedIn) { _, signedIn in
             if !signedIn { selection = .lab }
         }
@@ -112,6 +117,7 @@ struct RoutedNote: View {
             Text(record.reason)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+            LearnLink(.router).padding(.top, 4)
         }
     }
 

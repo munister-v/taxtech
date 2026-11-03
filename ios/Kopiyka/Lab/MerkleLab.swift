@@ -20,12 +20,20 @@ struct MerkleLab: View {
         [L("Оплата 120").s, L("Переказ 40").s, L("Зарахування 500").s, L("Оплата 75").s]
     }
 
+    /// Чотири найновіші операції рахунку: назва й сума записом дерева.
+    private static func records(_ ops: [LiveOperation]) -> [String] {
+        ops.map { "\($0.title) \($0.income ? "+" : "−")\(Format.short($0.amount))" }
+    }
+
     nonisolated static func hash(_ s: String) -> String {
         SHA256.hash(data: Data(s.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
     private static func short(_ h: String) -> String { String(h.prefix(8)) }
 
+    @Environment(AppModel.self) private var model
+    @State private var mine = false
+    @State private var base = MerkleLab.initial()
     @State private var texts = MerkleLab.initial()
     /// Дерево, корінь якого «записано окремо»: з нього беруться сусідні відбитки для доказу.
     @State private var anchor = Tree(MerkleLab.initial())
@@ -66,6 +74,17 @@ struct MerkleLab: View {
 
     private var records: some View {
         LabPanel(title: L("Записи").s) {
+            if model.signedIn {
+                SegmentBar(items: [(false, L("Приклад").s), (true, L("Мої операції").s)], selection: $mine)
+                    .onChange(of: mine) { _, on in
+                        Task {
+                            let ops = await LiveData.operations(model, limit: 4)
+                            if on && ops.count == 4 { base = Self.records(ops) } else if on { mine = false; return } else { base = Self.initial() }
+                            texts = base
+                            anchor = Tree(base)
+                        }
+                    }
+            }
             ForEach(0..<4, id: \.self) { i in
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 12) {
@@ -80,7 +99,7 @@ struct MerkleLab: View {
             }
             HStack(spacing: 10) {
                 Button(L("Записати корінь").s) { anchor = tree }.buttonStyle(LineButton())
-                Button(L("Скинути").s) { texts = Self.initial(); anchor = Tree(Self.initial()) }.buttonStyle(LineButton())
+                Button(L("Скинути").s) { texts = base; anchor = Tree(base) }.buttonStyle(LineButton())
             }
         }
     }

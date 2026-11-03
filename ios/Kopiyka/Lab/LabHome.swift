@@ -6,6 +6,7 @@ struct LabHome: View {
     @State private var progress = LabProgress.shared
     @State private var journal = false
     @State private var path: [Experiment] = []
+    @State private var balance: Double?
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -21,7 +22,12 @@ struct LabHome: View {
                                 .rise(3 + i)
                         }
                     }
-                    RowGroup(title: L("Дані").s) {
+                    RowGroup(title: L("Застосунок").s) {
+                        Button { model.jumpTab = .overview } label: {
+                            IconRow(title: "Piazza", symbol: "square.stack.3d.up",
+                                    detail: model.signedIn ? balance.map(Format.short) : L("Увійти").s)
+                        }
+                        .buttonStyle(.plain)
                         Button { journal = true } label: {
                             IconRow(title: L("Журнал рішень").s, symbol: "list.bullet.rectangle",
                                     detail: model.decisions.isEmpty ? nil : "\(model.decisions.count)")
@@ -39,6 +45,9 @@ struct LabHome: View {
             .navigationDestination(for: Experiment.self) { ExperimentScreen(experiment: $0) }
             .sheet(isPresented: $journal) { LabView().presentationDragIndicator(.visible) }
             .task { await model.refresh() }
+            .task(id: model.signedIn) {
+                balance = model.signedIn ? (try? await model.api.account())?.balance : nil
+            }
             #if DEBUG
             // simctl launch з SIMCTL_CHILD_KOPIYKA_EXPERIMENT=ledger і SIMCTL_CHILD_KOPIYKA_PART=lab|quiz
             .onAppear {
@@ -108,15 +117,16 @@ struct LabHome: View {
 /// «Пісочниця» без входу: що всередині й вхід. Сам банк відкривається лише після входу.
 struct SandboxGate: View {
     @State private var signIn = false
+    @State private var learn: Experiment?
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 ScreenTitle(title: "Piazza", subtitle: L("Пісочниця").s) { EmptyView() }
                 RowGroup {
-                    row("creditcard", L("Рахунок і картки").s)
-                    row("arrow.left.arrow.right", L("Перекази з перевіркою антифроду").s)
-                    row("link", L("Операції в хеш-ланцюзі").s)
+                    row("creditcard", L("Рахунок і картки").s, .hold)
+                    row("arrow.left.arrow.right", L("Перекази з перевіркою антифроду").s, .fraud)
+                    row("link", L("Операції в хеш-ланцюзі").s, .chain)
                 }
                 Button(L("Увійти").s) { signIn = true }.buttonStyle(InkButton())
                 Text(L("Токен TAX - навчальна одиниця, а не гроші.").s)
@@ -128,14 +138,20 @@ struct SandboxGate: View {
         .scrollIndicators(.hidden)
         .screenBackground()
         .fullScreenCover(isPresented: $signIn) { AuthView(onClose: { signIn = false }) }
+        .sheet(item: $learn) { LearnSheet(experiment: $0) }
     }
 
-    private func row(_ symbol: String, _ title: String) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: symbol).foregroundStyle(Theme.accent).frame(width: 24)
-            Text(title).font(.body.weight(.medium))
-            Spacer()
+    private func row(_ symbol: String, _ title: String, _ e: Experiment) -> some View {
+        Button { learn = e } label: {
+            HStack(spacing: 14) {
+                Image(systemName: symbol).foregroundStyle(Theme.accent).frame(width: 24)
+                Text(title).font(.body.weight(.medium)).multilineTextAlignment(.leading)
+                Spacer()
+                Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 16).padding(.vertical, 15)
+            .contentShape(.rect)
         }
-        .padding(.horizontal, 16).padding(.vertical, 15)
+        .buttonStyle(.plain)
     }
 }

@@ -7324,5 +7324,53 @@
 "it": "Zeri: %@",
 "de": "Nullen: %@",
 "ru": "Нулей: %@"
+},
+"Як це працює": {
+"en": "How it works",
+"it": "Come funziona",
+"de": "So funktioniert es",
+"ru": "Как это работает"
+},
+"Відкрити в %@": {
+"en": "Open in %@",
+"it": "Apri in %@",
+"de": "In %@ öffnen",
+"ru": "Открыть в %@"
+},
+"Увійти, щоб побачити на своєму рахунку": {
+"en": "Sign in to see it on your account",
+"it": "Accedi per vederlo sul tuo conto",
+"de": "Anmelden, um es auf Ihrem Konto zu sehen",
+"ru": "Войти, чтобы увидеть на своём счёте"
+},
+"Той самий механізм у банку": {
+"en": "The same mechanism in the bank",
+"it": "Lo stesso meccanismo in banca",
+"de": "Derselbe Mechanismus in der Bank",
+"ru": "Тот же механизм в банке"
+},
+"Приклад": {
+"en": "Example",
+"it": "Esempio",
+"de": "Beispiel",
+"ru": "Пример"
+},
+"Мої операції": {
+"en": "My operations",
+"it": "Le mie operazioni",
+"de": "Meine Vorgänge",
+"ru": "Мои операции"
+},
+"Мій дохід: %@ на місяць": {
+"en": "My income: %@ a month",
+"it": "Il mio reddito: %@ al mese",
+"de": "Mein Einkommen: %@ im Monat",
+"ru": "Мой доход: %@ в месяц"
+},
+"Застосунок": {
+"en": "App",
+"it": "App",
+"de": "App",
+"ru": "Приложение"
 }
 }

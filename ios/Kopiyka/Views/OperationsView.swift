@@ -59,6 +59,16 @@ struct OperationsView: View {
                     if filter.search.isEmpty, let summary { byType(summary) }
                     if filter.search.isEmpty && !insights.isEmpty { insightList }
                     history
+                    if filter.search.isEmpty {
+                        Surface {
+                            VStack(spacing: 0) {
+                                LearnLink(.ledger)
+                                Rule().padding(.vertical, 6)
+                                LearnLink(.merkle)
+                            }
+                            .padding(.horizontal, 16).padding(.vertical, 8)
+                        }
+                    }
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 32)

@@ -2,7 +2,9 @@ import SwiftUI
 
 /// Дослід: з нарахованої зарплати до суми на руки й вартості для роботодавця, ті самі ставки, що в розділі Fisco.
 struct TaxLab: View {
+    @Environment(AppModel.self) private var model
     @State private var gross = 30_000.0
+    @State private var income: Double?
 
     private let rates = TaxRates.default
 
@@ -32,6 +34,7 @@ struct TaxLab: View {
             breakdown
         }
         .animation(.snappy, value: gross)
+        .task { income = (await LiveData.monthlyIncome(model)).map { ($0 / 500).rounded() * 500 } }
     }
 
     private var result: some View {
@@ -50,6 +53,10 @@ struct TaxLab: View {
         LabPanel(title: L("Зарплата").s) {
             LabSlider(title: L("Нараховано на місяць").s, value: Format.short(gross),
                       x: Binding(get: { gross }, set: { gross = ($0 / 500).rounded() * 500 }), range: 8_000...200_000)
+            if let income {
+                Button(L("Мій дохід: \(Format.short(income)) на місяць").s) { gross = min(max(income, 8_000), 200_000) }
+                    .buttonStyle(LineButton())
+            }
             Text(L("База ЄСВ не більша за 20 мінімальних зарплат: \(Format.short(rates.minWage * 20)).").s)
                 .font(.footnote).foregroundStyle(.secondary)
         }

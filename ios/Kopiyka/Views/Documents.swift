@@ -320,6 +320,8 @@ struct DocumentDetailView: View {
 
                     Surface { VerifySeal(doc: doc).padding(18) }
 
+                    Surface { LearnLink(.seal).padding(.horizontal, 16).padding(.vertical, 8) }
+
                     Button {
                         Task {
                             await screen.run {

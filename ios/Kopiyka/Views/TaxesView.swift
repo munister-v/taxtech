@@ -203,6 +203,7 @@ private struct SalaryPart: View {
                 Rule()
                 Line2(L("На руки").s, Format.money(s.net))
             }
+            Surface { LearnLink(.tax).padding(.horizontal, 16).padding(.vertical, 8) }
             VStack(alignment: .leading, spacing: 12) {
                 BlockTitle(L("Роботодавець платить").s)
                 Surface {

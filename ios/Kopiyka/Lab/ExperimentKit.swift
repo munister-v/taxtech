@@ -266,6 +266,7 @@ struct ExperimentScreen: View {
                 case .lab: lab
                 case .quiz: QuizView(experiment: experiment)
                 }
+                BankBridge(experiment: experiment)
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.top, 8)
