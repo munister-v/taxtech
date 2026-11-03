@@ -5419,7 +5419,7 @@
 },
 "терміново крипто": {
 "en": "urgent crypto",
-"it": "crypto urgente",
+"it": "urgente crypto",
 "de": "dringend Krypto",
 "ru": "срочно крипто"
 },
@@ -7372,5 +7372,395 @@
 "it": "App",
 "de": "App",
 "ru": "Приложение"
+},
+"Мережа переказів": {
+"en": "Transfer network",
+"it": "Rete di bonifici",
+"de": "Überweisungsnetz",
+"ru": "Сеть переводов"
+},
+"Потік, автоплатежі, кліринг і бани": {
+"en": "Traffic, standing orders, clearing and bans",
+"it": "Flusso, pagamenti automatici, clearing e blocchi",
+"de": "Verkehr, Daueraufträge, Clearing und Sperren",
+"ru": "Поток, автоплатежи, клиринг и баны"
+},
+"Три банки, дванадцять рахунків і потік переказів між людьми. Кожен переказ проходить антифрод: Layer 1 дивиться на сам переказ, шар історії - на те, що рахунок робив щойно.": {
+"en": "Three banks, twelve accounts and a stream of transfers between people. Every transfer goes through anti-fraud: Layer 1 looks at the transfer itself, the history layer at what the account did just before.",
+"it": "Tre banche, dodici conti e un flusso di bonifici tra persone. Ogni bonifico passa l'antifrode: il Layer 1 guarda il bonifico stesso, il livello storico ciò che il conto ha fatto poco prima.",
+"de": "Drei Banken, zwölf Konten und ein Strom von Überweisungen zwischen Menschen. Jede Überweisung durchläuft die Betrugsprüfung: Layer 1 prüft die Überweisung selbst, die Verlaufsschicht das, was das Konto kurz zuvor getan hat.",
+"ru": "Три банка, двенадцать счетов и поток переводов между людьми. Каждый перевод проходит антифрод: Layer 1 смотрит на сам перевод, слой истории - на то, что счёт делал только что."
+},
+"Переказ між рахунками одного банку проводиться одразу. Між банками гроші йдуть у кліринг: кошти списано, але одержувач отримає їх лише під час розрахунку.": {
+"en": "A transfer within one bank is booked at once. Between banks the money goes to clearing: it is debited, but the recipient gets it only at settlement.",
+"it": "Un bonifico nella stessa banca viene registrato subito. Tra banche i soldi vanno in clearing: sono addebitati, ma il destinatario li riceve solo al regolamento.",
+"de": "Eine Überweisung innerhalb einer Bank wird sofort gebucht. Zwischen Banken geht das Geld ins Clearing: es ist abgebucht, der Empfänger erhält es aber erst bei der Abrechnung.",
+"ru": "Перевод внутри одного банка проводится сразу. Между банками деньги идут в клиринг: средства списаны, но получатель получит их только при расчёте."
+},
+"За період банки зараховують зустрічні потоки й переказують лише різницю між кожною парою. Тому сотні платежів перетворюються на кілька переказів.": {
+"en": "Over a period banks offset opposing flows and transfer only the difference between each pair. So hundreds of payments become a few transfers.",
+"it": "In un periodo le banche compensano i flussi opposti e trasferiscono solo la differenza tra ogni coppia. Così centinaia di pagamenti diventano pochi trasferimenti.",
+"de": "Über einen Zeitraum verrechnen Banken Gegenströme und überweisen nur die Differenz zwischen jedem Paar. So werden aus Hunderten Zahlungen wenige Überweisungen.",
+"ru": "За период банки засчитывают встречные потоки и переводят только разницу между каждой парой. Поэтому сотни платежей превращаются в несколько переводов."
+},
+"Заблокований переказ - страйк рахунку, три страйки - бан. Про кожен переказ відомо, чесний він чи ні, тому видно обидві помилки: пропущене шахрайство й заблоковані чесні перекази.": {
+"en": "A blocked transfer is a strike on the account, three strikes are a ban. We know whether each transfer is honest, so both errors show: fraud that got through and honest transfers that were blocked.",
+"it": "Un bonifico bloccato è uno strike per il conto, tre strike sono un blocco. Sappiamo se ogni bonifico è onesto, quindi si vedono entrambi gli errori: frodi passate e bonifici onesti bloccati.",
+"de": "Eine blockierte Überweisung ist ein Strike für das Konto, drei Strikes sind eine Sperre. Wir wissen, ob jede Überweisung ehrlich ist, daher zeigen sich beide Fehler: durchgelassener Betrug und blockierte ehrliche Überweisungen.",
+"ru": "Заблокированный перевод - страйк счёта, три страйка - бан. О каждом переводе известно, честный он или нет, поэтому видны обе ошибки: пропущенное мошенничество и заблокированные честные переводы."
+},
+"Переказ між банками: коли одержувач бачить гроші?": {
+"en": "A transfer between banks: when does the recipient see the money?",
+"it": "Bonifico tra banche: quando il destinatario vede i soldi?",
+"de": "Überweisung zwischen Banken: wann sieht der Empfänger das Geld?",
+"ru": "Перевод между банками: когда получатель видит деньги?"
+},
+"Одразу": {
+"en": "Immediately",
+"it": "Subito",
+"de": "Sofort",
+"ru": "Сразу"
+},
+"Після міжбанківського розрахунку": {
+"en": "After interbank settlement",
+"it": "Dopo il regolamento interbancario",
+"de": "Nach der Interbankabrechnung",
+"ru": "После межбанковского расчёта"
+},
+"Ніколи": {
+"en": "Never",
+"it": "Mai",
+"de": "Nie",
+"ru": "Никогда"
+},
+"Навіщо банкам кліринг?": {
+"en": "Why do banks need clearing?",
+"it": "Perché le banche usano il clearing?",
+"de": "Wozu brauchen Banken Clearing?",
+"ru": "Зачем банкам клиринг?"
+},
+"Щоб переказувати лише різницю зустрічних потоків": {
+"en": "To transfer only the difference of opposing flows",
+"it": "Per trasferire solo la differenza dei flussi opposti",
+"de": "Um nur die Differenz der Gegenströme zu überweisen",
+"ru": "Чтобы переводить только разницу встречных потоков"
+},
+"Щоб гроші йшли повільніше": {
+"en": "To make money move slower",
+"it": "Per far andare i soldi più lentamente",
+"de": "Damit das Geld langsamer fließt",
+"ru": "Чтобы деньги шли медленнее"
+},
+"Щоб приховати перекази": {
+"en": "To hide transfers",
+"it": "Per nascondere i bonifici",
+"de": "Um Überweisungen zu verbergen",
+"ru": "Чтобы скрыть переводы"
+},
+"Поріг блокування знизили. Що буде?": {
+"en": "The block threshold was lowered. What happens?",
+"it": "La soglia di blocco è stata abbassata. Cosa succede?",
+"de": "Die Sperrschwelle wurde gesenkt. Was passiert?",
+"ru": "Порог блокировки снизили. Что будет?"
+},
+"Менше шахрайства пройде, але більше чесних переказів зупиниться": {
+"en": "Less fraud gets through, but more honest transfers are stopped",
+"it": "Passano meno frodi, ma si fermano più bonifici onesti",
+"de": "Weniger Betrug kommt durch, aber mehr ehrliche Überweisungen werden gestoppt",
+"ru": "Меньше мошенничества пройдёт, но больше честных переводов остановится"
+},
+"Нічого не зміниться": {
+"en": "Nothing changes",
+"it": "Non cambia nulla",
+"de": "Nichts ändert sich",
+"ru": "Ничего не изменится"
+},
+"Шахрайство пройде частіше": {
+"en": "Fraud gets through more often",
+"it": "Le frodi passano più spesso",
+"de": "Betrug kommt häufiger durch",
+"ru": "Мошенничество будет проходить чаще"
+},
+"Підписка": {
+"en": "Subscription",
+"it": "Abbonamento",
+"de": "Abo",
+"ru": "Подписка"
+},
+"Обід": {
+"en": "Lunch",
+"it": "Pranzo",
+"de": "Mittagessen",
+"ru": "Обед"
+},
+"Подарунок": {
+"en": "Gift",
+"it": "Regalo",
+"de": "Geschenk",
+"ru": "Подарок"
+},
+"рахунок %@ заблоковано": {
+"en": "account %@ is blocked",
+"it": "conto %@ bloccato",
+"de": "Konto %@ gesperrt",
+"ru": "счёт %@ заблокирован"
+},
+"не вистачає коштів": {
+"en": "insufficient funds",
+"it": "fondi insufficienti",
+"de": "Guthaben reicht nicht",
+"ru": "не хватает средств"
+},
+"бал %@": {
+"en": "score %@",
+"it": "punteggio %@",
+"de": "Score %@",
+"ru": "балл %@"
+},
+"Бан: рахунок %@": {
+"en": "Ban: account %@",
+"it": "Blocco: conto %@",
+"de": "Sperre: Konto %@",
+"ru": "Бан: счёт %@"
+},
+"Кліринг: %@ платежів → %@": {
+"en": "Clearing: %@ payments → %@",
+"it": "Clearing: %@ pagamenti → %@",
+"de": "Clearing: %@ Zahlungen → %@",
+"ru": "Клиринг: %@ платежей → %@"
+},
+"Мережа працює": {
+"en": "Network running",
+"it": "Rete attiva",
+"de": "Netz läuft",
+"ru": "Сеть работает"
+},
+"Мережа стоїть": {
+"en": "Network paused",
+"it": "Rete ferma",
+"de": "Netz steht",
+"ru": "Сеть стоит"
+},
+"Крок %@": {
+"en": "Step %@",
+"it": "Passo %@",
+"de": "Schritt %@",
+"ru": "Шаг %@"
+},
+"Переказів": {
+"en": "Transfers",
+"it": "Bonifici",
+"de": "Überweisungen",
+"ru": "Переводов"
+},
+"Зупинено": {
+"en": "Stopped",
+"it": "Fermati",
+"de": "Gestoppt",
+"ru": "Остановлено"
+},
+"Банів": {
+"en": "Bans",
+"it": "Blocchi",
+"de": "Sperren",
+"ru": "Банов"
+},
+"Сума мережі не змінилась: %@": {
+"en": "Network total unchanged: %@",
+"it": "Totale della rete invariato: %@",
+"de": "Netzsumme unverändert: %@",
+"ru": "Сумма сети не изменилась: %@"
+},
+"Сума мережі розійшлась": {
+"en": "Network total does not add up",
+"it": "Il totale della rete non torna",
+"de": "Netzsumme stimmt nicht",
+"ru": "Сумма сети разошлась"
+},
+"Потік": {
+"en": "Traffic",
+"it": "Flusso",
+"de": "Verkehr",
+"ru": "Поток"
+},
+"Пауза": {
+"en": "Pause",
+"it": "Pausa",
+"de": "Pause",
+"ru": "Пауза"
+},
+"Запустити": {
+"en": "Start",
+"it": "Avvia",
+"de": "Starten",
+"ru": "Запустить"
+},
+"Крок": {
+"en": "Step",
+"it": "Passo",
+"de": "Schritt",
+"ru": "Шаг"
+},
+"Переказів за крок": {
+"en": "Transfers per step",
+"it": "Bonifici per passo",
+"de": "Überweisungen pro Schritt",
+"ru": "Переводов за шаг"
+},
+"Частка шахрайства": {
+"en": "Fraud share",
+"it": "Quota di frodi",
+"de": "Betrugsanteil",
+"ru": "Доля мошенничества"
+},
+"Поріг блокування": {
+"en": "Block threshold",
+"it": "Soglia di blocco",
+"de": "Sperrschwelle",
+"ru": "Порог блокировки"
+},
+"Шар історії": {
+"en": "History layer",
+"it": "Livello storico",
+"de": "Verlaufsschicht",
+"ru": "Слой истории"
+},
+"Автоплатежі": {
+"en": "Standing orders",
+"it": "Pagamenti automatici",
+"de": "Daueraufträge",
+"ru": "Автоплатежи"
+},
+"Банки": {
+"en": "Banks",
+"it": "Banche",
+"de": "Banken",
+"ru": "Банки"
+},
+"Міжбанківський кліринг": {
+"en": "Interbank clearing",
+"it": "Clearing interbancario",
+"de": "Interbank-Clearing",
+"ru": "Межбанковский клиринг"
+},
+"У дорозі": {
+"en": "In transit",
+"it": "In transito",
+"de": "Unterwegs",
+"ru": "В пути"
+},
+"%@ платежів, %@": {
+"en": "%@ payments, %@",
+"it": "%@ pagamenti, %@",
+"de": "%@ Zahlungen, %@",
+"ru": "%@ платежей, %@"
+},
+"Розрахунок через": {
+"en": "Settlement in",
+"it": "Regolamento tra",
+"de": "Abrechnung in",
+"ru": "Расчёт через"
+},
+"%@ кроків": {
+"en": "%@ steps",
+"it": "%@ passi",
+"de": "%@ Schritte",
+"ru": "%@ шагов"
+},
+"Останній розрахунок": {
+"en": "Last settlement",
+"it": "Ultimo regolamento",
+"de": "Letzte Abrechnung",
+"ru": "Последний расчёт"
+},
+"%@ платежів → %@": {
+"en": "%@ payments → %@",
+"it": "%@ pagamenti → %@",
+"de": "%@ Zahlungen → %@",
+"ru": "%@ платежей → %@"
+},
+"Обсяг": {
+"en": "Volume",
+"it": "Volume",
+"de": "Volumen",
+"ru": "Объём"
+},
+"Банки не шлють кожен платіж окремо: зустрічні потоки зараховуються, між парою банків іде лише різниця.": {
+"en": "Banks do not send every payment separately: opposing flows are offset and only the difference goes between a pair of banks.",
+"it": "Le banche non inviano ogni pagamento separatamente: i flussi opposti si compensano e tra due banche va solo la differenza.",
+"de": "Banken senden nicht jede Zahlung einzeln: Gegenströme werden verrechnet, zwischen zwei Banken geht nur die Differenz.",
+"ru": "Банки не шлют каждый платёж отдельно: встречные потоки засчитываются, между парой банков идёт только разница."
+},
+"Якість антифроду": {
+"en": "Anti-fraud quality",
+"it": "Qualità antifrode",
+"de": "Qualität der Betrugsprüfung",
+"ru": "Качество антифрода"
+},
+"Шахрайство зупинено": {
+"en": "Fraud stopped",
+"it": "Frodi fermate",
+"de": "Betrug gestoppt",
+"ru": "Мошенничество остановлено"
+},
+"Зупинено вірно": {
+"en": "Stopped rightly",
+"it": "Fermati a ragione",
+"de": "Zu Recht gestoppt",
+"ru": "Остановлено верно"
+},
+"Шахрайство пройшло": {
+"en": "Fraud got through",
+"it": "Frodi passate",
+"de": "Betrug durchgelassen",
+"ru": "Мошенничество прошло"
+},
+"Чесні зупинені": {
+"en": "Honest stopped",
+"it": "Onesti fermati",
+"de": "Ehrliche gestoppt",
+"ru": "Честные остановлены"
+},
+"Чесні пройшли": {
+"en": "Honest passed",
+"it": "Onesti passati",
+"de": "Ehrliche durchgelassen",
+"ru": "Честные прошли"
+},
+"Бани: вірні й помилкові": {
+"en": "Bans: right and wrong",
+"it": "Blocchi: giusti e sbagliati",
+"de": "Sperren: richtige und falsche",
+"ru": "Баны: верные и ошибочные"
+},
+"Автоплатежі: пройшли й зупинені": {
+"en": "Standing orders: passed and stopped",
+"it": "Pagamenti automatici: passati e fermati",
+"de": "Daueraufträge: durchgelaufen und gestoppt",
+"ru": "Автоплатежи: прошли и остановлены"
+},
+"Нижчий поріг зупиняє більше шахрайства, але частіше б'є по чесних. Шар історії бачить розсилки, дроблення й транзит.": {
+"en": "A lower threshold stops more fraud but hits honest users more often. The history layer sees fan-outs, structuring and pass-through.",
+"it": "Una soglia più bassa ferma più frodi ma colpisce più spesso gli onesti. Il livello storico vede invii multipli, frazionamenti e transiti.",
+"de": "Eine niedrigere Schwelle stoppt mehr Betrug, trifft aber öfter Ehrliche. Die Verlaufsschicht erkennt Streuung, Stückelung und Durchleitung.",
+"ru": "Более низкий порог останавливает больше мошенничества, но чаще бьёт по честным. Слой истории видит рассылки, дробление и транзит."
+},
+"Стрічка": {
+"en": "Feed",
+"it": "Registro eventi",
+"de": "Verlauf",
+"ru": "Лента"
+},
+"Бан знято: рахунок %@": {
+"en": "Ban lifted: account %@",
+"it": "Blocco rimosso: conto %@",
+"de": "Sperre aufgehoben: Konto %@",
+"ru": "Бан снят: счёт %@"
+},
+"Бан діє двадцять кроків, але його можна зняти вручну торкнувшись рахунку.": {
+"en": "A ban lasts twenty steps, but you can lift it by tapping the account.",
+"it": "Il blocco dura venti passi, ma puoi rimuoverlo toccando il conto.",
+"de": "Eine Sperre dauert zwanzig Schritte, lässt sich aber per Tippen auf das Konto aufheben.",
+"ru": "Бан действует двадцать шагов, но его можно снять вручную, коснувшись счёта."
 }
 }

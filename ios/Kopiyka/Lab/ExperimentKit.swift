@@ -3,7 +3,7 @@ import SwiftUI
 /// Досліди лабораторії. Кожен - урок з теорією, живим дослідом і трьома питаннями.
 /// Працюють на телефоні, без мережі й без входу.
 enum Experiment: String, CaseIterable, Identifiable, Hashable {
-    case router, fraud, ledger, idempotency, hold, chain, seal, merkle, work, tax
+    case router, fraud, ledger, idempotency, hold, chain, seal, merkle, work, tax, network
 
     var id: String { rawValue }
 
@@ -22,6 +22,7 @@ enum Experiment: String, CaseIterable, Identifiable, Hashable {
         case .merkle: L("Дерево Меркла").s
         case .work: L("Доказ роботи").s
         case .tax: L("Зарплата й податки").s
+        case .network: L("Мережа переказів").s
         }
     }
 
@@ -37,6 +38,7 @@ enum Experiment: String, CaseIterable, Identifiable, Hashable {
         case .merkle: L("Один відбиток на багато записів").s
         case .work: L("Дорого знайти, дешево перевірити").s
         case .tax: L("Скільки на руки й скільки коштує роботодавцю").s
+        case .network: L("Потік, автоплатежі, кліринг і бани").s
         }
     }
 
@@ -52,6 +54,7 @@ enum Experiment: String, CaseIterable, Identifiable, Hashable {
         case .merkle: "point.3.connected.trianglepath.dotted"
         case .work: "cpu"
         case .tax: "percent"
+        case .network: "network"
         }
     }
 
@@ -116,6 +119,12 @@ enum Experiment: String, CaseIterable, Identifiable, Hashable {
             L("ЄСВ 22% платить роботодавець понад зарплату: працівник його не бачить, а для роботодавця це додаткова вартість.").s,
             L("База ЄСВ обмежена: не більше 20 мінімальних зарплат на місяць.").s,
             L("Ставки в досліді навчальні, для 2026 року. Для реальних розрахунків звіряйтеся з Податковим кодексом.").s,
+        ]
+        case .network: [
+            L("Три банки, дванадцять рахунків і потік переказів між людьми. Кожен переказ проходить антифрод: Layer 1 дивиться на сам переказ, шар історії - на те, що рахунок робив щойно.").s,
+            L("Переказ між рахунками одного банку проводиться одразу. Між банками гроші йдуть у кліринг: кошти списано, але одержувач отримає їх лише під час розрахунку.").s,
+            L("За період банки зараховують зустрічні потоки й переказують лише різницю між кожною парою. Тому сотні платежів перетворюються на кілька переказів.").s,
+            L("Заблокований переказ - страйк рахунку, три страйки - бан. Про кожен переказ відомо, чесний він чи ні, тому видно обидві помилки: пропущене шахрайство й заблоковані чесні перекази.").s,
         ]
         }
     }
@@ -201,6 +210,14 @@ enum Experiment: String, CaseIterable, Identifiable, Hashable {
                      [L("Працівник із зарплати").s, L("Роботодавець понад зарплату").s, L("Банк").s], answer: 1),
             Question(L("Скільки коштує роботодавцю зарплата 10 000 разом з ЄСВ?").s,
                      [L("10 000").s, L("12 200").s, L("7 700").s], answer: 1),
+        ]
+        case .network: [
+            Question(L("Переказ між банками: коли одержувач бачить гроші?").s,
+                     [L("Одразу").s, L("Після міжбанківського розрахунку").s, L("Ніколи").s], answer: 1),
+            Question(L("Навіщо банкам кліринг?").s,
+                     [L("Щоб переказувати лише різницю зустрічних потоків").s, L("Щоб гроші йшли повільніше").s, L("Щоб приховати перекази").s], answer: 0),
+            Question(L("Поріг блокування знизили. Що буде?").s,
+                     [L("Менше шахрайства пройде, але більше чесних переказів зупиниться").s, L("Нічого не зміниться").s, L("Шахрайство пройде частіше").s], answer: 0),
         ]
         }
     }
@@ -315,6 +332,7 @@ struct ExperimentScreen: View {
         case .merkle: MerkleLab()
         case .work: WorkLab()
         case .tax: TaxLab()
+        case .network: NetworkLab()
         }
     }
 }

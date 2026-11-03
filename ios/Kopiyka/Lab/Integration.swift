@@ -17,7 +17,7 @@ extension Experiment {
     /// Де в банку працює цей механізм.
     var bankTab: RootView.AppTab? {
         switch self {
-        case .router, .fraud, .idempotency: .overview
+        case .router, .fraud, .idempotency, .network: .overview
         case .ledger, .chain, .seal, .merkle: .operations
         case .hold: .cards
         case .tax: .taxes
