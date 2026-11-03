@@ -974,3 +974,14 @@
   .bl-agnes-soon .bl-agnes-text { align-items: center; text-align: center; gap: 20px; padding: 4px 22px 32px; margin-top: -30px; }
   .bl .bl-agnes-soon h4 { max-width: none; }
 }
+
+/* Rome scene, quieter: no hairline outlines on the notification, the card's VIRTUAL tag or the stop dots; on phones the card clears the stop bars */
+.bl-toast.bl-push { box-shadow: 0 18px 44px -18px rgba(0,0,0,.8); }
+.bl-card-guil .bl-card-virt { padding: 0; border-radius: 0; background: none; box-shadow: none; }
+.bl-rome-dots i { border: 0; background: rgba(255,255,255, calc(.35 + var(--a, 0) * .3)); background-color: color-mix(in srgb, var(--yellow) calc(var(--a, 0) * 100%), rgba(255,255,255,.4)); }
+@media (max-width: 860px) {
+  .bl-rome-in { padding-bottom: calc(max(26px, 5svh) + 96px); }
+  .bl-rome-bars { gap: 14px; }
+  .bl-rome-bar span { font-size: 11px; letter-spacing: .1em; }
+  .bl-rome-card { width: min(280px, 72%); }
+}
