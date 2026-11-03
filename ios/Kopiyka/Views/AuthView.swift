@@ -68,7 +68,7 @@ struct AuthView: View {
             .lineLimit(1).minimumScaleFactor(0.7)
             .padding(.top, 30)
             .rise(2)
-            Text(L("Довіряй, але перевіряй.").s)
+            Text(L("Лабораторія").s)
                 .font(.subheadline).foregroundStyle(.white.opacity(0.55))
                 .padding(.top, 8)
                 .rise(3)
