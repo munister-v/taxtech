@@ -25,7 +25,7 @@ struct TaxesView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    ScreenTitle(title: L("Податки").s) {
+                    ScreenTitle(title: "Fisco", subtitle: L("Податки").s) {
                         Button { editingRates = true } label: { RoundGlyph(symbol: "slider.horizontal.3") }
                             .buttonStyle(.plain)
                             .accessibilityLabel(L("Ставки").s)

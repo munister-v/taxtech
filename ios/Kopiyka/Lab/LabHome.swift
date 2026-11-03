@@ -11,13 +11,14 @@ struct LabHome: View {
         NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
-                    ScreenTitle(title: L("Лабораторія").s) { MarkView(height: 28, color: Theme.gold) }
-                    hero.rise(1)
-                    VStack(spacing: 12) {
+                    photo.rise(1)
+                    progressRow.rise(2)
+                    VStack(spacing: 0) {
                         ForEach(Array(Experiment.allCases.enumerated()), id: \.element) { i, e in
-                            NavigationLink(value: e) { card(e) }
+                            if i > 0 { Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.5) }
+                            NavigationLink(value: e) { row(e) }
                                 .buttonStyle(PressScale())
-                                .rise(2 + i)
+                                .rise(3 + i)
                         }
                     }
                     RowGroup(title: L("Дані").s) {
@@ -27,7 +28,7 @@ struct LabHome: View {
                         }
                         .buttonStyle(.plain)
                     }
-                    .rise(5)
+                    .rise(3 + Experiment.allCases.count)
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 32)
@@ -47,46 +48,59 @@ struct LabHome: View {
         }
     }
 
-    private var hero: some View {
-        let total = Experiment.allCases.count
-        return HeroPanel {
-            HeroCaption(L("Досліди").s)
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(progress.passedCount)").font(Theme.balance(52)).monospacedDigit()
-                Text(L("з \(total) пройдено").s).font(.title3).foregroundStyle(.secondary)
+    private var photo: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image("RomeHero")
+                .resizable().scaledToFill()
+                .frame(maxWidth: .infinity)
+                .frame(height: 300, alignment: .bottom)
+                .clipped()
+            LinearGradient(colors: [.clear, Theme.bg.opacity(0.7)], startPoint: .center, endPoint: .bottom)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(L("Досліди").s).caption()
+                Text("Studio").font(.display(58, .medium)).tracking(-2).foregroundStyle(.white)
             }
-            .padding(.top, 2)
-            HStack(spacing: 6) {
-                ForEach(Experiment.allCases) { e in
-                    Capsule().fill(progress.passed(e) ? Theme.accent : Theme.ink.opacity(0.14)).frame(height: 5)
-                }
-            }
-            .padding(.top, 12)
+            .padding(20)
         }
+        .frame(height: 300)
+        .clipShape(.rect(cornerRadius: 6, style: .continuous))
     }
 
-    private func card(_ e: Experiment) -> some View {
-        HStack(spacing: 16) {
-            Image(systemName: e.symbol)
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Theme.accent)
-                .frame(width: 48, height: 48)
-                .overlay(Circle().strokeBorder(Theme.gold.opacity(0.5), lineWidth: 1))
-            VStack(alignment: .leading, spacing: 3) {
-                Text(e.title).font(.headline)
+    private var progressRow: some View {
+        let total = Experiment.allCases.count
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text("\(progress.passedCount)").font(.display(40, .medium)).monospacedDigit()
+                Text(L("з \(total) пройдено").s).font(.subheadline).foregroundStyle(.secondary)
+            }
+            HStack(spacing: 4) {
+                ForEach(Experiment.allCases) { e in
+                    Rectangle().fill(progress.passed(e) ? Theme.accent : Theme.ink.opacity(0.14)).frame(height: 2)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func row(_ e: Experiment) -> some View {
+        HStack(alignment: .top, spacing: 16) {
+            Text(String(format: "%02d", e.number))
+                .font(.custom("Futura-Medium", size: 13)).tracking(1.5)
+                .foregroundStyle(Theme.gold)
+                .frame(width: 24, alignment: .leading)
+                .padding(.top, 6)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(e.title).font(.display(22, .medium)).tracking(-0.4)
                 Text(e.line).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.leading)
             }
             Spacer(minLength: 8)
-            if progress.passed(e) {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.accent)
-            } else {
-                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
-            }
+            Image(systemName: progress.passed(e) ? "checkmark" : "arrow.up.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(progress.passed(e) ? Theme.accent : Color.secondary)
+                .padding(.top, 8)
         }
-        .padding(16)
+        .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
-        .goldEdge(22)
         .contentShape(.rect)
     }
 }
@@ -98,7 +112,7 @@ struct SandboxGate: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                ScreenTitle(L("Пісочниця").s)
+                ScreenTitle(title: "Piazza", subtitle: L("Пісочниця").s) { EmptyView() }
                 RowGroup {
                     row("creditcard", L("Рахунок і картки").s)
                     row("arrow.left.arrow.right", L("Перекази з перевіркою антифроду").s)

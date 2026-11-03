@@ -4535,12 +4535,6 @@
 "de": "Die Einwilligung lässt sich ändern",
 "ru": "Согласие можно изменить"
 },
-"Будь-коли в «Лабораторії».": {
-"en": "Any time in the \"Lab\".",
-"it": "In qualsiasi momento nel «Laboratorio».",
-"de": "Jederzeit im «Labor».",
-"ru": "В любой момент в «Лаборатории»."
-},
 "Як скласти бюджет на місяць?": {
 "en": "How do I make a monthly budget?",
 "it": "Come si fa un budget mensile?",
@@ -6802,5 +6796,11 @@
 "it": "Casuali",
 "de": "Zufällig",
 "ru": "Случайные"
+},
+"Будь-коли в «Журналі рішень».": {
+"en": "Any time in the \"Decision log\".",
+"it": "In qualsiasi momento nel «Registro delle decisioni».",
+"de": "Jederzeit im «Entscheidungsprotokoll».",
+"ru": "В любой момент в «Журнале решений»."
 }
 }

@@ -98,7 +98,7 @@ struct RouterLab: View {
         HeroPanel(yellow: true) {
             HeroCaption(L("Рішення").s)
             Text(Translator.text(d.plan.title, []))
-                .font(.system(size: 26, weight: .semibold)).tracking(-0.4)
+                .font(.display(30, .medium)).tracking(-0.6)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 4)
             Text(Translator.text(d.reason, [])).font(.subheadline).foregroundStyle(Theme.onAccent.opacity(0.75)).padding(.top, 6)

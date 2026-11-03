@@ -105,7 +105,7 @@ struct ProfileView: View {
                         sheet(L("Облік витрат").s, "list.bullet.rectangle", .money)
                         sheet(L("Розпізнати чек").s, "doc.text.viewfinder", .receipt)
                         sheet(L("Помічник").s, "text.bubble", .assistant)
-                        sheet(L("Лабораторія").s, "flask", .lab)
+                        sheet(L("Журнал рішень").s, "arrow.triangle.branch", .lab)
                     }
                     RowGroup(title: L("Мова").s) {
                         ForEach(Lang.allCases) { l in

@@ -86,7 +86,7 @@ struct OperationsView: View {
     }
 
     private var header: some View {
-        ScreenTitle(title: L("Операції").s) {
+        ScreenTitle(title: "Registro", subtitle: L("Операції").s) {
             HStack(spacing: 8) {
                 NavigationLink { StatementsView() } label: { RoundGlyph(symbol: "doc.text") }
                     .buttonStyle(.plain)

@@ -32,15 +32,10 @@ enum Theme {
     static let gold = Color(UIColor(hex: 0xC7A46F))
     static let goldLight = Color(UIColor(hex: 0xDCC195))
     /// Золотий градієнт для великих цифр і заголовків.
-    static let goldFill = LinearGradient(colors: [Color(UIColor(hex: 0xFFF3D2)), Color(UIColor(hex: 0xDCC195)), Color(UIColor(hex: 0xCFA862))],
+    static let goldFill = LinearGradient(colors: [Color(UIColor(hex: 0xDCC195)), Color(UIColor(hex: 0xDCC195))],
                                          startPoint: .top, endPoint: .bottom)
     /// Золота волоскова рамка поверхні: світліша зверху-ліворуч, тихіша в середині.
-    static let edge = LinearGradient(stops: [
-        .init(color: Color(UIColor(hex: 0xDCC195)).opacity(0.5), location: 0),
-        .init(color: .white.opacity(0.07), location: 0.3),
-        .init(color: .white.opacity(0.04), location: 0.7),
-        .init(color: Color(UIColor(hex: 0xC7A46F)).opacity(0.32), location: 1),
-    ], startPoint: .topLeading, endPoint: .bottomTrailing)
+    static let edge = LinearGradient(colors: [.white.opacity(0.1), .white.opacity(0.1)], startPoint: .top, endPoint: .bottom)
 
     static func balance(_ size: CGFloat = 46) -> Font {
         .custom("Futura-Medium", size: size)
@@ -188,9 +183,7 @@ struct InkButton: ButtonStyle {
             .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(LinearGradient(colors: [Color(UIColor(hex: 0xFFE45A)), Theme.accent, Color(UIColor(hex: 0xE6B800))],
-                                       startPoint: .top, endPoint: .bottom).opacity(configuration.isPressed ? 0.82 : 1), in: .capsule)
-            .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 0.8))
+            .background(Theme.accent.opacity(configuration.isPressed ? 0.82 : 1), in: .capsule)
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
             .opacity(enabled ? 1 : 0.35)
     }

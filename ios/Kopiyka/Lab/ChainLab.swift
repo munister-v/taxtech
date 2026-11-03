@@ -87,7 +87,7 @@ struct ChainLab: View {
         HeroPanel(yellow: firstBroken == nil) {
             HeroCaption(L("Перевірка ланцюга").s)
             Text(firstBroken.map { L("Розрив із запису №\($0 + 1)").s } ?? L("Ланцюг цілий").s)
-                .font(.system(size: 26, weight: .semibold)).tracking(-0.4).padding(.top, 4)
+                .font(.display(30, .medium)).tracking(-0.6).padding(.top, 4)
         }
     }
 

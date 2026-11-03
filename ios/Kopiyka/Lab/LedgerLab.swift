@@ -41,7 +41,7 @@ struct LedgerLab: View {
         HeroPanel(yellow: balanced) {
             HeroCaption(L("Звірка").s)
             Text(balanced ? L("Суми збігаються").s : L("Розбіжність \(Format.short(abs(debits - credits)))").s)
-                .font(.system(size: 26, weight: .semibold)).tracking(-0.4).padding(.top, 4)
+                .font(.display(30, .medium)).tracking(-0.6).padding(.top, 4)
             HStack(spacing: 22) {
                 Stat(value: Format.short(debits), label: L("Σ списань").s)
                 Stat(value: Format.short(credits), label: L("Σ зарахувань").s)

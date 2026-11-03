@@ -12,8 +12,8 @@ struct ScreenTitle<Trailing: View>: View {
     var body: some View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
-                if let subtitle { Text(subtitle).font(.footnote.weight(.medium)).foregroundStyle(.secondary) }
-                Text(title).font(.display(30)).tracking(-0.6)
+                if let subtitle { Text(subtitle).caption() }
+                Text(title).font(.display(38, .medium)).tracking(-1)
             }
             Spacer()
             trailing
@@ -278,7 +278,7 @@ struct RowGroup<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if let title { Text(title).font(.title3.weight(.bold)) }
+            if let title { Text(title).font(.display(20, .medium)).tracking(-0.2) }
             VStack(spacing: 0) {
                 Group(subviews: content) { subviews in
                     ForEach(Array(subviews.enumerated()), id: \.offset) { i, v in

@@ -14,17 +14,17 @@ struct RootView: View {
     var body: some View {
         Group {
             TabView(selection: $selection) {
-                Tab(L("Лабораторія").s, systemImage: "flask", value: AppTab.lab) { LabHome() }
+                Tab("Studio", systemImage: "square.grid.2x2", value: AppTab.lab) { LabHome() }
                 if model.signedIn {
-                    Tab(L("Пісочниця").s, systemImage: "building.columns", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
-                    Tab(L("Операції").s, systemImage: "waveform.path.ecg", value: AppTab.operations) { bank { OperationsView() } }
-                    Tab(L("Картки").s, systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
-                    Tab(L("Податки").s, systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
+                    Tab("Piazza", systemImage: "square.stack.3d.up", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
+                    Tab("Registro", systemImage: "list.bullet.rectangle", value: AppTab.operations) { bank { OperationsView() } }
+                    Tab("Carte", systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
+                    Tab("Fisco", systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
                     if Build.shop {
                         Tab(L("Магазин").s, systemImage: "bag", value: AppTab.shop) { bank { ShopView() } }
                     }
                 } else {
-                    Tab(L("Пісочниця").s, systemImage: "building.columns", value: AppTab.overview) { SandboxGate() }
+                    Tab("Piazza", systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }
                 }
             }
             .tint(Theme.tint)

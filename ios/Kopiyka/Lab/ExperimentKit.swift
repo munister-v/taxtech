@@ -7,6 +7,9 @@ enum Experiment: String, CaseIterable, Identifiable, Hashable {
 
     var id: String { rawValue }
 
+    /// Порядковий номер для римської цифри.
+    var number: Int { (Self.allCases.firstIndex(of: self) ?? 0) + 1 }
+
     var title: String {
         switch self {
         case .router: L("Телефон чи сервер").s
@@ -205,6 +208,7 @@ struct ExperimentScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                header
                 SegmentBar(items: [(Part.theory, L("Теорія").s), (.lab, L("Дослід").s), (.quiz, L("Перевірка").s)], selection: $part)
                 switch part {
                 case .theory: theory
@@ -219,8 +223,14 @@ struct ExperimentScreen: View {
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
         .screenBackground()
-        .navigationTitle(experiment.title)
+        .navigationTitle("Esperimento \(String(format: "%02d", experiment.number))")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(experiment.title).font(.display(32, .medium)).tracking(-0.8).fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     private var theory: some View {

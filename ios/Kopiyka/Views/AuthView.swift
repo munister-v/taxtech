@@ -59,19 +59,15 @@ struct AuthView: View {
                 .rise(1)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("Fide,")
+                Text("Fidati,")
                     .foregroundStyle(.white)
-                Text("sed verifica.")
+                Text("ma verifica.")
                     .foregroundStyle(Theme.goldFill)
             }
             .font(.system(size: 44, weight: .medium)).tracking(-1)
             .lineLimit(1).minimumScaleFactor(0.7)
             .padding(.top, 30)
             .rise(2)
-            Text(L("Лабораторія").s)
-                .font(.subheadline).foregroundStyle(.white.opacity(0.55))
-                .padding(.top, 8)
-                .rise(3)
 
             if let status {
                 Label(status, systemImage: "exclamationmark.circle")

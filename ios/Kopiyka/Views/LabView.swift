@@ -22,7 +22,7 @@ struct LabView: View {
                 journal
             }
             .labForm()
-            .navigationTitle(L("Лабораторія").s)
+            .navigationTitle(L("Журнал рішень").s)
             .refreshable { await model.refresh() }
             .task { await model.refresh() }
             .toolbar {
