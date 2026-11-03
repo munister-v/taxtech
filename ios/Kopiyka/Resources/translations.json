@@ -6058,5 +6058,755 @@
 "it": "Nessun esecutore consentito per questi dati",
 "de": "Für diese Daten gibt es keinen erlaubten Ausführer",
 "ru": "Для этих данных нет разрешённого исполнителя"
+},
+"Платіж карткою": {
+"en": "Card payment",
+"it": "Pagamento con carta",
+"de": "Kartenzahlung",
+"ru": "Платёж картой"
+},
+"Авторизація": {
+"en": "Authorization",
+"it": "Autorizzazione",
+"de": "Autorisierung",
+"ru": "Авторизация"
+},
+"Великий переказ": {
+"en": "Large transfer",
+"it": "Bonifico elevato",
+"de": "Große Überweisung",
+"ru": "Крупный перевод"
+},
+"Перевірка антифроду": {
+"en": "Anti-fraud review",
+"it": "Verifica antifrode",
+"de": "Betrugsprüfung",
+"ru": "Проверка антифрода"
+},
+"Доступно": {
+"en": "Available",
+"it": "Disponibile",
+"de": "Verfügbar",
+"ru": "Доступно"
+},
+"Заморожено": {
+"en": "Frozen",
+"it": "Congelato",
+"de": "Eingefroren",
+"ru": "Заморожено"
+},
+"%@ год": {
+"en": "%@ h",
+"it": "%@ h",
+"de": "%@ Std.",
+"ru": "%@ ч"
+},
+"Годинник": {
+"en": "Clock",
+"it": "Orologio",
+"de": "Uhr",
+"ru": "Часы"
+},
+"Новий холд": {
+"en": "New hold",
+"it": "Nuovo blocco",
+"de": "Neue Reservierung",
+"ru": "Новый холд"
+},
+"Причина": {
+"en": "Reason",
+"it": "Motivo",
+"de": "Grund",
+"ru": "Причина"
+},
+"Спливе за %@ год": {
+"en": "Expires in %@ h",
+"it": "Scade tra %@ h",
+"de": "Läuft in %@ Std. ab",
+"ru": "Истечёт через %@ ч"
+},
+"Минуло +12 год": {
+"en": "+12 h passed",
+"it": "Passate +12 h",
+"de": "+12 Std. vergangen",
+"ru": "Прошло +12 ч"
+},
+"Активні холди": {
+"en": "Active holds",
+"it": "Blocchi attivi",
+"de": "Aktive Reservierungen",
+"ru": "Активные холды"
+},
+"%@, ще %@ год": {
+"en": "%@, %@ h left",
+"it": "%@, ancora %@ h",
+"de": "%@, noch %@ Std.",
+"ru": "%@, ещё %@ ч"
+},
+"Списати": {
+"en": "Capture",
+"it": "Addebita",
+"de": "Abbuchen",
+"ru": "Списать"
+},
+"Зняти": {
+"en": "Release",
+"it": "Rilascia",
+"de": "Freigeben",
+"ru": "Снять"
+},
+"Недостатньо доступних коштів": {
+"en": "Not enough available funds",
+"it": "Fondi disponibili insufficienti",
+"de": "Nicht genug verfügbares Guthaben",
+"ru": "Недостаточно доступных средств"
+},
+"Звірка": {
+"en": "Reconciliation",
+"it": "Riconciliazione",
+"de": "Abgleich",
+"ru": "Сверка"
+},
+"Суми збігаються": {
+"en": "The totals match",
+"it": "I totali coincidono",
+"de": "Die Summen stimmen überein",
+"ru": "Суммы совпадают"
+},
+"Розбіжність %@": {
+"en": "Mismatch of %@",
+"it": "Discrepanza di %@",
+"de": "Abweichung von %@",
+"ru": "Расхождение %@"
+},
+"Σ списань": {
+"en": "Σ debits",
+"it": "Σ addebiti",
+"de": "Σ Belastungen",
+"ru": "Σ списаний"
+},
+"Σ зарахувань": {
+"en": "Σ credits",
+"it": "Σ accrediti",
+"de": "Σ Gutschriften",
+"ru": "Σ зачислений"
+},
+"Рахунки": {
+"en": "Accounts",
+"it": "Conti",
+"de": "Konten",
+"ru": "Счета"
+},
+"Рахунок %@": {
+"en": "Account %@",
+"it": "Conto %@",
+"de": "Konto %@",
+"ru": "Счёт %@"
+},
+"Усього на рахунках": {
+"en": "Total on accounts",
+"it": "Totale sui conti",
+"de": "Gesamt auf den Konten",
+"ru": "Всего на счетах"
+},
+"Напрям": {
+"en": "Direction",
+"it": "Direzione",
+"de": "Richtung",
+"ru": "Направление"
+},
+"Записати переказ": {
+"en": "Post the transfer",
+"it": "Registra il bonifico",
+"de": "Überweisung buchen",
+"ru": "Записать перевод"
+},
+"Лише списання": {
+"en": "Debit only",
+"it": "Solo addebito",
+"de": "Nur Belastung",
+"ru": "Только списание"
+},
+"Проводки": {
+"en": "Entries",
+"it": "Registrazioni contabili",
+"de": "Buchungen",
+"ru": "Проводки"
+},
+"Ще немає": {
+"en": "None yet",
+"it": "Ancora nessuna",
+"de": "Noch keine",
+"ru": "Пока нет"
+},
+"З одним символом більше в посиланні: %@": {
+"en": "With one more character in the reference: %@",
+"it": "Con un carattere in più nel riferimento: %@",
+"de": "Mit einem Zeichen mehr in der Referenz: %@",
+"ru": "С одним символом больше в ссылке: %@"
+},
+"Документ": {
+"en": "Document",
+"it": "Documento",
+"de": "Dokument",
+"ru": "Документ"
+},
+"Посилання": {
+"en": "Reference",
+"it": "Riferimento",
+"de": "Referenz",
+"ru": "Ссылка"
+},
+"Власник": {
+"en": "Owner",
+"it": "Titolare",
+"de": "Inhaber",
+"ru": "Владелец"
+},
+"Ключ сервера": {
+"en": "Server key",
+"it": "Chiave del server",
+"de": "Server-Schlüssel",
+"ru": "Ключ сервера"
+},
+"Перевірка коду": {
+"en": "Code check",
+"it": "Verifica del codice",
+"de": "Codeprüfung",
+"ru": "Проверка кода"
+},
+"Код з документа": {
+"en": "Code from the document",
+"it": "Codice dal documento",
+"de": "Code aus dem Dokument",
+"ru": "Код с документа"
+},
+"Код справжній": {
+"en": "The code is genuine",
+"it": "Il codice è autentico",
+"de": "Der Code ist echt",
+"ru": "Код настоящий"
+},
+"Код не збігається": {
+"en": "The code does not match",
+"it": "Il codice non coincide",
+"de": "Der Code stimmt nicht überein",
+"ru": "Код не совпадает"
+},
+"Підробити символ": {
+"en": "Forge a character",
+"it": "Falsifica un carattere",
+"de": "Zeichen fälschen",
+"ru": "Подделать символ"
+},
+"Правильний код": {
+"en": "The right code",
+"it": "Il codice corretto",
+"de": "Der richtige Code",
+"ru": "Правильный код"
+},
+"Списань за цією оплатою: %@": {
+"en": "Charges for this payment: %@",
+"it": "Addebiti per questo pagamento: %@",
+"de": "Abbuchungen für diese Zahlung: %@",
+"ru": "Списаний за этот платёж: %@"
+},
+"Ключ ідемпотентності": {
+"en": "Idempotency key",
+"it": "Chiave di idempotenza",
+"de": "Idempotenzschlüssel",
+"ru": "Ключ идемпотентности"
+},
+"Губити відповідь на першу спробу": {
+"en": "Lose the response on the first try",
+"it": "Perdi la risposta al primo tentativo",
+"de": "Antwort beim ersten Versuch verlieren",
+"ru": "Терять ответ на первой попытке"
+},
+"Ключ": {
+"en": "Key",
+"it": "Chiave",
+"de": "Schlüssel",
+"ru": "Ключ"
+},
+"Клієнт": {
+"en": "Client",
+"it": "Client",
+"de": "Client",
+"ru": "Клиент"
+},
+"Ще нічого не надсилали": {
+"en": "Nothing sent yet",
+"it": "Ancora nulla inviato",
+"de": "Noch nichts gesendet",
+"ru": "Пока ничего не отправляли"
+},
+"Надіслати оплату": {
+"en": "Send the payment",
+"it": "Invia il pagamento",
+"de": "Zahlung senden",
+"ru": "Отправить платёж"
+},
+"Нова оплата": {
+"en": "New payment",
+"it": "Nuovo pagamento",
+"de": "Neue Zahlung",
+"ru": "Новый платёж"
+},
+"Журнал сервера": {
+"en": "Server log",
+"it": "Registro del server",
+"de": "Server-Protokoll",
+"ru": "Журнал сервера"
+},
+"Порожньо": {
+"en": "Empty",
+"it": "Vuoto",
+"de": "Leer",
+"ru": "Пусто"
+},
+"без ключа: виконано, списано %@": {
+"en": "no key: executed, charged %@",
+"it": "senza chiave: eseguito, addebitati %@",
+"de": "ohne Schlüssel: ausgeführt, %@ abgebucht",
+"ru": "без ключа: выполнено, списано %@"
+},
+"replay: ключ уже виконано, віддано збережену відповідь, списання немає": {
+"en": "replay: the key was already executed, the stored response is returned, no charge",
+"it": "replay: la chiave è già stata eseguita, restituita la risposta salvata, nessun addebito",
+"de": "replay: Schlüssel bereits ausgeführt, gespeicherte Antwort geliefert, keine Abbuchung",
+"ru": "replay: ключ уже выполнен, отдан сохранённый ответ, списания нет"
+},
+"conflict: ключ уже був з сумою %@, запит відхилено": {
+"en": "conflict: the key was already used with %@, request rejected",
+"it": "conflict: la chiave era già usata con %@, richiesta rifiutata",
+"de": "conflict: Schlüssel wurde schon mit %@ verwendet, Anfrage abgelehnt",
+"ru": "conflict: ключ уже был с суммой %@, запрос отклонён"
+},
+"new: ключ зарезервовано, виконано, списано %@": {
+"en": "new: key reserved, executed, charged %@",
+"it": "new: chiave riservata, eseguito, addebitati %@",
+"de": "new: Schlüssel reserviert, ausgeführt, %@ abgebucht",
+"ru": "new: ключ зарезервирован, выполнено, списано %@"
+},
+"Тайм-аут: відповіді немає. Спробуйте ще раз.": {
+"en": "Timeout: no response. Try again.",
+"it": "Timeout: nessuna risposta. Riprova.",
+"de": "Zeitüberschreitung: keine Antwort. Versuchen Sie es erneut.",
+"ru": "Тайм-аут: ответа нет. Попробуйте ещё раз."
+},
+"Помилка: конфлікт ключа": {
+"en": "Error: key conflict",
+"it": "Errore: conflitto di chiave",
+"de": "Fehler: Schlüsselkonflikt",
+"ru": "Ошибка: конфликт ключа"
+},
+"Оплату підтверджено": {
+"en": "Payment confirmed",
+"it": "Pagamento confermato",
+"de": "Zahlung bestätigt",
+"ru": "Платёж подтверждён"
+},
+"Подвійний запис": {
+"en": "Double entry",
+"it": "Partita doppia",
+"de": "Doppelte Buchführung",
+"ru": "Двойная запись"
+},
+"Ідемпотентність": {
+"en": "Idempotency",
+"it": "Idempotenza",
+"de": "Idempotenz",
+"ru": "Идемпотентность"
+},
+"Холд коштів": {
+"en": "Funds hold",
+"it": "Blocco dei fondi",
+"de": "Mittelreservierung",
+"ru": "Холд средств"
+},
+"Печатка документа": {
+"en": "Document seal",
+"it": "Sigillo del documento",
+"de": "Dokumentsiegel",
+"ru": "Печать документа"
+},
+"Кожен переказ - дві проводки": {
+"en": "Every transfer is two entries",
+"it": "Ogni bonifico è due registrazioni",
+"de": "Jede Überweisung sind zwei Buchungen",
+"ru": "Каждый перевод - две проводки"
+},
+"Повтор запиту не списує двічі": {
+"en": "A repeated request does not charge twice",
+"it": "Una richiesta ripetuta non addebita due volte",
+"de": "Eine Wiederholung bucht nicht doppelt ab",
+"ru": "Повтор запроса не списывает дважды"
+},
+"Заморожено, але ще не списано": {
+"en": "Frozen, but not yet charged",
+"it": "Congelato, ma non ancora addebitato",
+"de": "Eingefroren, aber noch nicht abgebucht",
+"ru": "Заморожено, но ещё не списано"
+},
+"Код, який не підробити без ключа": {
+"en": "A code that cannot be forged without the key",
+"it": "Un codice che non si falsifica senza la chiave",
+"de": "Ein Code, der ohne Schlüssel nicht zu fälschen ist",
+"ru": "Код, который нельзя подделать без ключа"
+},
+"Кожна операція породжує рівно дві проводки: списання (DEBIT) з рахунку відправника і зарахування (CREDIT) на рахунок отримувача.": {
+"en": "Every operation produces exactly two entries: a debit (DEBIT) from the sender’s account and a credit (CREDIT) to the recipient’s account.",
+"it": "Ogni operazione genera esattamente due registrazioni: un addebito (DEBIT) dal conto del mittente e un accredito (CREDIT) sul conto del destinatario.",
+"de": "Jeder Vorgang erzeugt genau zwei Buchungen: eine Belastung (DEBIT) vom Konto des Absenders und eine Gutschrift (CREDIT) auf dem Konto des Empfängers.",
+"ru": "Каждая операция порождает ровно две проводки: списание (DEBIT) со счёта отправителя и зачисление (CREDIT) на счёт получателя."
+},
+"Сума всіх списань завжди дорівнює сумі всіх зарахувань: гроші не з'являються й не зникають, а лише переходять.": {
+"en": "The sum of all debits always equals the sum of all credits: money neither appears nor disappears, it only moves.",
+"it": "La somma di tutti gli addebiti è sempre uguale alla somma di tutti gli accrediti: il denaro non compare né scompare, si sposta soltanto.",
+"de": "Die Summe aller Belastungen ist immer gleich der Summe aller Gutschriften: Geld entsteht nicht und verschwindet nicht, es wandert nur.",
+"ru": "Сумма всех списаний всегда равна сумме всех зачислений: деньги не появляются и не исчезают, а только переходят."
+},
+"Звірка порівнює ці суми за день. Якщо вони розійшлися, десь є проводка без пари, і банк це бачить.": {
+"en": "Reconciliation compares these sums for the day. If they diverge, some entry has no pair, and the bank sees it.",
+"it": "La riconciliazione confronta queste somme per la giornata. Se divergono, da qualche parte c’è una registrazione senza coppia e la banca lo vede.",
+"de": "Der Abgleich vergleicht diese Summen für den Tag. Weichen sie ab, gibt es irgendwo eine Buchung ohne Gegenstück, und die Bank sieht es.",
+"ru": "Сверка сравнивает эти суммы за день. Если они разошлись, где-то есть проводка без пары, и банк это видит."
+},
+"Тому переказ у банку атомарний: або записуються обидві проводки, або жодна.": {
+"en": "That is why a bank transfer is atomic: either both entries are written or neither.",
+"it": "Per questo il bonifico in banca è atomico: o si scrivono entrambe le registrazioni o nessuna.",
+"de": "Darum ist eine Überweisung atomar: Entweder werden beide Buchungen geschrieben oder keine.",
+"ru": "Поэтому перевод в банке атомарен: либо записываются обе проводки, либо ни одной."
+},
+"Мережа підводить: відповідь губиться, застосунок повторює запит, і та сама оплата може піти двічі.": {
+"en": "Networks fail: a response gets lost, the app repeats the request, and the same payment can go through twice.",
+"it": "La rete fallisce: la risposta si perde, l’app ripete la richiesta e lo stesso pagamento può passare due volte.",
+"de": "Netze versagen: Eine Antwort geht verloren, die App wiederholt die Anfrage, und dieselbe Zahlung kann doppelt laufen.",
+"ru": "Сеть подводит: ответ теряется, приложение повторяет запрос, и тот же платёж может пройти дважды."
+},
+"Клієнт додає до запиту ключ. Сервер резервує його, виконує операцію й зберігає відповідь під цим ключем.": {
+"en": "The client adds a key to the request. The server reserves it, performs the operation and stores the response under that key.",
+"it": "Il client aggiunge una chiave alla richiesta. Il server la riserva, esegue l’operazione e salva la risposta sotto quella chiave.",
+"de": "Der Client fügt der Anfrage einen Schlüssel hinzu. Der Server reserviert ihn, führt den Vorgang aus und speichert die Antwort unter diesem Schlüssel.",
+"ru": "Клиент добавляет к запросу ключ. Сервер резервирует его, выполняет операцию и сохраняет ответ под этим ключом."
+},
+"Повторний запит з тим самим ключем не виконується: сервер повертає збережену відповідь. Той самий ключ з іншою сумою - конфлікт, запит відхиляється.": {
+"en": "A repeated request with the same key is not executed: the server returns the stored response. The same key with a different amount is a conflict and the request is rejected.",
+"it": "Una richiesta ripetuta con la stessa chiave non viene eseguita: il server restituisce la risposta salvata. Stessa chiave con importo diverso è un conflitto e la richiesta viene rifiutata.",
+"de": "Eine wiederholte Anfrage mit demselben Schlüssel wird nicht ausgeführt: Der Server liefert die gespeicherte Antwort. Derselbe Schlüssel mit anderem Betrag ist ein Konflikt, die Anfrage wird abgelehnt.",
+"ru": "Повторный запрос с тем же ключом не выполняется: сервер возвращает сохранённый ответ. Тот же ключ с другой суммой - конфликт, запрос отклоняется."
+},
+"Ключ звіряється з відбитком SHA-256 тіла запиту, тому підміна суми не проходить.": {
+"en": "The key is checked against the SHA-256 fingerprint of the request body, so swapping the amount does not pass.",
+"it": "La chiave viene confrontata con l’impronta SHA-256 del corpo della richiesta, quindi cambiare l’importo non passa.",
+"de": "Der Schlüssel wird mit dem SHA-256-Fingerabdruck des Anfragekörpers abgeglichen, daher geht ein vertauschter Betrag nicht durch.",
+"ru": "Ключ сверяется с отпечатком SHA-256 тела запроса, поэтому подмена суммы не проходит."
+},
+"Перед платежем банк може заморозити суму: це авторизаційний холд. Гроші лишаються на рахунку, але недоступні.": {
+"en": "Before a payment the bank can freeze the amount: an authorization hold. The money stays on the account but is unavailable.",
+"it": "Prima di un pagamento la banca può congelare l’importo: è un blocco di autorizzazione. Il denaro resta sul conto ma non è disponibile.",
+"de": "Vor einer Zahlung kann die Bank den Betrag einfrieren: eine Autorisierungsreservierung. Das Geld bleibt auf dem Konto, ist aber nicht verfügbar.",
+"ru": "Перед платежом банк может заморозить сумму: это авторизационный холд. Деньги остаются на счёте, но недоступны."
+},
+"Доступний залишок - це баланс мінус сума активних холдів. Холд більший за доступне відхиляється.": {
+"en": "The available balance is the balance minus the sum of active holds. A hold larger than what is available is rejected.",
+"it": "Il saldo disponibile è il saldo meno la somma dei blocchi attivi. Un blocco superiore al disponibile viene rifiutato.",
+"de": "Das verfügbare Guthaben ist das Guthaben minus die Summe der aktiven Reservierungen. Eine Reservierung über dem Verfügbaren wird abgelehnt.",
+"ru": "Доступный остаток - это баланс минус сумма активных холдов. Холд больше доступного отклоняется."
+},
+"Холд завершується одним із трьох способів: CAPTURE проводить транзакцію, RELEASE знімає холд без списання, EXPIRE знімає його сам, коли спливає строк.": {
+"en": "A hold ends in one of three ways: CAPTURE posts the transaction, RELEASE lifts the hold without charging, EXPIRE lifts it by itself when the time runs out.",
+"it": "Un blocco termina in tre modi: CAPTURE registra la transazione, RELEASE toglie il blocco senza addebito, EXPIRE lo toglie da solo alla scadenza.",
+"de": "Eine Reservierung endet auf drei Arten: CAPTURE bucht die Transaktion, RELEASE hebt sie ohne Abbuchung auf, EXPIRE hebt sie von selbst auf, wenn die Frist abläuft.",
+"ru": "Холд завершается одним из трёх способов: CAPTURE проводит транзакцию, RELEASE снимает холд без списания, EXPIRE снимает его сам, когда истекает срок."
+},
+"Строк залежить від причини: платіж карткою 12 годин, авторизація 24, великий переказ 48, перевірка антифроду 72.": {
+"en": "The term depends on the reason: card payment 12 hours, authorization 24, large transfer 48, anti-fraud review 72.",
+"it": "La durata dipende dal motivo: pagamento con carta 12 ore, autorizzazione 24, bonifico elevato 48, verifica antifrode 72.",
+"de": "Die Frist hängt vom Grund ab: Kartenzahlung 12 Stunden, Autorisierung 24, große Überweisung 48, Betrugsprüfung 72.",
+"ru": "Срок зависит от причины: платёж картой 12 часов, авторизация 24, крупный перевод 48, проверка антифрода 72."
+},
+"Кожна квитанція й виписка має код виду TT-XXXX-XXXX-XXXX. Його друкують у PDF разом із QR-кодом.": {
+"en": "Every receipt and statement has a code like TT-XXXX-XXXX-XXXX. It is printed in the PDF together with a QR code.",
+"it": "Ogni ricevuta ed estratto ha un codice del tipo TT-XXXX-XXXX-XXXX. Viene stampato nel PDF insieme a un QR code.",
+"de": "Jeder Beleg und Kontoauszug hat einen Code der Form TT-XXXX-XXXX-XXXX. Er wird zusammen mit einem QR-Code ins PDF gedruckt.",
+"ru": "У каждой квитанции и выписки есть код вида TT-XXXX-XXXX-XXXX. Его печатают в PDF вместе с QR-кодом."
+},
+"Код виводиться з HMAC-SHA256 від виду документа, посилання й власника, ключем, який знає лише сервер.": {
+"en": "The code is derived with HMAC-SHA256 from the document kind, reference and owner, using a key only the server knows.",
+"it": "Il codice deriva da HMAC-SHA256 di tipo di documento, riferimento e titolare, con una chiave che conosce solo il server.",
+"de": "Der Code wird mit HMAC-SHA256 aus Dokumentart, Referenz und Inhaber abgeleitet, mit einem Schlüssel, den nur der Server kennt.",
+"ru": "Код выводится из HMAC-SHA256 от вида документа, ссылки и владельца ключом, который знает только сервер."
+},
+"Той самий документ завжди дає той самий код, а зміна навіть одного символу дає зовсім інший.": {
+"en": "The same document always gives the same code, while changing even one character gives a completely different one.",
+"it": "Lo stesso documento dà sempre lo stesso codice, mentre cambiare anche un solo carattere ne dà uno completamente diverso.",
+"de": "Dasselbe Dokument ergibt immer denselben Code, schon ein geändertes Zeichen ergibt einen völlig anderen.",
+"ru": "Тот же документ всегда даёт тот же код, а изменение даже одного символа даёт совсем другой."
+},
+"Публічна сторінка перевірки перераховує код і звіряє його: без ключа підібрати правильний код неможливо.": {
+"en": "The public verification page recomputes the code and compares it: without the key a correct code cannot be guessed.",
+"it": "La pagina pubblica di verifica ricalcola il codice e lo confronta: senza la chiave non si può indovinare un codice corretto.",
+"de": "Die öffentliche Prüfseite berechnet den Code neu und vergleicht ihn: Ohne Schlüssel lässt sich kein richtiger Code erraten.",
+"ru": "Публичная страница проверки пересчитывает код и сверяет его: без ключа подобрать правильный код невозможно."
+},
+"Скільки проводок породжує один переказ?": {
+"en": "How many entries does one transfer produce?",
+"it": "Quante registrazioni genera un bonifico?",
+"de": "Wie viele Buchungen erzeugt eine Überweisung?",
+"ru": "Сколько проводок порождает один перевод?"
+},
+"Одну": {
+"en": "One",
+"it": "Una",
+"de": "Eine",
+"ru": "Одну"
+},
+"Дві: списання й зарахування": {
+"en": "Two: a debit and a credit",
+"it": "Due: addebito e accredito",
+"de": "Zwei: Belastung und Gutschrift",
+"ru": "Две: списание и зачисление"
+},
+"Три": {
+"en": "Three",
+"it": "Tre",
+"de": "Drei",
+"ru": "Три"
+},
+"Що покаже звірка, якщо записано лише списання?": {
+"en": "What will reconciliation show if only the debit was posted?",
+"it": "Cosa mostrerà la riconciliazione se è stato registrato solo l’addebito?",
+"de": "Was zeigt der Abgleich, wenn nur die Belastung gebucht wurde?",
+"ru": "Что покажет сверка, если записано только списание?"
+},
+"Суми списань і зарахувань розійшлися": {
+"en": "The debit and credit totals diverge",
+"it": "I totali di addebiti e accrediti divergono",
+"de": "Die Summen von Belastungen und Gutschriften weichen ab",
+"ru": "Суммы списаний и зачислений разошлись"
+},
+"Усе гаразд": {
+"en": "Everything is fine",
+"it": "Tutto a posto",
+"de": "Alles in Ordnung",
+"ru": "Всё в порядке"
+},
+"Баланс стане нульовим": {
+"en": "The balance becomes zero",
+"it": "Il saldo diventa zero",
+"de": "Das Guthaben wird null",
+"ru": "Баланс станет нулевым"
+},
+"Чому переказ атомарний?": {
+"en": "Why is a transfer atomic?",
+"it": "Perché il bonifico è atomico?",
+"de": "Warum ist eine Überweisung atomar?",
+"ru": "Почему перевод атомарен?"
+},
+"Щоб було швидше": {
+"en": "To be faster",
+"it": "Per essere più veloce",
+"de": "Damit es schneller geht",
+"ru": "Чтобы было быстрее"
+},
+"Щоб менше місця займав": {
+"en": "To take less space",
+"it": "Per occupare meno spazio",
+"de": "Damit es weniger Platz braucht",
+"ru": "Чтобы занимал меньше места"
+},
+"Або записуються обидві проводки, або жодна": {
+"en": "Either both entries are written or neither",
+"it": "O si scrivono entrambe le registrazioni o nessuna",
+"de": "Entweder werden beide Buchungen geschrieben oder keine",
+"ru": "Либо записываются обе проводки, либо ни одной"
+},
+"Відповідь на оплату загубилась, клієнт повторив запит з тим самим ключем. Що робить сервер?": {
+"en": "The payment response was lost and the client repeated the request with the same key. What does the server do?",
+"it": "La risposta al pagamento si è persa e il client ha ripetuto la richiesta con la stessa chiave. Cosa fa il server?",
+"de": "Die Antwort auf die Zahlung ging verloren, der Client wiederholte die Anfrage mit demselben Schlüssel. Was tut der Server?",
+"ru": "Ответ на платёж потерялся, клиент повторил запрос с тем же ключом. Что делает сервер?"
+},
+"Списує ще раз": {
+"en": "Charges again",
+"it": "Addebita di nuovo",
+"de": "Bucht erneut ab",
+"ru": "Списывает ещё раз"
+},
+"Віддає збережену відповідь без нового списання": {
+"en": "Returns the stored response with no new charge",
+"it": "Restituisce la risposta salvata senza nuovo addebito",
+"de": "Liefert die gespeicherte Antwort ohne neue Abbuchung",
+"ru": "Отдаёт сохранённый ответ без нового списания"
+},
+"Блокує рахунок": {
+"en": "Blocks the account",
+"it": "Blocca il conto",
+"de": "Sperrt das Konto",
+"ru": "Блокирует счёт"
+},
+"Той самий ключ, але інша сума. Що буде?": {
+"en": "The same key but a different amount. What happens?",
+"it": "Stessa chiave ma importo diverso. Cosa succede?",
+"de": "Derselbe Schlüssel, aber ein anderer Betrag. Was passiert?",
+"ru": "Тот же ключ, но другая сумма. Что будет?"
+},
+"Стара сума замінюється": {
+"en": "The old amount is replaced",
+"it": "Il vecchio importo viene sostituito",
+"de": "Der alte Betrag wird ersetzt",
+"ru": "Старая сумма заменяется"
+},
+"Конфлікт: запит відхилено": {
+"en": "Conflict: the request is rejected",
+"it": "Conflitto: richiesta rifiutata",
+"de": "Konflikt: Anfrage abgelehnt",
+"ru": "Конфликт: запрос отклонён"
+},
+"Що буде без ключа при такому самому повторі?": {
+"en": "What happens without a key on the same repeat?",
+"it": "Cosa succede senza chiave con la stessa ripetizione?",
+"de": "Was passiert ohne Schlüssel bei derselben Wiederholung?",
+"ru": "Что будет без ключа при таком же повторе?"
+},
+"Списання пройде двічі": {
+"en": "The charge goes through twice",
+"it": "L’addebito passa due volte",
+"de": "Die Abbuchung läuft doppelt",
+"ru": "Списание пройдёт дважды"
+},
+"Сервер здогадається": {
+"en": "The server will guess",
+"it": "Il server indovinerà",
+"de": "Der Server errät es",
+"ru": "Сервер догадается"
+},
+"Баланс 1000, активний холд 300. Скільки доступно?": {
+"en": "Balance 1000, active hold 300. How much is available?",
+"it": "Saldo 1000, blocco attivo 300. Quanto è disponibile?",
+"de": "Guthaben 1000, aktive Reservierung 300. Wie viel ist verfügbar?",
+"ru": "Баланс 1000, активный холд 300. Сколько доступно?"
+},
+"Чим CAPTURE відрізняється від RELEASE?": {
+"en": "How does CAPTURE differ from RELEASE?",
+"it": "In cosa CAPTURE differisce da RELEASE?",
+"de": "Wie unterscheidet sich CAPTURE von RELEASE?",
+"ru": "Чем CAPTURE отличается от RELEASE?"
+},
+"Нічим": {
+"en": "It does not",
+"it": "In nulla",
+"de": "Gar nicht",
+"ru": "Ничем"
+},
+"RELEASE списує гроші": {
+"en": "RELEASE charges the money",
+"it": "RELEASE addebita il denaro",
+"de": "RELEASE bucht das Geld ab",
+"ru": "RELEASE списывает деньги"
+},
+"CAPTURE проводить транзакцію, RELEASE знімає холд без списання": {
+"en": "CAPTURE posts the transaction, RELEASE lifts the hold without charging",
+"it": "CAPTURE registra la transazione, RELEASE toglie il blocco senza addebito",
+"de": "CAPTURE bucht die Transaktion, RELEASE hebt die Reservierung ohne Abbuchung auf",
+"ru": "CAPTURE проводит транзакцию, RELEASE снимает холд без списания"
+},
+"Скільки живе холд платежу карткою?": {
+"en": "How long does a card payment hold last?",
+"it": "Quanto dura il blocco di un pagamento con carta?",
+"de": "Wie lange hält die Reservierung einer Kartenzahlung?",
+"ru": "Сколько живёт холд платежа картой?"
+},
+"12 годин": {
+"en": "12 hours",
+"it": "12 ore",
+"de": "12 Stunden",
+"ru": "12 часов"
+},
+"72 години": {
+"en": "72 hours",
+"it": "72 ore",
+"de": "72 Stunden",
+"ru": "72 часа"
+},
+"Безстроково": {
+"en": "Indefinitely",
+"it": "A tempo indeterminato",
+"de": "Unbefristet",
+"ru": "Бессрочно"
+},
+"Що потрібно, щоб випустити правильний код?": {
+"en": "What is needed to issue a correct code?",
+"it": "Cosa serve per emettere un codice corretto?",
+"de": "Was braucht man, um einen richtigen Code auszustellen?",
+"ru": "Что нужно, чтобы выпустить правильный код?"
+},
+"Лише номер квитанції": {
+"en": "Only the receipt number",
+"it": "Solo il numero della ricevuta",
+"de": "Nur die Belegnummer",
+"ru": "Только номер квитанции"
+},
+"Знати ключ сервера": {
+"en": "Knowing the server key",
+"it": "Conoscere la chiave del server",
+"de": "Den Server-Schlüssel kennen",
+"ru": "Знать ключ сервера"
+},
+"Я змінив один символ у посиланні документа. Що з кодом?": {
+"en": "I changed one character in the document reference. What happens to the code?",
+"it": "Ho cambiato un carattere nel riferimento del documento. Cosa succede al codice?",
+"de": "Ich habe ein Zeichen in der Dokumentreferenz geändert. Was passiert mit dem Code?",
+"ru": "Я изменил один символ в ссылке документа. Что с кодом?"
+},
+"Лишився тим самим": {
+"en": "It stays the same",
+"it": "Resta lo stesso",
+"de": "Bleibt gleich",
+"ru": "Остался тем же"
+},
+"Став коротшим": {
+"en": "It got shorter",
+"it": "Diventa più corto",
+"de": "Wird kürzer",
+"ru": "Стал короче"
+},
+"Став зовсім іншим": {
+"en": "It becomes completely different",
+"it": "Diventa completamente diverso",
+"de": "Wird völlig anders",
+"ru": "Стал совсем другим"
+},
+"Той самий документ випустили двічі. Які коди?": {
+"en": "The same document was issued twice. What are the codes?",
+"it": "Lo stesso documento è stato emesso due volte. Che codici ci sono?",
+"de": "Dasselbe Dokument wurde zweimal ausgestellt. Wie sind die Codes?",
+"ru": "Один и тот же документ выпустили дважды. Какие коды?"
+},
+"Однакові": {
+"en": "Identical",
+"it": "Identici",
+"de": "Identisch",
+"ru": "Одинаковые"
+},
+"Різні": {
+"en": "Different",
+"it": "Diversi",
+"de": "Verschieden",
+"ru": "Разные"
+},
+"Випадкові": {
+"en": "Random",
+"it": "Casuali",
+"de": "Zufällig",
+"ru": "Случайные"
+},
+"Довіряй, але перевіряй.": {
+"en": "Trust, but verify.",
+"it": "Fidati, ma verifica.",
+"de": "Vertraue, aber prüfe.",
+"ru": "Доверяй, но проверяй."
 }
 }

@@ -5,9 +5,10 @@ struct LabHome: View {
     @Environment(AppModel.self) private var model
     @State private var progress = LabProgress.shared
     @State private var journal = false
+    @State private var path: [Experiment] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     ScreenTitle(title: L("Лабораторія").s) { MarkView(height: 28, color: Theme.gold) }
@@ -37,6 +38,12 @@ struct LabHome: View {
             .navigationDestination(for: Experiment.self) { ExperimentScreen(experiment: $0) }
             .sheet(isPresented: $journal) { LabView().presentationDragIndicator(.visible) }
             .task { await model.refresh() }
+            #if DEBUG
+            // simctl launch з SIMCTL_CHILD_KOPIYKA_EXPERIMENT=ledger і SIMCTL_CHILD_KOPIYKA_PART=lab|quiz
+            .onAppear {
+                if let id = ProcessInfo.processInfo.environment["KOPIYKA_EXPERIMENT"], let e = Experiment(rawValue: id) { path = [e] }
+            }
+            #endif
         }
     }
 
