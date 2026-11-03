@@ -6814,5 +6814,515 @@
 "it": "Risultato",
 "de": "Ergebnis",
 "ru": "Результат"
+},
+"Оплата 120": {
+"en": "Payment 120",
+"it": "Pagamento 120",
+"de": "Zahlung 120",
+"ru": "Оплата 120"
+},
+"Переказ 40": {
+"en": "Transfer 40",
+"it": "Bonifico 40",
+"de": "Überweisung 40",
+"ru": "Перевод 40"
+},
+"Зарахування 500": {
+"en": "Deposit 500",
+"it": "Accredito 500",
+"de": "Gutschrift 500",
+"ru": "Зачисление 500"
+},
+"Оплата 75": {
+"en": "Payment 75",
+"it": "Pagamento 75",
+"de": "Zahlung 75",
+"ru": "Оплата 75"
+},
+"Корінь дерева": {
+"en": "Tree root",
+"it": "Radice dell'albero",
+"de": "Wurzel des Baums",
+"ru": "Корень дерева"
+},
+"Збігається із записаним": {
+"en": "Matches the saved one",
+"it": "Coincide con quella salvata",
+"de": "Stimmt mit der gespeicherten überein",
+"ru": "Совпадает с записанным"
+},
+"Змінився: записаний був %@": {
+"en": "Changed: the saved one was %@",
+"it": "Cambiata: quella salvata era %@",
+"de": "Geändert: gespeichert war %@",
+"ru": "Изменился: записанный был %@"
+},
+"Записати корінь": {
+"en": "Save the root",
+"it": "Salva la radice",
+"de": "Wurzel speichern",
+"ru": "Записать корень"
+},
+"Дерево": {
+"en": "Tree",
+"it": "Albero",
+"de": "Baum",
+"ru": "Дерево"
+},
+"Корінь": {
+"en": "Root",
+"it": "Radice",
+"de": "Wurzel",
+"ru": "Корень"
+},
+"Пари": {
+"en": "Pairs",
+"it": "Coppie",
+"de": "Paare",
+"ru": "Пары"
+},
+"Листки": {
+"en": "Leaves",
+"it": "Foglie",
+"de": "Blätter",
+"ru": "Листья"
+},
+"Доказ для запису": {
+"en": "Proof for the record",
+"it": "Prova per la registrazione",
+"de": "Beweis für den Eintrag",
+"ru": "Доказательство для записи"
+},
+"Сусідній листок": {
+"en": "Neighbouring leaf",
+"it": "Foglia vicina",
+"de": "Benachbartes Blatt",
+"ru": "Соседний лист"
+},
+"Сусідня пара": {
+"en": "Neighbouring pair",
+"it": "Coppia vicina",
+"de": "Benachbartes Paar",
+"ru": "Соседняя пара"
+},
+"Доказ вірний: корінь збігається": {
+"en": "Proof is valid: the root matches",
+"it": "Prova valida: la radice coincide",
+"de": "Beweis gültig: die Wurzel stimmt überein",
+"ru": "Доказательство верно: корень совпадает"
+},
+"Доказ не проходить: запис змінено": {
+"en": "Proof fails: the record was changed",
+"it": "La prova non passa: la registrazione è stata modificata",
+"de": "Beweis scheitert: der Eintrag wurde geändert",
+"ru": "Доказательство не проходит: запись изменена"
+},
+"Для доказу потрібні лише два відбитки, а не весь набір.": {
+"en": "The proof needs only two hashes, not the whole set.",
+"it": "Alla prova bastano due impronte, non l'intero insieme.",
+"de": "Für den Beweis genügen zwei Hashes, nicht der ganze Satz.",
+"ru": "Для доказательства нужны только два отпечатка, а не весь набор."
+},
+"Блок": {
+"en": "Block",
+"it": "Blocco",
+"de": "Block",
+"ru": "Блок"
+},
+"Доказ роботи є": {
+"en": "Proof of work found",
+"it": "Prova di lavoro trovata",
+"de": "Arbeitsnachweis gefunden",
+"ru": "Доказательство работы есть"
+},
+"Дані змінено, доказ втрачено": {
+"en": "Data changed, the proof is lost",
+"it": "Dati modificati, la prova è persa",
+"de": "Daten geändert, der Nachweis ist verloren",
+"ru": "Данные изменены, доказательство потеряно"
+},
+"Спроб пошуку": {
+"en": "Search attempts",
+"it": "Tentativi di ricerca",
+"de": "Suchversuche",
+"ru": "Попыток поиска"
+},
+"Час пошуку": {
+"en": "Search time",
+"it": "Tempo di ricerca",
+"de": "Suchzeit",
+"ru": "Время поиска"
+},
+"Хешів на перевірку": {
+"en": "Hashes to verify",
+"it": "Hash per la verifica",
+"de": "Hashes zur Prüfung",
+"ru": "Хешей на проверку"
+},
+"Nonce ще не знайдено": {
+"en": "No nonce found yet",
+"it": "Nonce non ancora trovato",
+"de": "Noch kein Nonce gefunden",
+"ru": "Nonce ещё не найден"
+},
+"Дані блока": {
+"en": "Block data",
+"it": "Dati del blocco",
+"de": "Blockdaten",
+"ru": "Данные блока"
+},
+"Нулів на початку": {
+"en": "Leading zeros",
+"it": "Zeri iniziali",
+"de": "Führende Nullen",
+"ru": "Нулей в начале"
+},
+"Шукаємо…": {
+"en": "Searching…",
+"it": "Ricerca…",
+"de": "Suche…",
+"ru": "Ищем…"
+},
+"Знайти nonce": {
+"en": "Find a nonce",
+"it": "Trova un nonce",
+"de": "Nonce finden",
+"ru": "Найти nonce"
+},
+"Ціна пошуку": {
+"en": "Cost of the search",
+"it": "Costo della ricerca",
+"de": "Kosten der Suche",
+"ru": "Цена поиска"
+},
+"у середньому %@ спроб": {
+"en": "about %@ attempts",
+"it": "circa %@ tentativi",
+"de": "im Mittel %@ Versuche",
+"ru": "в среднем %@ попыток"
+},
+"Кожен новий нуль робить пошук у 16 разів довшим, а перевірка лишається одним хешем.": {
+"en": "Each extra zero makes the search 16 times longer, while verification stays a single hash.",
+"it": "Ogni zero in più rende la ricerca 16 volte più lunga, mentre la verifica resta un solo hash.",
+"de": "Jede weitere Null macht die Suche 16-mal länger, die Prüfung bleibt ein einziger Hash.",
+"ru": "Каждый новый нуль делает поиск в 16 раз дольше, а проверка остаётся одним хешем."
+},
+"ПДФО %@%": {
+"en": "Personal income tax %@%",
+"it": "Imposta sul reddito %@%",
+"de": "Einkommensteuer %@%",
+"ru": "НДФЛ %@%"
+},
+"Військовий збір %@%": {
+"en": "Military levy %@%",
+"it": "Contributo militare %@%",
+"de": "Wehrabgabe %@%",
+"ru": "Военный сбор %@%"
+},
+"ЄСВ роботодавця %@%": {
+"en": "Employer social tax %@%",
+"it": "Contributi sociali del datore %@%",
+"de": "Sozialbeitrag des Arbeitgebers %@%",
+"ru": "ЕСВ работодателя %@%"
+},
+"Коштує роботодавцю": {
+"en": "Costs the employer",
+"it": "Costo per il datore di lavoro",
+"de": "Kosten für den Arbeitgeber",
+"ru": "Стоит работодателю"
+},
+"Нараховано на місяць": {
+"en": "Gross per month",
+"it": "Lordo al mese",
+"de": "Brutto pro Monat",
+"ru": "Начислено в месяц"
+},
+"База ЄСВ не більша за 20 мінімальних зарплат: %@.": {
+"en": "The social tax base is capped at 20 minimum wages: %@.",
+"it": "La base dei contributi è limitata a 20 salari minimi: %@.",
+"de": "Die Beitragsbasis ist auf 20 Mindestlöhne begrenzt: %@.",
+"ru": "База ЕСВ не больше 20 минимальных зарплат: %@."
+},
+"Куди йдуть гроші": {
+"en": "Where the money goes",
+"it": "Dove vanno i soldi",
+"de": "Wohin das Geld fließt",
+"ru": "Куда уходят деньги"
+},
+"Ставки навчальні, для 2026 року. Для реальних розрахунків звіряйтеся з Податковим кодексом.": {
+"en": "The rates are for teaching, for 2026. For real calculations check the Tax Code.",
+"it": "Le aliquote sono didattiche, per il 2026. Per calcoli reali consulta il Codice tributario.",
+"de": "Die Sätze dienen der Lehre und gelten für 2026. Für echte Berechnungen gilt das Steuergesetzbuch.",
+"ru": "Ставки учебные, на 2026 год. Для реальных расчётов сверяйтесь с Налоговым кодексом."
+},
+"Дерево Меркла": {
+"en": "Merkle tree",
+"it": "Albero di Merkle",
+"de": "Merkle-Baum",
+"ru": "Дерево Меркла"
+},
+"Доказ роботи": {
+"en": "Proof of work",
+"it": "Prova di lavoro",
+"de": "Arbeitsnachweis",
+"ru": "Доказательство работы"
+},
+"Зарплата й податки": {
+"en": "Salary and taxes",
+"it": "Stipendio e imposte",
+"de": "Gehalt und Steuern",
+"ru": "Зарплата и налоги"
+},
+"Один відбиток на багато записів": {
+"en": "One hash for many records",
+"it": "Un'impronta per molte registrazioni",
+"de": "Ein Hash für viele Einträge",
+"ru": "Один отпечаток на много записей"
+},
+"Дорого знайти, дешево перевірити": {
+"en": "Costly to find, cheap to verify",
+"it": "Costoso da trovare, economico da verificare",
+"de": "Teuer zu finden, billig zu prüfen",
+"ru": "Дорого найти, дёшево проверить"
+},
+"Скільки на руки й скільки коштує роботодавцю": {
+"en": "Take-home pay and the cost to the employer",
+"it": "Netto in busta e costo per il datore di lavoro",
+"de": "Netto auf die Hand und Kosten für den Arbeitgeber",
+"ru": "Сколько на руки и сколько стоит работодателю"
+},
+"Записи ділять на пари й беруть відбиток SHA-256 від кожної пари, потім від пар відбитків, і так до одного: це корінь дерева.": {
+"en": "Records are split into pairs and each pair gets a SHA-256 hash, then the hashes are paired and hashed again, down to one: the root of the tree.",
+"it": "Le registrazioni si dividono in coppie e di ogni coppia si calcola l'impronta SHA-256, poi delle coppie di impronte, fino a una sola: la radice dell'albero.",
+"de": "Die Einträge werden zu Paaren gruppiert, von jedem Paar wird ein SHA-256-Hash gebildet, dann von den Hash-Paaren, bis nur einer bleibt: die Wurzel des Baums.",
+"ru": "Записи делят на пары и берут отпечаток SHA-256 от каждой пары, затем от пар отпечатков, и так до одного: это корень дерева."
+},
+"Корінь - короткий підпис усього набору. Зміна будь-якого запису змінює корінь.": {
+"en": "The root is a short signature of the whole set. Changing any record changes the root.",
+"it": "La radice è una breve firma dell'intero insieme. Modificare una registrazione cambia la radice.",
+"de": "Die Wurzel ist eine kurze Signatur des ganzen Satzes. Jede Änderung eines Eintrags ändert die Wurzel.",
+"ru": "Корень - короткая подпись всего набора. Изменение любой записи меняет корень."
+},
+"Щоб довести, що запис є в наборі, не треба показувати все: досить сусідніх відбитків на шляху до кореня. Для мільйона записів це лише 20 хешів.": {
+"en": "To prove a record is in the set you need not show everything: the neighbouring hashes on the way to the root are enough. For a million records that is only 20 hashes.",
+"it": "Per provare che una registrazione è nell'insieme non serve mostrare tutto: bastano le impronte vicine lungo il percorso verso la radice. Per un milione di registrazioni sono solo 20 hash.",
+"de": "Um zu beweisen, dass ein Eintrag im Satz liegt, muss man nicht alles zeigen: Die benachbarten Hashes auf dem Weg zur Wurzel genügen. Bei einer Million Einträgen sind das nur 20 Hashes.",
+"ru": "Чтобы доказать, что запись есть в наборе, не нужно показывать всё: достаточно соседних отпечатков на пути к корню. Для миллиона записей это всего 20 хешей."
+},
+"Так блокчейн дає легкому клієнту перевірити свою транзакцію, не завантажуючи весь блок.": {
+"en": "This is how a blockchain lets a light client verify its transaction without downloading the whole block.",
+"it": "Così una blockchain permette a un client leggero di verificare la propria transazione senza scaricare l'intero blocco.",
+"de": "So kann ein Light-Client in einer Blockchain seine Transaktion prüfen, ohne den ganzen Block zu laden.",
+"ru": "Так блокчейн даёт лёгкому клиенту проверить свою транзакцию, не загружая весь блок."
+},
+"Блок має дані й число nonce. Треба знайти таке nonce, щоб відбиток SHA-256 від даних і nonce починався із заданої кількості нулів.": {
+"en": "A block has data and a number called nonce. Find a nonce such that the SHA-256 hash of the data and nonce starts with a given number of zeros.",
+"it": "Un blocco ha dei dati e un numero detto nonce. Bisogna trovare un nonce tale che l'impronta SHA-256 di dati e nonce inizi con un dato numero di zeri.",
+"de": "Ein Block hat Daten und eine Zahl namens Nonce. Gesucht ist ein Nonce, sodass der SHA-256-Hash von Daten und Nonce mit einer vorgegebenen Zahl von Nullen beginnt.",
+"ru": "У блока есть данные и число nonce. Нужно найти такое nonce, чтобы отпечаток SHA-256 от данных и nonce начинался с заданного числа нулей."
+},
+"Передбачити відбиток неможливо, тому лишається перебирати: кожен додатковий нуль робить пошук у 16 разів довшим.": {
+"en": "The hash cannot be predicted, so all that is left is trying: every extra zero makes the search 16 times longer.",
+"it": "L'impronta non si può prevedere, quindi non resta che provare: ogni zero in più rende la ricerca 16 volte più lunga.",
+"de": "Den Hash kann man nicht vorhersagen, also bleibt nur Probieren: Jede zusätzliche Null macht die Suche 16-mal länger.",
+"ru": "Предсказать отпечаток невозможно, поэтому остаётся перебирать: каждый дополнительный нуль делает поиск в 16 раз дольше."
+},
+"Перевірка коштує один хеш: хто бачить дані й nonce, перераховує відбиток і порівнює.": {
+"en": "Verification costs one hash: whoever sees the data and nonce recomputes the hash and compares.",
+"it": "La verifica costa un solo hash: chi vede dati e nonce ricalcola l'impronta e confronta.",
+"de": "Die Prüfung kostet einen Hash: Wer Daten und Nonce sieht, berechnet den Hash neu und vergleicht.",
+"ru": "Проверка стоит один хеш: кто видит данные и nonce, пересчитывает отпечаток и сравнивает."
+},
+"Тому змінити старий блок дорого: треба заново знайти nonce для нього й для всіх наступних.": {
+"en": "So altering an old block is costly: a new nonce must be found for it and for every block after it.",
+"it": "Per questo modificare un blocco vecchio è costoso: serve un nuovo nonce per lui e per tutti i successivi.",
+"de": "Darum ist es teuer, einen alten Block zu ändern: Für ihn und alle folgenden muss ein neuer Nonce gefunden werden.",
+"ru": "Поэтому менять старый блок дорого: нужно заново искать nonce для него и для всех следующих."
+},
+"З нарахованої зарплати утримують ПДФО 18% і військовий збір 5%. Решта - сума на руки.": {
+"en": "Personal income tax of 18% and a military levy of 5% are withheld from the gross salary. The rest is take-home pay.",
+"it": "Dallo stipendio lordo si trattengono l'imposta sul reddito del 18% e il contributo militare del 5%. Il resto è il netto in busta.",
+"de": "Vom Bruttogehalt werden 18 % Einkommensteuer und 5 % Wehrabgabe einbehalten. Der Rest ist der Nettobetrag.",
+"ru": "Из начисленной зарплаты удерживают НДФЛ 18% и военный сбор 5%. Остальное - сумма на руки."
+},
+"ЄСВ 22% платить роботодавець понад зарплату: працівник його не бачить, а для роботодавця це додаткова вартість.": {
+"en": "The employer pays the 22% social tax on top of the salary: the employee does not see it, but for the employer it is an extra cost.",
+"it": "I contributi sociali del 22% li paga il datore di lavoro oltre allo stipendio: il lavoratore non li vede, ma per il datore sono un costo in più.",
+"de": "Den Sozialbeitrag von 22 % zahlt der Arbeitgeber zusätzlich zum Gehalt: Der Arbeitnehmer sieht ihn nicht, für den Arbeitgeber sind es Mehrkosten.",
+"ru": "ЕСВ 22% платит работодатель сверх зарплаты: работник его не видит, а для работодателя это дополнительная стоимость."
+},
+"База ЄСВ обмежена: не більше 20 мінімальних зарплат на місяць.": {
+"en": "The social tax base is capped at 20 minimum wages a month.",
+"it": "La base dei contributi è limitata a 20 salari minimi al mese.",
+"de": "Die Beitragsbasis ist auf 20 Mindestlöhne im Monat begrenzt.",
+"ru": "База ЕСВ ограничена: не больше 20 минимальных зарплат в месяц."
+},
+"Ставки в досліді навчальні, для 2026 року. Для реальних розрахунків звіряйтеся з Податковим кодексом.": {
+"en": "The rates in this experiment are for teaching, for 2026. For real calculations check the Tax Code.",
+"it": "Le aliquote di questo esperimento sono didattiche, per il 2026. Per calcoli reali consulta il Codice tributario.",
+"de": "Die Sätze in diesem Experiment dienen der Lehre und gelten für 2026. Für echte Berechnungen gilt das Steuergesetzbuch.",
+"ru": "Ставки в опыте учебные, на 2026 год. Для реальных расчётов сверяйтесь с Налоговым кодексом."
+},
+"Ви змінили один запис із чотирьох. Що буде з коренем?": {
+"en": "You changed one record out of four. What happens to the root?",
+"it": "Hai modificato una registrazione su quattro. Cosa succede alla radice?",
+"de": "Sie haben einen von vier Einträgen geändert. Was passiert mit der Wurzel?",
+"ru": "Вы изменили одну запись из четырёх. Что будет с корнем?"
+},
+"Зміниться": {
+"en": "It changes",
+"it": "Cambia",
+"de": "Sie ändert sich",
+"ru": "Изменится"
+},
+"Стане нульовим": {
+"en": "It becomes zero",
+"it": "Diventa zero",
+"de": "Sie wird null",
+"ru": "Станет нулевым"
+},
+"Скільки відбитків потрібно для доказу запису в наборі з 8 записів?": {
+"en": "How many hashes does a proof need for a record in a set of 8?",
+"it": "Quante impronte servono per la prova di una registrazione in un insieme di 8?",
+"de": "Wie viele Hashes braucht der Beweis für einen Eintrag in einem Satz von 8?",
+"ru": "Сколько отпечатков нужно для доказательства записи в наборе из 8 записей?"
+},
+"Один": {
+"en": "One",
+"it": "Uno",
+"de": "Einen",
+"ru": "Один"
+},
+"Вісім": {
+"en": "Eight",
+"it": "Otto",
+"de": "Acht",
+"ru": "Восемь"
+},
+"Що перевіряє той, хто отримав доказ?": {
+"en": "What does the one who received the proof check?",
+"it": "Cosa verifica chi riceve la prova?",
+"de": "Was prüft, wer den Beweis erhalten hat?",
+"ru": "Что проверяет тот, кто получил доказательство?"
+},
+"Що корінь, перерахований із доказу, збігається з відомим": {
+"en": "That the root recomputed from the proof matches the known one",
+"it": "Che la radice ricalcolata dalla prova coincida con quella nota",
+"de": "Dass die aus dem Beweis berechnete Wurzel mit der bekannten übereinstimmt",
+"ru": "Что корень, пересчитанный из доказательства, совпадает с известным"
+},
+"Що всі записи на місці": {
+"en": "That all records are in place",
+"it": "Che tutte le registrazioni siano al loro posto",
+"de": "Dass alle Einträge vorhanden sind",
+"ru": "Что все записи на месте"
+},
+"Що сервер працює": {
+"en": "That the server is running",
+"it": "Che il server funzioni",
+"de": "Dass der Server läuft",
+"ru": "Что сервер работает"
+},
+"Складність виросла на один нуль. Скільки спроб тепер потрібно в середньому?": {
+"en": "The difficulty rose by one zero. How many attempts are needed on average now?",
+"it": "La difficoltà è salita di uno zero. Quanti tentativi servono ora in media?",
+"de": "Die Schwierigkeit stieg um eine Null. Wie viele Versuche sind jetzt im Mittel nötig?",
+"ru": "Сложность выросла на один нуль. Сколько попыток теперь нужно в среднем?"
+},
+"У 2 рази більше": {
+"en": "2 times more",
+"it": "2 volte di più",
+"de": "2-mal so viele",
+"ru": "В 2 раза больше"
+},
+"У 16 разів більше": {
+"en": "16 times more",
+"it": "16 volte di più",
+"de": "16-mal so viele",
+"ru": "В 16 раз больше"
+},
+"Стільки ж": {
+"en": "The same",
+"it": "Altrettanti",
+"de": "Gleich viele",
+"ru": "Столько же"
+},
+"Скільки хешів потрібно, щоб перевірити знайдене nonce?": {
+"en": "How many hashes are needed to verify the nonce that was found?",
+"it": "Quanti hash servono per verificare il nonce trovato?",
+"de": "Wie viele Hashes braucht man, um den gefundenen Nonce zu prüfen?",
+"ru": "Сколько хешей нужно, чтобы проверить найденное nonce?"
+},
+"Стільки, скільки було спроб": {
+"en": "As many as there were attempts",
+"it": "Tanti quanti i tentativi",
+"de": "So viele, wie es Versuche gab",
+"ru": "Столько, сколько было попыток"
+},
+"Жодного": {
+"en": "None",
+"it": "Nessuno",
+"de": "Keinen",
+"ru": "Ни одного"
+},
+"Ви змінили дані блока після пошуку nonce. Що з відбитком?": {
+"en": "You changed the block data after finding the nonce. What about the hash?",
+"it": "Hai modificato i dati del blocco dopo aver trovato il nonce. E l'impronta?",
+"de": "Sie haben die Blockdaten nach der Nonce-Suche geändert. Was passiert mit dem Hash?",
+"ru": "Вы изменили данные блока после поиска nonce. Что с отпечатком?"
+},
+"Став іншим, нулі на початку зазвичай зникли": {
+"en": "It is different and the leading zeros are usually gone",
+"it": "È diversa e gli zeri iniziali di solito sono spariti",
+"de": "Er ist anders und die führenden Nullen sind meist weg",
+"ru": "Стал другим, нули в начале обычно исчезли"
+},
+"Нараховано 10 000. Скільки на руки?": {
+"en": "Gross 10 000. How much is take-home?",
+"it": "Lordo 10 000. Quanto resta in busta?",
+"de": "Brutto 10 000. Wie viel ist netto?",
+"ru": "Начислено 10 000. Сколько на руки?"
+},
+"Хто платить ЄСВ із зарплати?": {
+"en": "Who pays the social tax on a salary?",
+"it": "Chi paga i contributi sociali sullo stipendio?",
+"de": "Wer zahlt den Sozialbeitrag auf das Gehalt?",
+"ru": "Кто платит ЕСВ с зарплаты?"
+},
+"Працівник із зарплати": {
+"en": "The employee out of the salary",
+"it": "Il lavoratore dallo stipendio",
+"de": "Der Arbeitnehmer aus dem Gehalt",
+"ru": "Работник из зарплаты"
+},
+"Роботодавець понад зарплату": {
+"en": "The employer on top of the salary",
+"it": "Il datore di lavoro oltre allo stipendio",
+"de": "Der Arbeitgeber zusätzlich zum Gehalt",
+"ru": "Работодатель сверх зарплаты"
+},
+"Банк": {
+"en": "The bank",
+"it": "La banca",
+"de": "Die Bank",
+"ru": "Банк"
+},
+"Скільки коштує роботодавцю зарплата 10 000 разом з ЄСВ?": {
+"en": "How much does a salary of 10 000 cost the employer including the social tax?",
+"it": "Quanto costa al datore di lavoro uno stipendio di 10 000 con i contributi?",
+"de": "Wie viel kostet ein Gehalt von 10 000 den Arbeitgeber samt Sozialbeitrag?",
+"ru": "Сколько стоит работодателю зарплата 10 000 вместе с ЕСВ?"
+},
+"Лишиться тим самим": {
+"en": "It stays the same",
+"it": "Resta uguale",
+"de": "Sie bleibt gleich",
+"ru": "Останется тем же"
+},
+"Нулів: %@": {
+"en": "Zeros: %@",
+"it": "Zeri: %@",
+"de": "Nullen: %@",
+"ru": "Нулей: %@"
 }
 }
