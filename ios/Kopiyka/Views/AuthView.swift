@@ -6,6 +6,8 @@ import SwiftUI
 /// Форми не тут: вхід відкривається аркушем, реєстрація - кроками по одному питанню.
 struct AuthView: View {
     @Environment(AppModel.self) private var model
+    /// Є, коли вхід відкрито зсередини застосунку: тоді його можна закрити й повернутися до лабораторії.
+    var onClose: (() -> Void)?
     @State private var status: String?
     @State private var working = false
     @State private var nonce = ""
@@ -38,6 +40,14 @@ struct AuthView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(L("Адреса сервера").s)
+                if let onClose {
+                    Button(action: onClose) {
+                        Image(systemName: "xmark").font(.system(size: 14, weight: .semibold)).foregroundStyle(.white.opacity(0.75))
+                            .frame(width: 40, height: 40)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(L("Закрити").s)
+                }
             }
             .padding(.top, 4)
             .rise(0)

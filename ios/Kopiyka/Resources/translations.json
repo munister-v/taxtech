@@ -5200,5 +5200,863 @@
 "it": "a Roma.",
 "de": "in Rom.",
 "ru": "в Рим."
+},
+"Кава": {
+"en": "Coffee",
+"it": "Caffè",
+"de": "Kaffee",
+"ru": "Кофе"
+},
+"Переказ Ірині": {
+"en": "Transfer to Iryna",
+"it": "Bonifico a Iryna",
+"de": "Überweisung an Iryna",
+"ru": "Перевод Ирине"
+},
+"Метро": {
+"en": "Metro",
+"it": "Metro",
+"de": "U-Bahn",
+"ru": "Метро"
+},
+"Книжки": {
+"en": "Books",
+"it": "Libri",
+"de": "Bücher",
+"ru": "Книги"
+},
+"Записи": {
+"en": "Records",
+"it": "Registrazioni",
+"de": "Einträge",
+"ru": "Записи"
+},
+"Записаний окремо": {
+"en": "Stored separately",
+"it": "Salvato a parte",
+"de": "Separat gespeichert",
+"ru": "Записан отдельно"
+},
+"Останній відбиток при записі": {
+"en": "Last fingerprint when written",
+"it": "Ultima impronta alla scrittura",
+"de": "Letzter Fingerabdruck beim Schreiben",
+"ru": "Последний отпечаток при записи"
+},
+"Дані дають той самий відбиток": {
+"en": "The data gives the same fingerprint",
+"it": "I dati danno la stessa impronta",
+"de": "Die Daten ergeben denselben Fingerabdruck",
+"ru": "Данные дают тот же отпечаток"
+},
+"Інший відбиток: дані змінено": {
+"en": "Different fingerprint: data was changed",
+"it": "Impronta diversa: i dati sono stati modificati",
+"de": "Anderer Fingerabdruck: Daten wurden geändert",
+"ru": "Другой отпечаток: данные изменены"
+},
+"Перевірка ланцюга": {
+"en": "Chain check",
+"it": "Verifica della catena",
+"de": "Kettenprüfung",
+"ru": "Проверка цепочки"
+},
+"Розрив із запису №%@": {
+"en": "Broken from record No. %@",
+"it": "Rottura dalla registrazione n. %@",
+"de": "Bruch ab Eintrag Nr. %@",
+"ru": "Разрыв с записи №%@"
+},
+"Ланцюг цілий": {
+"en": "Chain intact",
+"it": "Catena integra",
+"de": "Kette intakt",
+"ru": "Цепочка цела"
+},
+"Запис": {
+"en": "Record",
+"it": "Registrazione",
+"de": "Eintrag",
+"ru": "Запись"
+},
+"Перерахувати відбитки": {
+"en": "Recompute fingerprints",
+"it": "Ricalcola le impronte",
+"de": "Fingerabdrücke neu berechnen",
+"ru": "Пересчитать отпечатки"
+},
+"Додати запис": {
+"en": "Add record",
+"it": "Aggiungi registrazione",
+"de": "Eintrag hinzufügen",
+"ru": "Добавить запись"
+},
+"Скинути": {
+"en": "Reset",
+"it": "Reimposta",
+"de": "Zurücksetzen",
+"ru": "Сбросить"
+},
+"Для цих умов немає дозволеного виконавця": {
+"en": "No allowed executor for these conditions",
+"it": "Nessun esecutore consentito in queste condizioni",
+"de": "Für diese Bedingungen gibt es keinen erlaubten Ausführer",
+"ru": "Для этих условий нет разрешённого исполнителя"
+},
+"Умови": {
+"en": "Conditions",
+"it": "Condizioni",
+"de": "Bedingungen",
+"ru": "Условия"
+},
+"Задача": {
+"en": "Task",
+"it": "Compito",
+"de": "Aufgabe",
+"ru": "Задача"
+},
+"Вайфай": {
+"en": "Wi-Fi",
+"it": "Wi-Fi",
+"de": "WLAN",
+"ru": "Вайфай"
+},
+"Мобільна": {
+"en": "Cellular",
+"it": "Cellulare",
+"de": "Mobil",
+"ru": "Мобильная"
+},
+"Немає": {
+"en": "None",
+"it": "Nessuna",
+"de": "Keine",
+"ru": "Нет"
+},
+"Норма": {
+"en": "Normal",
+"it": "Normale",
+"de": "Normal",
+"ru": "Норма"
+},
+"Теплий": {
+"en": "Warm",
+"it": "Caldo",
+"de": "Warm",
+"ru": "Тёплый"
+},
+"Гарячий": {
+"en": "Hot",
+"it": "Molto caldo",
+"de": "Heiß",
+"ru": "Горячий"
+},
+"Імовірність відключення світла": {
+"en": "Power outage probability",
+"it": "Probabilità di blackout",
+"de": "Wahrscheinlichkeit eines Stromausfalls",
+"ru": "Вероятность отключения света"
+},
+"Рішення": {
+"en": "Decision",
+"it": "Decisione",
+"de": "Entscheidung",
+"ru": "Решение"
+},
+"Варіанти": {
+"en": "Options",
+"it": "Opzioni",
+"de": "Optionen",
+"ru": "Варианты"
+},
+"Карта рішень": {
+"en": "Decision map",
+"it": "Mappa delle decisioni",
+"de": "Entscheidungskarte",
+"ru": "Карта решений"
+},
+"Z → %@": {
+"en": "Z → %@",
+"it": "Z → %@",
+"de": "Z → %@",
+"ru": "Z → %@"
+},
+"↑ відключення %@%": {
+"en": "↑ outage %@%",
+"it": "↑ blackout %@%",
+"de": "↑ Ausfall %@%",
+"ru": "↑ отключение %@%"
+},
+"ціль %@, +%@ до найкращого": {
+"en": "objective %@, +%@ to the best",
+"it": "obiettivo %@, +%@ rispetto al migliore",
+"de": "Ziel %@, +%@ zum besten",
+"ru": "цель %@, +%@ до лучшего"
+},
+"Каскад": {
+"en": "Cascade",
+"it": "Cascata",
+"de": "Kaskade",
+"ru": "Каскад"
+},
+"Трохи нижче порогу": {
+"en": "Just under the limit",
+"it": "Appena sotto la soglia",
+"de": "Knapp unter der Schwelle",
+"ru": "Чуть ниже порога"
+},
+"Кругла сума": {
+"en": "Round amount",
+"it": "Importo tondo",
+"de": "Runder Betrag",
+"ru": "Круглая сумма"
+},
+"Оренда": {
+"en": "Rent",
+"it": "Affitto",
+"de": "Miete",
+"ru": "Аренда"
+},
+"Підозрілі слова": {
+"en": "Suspicious words",
+"it": "Parole sospette",
+"de": "Verdächtige Wörter",
+"ru": "Подозрительные слова"
+},
+"терміново крипто": {
+"en": "urgent crypto",
+"it": "crypto urgente",
+"de": "dringend Krypto",
+"ru": "срочно крипто"
+},
+"Усе разом": {
+"en": "Everything at once",
+"it": "Tutto insieme",
+"de": "Alles zusammen",
+"ru": "Всё вместе"
+},
+"Залишок, TAX": {
+"en": "Balance, TAX",
+"it": "Saldo, TAX",
+"de": "Guthaben, TAX",
+"ru": "Остаток, TAX"
+},
+"Необов'язково": {
+"en": "Optional",
+"it": "Facoltativo",
+"de": "Optional",
+"ru": "Необязательно"
+},
+"Низький ризик": {
+"en": "Low risk",
+"it": "Rischio basso",
+"de": "Niedriges Risiko",
+"ru": "Низкий риск"
+},
+"Середній ризик": {
+"en": "Medium risk",
+"it": "Rischio medio",
+"de": "Mittleres Risiko",
+"ru": "Средний риск"
+},
+"Високий ризик": {
+"en": "High risk",
+"it": "Rischio alto",
+"de": "Hohes Risiko",
+"ru": "Высокий риск"
+},
+"Критичний ризик": {
+"en": "Critical risk",
+"it": "Rischio critico",
+"de": "Kritisches Risiko",
+"ru": "Критический риск"
+},
+"Що спрацювало": {
+"en": "What fired",
+"it": "Cosa è scattato",
+"de": "Was ausgelöst hat",
+"ru": "Что сработало"
+},
+"Жодне правило": {
+"en": "No rule",
+"it": "Nessuna regola",
+"de": "Keine Regel",
+"ru": "Ни одно правило"
+},
+"Невпевненість телефона": {
+"en": "Phone uncertainty",
+"it": "Incertezza del telefono",
+"de": "Unsicherheit des Telefons",
+"ru": "Неуверенность телефона"
+},
+"Поріг каскаду": {
+"en": "Cascade threshold",
+"it": "Soglia della cascata",
+"de": "Kaskadenschwelle",
+"ru": "Порог каскада"
+},
+"Телефон засумнівався: переказ пішов би на сервер, де є історія й граф.": {
+"en": "The phone is unsure: the transfer would go to the server, which has history and the graph.",
+"it": "Il telefono ha un dubbio: il bonifico andrebbe al server, che ha storico e grafo.",
+"de": "Das Telefon ist unsicher: Die Überweisung ginge an den Server, der Verlauf und Graph hat.",
+"ru": "Телефон засомневался: перевод ушёл бы на сервер, где есть история и граф."
+},
+"Телефон упевнений: відповідь лишається на ньому.": {
+"en": "The phone is confident: the answer stays on it.",
+"it": "Il telefono è sicuro: la risposta resta su di esso.",
+"de": "Das Telefon ist sicher: Die Antwort bleibt darauf.",
+"ru": "Телефон уверен: ответ остаётся на нём."
+},
+"Телефон чи сервер": {
+"en": "Phone or server",
+"it": "Telefono o server",
+"de": "Telefon oder Server",
+"ru": "Телефон или сервер"
+},
+"Антифрод на телефоні": {
+"en": "Anti-fraud on the phone",
+"it": "Antifrode sul telefono",
+"de": "Betrugsschutz auf dem Telefon",
+"ru": "Антифрод на телефоне"
+},
+"Хеш-ланцюг": {
+"en": "Hash chain",
+"it": "Catena di hash",
+"de": "Hash-Kette",
+"ru": "Хеш-цепочка"
+},
+"Де рахувати: на пристрої чи в хмарі": {
+"en": "Where to compute: on the device or in the cloud",
+"it": "Dove calcolare: sul dispositivo o nel cloud",
+"de": "Wo rechnen: auf dem Gerät oder in der Cloud",
+"ru": "Где считать: на устройстве или в облаке"
+},
+"Бал ризику переказу без мережі": {
+"en": "A transfer risk score without a network",
+"it": "Punteggio di rischio del bonifico senza rete",
+"de": "Risikowert einer Überweisung ohne Netz",
+"ru": "Балл риска перевода без сети"
+},
+"Чому історію не підмінити непомітно": {
+"en": "Why history cannot be altered unnoticed",
+"it": "Perché lo storico non si altera di nascosto",
+"de": "Warum sich der Verlauf nicht unbemerkt ändern lässt",
+"ru": "Почему историю не подменить незаметно"
+},
+"Кожну ІІ-задачу можна виконати на телефоні або на сервері. Сервер точніший, телефон приватний і працює без мережі.": {
+"en": "Every AI task can run on the phone or on the server. The server is more accurate; the phone is private and works without a network.",
+"it": "Ogni compito di IA può essere eseguito sul telefono o sul server. Il server è più preciso, il telefono è privato e funziona senza rete.",
+"de": "Jede KI-Aufgabe kann auf dem Telefon oder auf dem Server laufen. Der Server ist genauer, das Telefon ist privat und funktioniert ohne Netz.",
+"ru": "Каждую ИИ-задачу можно выполнить на телефоне или на сервере. Сервер точнее, телефон приватен и работает без сети."
+},
+"Вибір залежить від стану пристрою: мережі, заряду, нагріву й імовірності відключення світла. Радіо стільникової мережі ще кілька секунд витрачає енергію після передачі.": {
+"en": "The choice depends on the device state: network, charge, temperature and the chance of a power outage. The cellular radio keeps spending energy for several seconds after a transfer.",
+"it": "La scelta dipende dallo stato del dispositivo: rete, carica, temperatura e probabilità di blackout. La radio cellulare continua a consumare energia per alcuni secondi dopo la trasmissione.",
+"de": "Die Wahl hängt vom Gerätezustand ab: Netz, Ladung, Temperatur und Wahrscheinlichkeit eines Stromausfalls. Das Mobilfunkmodul verbraucht nach der Übertragung noch einige Sekunden Energie.",
+"ru": "Выбор зависит от состояния устройства: сети, заряда, нагрева и вероятности отключения света. Радио сотовой сети ещё несколько секунд тратит энергию после передачи."
+},
+"EdgeRouter рахує для кожного варіанта V·(t − 4·q) + Z·E, де t - час у секундах, q - якість, E - енергія, Z - черга перевитрати. Перемагає найменше значення.": {
+"en": "EdgeRouter computes V·(t − 4·q) + Z·E for each option, where t is time in seconds, q is quality, E is energy and Z is the overspend queue. The smallest value wins.",
+"it": "EdgeRouter calcola per ogni opzione V·(t − 4·q) + Z·E, dove t è il tempo in secondi, q la qualità, E l’energia e Z la coda di sforamento. Vince il valore più piccolo.",
+"de": "EdgeRouter berechnet für jede Option V·(t − 4·q) + Z·E, wobei t die Zeit in Sekunden, q die Qualität, E die Energie und Z die Überverbrauchswarteschlange ist. Der kleinste Wert gewinnt.",
+"ru": "EdgeRouter считает для каждого варианта V·(t − 4·q) + Z·E, где t - время в секундах, q - качество, E - энергия, Z - очередь перерасхода. Побеждает наименьшее значение."
+},
+"Чутливість даних - жорстке обмеження, а не вага: чек і помічник ідуть на сервер лише після маскування особистих даних.": {
+"en": "Data sensitivity is a hard constraint, not a weight: the receipt and the assistant go to the server only after personal data is masked.",
+"it": "La sensibilità dei dati è un vincolo rigido, non un peso: scontrino e assistente vanno al server solo dopo aver mascherato i dati personali.",
+"de": "Datenempfindlichkeit ist eine harte Grenze, kein Gewicht: Beleg und Assistent gehen erst nach dem Maskieren persönlicher Daten an den Server.",
+"ru": "Чувствительность данных - жёсткое ограничение, а не вес: чек и помощник уходят на сервер только после маскирования личных данных."
+},
+"Layer 1 бачить лише поля самого переказу: суму, залишок і призначення. Без історії й графа він працює на телефоні за 2 мс.": {
+"en": "Layer 1 sees only the fields of the transfer itself: amount, balance and description. With no history or graph it runs on the phone in 2 ms.",
+"it": "Il Layer 1 vede solo i campi del bonifico: importo, saldo e causale. Senza storico né grafo gira sul telefono in 2 ms.",
+"de": "Layer 1 sieht nur die Felder der Überweisung selbst: Betrag, Guthaben und Verwendungszweck. Ohne Verlauf und Graph läuft es in 2 ms auf dem Telefon.",
+"ru": "Layer 1 видит только поля самого перевода: сумму, остаток и назначение. Без истории и графа он работает на телефоне за 2 мс."
+},
+"П'ять нечітких правил: сума трохи нижче порогу, кругла сума, підозрілі слова, майже весь залишок і сума впритул під порогом звітності. Кожне дає бали, один внесок не більший за 70.": {
+"en": "Five fuzzy rules: an amount just under a limit, a round amount, suspicious words, almost the whole balance, and an amount right under the reporting threshold. Each adds points; one contribution is capped at 70.",
+"it": "Cinque regole sfumate: importo appena sotto la soglia, importo tondo, parole sospette, quasi tutto il saldo e importo subito sotto la soglia di segnalazione. Ognuna dà punti, un contributo non supera 70.",
+"de": "Fünf unscharfe Regeln: Betrag knapp unter einer Schwelle, runder Betrag, verdächtige Wörter, fast das ganze Guthaben und ein Betrag knapp unter der Meldeschwelle. Jede gibt Punkte, ein Beitrag ist auf 70 begrenzt.",
+"ru": "Пять нечётких правил: сумма чуть ниже порога, круглая сумма, подозрительные слова, почти весь остаток и сумма вплотную под порогом отчётности. Каждое даёт баллы, один вклад не больше 70."
+},
+"Кілька спрацювань разом додають кореляційний бонус. Бал 0-25 - низький ризик, 26-50 - середній, 51-75 - високий, від 76 - критичний.": {
+"en": "Several hits together add a correlation bonus. Score 0-25 is low risk, 26-50 medium, 51-75 high, 76 and up critical.",
+"it": "Più attivazioni insieme aggiungono un bonus di correlazione. Punteggio 0-25 rischio basso, 26-50 medio, 51-75 alto, da 76 critico.",
+"de": "Mehrere Treffer zusammen geben einen Korrelationsbonus. Wert 0-25 niedriges Risiko, 26-50 mittleres, 51-75 hohes, ab 76 kritisch.",
+"ru": "Несколько срабатываний вместе добавляют корреляционный бонус. Балл 0-25 - низкий риск, 26-50 - средний, 51-75 - высокий, от 76 - критический."
+},
+"Історію, швидкість і граф одержувачів бачить лише сервер. Тому в сірій зоні телефон не впевнений, і каскад передає переказ на сервер.": {
+"en": "Only the server sees history, speed and the recipient graph. So in the grey zone the phone is unsure and the cascade hands the transfer to the server.",
+"it": "Solo il server vede storico, velocità e grafo dei destinatari. Perciò nella zona grigia il telefono è incerto e la cascata passa il bonifico al server.",
+"de": "Nur der Server sieht Verlauf, Geschwindigkeit und den Empfängergraphen. Deshalb ist das Telefon in der Grauzone unsicher und die Kaskade gibt die Überweisung an den Server.",
+"ru": "Историю, скорость и граф получателей видит только сервер. Поэтому в серой зоне телефон не уверен, и каскад передаёт перевод на сервер."
+},
+"Кожен запис має відбиток SHA-256 від своїх даних і відбитка попереднього запису. Перший запис спирається на нулі.": {
+"en": "Each record has a SHA-256 fingerprint of its own data and of the previous record’s fingerprint. The first record rests on zeros.",
+"it": "Ogni registrazione ha un’impronta SHA-256 dei propri dati e dell’impronta della precedente. La prima si basa su zeri.",
+"de": "Jeder Eintrag hat einen SHA-256-Fingerabdruck aus seinen Daten und dem Fingerabdruck des vorigen Eintrags. Der erste stützt sich auf Nullen.",
+"ru": "Каждая запись имеет отпечаток SHA-256 от своих данных и отпечатка предыдущей записи. Первая запись опирается на нули."
+},
+"Змінити одну суму - значить змінити її відбиток, а разом із ним відбитки всіх наступних записів.": {
+"en": "Changing one amount means changing its fingerprint, and with it the fingerprints of all later records.",
+"it": "Cambiare un importo significa cambiarne l’impronta e, con essa, quelle di tutte le registrazioni successive.",
+"de": "Einen Betrag zu ändern heißt, seinen Fingerabdruck zu ändern und damit die aller folgenden Einträge.",
+"ru": "Изменить одну сумму - значит изменить её отпечаток, а вместе с ним отпечатки всех следующих записей."
+},
+"Банк веде такий ланцюг для переказів кожного рахунку. Перевірка рахує його наново й показує першу розірвану ланку.": {
+"en": "The bank keeps such a chain for each account’s transfers. The check recomputes it and shows the first broken link.",
+"it": "La banca tiene una catena simile per i bonifici di ogni conto. La verifica la ricalcola e mostra il primo anello rotto.",
+"de": "Die Bank führt eine solche Kette für die Überweisungen jedes Kontos. Die Prüfung berechnet sie neu und zeigt das erste gebrochene Glied.",
+"ru": "Банк ведёт такую цепочку для переводов каждого счёта. Проверка считает её заново и показывает первое разорванное звено."
+},
+"Перерахувати все після правки можна, але тоді зміниться й останній відбиток. Якщо його записано окремо, підміна видна.": {
+"en": "You can recompute everything after an edit, but then the last fingerprint changes too. If it was stored separately, the tampering shows.",
+"it": "Si può ricalcolare tutto dopo una modifica, ma allora cambia anche l’ultima impronta. Se era salvata a parte, la manomissione si vede.",
+"de": "Man kann nach einer Änderung alles neu berechnen, aber dann ändert sich auch der letzte Fingerabdruck. Wurde er separat gespeichert, fällt die Manipulation auf.",
+"ru": "Пересчитать всё после правки можно, но тогда изменится и последний отпечаток. Если он записан отдельно, подмена видна."
+},
+"Чек, стільникова мережа, заряд 60%. Де його краще розпізнати?": {
+"en": "A receipt, cellular network, 60% charge. Where is it better to recognise it?",
+"it": "Scontrino, rete cellulare, carica 60%. Dove conviene riconoscerlo?",
+"de": "Beleg, Mobilfunk, Ladung 60 %. Wo erkennt man ihn besser?",
+"ru": "Чек, сотовая сеть, заряд 60%. Где его лучше распознать?"
+},
+"На сервері": {
+"en": "On the server",
+"it": "Sul server",
+"de": "Auf dem Server",
+"ru": "На сервере"
+},
+"Однаково": {
+"en": "The same",
+"it": "Uguale",
+"de": "Gleich",
+"ru": "Одинаково"
+},
+"Що відбувається, коли черга перевитрати енергії Z росте?": {
+"en": "What happens as the energy overspend queue Z grows?",
+"it": "Cosa succede quando la coda di sforamento energetico Z cresce?",
+"de": "Was passiert, wenn die Energie-Überverbrauchswarteschlange Z wächst?",
+"ru": "Что происходит, когда очередь перерасхода энергии Z растёт?"
+},
+"Метод завжди обирає сервер": {
+"en": "The method always picks the server",
+"it": "Il metodo sceglie sempre il server",
+"de": "Die Methode wählt immer den Server",
+"ru": "Метод всегда выбирает сервер"
+},
+"Вага енергії в цілі росте, метод тяжіє до дешевших варіантів": {
+"en": "The energy weight in the objective grows, so the method leans to cheaper options",
+"it": "Il peso dell’energia nell’obiettivo cresce, il metodo tende alle opzioni più economiche",
+"de": "Das Energiegewicht im Ziel wächst, die Methode neigt zu günstigeren Optionen",
+"ru": "Вес энергии в цели растёт, метод тяготеет к более дешёвым вариантам"
+},
+"Нічого": {
+"en": "Nothing",
+"it": "Niente",
+"de": "Nichts",
+"ru": "Ничего"
+},
+"Чому текст чека не йде на сервер без маскування?": {
+"en": "Why does the receipt text not go to the server unmasked?",
+"it": "Perché il testo dello scontrino non va al server senza mascheramento?",
+"de": "Warum geht der Belegtext nicht unmaskiert an den Server?",
+"ru": "Почему текст чека не уходит на сервер без маскирования?"
+},
+"Так швидше": {
+"en": "It is faster",
+"it": "È più veloce",
+"de": "Es ist schneller",
+"ru": "Так быстрее"
+},
+"Сервер не вміє читати чеки": {
+"en": "The server cannot read receipts",
+"it": "Il server non sa leggere gli scontrini",
+"de": "Der Server kann keine Belege lesen",
+"ru": "Сервер не умеет читать чеки"
+},
+"Чутливість даних - жорстке обмеження": {
+"en": "Data sensitivity is a hard constraint",
+"it": "La sensibilità dei dati è un vincolo rigido",
+"de": "Datenempfindlichkeit ist eine harte Grenze",
+"ru": "Чувствительность данных - жёсткое ограничение"
+},
+"Переказ 4 900 TAX при залишку 100 000. Яке правило спрацює?": {
+"en": "A transfer of 4,900 TAX with a balance of 100,000. Which rule fires?",
+"it": "Bonifico di 4.900 TAX con saldo 100.000. Quale regola scatta?",
+"de": "Überweisung von 4.900 TAX bei einem Guthaben von 100.000. Welche Regel greift?",
+"ru": "Перевод 4 900 TAX при остатке 100 000. Какое правило сработает?"
+},
+"Сума трохи нижче порогу": {
+"en": "An amount just under the limit",
+"it": "Importo appena sotto la soglia",
+"de": "Betrag knapp unter der Schwelle",
+"ru": "Сумма чуть ниже порога"
+},
+"Підозріла кругла сума": {
+"en": "Suspiciously round amount",
+"it": "Importo tondo sospetto",
+"de": "Verdächtig runder Betrag",
+"ru": "Подозрительно круглая сумма"
+},
+"Чого Layer 1 на телефоні не бачить?": {
+"en": "What does Layer 1 on the phone not see?",
+"it": "Cosa non vede il Layer 1 sul telefono?",
+"de": "Was sieht Layer 1 auf dem Telefon nicht?",
+"ru": "Чего Layer 1 на телефоне не видит?"
+},
+"Історії переказів і графа одержувачів": {
+"en": "Transfer history and the recipient graph",
+"it": "Lo storico dei bonifici e il grafo dei destinatari",
+"de": "Überweisungsverlauf und den Empfängergraphen",
+"ru": "Истории переводов и графа получателей"
+},
+"Суми": {
+"en": "The amount",
+"it": "L’importo",
+"de": "Den Betrag",
+"ru": "Суммы"
+},
+"Чому в сірій зоні телефон звертається до сервера?": {
+"en": "Why does the phone turn to the server in the grey zone?",
+"it": "Perché nella zona grigia il telefono si rivolge al server?",
+"de": "Warum wendet sich das Telefon in der Grauzone an den Server?",
+"ru": "Почему в серой зоне телефон обращается к серверу?"
+},
+"Телефон не вміє рахувати бали": {
+"en": "The phone cannot compute scores",
+"it": "Il telefono non sa calcolare i punteggi",
+"de": "Das Telefon kann keine Werte berechnen",
+"ru": "Телефон не умеет считать баллы"
+},
+"Сервер має історію й граф, телефон - лише поля переказу": {
+"en": "The server has history and the graph; the phone has only the transfer fields",
+"it": "Il server ha storico e grafo, il telefono solo i campi del bonifico",
+"de": "Der Server hat Verlauf und Graph, das Telefon nur die Felder der Überweisung",
+"ru": "У сервера есть история и граф, у телефона - только поля перевода"
+},
+"Так вимагає мережа": {
+"en": "The network requires it",
+"it": "Lo richiede la rete",
+"de": "Das Netz verlangt es",
+"ru": "Так требует сеть"
+},
+"Ви змінили суму в третьому записі. Що перестане збігатися?": {
+"en": "You changed the amount in the third record. What stops matching?",
+"it": "Hai cambiato l’importo nella terza registrazione. Cosa smette di combaciare?",
+"de": "Sie haben den Betrag im dritten Eintrag geändert. Was passt nicht mehr?",
+"ru": "Вы изменили сумму в третьей записи. Что перестанет совпадать?"
+},
+"Лише відбиток третього запису": {
+"en": "Only the third record’s fingerprint",
+"it": "Solo l’impronta della terza registrazione",
+"de": "Nur der Fingerabdruck des dritten Eintrags",
+"ru": "Только отпечаток третьей записи"
+},
+"Відбиток третього й усіх наступних": {
+"en": "The third record’s fingerprint and all later ones",
+"it": "L’impronta della terza e di tutte le successive",
+"de": "Der Fingerabdruck des dritten und aller folgenden",
+"ru": "Отпечаток третьей и всех следующих"
+},
+"Навіщо зберігати останній відбиток окремо?": {
+"en": "Why store the last fingerprint separately?",
+"it": "Perché salvare a parte l’ultima impronta?",
+"de": "Warum den letzten Fingerabdruck separat speichern?",
+"ru": "Зачем хранить последний отпечаток отдельно?"
+},
+"Щоб перерахований ланцюг видав себе іншим відбитком": {
+"en": "So a recomputed chain gives itself away with a different fingerprint",
+"it": "Perché una catena ricalcolata si tradisca con un’impronta diversa",
+"de": "Damit sich eine neu berechnete Kette durch einen anderen Fingerabdruck verrät",
+"ru": "Чтобы пересчитанная цепочка выдала себя другим отпечатком"
+},
+"Щоб заощадити місце": {
+"en": "To save space",
+"it": "Per risparmiare spazio",
+"de": "Um Platz zu sparen",
+"ru": "Чтобы сэкономить место"
+},
+"Для швидкості": {
+"en": "For speed",
+"it": "Per la velocità",
+"de": "Für die Geschwindigkeit",
+"ru": "Для скорости"
+},
+"На що спирається перший запис ланцюга?": {
+"en": "What does the first record of the chain rest on?",
+"it": "Su cosa si basa la prima registrazione della catena?",
+"de": "Worauf stützt sich der erste Eintrag der Kette?",
+"ru": "На что опирается первая запись цепочки?"
+},
+"На випадкове число": {
+"en": "A random number",
+"it": "Un numero casuale",
+"de": "Eine Zufallszahl",
+"ru": "На случайное число"
+},
+"На відбиток із самих нулів": {
+"en": "A fingerprint of all zeros",
+"it": "Un’impronta di soli zeri",
+"de": "Einen Fingerabdruck aus lauter Nullen",
+"ru": "На отпечаток из одних нулей"
+},
+"На пароль": {
+"en": "A password",
+"it": "Una password",
+"de": "Ein Passwort",
+"ru": "На пароль"
+},
+"Теорія": {
+"en": "Theory",
+"it": "Teoria",
+"de": "Theorie",
+"ru": "Теория"
+},
+"Дослід": {
+"en": "Experiment",
+"it": "Esperimento",
+"de": "Experiment",
+"ru": "Опыт"
+},
+"Перевірка": {
+"en": "Check",
+"it": "Verifica",
+"de": "Prüfung",
+"ru": "Проверка"
+},
+"До досліду": {
+"en": "To the experiment",
+"it": "All’esperimento",
+"de": "Zum Experiment",
+"ru": "К опыту"
+},
+"Пройдено": {
+"en": "Passed",
+"it": "Superato",
+"de": "Bestanden",
+"ru": "Пройдено"
+},
+"Ще раз": {
+"en": "Once more",
+"it": "Ancora",
+"de": "Noch einmal",
+"ru": "Ещё раз"
+},
+"Спробувати знову": {
+"en": "Try again",
+"it": "Riprova",
+"de": "Erneut versuchen",
+"ru": "Попробовать снова"
+},
+"Найкращий результат: %@ / %@": {
+"en": "Best result: %@ / %@",
+"it": "Miglior risultato: %@ / %@",
+"de": "Bestes Ergebnis: %@ / %@",
+"ru": "Лучший результат: %@ / %@"
+},
+"Дані": {
+"en": "Data",
+"it": "Dati",
+"de": "Daten",
+"ru": "Данные"
+},
+"Журнал рішень": {
+"en": "Decision log",
+"it": "Registro delle decisioni",
+"de": "Entscheidungsprotokoll",
+"ru": "Журнал решений"
+},
+"Досліди": {
+"en": "Experiments",
+"it": "Esperimenti",
+"de": "Experimente",
+"ru": "Опыты"
+},
+"з %@ пройдено": {
+"en": "of %@ passed",
+"it": "su %@ superati",
+"de": "von %@ bestanden",
+"ru": "из %@ пройдено"
+},
+"Пісочниця": {
+"en": "Sandbox",
+"it": "Sandbox",
+"de": "Sandbox",
+"ru": "Песочница"
+},
+"Рахунок і картки": {
+"en": "Account and cards",
+"it": "Conto e carte",
+"de": "Konto und Karten",
+"ru": "Счёт и карты"
+},
+"Перекази з перевіркою антифроду": {
+"en": "Transfers with anti-fraud checks",
+"it": "Bonifici con controllo antifrode",
+"de": "Überweisungen mit Betrugsprüfung",
+"ru": "Переводы с проверкой антифрода"
+},
+"Операції в хеш-ланцюзі": {
+"en": "Operations in a hash chain",
+"it": "Operazioni in una catena di hash",
+"de": "Vorgänge in einer Hash-Kette",
+"ru": "Операции в хеш-цепочке"
+},
+"Токен TAX - навчальна одиниця, а не гроші.": {
+"en": "The TAX token is a learning unit, not money.",
+"it": "Il token TAX è un’unità didattica, non denaro.",
+"de": "Der TAX-Token ist eine Lerneinheit, kein Geld.",
+"ru": "Токен TAX - учебная единица, а не деньги."
+},
+"Завжди телефон": {
+"en": "Always the phone",
+"it": "Sempre il telefono",
+"de": "Immer das Telefon",
+"ru": "Всегда телефон"
+},
+"Завжди сервер": {
+"en": "Always the server",
+"it": "Sempre il server",
+"de": "Immer der Server",
+"ru": "Всегда сервер"
+},
+"Прості правила": {
+"en": "Simple rules",
+"it": "Regole semplici",
+"de": "Einfache Regeln",
+"ru": "Простые правила"
+},
+"Метод EdgeRouter": {
+"en": "EdgeRouter method",
+"it": "Metodo EdgeRouter",
+"de": "EdgeRouter-Methode",
+"ru": "Метод EdgeRouter"
+},
+"На сервері без особистих даних": {
+"en": "On the server without personal data",
+"it": "Sul server senza dati personali",
+"de": "Auf dem Server ohne persönliche Daten",
+"ru": "На сервере без личных данных"
+},
+"Телефон, за сумніву - сервер": {
+"en": "Phone, if in doubt - server",
+"it": "Telefono, nel dubbio - server",
+"de": "Telefon, im Zweifel - Server",
+"ru": "Телефон, при сомнении - сервер"
+},
+"Телефон, за сумніву - сервер без особистих даних": {
+"en": "Phone, if in doubt - server without personal data",
+"it": "Telefono, nel dubbio - server senza dati personali",
+"de": "Telefon, im Zweifel - Server ohne persönliche Daten",
+"ru": "Телефон, при сомнении - сервер без личных данных"
+},
+"Каскад вигідніший за одне місце": {
+"en": "A cascade beats a single place",
+"it": "La cascata conviene più di un solo posto",
+"de": "Eine Kaskade ist besser als ein einzelner Ort",
+"ru": "Каскад выгоднее одного места"
+},
+"Найвигідніше на телефоні": {
+"en": "Best on the phone",
+"it": "Più conveniente sul telefono",
+"de": "Am günstigsten auf dem Telefon",
+"ru": "Выгоднее всего на телефоне"
+},
+"Найвигідніше на сервері": {
+"en": "Best on the server",
+"it": "Più conveniente sul server",
+"de": "Am günstigsten auf dem Server",
+"ru": "Выгоднее всего на сервере"
+},
+"Сервер, особисті дані замасковано": {
+"en": "Server, personal data masked",
+"it": "Server, dati personali mascherati",
+"de": "Server, persönliche Daten maskiert",
+"ru": "Сервер, личные данные замаскированы"
+},
+"Очікується відключення світла": {
+"en": "A power outage is expected",
+"it": "È previsto un blackout",
+"de": "Ein Stromausfall wird erwartet",
+"ru": "Ожидается отключение света"
+},
+"Телефон перегрітий": {
+"en": "The phone is overheated",
+"it": "Il telefono è surriscaldato",
+"de": "Das Telefon ist überhitzt",
+"ru": "Телефон перегрет"
+},
+"Немає мережі - лише телефон": {
+"en": "No network - phone only",
+"it": "Nessuna rete - solo telefono",
+"de": "Kein Netz - nur Telefon",
+"ru": "Нет сети - только телефон"
+},
+"Приватні дані не залишають телефон": {
+"en": "Private data never leaves the phone",
+"it": "I dati privati non lasciano il telefono",
+"de": "Private Daten verlassen das Telefon nie",
+"ru": "Приватные данные не покидают телефон"
+},
+"Стратегія: каскад": {
+"en": "Strategy: cascade",
+"it": "Strategia: cascata",
+"de": "Strategie: Kaskade",
+"ru": "Стратегия: каскад"
+},
+"Стратегія: завжди телефон": {
+"en": "Strategy: always the phone",
+"it": "Strategia: sempre il telefono",
+"de": "Strategie: immer das Telefon",
+"ru": "Стратегия: всегда телефон"
+},
+"Стратегія: завжди сервер": {
+"en": "Strategy: always the server",
+"it": "Strategia: sempre il server",
+"de": "Strategie: immer der Server",
+"ru": "Стратегия: всегда сервер"
+},
+"Сервер недоступний": {
+"en": "The server is unavailable",
+"it": "Il server non è disponibile",
+"de": "Der Server ist nicht verfügbar",
+"ru": "Сервер недоступен"
+},
+"На телефоні недоступно": {
+"en": "Not available on the phone",
+"it": "Non disponibile sul telefono",
+"de": "Auf dem Telefon nicht verfügbar",
+"ru": "На телефоне недоступно"
+},
+"Правило: вайфай - сервер": {
+"en": "Rule: Wi-Fi - server",
+"it": "Regola: Wi-Fi - server",
+"de": "Regel: WLAN - Server",
+"ru": "Правило: вайфай - сервер"
+},
+"Правило: мало заряду - сервер": {
+"en": "Rule: low charge - server",
+"it": "Regola: poca carica - server",
+"de": "Regel: wenig Akku - Server",
+"ru": "Правило: мало заряда - сервер"
+},
+"Правило: без вайфаю - телефон": {
+"en": "Rule: no Wi-Fi - phone",
+"it": "Regola: senza Wi-Fi - telefono",
+"de": "Regel: kein WLAN - Telefon",
+"ru": "Правило: без вайфая - телефон"
+},
+"Каскад неможливий, одне місце": {
+"en": "A cascade is impossible, one place only",
+"it": "Cascata impossibile, un solo posto",
+"de": "Kaskade nicht möglich, nur ein Ort",
+"ru": "Каскад невозможен, одно место"
+},
+"Для цих даних немає дозволеного виконавця": {
+"en": "No executor is allowed for this data",
+"it": "Nessun esecutore consentito per questi dati",
+"de": "Für diese Daten gibt es keinen erlaubten Ausführer",
+"ru": "Для этих данных нет разрешённого исполнителя"
 }
 }

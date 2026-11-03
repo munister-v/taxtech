@@ -39,7 +39,7 @@ struct OverviewView: View {
                         if points.count > 1 { balanceTrend.rise(4) }
                         HStack(spacing: 12) {
                             taxesCard
-                            if let hit = hits.first { shopCard(hit) }
+                            if Build.shop, let hit = hits.first { shopCard(hit) }
                         }
                         .frame(height: 176)
                         .rise(5)
@@ -81,7 +81,7 @@ struct OverviewView: View {
         points = Array(raw.drop { $0.balance < peak * 0.05 })
         recipients = (try? await r) ?? []
         unread = (try? await u) ?? 0
-        if hits.isEmpty {
+        if Build.shop, hits.isEmpty {
             hits = ((try? await model.api.catalog(search: "", page: 1, sort: "stock", perPage: 40))?.items ?? [])
                 .filter { ["HOT", "TOP", "NEW"].contains($0.badge ?? "") }
         }

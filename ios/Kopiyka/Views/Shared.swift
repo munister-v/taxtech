@@ -5,38 +5,41 @@ struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var phase
     @State private var showConsent = false
-    @State private var selection = AppTab.overview
+    @State private var selection = AppTab.lab
     @State private var pinRequired = false
     @State private var splash = true
 
-    enum AppTab: Hashable { case overview, operations, cards, taxes, shop }
+    enum AppTab: Hashable { case lab, overview, operations, cards, taxes, shop }
 
     var body: some View {
         Group {
-            if !model.signedIn {
-                AuthView()
-            } else if pinRequired && !model.bankUnlocked {
-                PinLockView()
-            } else {
-                TabView(selection: $selection) {
-                    Tab(L("Огляд").s, systemImage: "square.grid.2x2", value: AppTab.overview) { OverviewView { selection = $0 } }
-                    Tab(L("Операції").s, systemImage: "waveform.path.ecg", value: AppTab.operations) { OperationsView() }
-                    Tab(L("Картки").s, systemImage: "creditcard", value: AppTab.cards) { CardsTab() }
-                    Tab(L("Податки").s, systemImage: "percent", value: AppTab.taxes) { TaxesView() }
-                    Tab(L("Магазин").s, systemImage: "bag", value: AppTab.shop) { ShopView() }
+            TabView(selection: $selection) {
+                Tab(L("Лабораторія").s, systemImage: "flask", value: AppTab.lab) { LabHome() }
+                if model.signedIn {
+                    Tab(L("Пісочниця").s, systemImage: "building.columns", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
+                    Tab(L("Операції").s, systemImage: "waveform.path.ecg", value: AppTab.operations) { bank { OperationsView() } }
+                    Tab(L("Картки").s, systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
+                    Tab(L("Податки").s, systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
+                    if Build.shop {
+                        Tab(L("Магазин").s, systemImage: "bag", value: AppTab.shop) { bank { ShopView() } }
+                    }
+                } else {
+                    Tab(L("Пісочниця").s, systemImage: "building.columns", value: AppTab.overview) { SandboxGate() }
                 }
-                .tint(Theme.tint)
-                .tabBarMinimizeBehavior(.onScrollDown)
-                // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
-                .overlay(alignment: .top) { if selection != .overview { TopFade() } }
-                .transition(.opacity.combined(with: .scale(scale: 1.04)))
             }
+            .tint(Theme.tint)
+            .tabBarMinimizeBehavior(.onScrollDown)
+            // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
+            .overlay(alignment: .top) { if selection != .overview && selection != .lab { TopFade() } }
         }
         .animation(.smooth(duration: 0.45), value: model.signedIn)
         .animation(.smooth(duration: 0.35), value: model.bankUnlocked)
         .overlay { if splash { LaunchSplash { splash = false } } }
         .task(id: model.signedIn) {
             pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
+        }
+        .onChange(of: model.signedIn) { _, signedIn in
+            if !signedIn { selection = .lab }
         }
         .onChange(of: phase) { _, p in
             // з фону банк знову просить PIN
@@ -48,6 +51,8 @@ struct RootView: View {
             #if DEBUG
             // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|taxes|shop
             switch ProcessInfo.processInfo.environment["KOPIYKA_TAB"] {
+            case "lab": selection = .lab
+            case "overview": selection = .overview
             case "operations": selection = .operations
             case "cards": selection = .cards
             case "taxes": selection = .taxes
@@ -61,6 +66,13 @@ struct RootView: View {
             #endif
         }
         .fullScreenCover(isPresented: $showConsent) { ConsentView() }
+    }
+}
+
+extension RootView {
+    /// Банк відкривається кодом, якщо він задан; лабораторія кодом не закрита.
+    @ViewBuilder func bank<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        if pinRequired && !model.bankUnlocked { PinLockView() } else { content() }
     }
 }
 

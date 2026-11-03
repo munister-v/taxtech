@@ -59,6 +59,10 @@ final class AppModel {
         router = EdgeRouter(directory: dir) { await provider.snapshot() }
         let saved = UserDefaults.standard.string(forKey: "serverURL").flatMap(URL.init(string:))
         serverURL = saved.flatMap { Self.reachable($0) ? $0 : nil } ?? Self.defaultServer
+        #if DEBUG
+        // simctl launch з SIMCTL_CHILD_KOPIYKA_SIGNED_OUT=1: застосунок як без входу (токен у Keychain лишається)
+        if ProcessInfo.processInfo.environment["KOPIYKA_SIGNED_OUT"] == "1" { token = nil }
+        #endif
     }
 
     /// Чи має сенс збережена адреса. На телефоні localhost, 127.0.0.1 і Mac у домашній мережі (.local)
