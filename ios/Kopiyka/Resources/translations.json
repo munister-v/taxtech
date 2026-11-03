@@ -8320,5 +8320,17 @@
 "it": "Modificato",
 "de": "Geändert",
 "ru": "Изменено"
+},
+"Записано окремо": {
+"en": "Stored separately",
+"it": "Salvato a parte",
+"de": "Separat gespeichert",
+"ru": "Записано отдельно"
+},
+"Ланцюг": {
+"en": "Chain",
+"it": "Catena",
+"de": "Kette",
+"ru": "Цепочка"
 }
 }
