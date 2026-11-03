@@ -38,7 +38,7 @@ struct LedgerLab: View {
     }
 
     private var status: some View {
-        HeroPanel(yellow: balanced) {
+        LabHero(ok: balanced) {
             HeroCaption(L("Звірка").s)
             Text(balanced ? L("Суми збігаються").s : L("Розбіжність \(Format.short(abs(debits - credits)))").s)
                 .font(.display(30, .medium)).tracking(-0.6).padding(.top, 4)
@@ -64,7 +64,7 @@ struct LedgerLab: View {
                 Text(L("Усього на рахунках").s).font(.subheadline).foregroundStyle(.secondary)
                 Spacer()
                 Text(Format.short(total)).font(.subheadline.weight(.semibold)).monospacedDigit()
-                    .foregroundStyle(total == Self.opening.reduce(0, +) ? Color.primary : Color.red)
+                    .foregroundStyle(total == Self.opening.reduce(0, +) ? Color.primary : Theme.alert)
             }
         }
     }

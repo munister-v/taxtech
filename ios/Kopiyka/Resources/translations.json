@@ -6802,5 +6802,17 @@
 "it": "In qualsiasi momento nel «Registro delle decisioni».",
 "de": "Jederzeit im «Entscheidungsprotokoll».",
 "ru": "В любой момент в «Журнале решений»."
+},
+"Бюджет енергії перевищено на %@ Дж": {
+"en": "Energy budget exceeded by %@ J",
+"it": "Budget energetico superato di %@ J",
+"de": "Energiebudget um %@ J überschritten",
+"ru": "Бюджет энергии превышен на %@ Дж"
+},
+"Результат": {
+"en": "Result",
+"it": "Risultato",
+"de": "Ergebnis",
+"ru": "Результат"
 }
 }

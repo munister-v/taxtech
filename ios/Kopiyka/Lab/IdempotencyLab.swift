@@ -28,7 +28,7 @@ struct IdempotencyLab: View {
     }
 
     private var account: some View {
-        HeroPanel(yellow: charges <= 1) {
+        LabHero(ok: charges <= 1) {
             HeroCaption(L("Рахунок").s)
             Text(Format.short(balance)).font(Theme.balance(44)).monospacedDigit().padding(.top, 2)
             Text(L("Списань за цією оплатою: \(charges)").s).font(.subheadline).padding(.top, 4)

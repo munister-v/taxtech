@@ -53,7 +53,7 @@ struct HoldLab: View {
     }
 
     private var summary: some View {
-        HeroPanel(yellow: true) {
+        LabHero {
             HeroCaption(L("Доступно").s)
             Text(Format.short(available)).font(Theme.balance(44)).monospacedDigit().padding(.top, 2)
             HStack(spacing: 22) {
@@ -74,7 +74,7 @@ struct HoldLab: View {
             LabSlider(title: L("Сума").s, value: Format.short(amount),
                       x: Binding(get: { amount }, set: { amount = ($0 / 50).rounded() * 50 }), range: 50...800)
             Text(L("Спливе за \(reason.hours) год").s).font(.footnote).foregroundStyle(.secondary)
-            if let message { Text(message).font(.footnote).foregroundStyle(Color.red) }
+            if let message { Text(message).font(.footnote).foregroundStyle(Theme.alert) }
             Button(L("Заморозити").s) { placeHold() }.buttonStyle(InkButton())
             HStack(spacing: 10) {
                 Button(L("Минуло +12 год").s) { advance() }.buttonStyle(LineButton())

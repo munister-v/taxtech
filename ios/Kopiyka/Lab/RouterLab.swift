@@ -94,14 +94,23 @@ struct RouterLab: View {
 
     // MARK: Результат
 
+    /// Причини пише пакет EdgeRouter українською; ті, що з числом, перекладаємо тут.
+    private static func reasonText(_ r: String) -> String {
+        let prefix = "Бюджет енергії перевищено на "
+        if r.hasPrefix(prefix), r.hasSuffix(" Дж") {
+            return L("Бюджет енергії перевищено на \(r.dropFirst(prefix.count).dropLast(3)) Дж").s
+        }
+        return Translator.text(r, [])
+    }
+
     private func result(_ d: Decision) -> some View {
-        HeroPanel(yellow: true) {
+        LabHero {
             HeroCaption(L("Рішення").s)
             Text(Translator.text(d.plan.title, []))
                 .font(.display(30, .medium)).tracking(-0.6)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 4)
-            Text(Translator.text(d.reason, [])).font(.subheadline).foregroundStyle(Theme.onAccent.opacity(0.75)).padding(.top, 6)
+            Text(Self.reasonText(d.reason)).font(.subheadline).foregroundStyle(.secondary).padding(.top, 6)
         }
         .animation(.snappy, value: d.plan)
     }
@@ -146,8 +155,8 @@ struct RouterLab: View {
     private func color(_ k: Kind?) -> Color {
         switch k {
         case .device: Theme.accent
-        case .cloud: Color.white.opacity(0.85)
-        case .cascade: Color.white.opacity(0.28)
+        case .cloud: Color.white.opacity(0.8)
+        case .cascade: Color(UIColor(red: 0.36, green: 0.34, blue: 0.31, alpha: 1))
         case nil: Color.clear
         }
     }
@@ -167,16 +176,21 @@ struct RouterLab: View {
                         for j in 0..<n {
                             for i in 0..<n {
                                 // p_out росте вгору
-                                let rect = CGRect(x: CGFloat(i) * cw, y: size.height - CGFloat(j + 1) * ch, width: cw + 0.5, height: ch + 0.5)
-                                ctx.fill(Path(rect), with: .color(color(grid[j][i])))
+                                let rect = CGRect(x: CGFloat(i) * cw, y: size.height - CGFloat(j + 1) * ch, width: cw, height: ch).insetBy(dx: 1.2, dy: 1.2)
+                                ctx.fill(Path(roundedRect: rect, cornerRadius: 3), with: .color(color(grid[j][i])))
                             }
                         }
                     }
-                    .clipShape(.rect(cornerRadius: 10, style: .continuous))
-                    Circle().strokeBorder(Theme.onAccent, lineWidth: 2)
-                        .background(Circle().fill(Color.black.opacity(0.35)))
-                        .frame(width: 16, height: 16)
-                        .offset(x: w * queue / Self.maxQueue - 8, y: h * (1 - outage / Self.maxOutage) - 8)
+                    let mx = w * queue / Self.maxQueue, my = h * (1 - outage / Self.maxOutage)
+                    Path { p in
+                        p.move(to: CGPoint(x: mx, y: 0)); p.addLine(to: CGPoint(x: mx, y: h))
+                        p.move(to: CGPoint(x: 0, y: my)); p.addLine(to: CGPoint(x: w, y: my))
+                    }
+                    .stroke(.white.opacity(0.35), style: StrokeStyle(lineWidth: 0.5, dash: [3, 3]))
+                    Circle().fill(Theme.bg).frame(width: 14, height: 14)
+                        .overlay(Circle().strokeBorder(.white, lineWidth: 2))
+                        .shadow(color: .black.opacity(0.5), radius: 4)
+                        .offset(x: mx - 7, y: my - 7)
                 }
                 .contentShape(.rect)
                 .gesture(DragGesture(minimumDistance: 0).onChanged { v in

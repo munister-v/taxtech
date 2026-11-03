@@ -68,7 +68,7 @@ struct ChainLab: View {
                 }
                 HStack {
                     Image(systemName: anchorMatches ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                        .foregroundStyle(anchorMatches ? Theme.accent : Color.red)
+                        .foregroundStyle(anchorMatches ? Theme.accent : Theme.alert)
                     Text(anchorMatches ? L("Дані дають той самий відбиток").s : L("Інший відбиток: дані змінено").s)
                         .font(.footnote).foregroundStyle(.secondary)
                 }
@@ -84,7 +84,7 @@ struct ChainLab: View {
     }
 
     private var status: some View {
-        HeroPanel(yellow: firstBroken == nil) {
+        LabHero(ok: firstBroken == nil) {
             HeroCaption(L("Перевірка ланцюга").s)
             Text(firstBroken.map { L("Розрив із запису №\($0 + 1)").s } ?? L("Ланцюг цілий").s)
                 .font(.display(30, .medium)).tracking(-0.6).padding(.top, 4)
@@ -102,9 +102,9 @@ struct ChainLab: View {
             }
             HStack(spacing: 6) {
                 Image(systemName: bad ? "link.badge.plus" : "link")
-                    .foregroundStyle(bad ? Color.red : Theme.accent).font(.caption)
+                    .foregroundStyle(bad ? Theme.alert : Theme.accent).font(.caption)
                 Text(short(blocks[i].hash)).font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(bad ? Color.red : Color.secondary)
+                    .foregroundStyle(bad ? Theme.alert : Color.secondary)
                 Text("←").foregroundStyle(.tertiary).font(.caption)
                 Text(short(i == 0 ? Self.zero : blocks[i - 1].hash)).font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.tertiary)

@@ -80,13 +80,13 @@ struct FraudLab: View {
     }
 
     private func score(_ r: RiskResult) -> some View {
-        HeroPanel(yellow: r.level != .low) {
+        LabHero(ok: r.level == .low) {
             HeroCaption(level(r.level))
             Text("\(r.score)").font(Theme.balance(56)).monospacedDigit().padding(.top, 2)
             GeometryReader { g in
                 ZStack(alignment: .leading) {
-                    Capsule().fill((r.level != .low ? Theme.onAccent : Theme.ink).opacity(0.14))
-                    Capsule().fill(r.level != .low ? Theme.onAccent : Theme.accent)
+                    Capsule().fill(Theme.ink.opacity(0.14))
+                    Capsule().fill(r.level == .low ? Theme.accent : Theme.alert)
                         .frame(width: max(6, g.size.width * Double(r.score) / 100))
                 }
             }

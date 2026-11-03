@@ -24,6 +24,8 @@ enum Theme {
     static let onInk = dynamic(light: 0xFFFFFF, dark: 0x111114)
     /// Світле золото - єдиний акцент: головні кнопки, вибране, суми TAX.
     static let accent = Color(UIColor(hex: 0xDCC195))
+    /// Збій у досліді: розбіжність, підробка, високий ризик.
+    static let alert = Color(UIColor(hex: 0xE05A47))
     /// Текст на жовтому - завжди чорний.
     static let onAccent = Color(UIColor(hex: 0x0E0E0C))
     /// Колір вибраного: золото.

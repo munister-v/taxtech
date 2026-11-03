@@ -38,11 +38,11 @@ struct SealLab: View {
     }
 
     private var issued: some View {
-        HeroPanel(yellow: true) {
+        LabHero {
             HeroCaption(L("Код документа").s)
             Text(code).font(.system(size: 26, weight: .semibold, design: .monospaced)).minimumScaleFactor(0.6).lineLimit(1).padding(.top, 4)
             Text(L("З одним символом більше в посиланні: \(neighbour)").s)
-                .font(.footnote).foregroundStyle(Theme.onAccent.opacity(0.75)).padding(.top, 6)
+                .font(.footnote).foregroundStyle(.secondary).padding(.top, 6)
         }
     }
 
@@ -74,7 +74,7 @@ struct SealLab: View {
             TextField(L("Код з документа").s, text: $claimed)
                 .font(.system(.body, design: .monospaced)).textInputAutocapitalization(.characters).autocorrectionDisabled()
             HStack {
-                Image(systemName: valid ? "checkmark.seal.fill" : "xmark.seal.fill").foregroundStyle(valid ? Theme.accent : Color.red)
+                Image(systemName: valid ? "checkmark.seal.fill" : "xmark.seal.fill").foregroundStyle(valid ? Theme.accent : Theme.alert)
                 Text(valid ? L("Код справжній").s : L("Код не збігається").s).font(.subheadline.weight(.medium))
             }
             HStack(spacing: 10) {

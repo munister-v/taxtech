@@ -234,16 +234,20 @@ struct ExperimentScreen: View {
     }
 
     private var theory: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(experiment.theory.enumerated()), id: \.offset) { i, text in
-                HStack(alignment: .firstTextBaseline, spacing: 14) {
-                    Text("\(i + 1)").caption().frame(width: 14, alignment: .leading)
-                    Text(text).font(.body).lineSpacing(3).fixedSize(horizontal: false, vertical: true)
+                if i > 0 { Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.5) }
+                HStack(alignment: .firstTextBaseline, spacing: 16) {
+                    Text(String(format: "%02d", i + 1))
+                        .font(.custom("Futura-Medium", size: 13)).tracking(1.5)
+                        .foregroundStyle(Theme.gold).frame(width: 24, alignment: .leading)
+                    Text(text).font(.system(size: 17)).lineSpacing(5).fixedSize(horizontal: false, vertical: true)
                 }
+                .padding(.vertical, 16)
             }
             Button(L("До досліду").s) { withAnimation(.snappy) { part = .lab } }
                 .buttonStyle(InkButton())
-                .padding(.top, 6)
+                .padding(.top, 14)
         }
     }
 
@@ -260,71 +264,110 @@ struct ExperimentScreen: View {
     }
 }
 
-/// Три питання з миттєвою відповіддю; результат зберігається.
+/// Три питання по одному, з миттєвою відповіддю; результат зберігається.
 struct QuizView: View {
     let experiment: Experiment
     @State private var picked: [Int: Int] = [:]
+    @State private var current = 0
     @State private var progress = LabProgress.shared
 
     var body: some View {
-        let questions = experiment.quiz
-        let done = picked.count == questions.count
-        let score = Self.score(questions, picked)
-        VStack(alignment: .leading, spacing: 18) {
-            ForEach(Array(questions.enumerated()), id: \.offset) { i, q in
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("\(i + 1) / \(questions.count)").caption()
-                    Text(q.text).font(.headline).fixedSize(horizontal: false, vertical: true)
-                    ForEach(q.options.indices, id: \.self) { o in option(i, q, o) }
+        let qs = experiment.quiz
+        VStack(alignment: .leading, spacing: 22) {
+            HStack(spacing: 4) {
+                ForEach(qs.indices, id: \.self) { i in
+                    Rectangle()
+                        .fill(i < current || (i == current && picked[i] != nil) ? Theme.accent : Theme.ink.opacity(0.14))
+                        .frame(height: 2)
                 }
             }
-            if done {
-                HeroPanel(yellow: score >= LabProgress.passMark) {
-                    HeroCaption(score >= LabProgress.passMark ? L("Пройдено").s : L("Ще раз").s)
-                    Text("\(score) / \(questions.count)").font(Theme.balance(40)).monospacedDigit()
-                    if score < LabProgress.passMark {
-                        Button(L("Спробувати знову").s) { withAnimation(.snappy) { picked = [:] } }
-                            .buttonStyle(LineButton()).padding(.top, 12)
-                    }
-                }
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            } else if let best = progress.score(experiment) {
-                Text(L("Найкращий результат: \(best) / \(questions.count)").s).font(.footnote).foregroundStyle(.secondary)
+            if current >= qs.count {
+                result(qs)
+            } else {
+                question(qs, current)
             }
         }
         .sensoryFeedback(.selection, trigger: picked.count)
         .animation(.snappy, value: picked)
+        .animation(.snappy, value: current)
     }
 
     private static func score(_ qs: [Question], _ picked: [Int: Int]) -> Int {
         qs.indices.filter { picked[$0] == qs[$0].answer }.count
     }
 
+    private func question(_ qs: [Question], _ i: Int) -> some View {
+        let q = qs[i]
+        return VStack(alignment: .leading, spacing: 14) {
+            Text(String(format: "%02d / %02d", i + 1, qs.count))
+                .font(.custom("Futura-Medium", size: 13)).tracking(1.5).foregroundStyle(Theme.gold)
+            Text(q.text).font(.display(24, .medium)).tracking(-0.4).fixedSize(horizontal: false, vertical: true)
+            VStack(spacing: 10) {
+                ForEach(q.options.indices, id: \.self) { o in option(i, q, o) }
+            }
+            .padding(.top, 4)
+            if picked[i] != nil {
+                Button(i + 1 < qs.count ? L("Далі").s : L("Результат").s) { current += 1 }
+                    .buttonStyle(InkButton())
+                    .padding(.top, 6)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+            }
+        }
+        .id(i)
+        .transition(.opacity)
+    }
+
+    private func result(_ qs: [Question]) -> some View {
+        let score = Self.score(qs, picked)
+        let pass = score >= LabProgress.passMark
+        return VStack(alignment: .leading, spacing: 14) {
+            LabHero(ok: pass) {
+                HeroCaption(pass ? L("Пройдено").s : L("Ще раз").s)
+                Text("\(score) / \(qs.count)").font(Theme.balance(56)).monospacedDigit().padding(.top, 2)
+            }
+            if !pass {
+                Button(L("Спробувати знову").s) { picked = [:]; current = 0 }.buttonStyle(InkButton())
+            }
+            if let best = progress.score(experiment) {
+                Text(L("Найкращий результат: \(best) / \(qs.count)").s).font(.footnote).foregroundStyle(.secondary)
+            }
+        }
+        .transition(.opacity.combined(with: .move(edge: .bottom)))
+    }
+
     private func option(_ i: Int, _ q: Question, _ o: Int) -> some View {
         let chosen = picked[i]
         let revealed = chosen != nil
         let right = o == q.answer
+        let wrong = revealed && chosen == o && !right
+        let outline: Color = revealed && right ? Theme.accent : (wrong ? Theme.alert : Theme.ink.opacity(0.1))
         return Button {
             guard chosen == nil else { return }
             picked[i] = o
             let qs = experiment.quiz
             if picked.count == qs.count { progress.record(experiment, score: Self.score(qs, picked)) }
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: 14) {
+                Text(["A", "B", "C", "D"][min(o, 3)])
+                    .font(.custom("Futura-Medium", size: 13)).tracking(1)
+                    .foregroundStyle(revealed && right ? Theme.accent : (wrong ? Theme.alert : Theme.gold))
+                    .frame(width: 18)
                 Text(q.options[o]).font(.subheadline.weight(.medium)).multilineTextAlignment(.leading)
                 Spacer(minLength: 8)
-                if revealed, right || chosen == o {
-                    Image(systemName: right ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundStyle(right ? Theme.accent : Color.secondary)
+                if revealed, right || wrong {
+                    Image(systemName: right ? "checkmark" : "xmark")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(right ? Theme.accent : Theme.alert)
                 }
             }
-            .padding(.horizontal, 16).padding(.vertical, 14)
+            .padding(.horizontal, 16).padding(.vertical, 15)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
+            .background(Theme.surface, in: .rect(cornerRadius: 14, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(revealed && right ? Theme.accent : Theme.ink.opacity(chosen == o ? 0.5 : 0.1), lineWidth: revealed && right ? 1.5 : 1)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(outline, lineWidth: revealed && (right || wrong) ? 1.5 : 1)
             }
+            .opacity(revealed && !right && !wrong ? 0.55 : 1)
             .contentShape(.rect)
         }
         .buttonStyle(PressScale())
@@ -364,5 +407,19 @@ struct LabPanel<Content: View>: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
         .goldEdge(22)
+    }
+}
+
+/// Панель результату досліду: темна поверхня, кольорова смуга зліва показує стан (норма або збій).
+struct LabHero<Content: View>: View {
+    var ok = true
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        let tone = ok ? Theme.accent : Theme.alert
+        HeroPanel { content }
+            .overlay { RoundedRectangle(cornerRadius: 24, style: .continuous).fill(tone.opacity(0.07)).allowsHitTesting(false) }
+            .overlay(alignment: .leading) { Capsule().fill(tone).frame(width: 3).padding(.vertical, 24).padding(.leading, 9) }
+            .animation(.snappy, value: ok)
     }
 }
