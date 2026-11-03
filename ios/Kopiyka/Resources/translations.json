@@ -8140,5 +8140,125 @@
 "it": "Intero saldo",
 "de": "Gesamtes Guthaben",
 "ru": "Весь остаток"
+},
+"Модель": {
+"en": "Model",
+"it": "Modello",
+"de": "Modell",
+"ru": "Модель"
+},
+"Живий режим": {
+"en": "Live mode",
+"it": "Modalità live",
+"de": "Live-Modus",
+"ru": "Живой режим"
+},
+"Потік іде з вашого рахунку в навчальному банку: справжні перекази, баланс, антифрод сервера. Для цього потрібен вхід.": {
+"en": "The traffic comes from your account in the training bank: real transfers, balance and the server anti-fraud. Sign-in is required.",
+"it": "Il flusso parte dal tuo conto nella banca didattica: bonifici reali, saldo e antifrode del server. Serve l'accesso.",
+"de": "Der Verkehr kommt von Ihrem Konto in der Lernbank: echte Überweisungen, Guthaben und Server-Betrugsprüfung. Anmeldung erforderlich.",
+"ru": "Поток идёт с вашего счёта в учебном банке: настоящие переводы, баланс, антифрод сервера. Нужен вход."
+},
+"Зупинив телефон": {
+"en": "Phone stopped",
+"it": "Fermati dal telefono",
+"de": "Vom Telefon gestoppt",
+"ru": "Остановил телефон"
+},
+"Зупинив банк": {
+"en": "Bank stopped",
+"it": "Fermati dalla banca",
+"de": "Von der Bank gestoppt",
+"ru": "Остановил банк"
+},
+"Живий потік": {
+"en": "Live traffic",
+"it": "Flusso live",
+"de": "Live-Verkehr",
+"ru": "Живой поток"
+},
+"Поповнюємо…": {
+"en": "Topping up…",
+"it": "Ricarica…",
+"de": "Wird aufgeladen…",
+"ru": "Пополняем…"
+},
+"З одного рахунку можна зробити лише схеми, де всі кроки ваші.": {
+"en": "From one account you can run only schemes where every step is yours.",
+"it": "Da un solo conto si possono fare solo schemi in cui ogni passo è tuo.",
+"de": "Von einem Konto aus gehen nur Muster, bei denen alle Schritte von Ihnen sind.",
+"ru": "С одного счёта можно сделать только схемы, где все шаги ваши."
+},
+"кожні %@ кроків": {
+"en": "every %@ steps",
+"it": "ogni %@ passi",
+"de": "alle %@ Schritte",
+"ru": "каждые %@ шагов"
+},
+"Одержувач": {
+"en": "Recipient",
+"it": "Destinatario",
+"de": "Empfänger",
+"ru": "Получатель"
+},
+"Обрати": {
+"en": "Choose",
+"it": "Scegli",
+"de": "Wählen",
+"ru": "Выбрать"
+},
+"Додати автоплатіж": {
+"en": "Add standing order",
+"it": "Aggiungi pagamento automatico",
+"de": "Dauerauftrag hinzufügen",
+"ru": "Добавить автоплатёж"
+},
+"Автоплатежі виконує застосунок кожні кілька кроків: сервер банку регулярні платежі сам не запускає.": {
+"en": "The app runs standing orders every few steps: the bank server does not start recurring payments itself.",
+"it": "L'app esegue i pagamenti automatici ogni pochi passi: il server della banca non avvia da solo i pagamenti ricorrenti.",
+"de": "Die App führt Daueraufträge alle paar Schritte aus: der Bankserver startet wiederkehrende Zahlungen nicht selbst.",
+"ru": "Автоплатежи выполняет приложение каждые несколько шагов: сервер банка регулярные платежи сам не запускает."
+},
+"Хто зупинив": {
+"en": "Who stopped it",
+"it": "Chi ha fermato",
+"de": "Wer hat gestoppt",
+"ru": "Кто остановил"
+},
+"Пройшло": {
+"en": "Passed",
+"it": "Passati",
+"de": "Durchgelassen",
+"ru": "Прошло"
+},
+"Перевірка: %@": {
+"en": "Check: %@",
+"it": "Controllo: %@",
+"de": "Prüfung: %@",
+"ru": "Проверка: %@"
+},
+"Телефон зупиняє лише критичні перекази за Layer 1, повний антифрод банку бачить історію й граф.": {
+"en": "The phone stops only critical transfers by Layer 1; the bank's full anti-fraud sees history and graph.",
+"it": "Il telefono ferma solo i bonifici critici col Layer 1; l'antifrode completo della banca vede storico e grafo.",
+"de": "Das Telefon stoppt nur kritische Überweisungen per Layer 1; die volle Betrugsprüfung der Bank sieht Verlauf und Graph.",
+"ru": "Телефон останавливает только критические переводы по Layer 1, полный антифрод банка видит историю и граф."
+},
+"Це справжні перекази на рахунки пісочниці. Блокування банку лишаються в історії рахунку, і сервер суворіше дивиться на нього кілька днів.": {
+"en": "These are real transfers to sandbox accounts. Bank blocks stay in the account history, and the server looks at it more strictly for a few days.",
+"it": "Sono bonifici reali verso conti sandbox. I blocchi della banca restano nella cronologia e il server controlla il conto con più severità per alcuni giorni.",
+"de": "Das sind echte Überweisungen auf Sandbox-Konten. Sperren der Bank bleiben im Kontoverlauf, und der Server prüft das Konto einige Tage strenger.",
+"ru": "Это настоящие переводы на счета песочницы. Блокировки банка остаются в истории счёта, и сервер несколько дней смотрит на него строже."
+},
+"Банк блокує всі перекази: потік зупинено": {
+"en": "The bank blocks every transfer: traffic stopped",
+"it": "La banca blocca ogni bonifico: flusso fermato",
+"de": "Die Bank blockiert alle Überweisungen: Verkehr gestoppt",
+"ru": "Банк блокирует все переводы: поток остановлен"
+},
+"Історія блокувань діє на рахунок кілька днів.": {
+"en": "The block history affects the account for a few days.",
+"it": "La cronologia dei blocchi pesa sul conto per alcuni giorni.",
+"de": "Die Sperrhistorie wirkt einige Tage auf das Konto.",
+"ru": "История блокировок влияет на счёт несколько дней."
 }
 }

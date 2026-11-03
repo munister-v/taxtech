@@ -6,8 +6,23 @@ struct NetworkLab: View {
     @State private var sim = NetSim()
     @State private var params = NetSim.Params()
     @State private var running = false
+    @State private var live: Bool = {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["KOPIYKA_NET_LIVE"] == "1"
+        #else
+        return false
+        #endif
+    }()
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            SegmentBar(items: [(false, L("Модель").s), (true, L("Живий режим").s)], selection: $live)
+            if live { LiveNetworkLab() } else { simulation }
+        }
+        .onChange(of: live) { _, on in if on { running = false } }
+    }
+
+    private var simulation: some View {
         VStack(alignment: .leading, spacing: 16) {
             status
             controls
