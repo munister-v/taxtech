@@ -20,7 +20,7 @@ export const APP_LANG_KEY = 'army_bank_language';   // the key the banking app h
 
 const isLang = (v: unknown): v is LandingLang => LANDING_LANGS.some(l => l.id === v);
 
-/** The saved choice (the app's key first, then the landing's), else the browser's language, else English. */
+/** The saved choice (the app's key first, then the landing's), else Italian, whatever the browser's language. */
 export function initialLandingLang(): LandingLang {
   try {
     for (const k of [APP_LANG_KEY, LANDING_LANG_KEY]) {
@@ -28,13 +28,7 @@ export function initialLandingLang(): LandingLang {
       if (isLang(saved)) return saved;
     }
   } catch { /* storage can be blocked */ }
-  try {
-    for (const tag of navigator.languages || [navigator.language]) {
-      const base = String(tag).slice(0, 2).toLowerCase();
-      if (isLang(base)) return base;
-    }
-  } catch { /* no navigator */ }
-  return 'en';
+  return 'it';
 }
 
 export function saveLandingLang(l: LandingLang) {
