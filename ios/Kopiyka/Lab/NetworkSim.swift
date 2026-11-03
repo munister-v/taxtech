@@ -8,6 +8,7 @@ import Foundation
 struct NetSim {
     static let banks = ["Nord", "Centro", "Sud"]
     static let perBank = 4
+    static var accountCount: Int { banks.count * perBank }
     static let opening = 20_000.0
     static let settleEvery = 8
     /// Бан діє двадцять кроків, потім рахунок розблоковується після перегляду.
@@ -28,6 +29,17 @@ struct NetSim {
             case .bot: L("Автоматичні перекази").s
             }
         }
+    }
+
+    /// Подія для карти: що летить між рахунками й чим закінчилось.
+    enum FlowKind { case ok, auto, clearing, blocked, ban, settle }
+
+    struct Flow: Identifiable {
+        let id: Int
+        let from: Int
+        let to: Int
+        let kind: FlowKind
+        let fraud: Bool
     }
 
     struct Outcome {
@@ -94,6 +106,9 @@ struct NetSim {
     private(set) var accounts: [Account]
     private(set) var events: [Event] = []
     private(set) var settlement: Settlement?
+    /// Події останнього кроку: карта малює їх як вогники між рахунками.
+    private(set) var flows: [Flow] = []
+    private var flowSeq = 0
 
     private(set) var total = 0
     private(set) var autoDone = 0
@@ -150,6 +165,7 @@ struct NetSim {
 
     mutating func step(_ p: Params) {
         tick += 1
+        flows = []
         for i in accounts.indices where accounts[i].banned && tick - accounts[i].bannedAt >= Self.banTerm {
             unban(i)
             record(.ok, L("Бан знято: рахунок \(name(i))").s)
@@ -172,6 +188,12 @@ struct NetSim {
             ins[i].removeAll { tick - $0.tick > 12 }
         }
         edges.removeAll { tick - $0.tick > 8 }
+    }
+
+    /// Запустити схему негайно: наступні кроки схеми підуть у звичайному потоці.
+    mutating func attack(_ s: Scheme, _ p: Params) {
+        flows = []
+        for t in fraud([s]) { process(t, p) }
     }
 
     // MARK: Потік
@@ -268,6 +290,11 @@ struct NetSim {
         return (points, flags)
     }
 
+    private mutating func flow(_ kind: FlowKind, _ from: Int, _ to: Int, fraud: Bool = false) {
+        flowSeq += 1
+        flows.append(Flow(id: flowSeq, from: from, to: to, kind: kind, fraud: fraud))
+    }
+
     private mutating func record(_ kind: Kind, _ text: String, _ detail: String? = nil) {
         eventSeq += 1
         events.insert(Event(id: eventSeq, tick: tick, kind: kind, text: text, detail: detail), at: 0)
@@ -292,6 +319,7 @@ struct NetSim {
         if accounts[t.from].banned || accounts[t.to].banned {
             let who = accounts[t.from].banned ? t.from : t.to
             record(.rejected, line(t), L("рахунок \(name(who)) заблоковано").s)
+            flow(.blocked, t.from, t.to, fraud: t.fraud)
             tally(t, stopped: true)
             if t.auto { autoFailed += 1 }
             return
@@ -312,11 +340,13 @@ struct NetSim {
             if t.auto { autoFailed += 1 }
             let reasons = (base.flags + extra.flags).compactMap { FraudFlags.titles[$0] }.prefix(2).joined(separator: ", ")
             record(.blocked, line(t), L("бал \(score)").s + (reasons.isEmpty ? "" : ": " + reasons))
+            flow(.blocked, t.from, t.to, fraud: t.fraud)
             if accounts[t.from].strikes >= 3 {
                 accounts[t.from].banned = true
                 accounts[t.from].bannedAt = tick
                 if accounts[t.from].fraudSent > 0 { bansRight += 1 } else { bansWrong += 1 }
                 record(.banned, L("Бан: рахунок \(name(t.from))").s)
+                flow(.ban, t.from, t.from)
             }
             return
         }
@@ -329,10 +359,12 @@ struct NetSim {
         if accounts[t.from].bank == accounts[t.to].bank {
             accounts[t.to].balance += t.amount
             record(t.auto ? .auto : .ok, line(t), t.note.isEmpty ? nil : t.note)
+            flow(t.auto ? .auto : .ok, t.from, t.to, fraud: t.fraud)
         } else {
             accounts[t.to].pending += t.amount
             clearing.append(Clearing(fromBank: accounts[t.from].bank, toBank: accounts[t.to].bank, to: t.to, amount: t.amount))
             record(.clearing, line(t), t.auto ? t.note : nil)
+            flow(.clearing, t.from, t.to, fraud: t.fraud)
         }
     }
 
@@ -343,13 +375,13 @@ struct NetSim {
     private mutating func settle() {
         guard !clearing.isEmpty else { return }
         let n = Self.banks.count
-        var flow = Array(repeating: Array(repeating: 0.0, count: n), count: n)
-        for c in clearing { flow[c.fromBank][c.toBank] += c.amount }
+        var matrix = Array(repeating: Array(repeating: 0.0, count: n), count: n)
+        for c in clearing { matrix[c.fromBank][c.toBank] += c.amount }
         var net = 0
         var netVolume = 0.0
         for i in 0..<n {
             for j in (i + 1)..<n {
-                let d = abs(flow[i][j] - flow[j][i])
+                let d = abs(matrix[i][j] - matrix[j][i])
                 if d > 0.005 { net += 1; netVolume += d }
             }
         }
@@ -361,5 +393,6 @@ struct NetSim {
         settlement = result
         clearing = []
         record(.settle, L("Кліринг: \(result.gross) платежів → \(result.net)").s)
+        flow(.settle, 0, 0)
     }
 }

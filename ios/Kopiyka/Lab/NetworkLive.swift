@@ -55,6 +55,13 @@ final class LiveTraffic {
     private(set) var results: [NetSim.Scheme: NetSim.Outcome] = [:]
     private(set) var latencies: [String: [Double]] = [:]
 
+    /// Карта: дванадцять місць навколо вашого рахунку, одержувачі займають їх по черзі.
+    static let slotCount = 12
+    private(set) var slots = [String?](repeating: nil, count: LiveTraffic.slotCount)
+    private(set) var flows: [MapFlow] = []
+    private var nextSlot = 0
+    private var flowSeq = 0
+
     private var pool = (2...40).map { "KP-\(100_000 + $0)" }
     private var queued: [Plan] = []
     private var failures = 0
@@ -66,6 +73,26 @@ final class LiveTraffic {
     }
 
     var recipients: [String] { pool }
+
+    private func slot(_ to: String) -> Int {
+        if let i = slots.firstIndex(of: to) { return i }
+        let i = nextSlot % Self.slotCount
+        nextSlot += 1
+        slots[i] = to
+        return i
+    }
+
+    private func emit(_ kind: MapFlow.Kind, to: String? = nil, fraud: Bool = false, stop: Double = 0.55) {
+        flowSeq += 1
+        let target = to.map { slot($0) + 1 } ?? 0
+        flows.append(MapFlow(id: flowSeq, kind: kind, from: 0, to: target, fraud: fraud, stop: stop))
+        if flows.count > 30 { flows.removeFirst(flows.count - 30) }
+    }
+
+    /// Запустити схему негайно: її продовження підуть у наступних кроках.
+    func attack(_ s: NetSim.Scheme, _ model: AppModel) async {
+        for p in fraud(s) { await execute(p, model) }
+    }
 
     func saveOrders() {
         UserDefaults.standard.set(try? JSONEncoder().encode(orders), forKey: "liveOrders")
@@ -86,6 +113,7 @@ final class LiveTraffic {
             let a = try await model.api.topUp(amount)
             balance = a.balance
             add(.topup, "+\(Format.short(amount))", nil)
+            emit(.pulse)
         } catch {
             add(.failed, error.localizedDescription, nil)
         }
@@ -119,7 +147,10 @@ final class LiveTraffic {
     }
 
     private func fraud() -> [Plan] {
-        let scheme = Self.schemes.filter { active.contains($0) }.randomElement() ?? .structuring
+        fraud(Self.schemes.filter { active.contains($0) }.randomElement() ?? .structuring)
+    }
+
+    private func fraud(_ scheme: NetSim.Scheme) -> [Plan] {
         let to = randomPeer()
         switch scheme {
         case .structuring:
@@ -175,6 +206,7 @@ final class LiveTraffic {
         if verdict.level == "critical" {
             tally(p, stopped: true, phone: true)
             add(.phoneBlock, line(p), L("бал \(verdict.score)").s + " · " + where_)
+            emit(.blocked, to: p.to, fraud: p.scheme != nil, stop: 0.3)
             await model.feedback(record.id, correct: true)
             return
         }
@@ -185,12 +217,14 @@ final class LiveTraffic {
             blockStreak = 0
             tally(p, stopped: false, phone: false)
             add(p.auto ? .auto : .passed, line(p), (p.auto ? p.note + " · " : "") + L("бал \(verdict.score)").s + " · " + where_)
+            emit(p.auto ? .auto : .ok, to: p.to, fraud: p.scheme != nil)
             await model.feedback(record.id, correct: true)
         } catch {
             let text = error.localizedDescription
             if text.contains("заблоковано") {
                 tally(p, stopped: true, phone: false)
                 add(.serverBlock, line(p), text)
+                emit(.blocked, to: p.to, fraud: p.scheme != nil, stop: 0.8)
                 await model.feedback(record.id, correct: false)
                 blockStreak += 1
                 if blockStreak >= 6 {
@@ -241,6 +275,11 @@ struct LiveNetworkLab: View {
             }
         }
         .animation(.snappy, value: live.tick)
+        .onChange(of: live.flows.last?.id ?? 0) { _, _ in
+            if let f = live.flows.last, f.kind == .blocked {
+                UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.7)
+            }
+        }
         .task { await live.refresh(model) }
         .task(id: live.running) {
             while live.running && !Task.isCancelled {
@@ -265,6 +304,21 @@ struct LiveNetworkLab: View {
         LabHero(ok: live.serverBlocksShare < 0.5) {
             HeroCaption(live.account.map { L("Рахунок \($0)").s } ?? L("Рахунок").s)
             Text(live.balance.map(Format.short) ?? "-").font(Theme.balance(36)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1).padding(.top, 2)
+            NetworkMap(nodes: mapNodes, flows: live.flows, aspect: 0.9).padding(.top, 8)
+            HStack(spacing: 10) {
+                Button(live.running ? L("Пауза").s : L("Запустити").s) { live.running.toggle() }.buttonStyle(InkButton())
+                Button(topping ? L("Поповнюємо…").s : L("Поповнити").s) {
+                    topping = true
+                    Task { await live.topUp(model); topping = false }
+                }
+                .buttonStyle(LineButton()).disabled(topping)
+            }
+            .padding(.top, 12)
+            attackChips(LiveTraffic.schemes) { s in
+                Task { await live.attack(s, model) }
+                live.running = true
+            }
+            .padding(.top, 10)
             HStack(spacing: 22) {
                 Stat(value: "\(live.sent)", label: L("Переказів").s)
                 Stat(value: "\(live.phoneBlocks)", label: L("Зупинив телефон").s)
@@ -274,16 +328,18 @@ struct LiveNetworkLab: View {
         }
     }
 
+    private var mapNodes: [MapNode] {
+        var out = [MapNode(id: 0, pos: CGPoint(x: 0.5, y: 0.5), label: "", role: .you)]
+        for i in 0..<LiveTraffic.slotCount {
+            let ang = (-90 + Double(i) * 360 / Double(LiveTraffic.slotCount)) * .pi / 180
+            out.append(MapNode(id: i + 1, pos: CGPoint(x: 0.5 + 0.38 * cos(ang), y: 0.5 + 0.36 * sin(ang)),
+                               label: live.slots[i].map { String($0.suffix(3)) } ?? "", weight: live.slots[i] == nil ? 0 : 0.5, parent: 0))
+        }
+        return out
+    }
+
     private var controls: some View {
         LabPanel(title: L("Живий потік").s) {
-            HStack(spacing: 10) {
-                Button(live.running ? L("Пауза").s : L("Запустити").s) { live.running.toggle() }.buttonStyle(InkButton())
-                Button(topping ? L("Поповнюємо…").s : L("Поповнити").s) {
-                    topping = true
-                    Task { await live.topUp(model); topping = false }
-                }
-                .buttonStyle(LineButton()).disabled(topping)
-            }
             LabSlider(title: L("Переказів за крок").s, value: "\(Int(live.intensity))",
                       x: Binding(get: { live.intensity }, set: { live.intensity = $0.rounded() }), range: 1...4)
             LabSlider(title: L("Частка шахрайства").s, value: "\(Int(live.fraudShare * 100))%",

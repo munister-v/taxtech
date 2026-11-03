@@ -33,6 +33,7 @@ struct NetworkLab: View {
             feed
         }
         .animation(.snappy, value: sim.tick)
+        .onChange(of: sim.flows.last?.id ?? 0) { _, _ in haptics(sim.flows) }
         .task(id: running) {
             while running && !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(700))
@@ -57,6 +58,20 @@ struct NetworkLab: View {
         return LabHero(ok: intact) {
             HeroCaption(running ? L("Мережа працює").s : L("Мережа стоїть").s)
             Text(L("Крок \(sim.tick)").s).font(.display(30, .medium)).tracking(-0.6).monospacedDigit().padding(.top, 4)
+            NetworkMap(nodes: mapNodes, flows: mapFlows, aspect: Self.mapAspect) { i in if sim.accounts[safe: i]?.banned == true { sim.unban(i) } }
+                .padding(.top, 8)
+            legend.padding(.top, 2)
+            HStack(spacing: 10) {
+                Button(running ? L("Пауза").s : L("Запустити").s) { running.toggle() }.buttonStyle(InkButton())
+                Button(L("Крок").s) { sim.step(params) }.buttonStyle(LineButton()).disabled(running)
+                Button(L("Скинути").s) { running = false; sim = NetSim() }.buttonStyle(LineButton())
+            }
+            .padding(.top, 12)
+            attackChips(NetSim.Scheme.allCases) { s in
+                sim.attack(s, params)
+                running = true
+            }
+            .padding(.top, 10)
             HStack(spacing: 22) {
                 Stat(value: "\(sim.total)", label: L("Переказів").s)
                 Stat(value: "\(sim.caught + sim.falseBlocks)", label: L("Зупинено").s)
@@ -73,13 +88,72 @@ struct NetworkLab: View {
         }
     }
 
+    // MARK: Карта
+
+    private static let hubAngles = [-90.0, 150.0, 30.0]
+    private static let mapAspect = 0.95
+
+    private var mapNodes: [MapNode] {
+        let c = CGPoint(x: 0.5, y: 0.52)
+        let asp = Self.mapAspect
+        let n = NetSim.accountCount
+        var out: [MapNode] = []
+        for (i, acc) in sim.accounts.enumerated() {
+            let hub = Self.hubAngles[acc.bank] * .pi / 180
+            let hubPos = CGPoint(x: c.x + 0.21 * cos(hub), y: c.y + 0.21 * sin(hub))
+            let k = i % NetSim.perBank
+            let ang = hub + ([-62.0, -21.0, 21.0, 62.0][k]) * .pi / 180
+            out.append(MapNode(id: i, pos: CGPoint(x: hubPos.x + 0.24 * cos(ang), y: (hubPos.y + 0.24 * sin(ang)) / asp), label: acc.id,
+                               weight: min(1, acc.balance / (NetSim.opening * 1.6)), banned: acc.banned, strikes: acc.strikes,
+                               pending: acc.pending > 0, parent: n + acc.bank))
+        }
+        for b in NetSim.banks.indices {
+            let hub = Self.hubAngles[b] * .pi / 180
+            out.append(MapNode(id: n + b, pos: CGPoint(x: c.x + 0.21 * cos(hub), y: (c.y + 0.21 * sin(hub)) / asp),
+                               label: String(NetSim.banks[b].prefix(1)), role: .hub))
+        }
+        return out
+    }
+
+    private var mapFlows: [MapFlow] {
+        let n = NetSim.accountCount
+        return sim.flows.map { f in
+            switch f.kind {
+            case .ok: MapFlow(id: f.id, kind: .ok, from: f.from, to: f.to, fraud: f.fraud)
+            case .auto: MapFlow(id: f.id, kind: .auto, from: f.from, to: f.to)
+            case .clearing: MapFlow(id: f.id, kind: .interbank, from: f.from, to: f.to, fraud: f.fraud)
+            case .blocked: MapFlow(id: f.id, kind: .blocked, from: f.from, to: f.to, fraud: f.fraud)
+            case .ban: MapFlow(id: f.id, kind: .ban, from: f.from, to: f.from)
+            case .settle: MapFlow(id: f.id, kind: .settle, from: n, to: n)
+            }
+        }
+    }
+
+    private var legend: some View {
+        HStack(spacing: 14) {
+            ForEach([(Theme.accent, L("Переказ").s), (Color(red: 0.50, green: 0.80, blue: 0.82), L("Між банками").s),
+                     (Theme.alert, L("Шахрайство").s)], id: \.1) { c, t in
+                HStack(spacing: 5) {
+                    Circle().fill(c).frame(width: 6, height: 6)
+                    Text(t).font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func haptics(_ flows: [NetSim.Flow]) {
+        if flows.contains(where: { $0.kind == .ban }) {
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        } else if flows.contains(where: { $0.kind == .blocked }) {
+            UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.7)
+        } else if flows.contains(where: { $0.kind == .settle }) {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        }
+    }
+
     private var controls: some View {
         LabPanel(title: L("Потік").s) {
-            HStack(spacing: 10) {
-                Button(running ? L("Пауза").s : L("Запустити").s) { running.toggle() }.buttonStyle(InkButton())
-                Button(L("Крок").s) { sim.step(params) }.buttonStyle(LineButton()).disabled(running)
-                Button(L("Скинути").s) { running = false; sim = NetSim() }.buttonStyle(LineButton())
-            }
             LabSlider(title: L("Переказів за крок").s, value: "\(Int(params.intensity))",
                       x: Binding(get: { params.intensity }, set: { params.intensity = $0.rounded() }), range: 1...6)
             LabSlider(title: L("Частка шахрайства").s, value: "\(Int(params.fraudShare * 100))%",
@@ -254,6 +328,32 @@ struct NetworkLab: View {
         case .blocked, .banned, .rejected: Theme.alert
         case .clearing, .settle, .auto: Theme.accent
         case .ok: Color.secondary
+        }
+    }
+}
+
+private extension Array {
+    subscript(safe i: Int) -> Element? { indices.contains(i) ? self[i] : nil }
+}
+
+/// Схеми шахрайства одним рядом: торкнулися - атака пішла.
+@MainActor @ViewBuilder
+func attackChips(_ schemes: [NetSim.Scheme], _ run: @escaping @MainActor (NetSim.Scheme) -> Void) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+        Text(L("Атака").s).font(.caption.weight(.semibold)).foregroundStyle(.secondary).textCase(.uppercase).tracking(1.2)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(schemes, id: \.self) { s in
+                    Button { run(s) } label: {
+                        Text(s.title).font(.footnote.weight(.medium)).lineLimit(1)
+                            .padding(.horizontal, 14).padding(.vertical, 9)
+                            .background(Theme.alert.opacity(0.16), in: .capsule)
+                            .overlay(Capsule().strokeBorder(Theme.alert.opacity(0.4), lineWidth: 1))
+                            .foregroundStyle(Theme.ink)
+                    }
+                    .buttonStyle(PressScale())
+                }
+            }
         }
     }
 }

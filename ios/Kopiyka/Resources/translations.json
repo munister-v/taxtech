@@ -8260,5 +8260,35 @@
 "it": "La cronologia dei blocchi pesa sul conto per alcuni giorni.",
 "de": "Die Sperrhistorie wirkt einige Tage auf das Konto.",
 "ru": "История блокировок влияет на счёт несколько дней."
+},
+"Карта мережі": {
+"en": "Network map",
+"it": "Mappa della rete",
+"de": "Netzwerkkarte",
+"ru": "Карта сети"
+},
+"Кліринг": {
+"en": "Clearing",
+"it": "Compensazione",
+"de": "Clearing",
+"ru": "Клиринг"
+},
+"Атака": {
+"en": "Attack",
+"it": "Attacco",
+"de": "Angriff",
+"ru": "Атака"
+},
+"Між банками": {
+"en": "Between banks",
+"it": "Tra banche",
+"de": "Zwischen Banken",
+"ru": "Между банками"
+},
+"Шахрайство": {
+"en": "Fraud",
+"it": "Frode",
+"de": "Betrug",
+"ru": "Мошенничество"
 }
 }
