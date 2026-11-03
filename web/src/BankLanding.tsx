@@ -652,7 +652,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <Lazy id="inside" className="bl-sec bl-inside" h={[1527, 1568]}>
           <div className="bl-wrap">
             <div className="bl-inside-head bl-rv">
-              <span className="bl-inside-eyebrow" aria-hidden>S · P · Q · R</span>
               <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
             <div className="bl-hood bl-rv" ref={hoodRefCb}>

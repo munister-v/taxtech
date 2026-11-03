@@ -985,3 +985,22 @@
   .bl-rome-bar span { font-size: 11px; letter-spacing: .1em; }
   .bl-rome-card { width: min(280px, 72%); }
 }
+
+/* ── Line T. and About, mature: flat black, no sunburst, shimmer, ornaments, double frames or ringed portraits; type does the work ── */
+.bl-inside { background: #000; overflow: visible; }
+.bl-inside::before { content: none; }
+.bl-inside-head { margin-bottom: 48px; text-align: left; }
+.bl-inside-head::after { content: none; }
+.bl .bl-inside-head .bl-h { font-family: inherit; font-weight: 600; font-size: clamp(34px, 5vw, 64px); letter-spacing: -.04em; text-indent: 0; text-transform: none; line-height: 1.02; white-space: normal;
+  background: none; -webkit-background-clip: border-box; background-clip: border-box; color: #f3ecdc; filter: none; animation: none; }
+.bl-hood { padding: 0; border-radius: 22px; background: none; box-shadow: none; }
+.bl-hood::before, .bl-hood::after { content: none; }
+.bl-plat { box-shadow: none; }
+.bl-hello { background: #000; border-top: 1px solid rgba(255,255,255,.07); }
+.bl-hello-card { padding: 24px; border-radius: 18px; background: #0d0c0a; box-shadow: none; }
+.bl-hello-photo { box-shadow: none; }
+.bl .bl-hello-card h3 { font-size: 19px; color: #f3ecdc; }
+.bl .bl-hello-role { letter-spacing: .1em; color: #a89a7c; }
+.bl .bl-hello .bl-h { font-weight: 600; letter-spacing: -.035em; color: #f3ecdc; }
+.bl .bl-hello-lead { color: #cfc8b8; }
+@media (max-width: 734px) { .bl-inside-head { margin-bottom: 32px; } }
