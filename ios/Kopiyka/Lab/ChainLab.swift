@@ -119,12 +119,12 @@ struct ChainLab: View {
             HeroCaption(L("Перевірка ланцюга").s)
             Text(firstBroken.map { L("Розрив із запису №\($0 + 1)").s } ?? L("Ланцюг цілий").s)
                 .font(.display(30, .medium)).tracking(-0.6).padding(.top, 4)
+            actions.padding(.top, 14)
             ChainCanvas(blocks: blocks, bad: bad, anchor: anchor, anchorOK: anchorMatches, selected: selected, wave: wave) { i in
                 selected = i
                 UISelectionFeedbackGenerator().selectionChanged()
             }
-            .padding(.top, 10)
-            actions.padding(.top, 12)
+            .padding(.top, 18)
         }
     }
 
@@ -154,6 +154,11 @@ struct ChainLab: View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
                 Button(L("Підмінити запис").s) { blocks[selected].amount += 1_000 }.buttonStyle(LineButton())
+                // чесний запис можливий, лише поки дані дають записаний відбиток
+                Button(L("Додати запис").s) { append() }.buttonStyle(LineButton())
+                    .disabled(!anchorMatches)
+            }
+            HStack(spacing: 10) {
                 Button(L("Перерахувати відбитки").s) {
                     wave = ChainWave(kind: .reseal, start: Date.timeIntervalSinceReferenceDate, prevBad: verified.broken)
                     UIImpactFeedbackGenerator(style: .soft).impactOccurred()
@@ -165,16 +170,15 @@ struct ChainLab: View {
                 }
                 .buttonStyle(InkButton())
                 .disabled(firstBroken == nil)
-            }
-            HStack(spacing: 10) {
-                // чесний запис можливий, лише поки дані дають записаний відбиток
-                Button(L("Додати запис").s) { append() }.buttonStyle(LineButton())
-                    .disabled(!anchorMatches)
-                Button(L("Скинути").s) {
+                Button {
                     blocks = Self.build(rows)
                     anchor = blocks.last?.hash ?? Self.zero
+                } label: {
+                    Image(systemName: "arrow.counterclockwise").font(.body.weight(.semibold))
                 }
                 .buttonStyle(LineButton())
+                .frame(width: 64)
+                .accessibilityLabel(L("Скинути").s)
             }
         }
     }
@@ -202,7 +206,7 @@ struct ChainWave {
     let prevBad: [Bool]
 }
 
-/// Ланцюг блоків по горизонталі: розрив біжить від зміненого запису вправо, перерахунок проходить хвилею назад,
+/// Ланцюг блоків згори вниз: розрив іде від зміненого запису вниз по рейці, перерахунок проходить золотою хвилею,
 /// а відбиток, записаний окремо, лишається вердиктом.
 private struct ChainCanvas: View {
     let blocks: [ChainLab.Block]
@@ -213,32 +217,27 @@ private struct ChainCanvas: View {
     let wave: ChainWave?
     let onSelect: (Int) -> Void
 
-    private let bw: CGFloat = 100, bh: CGFloat = 122, gap: CGFloat = 40, pad: CGFloat = 14, top: CGFloat = 16
-    private let aw: CGFloat = 108
-    private var width: CGFloat { pad + CGFloat(blocks.count) * (bw + gap) + aw + pad }
+    private let bh: CGFloat = 66, gap: CGFloat = 28, ah: CGFloat = 48, rail: CGFloat = 26
+    private var height: CGFloat { CGFloat(blocks.count) * (bh + gap) + ah + 4 }
 
-    private func rect(_ i: Int) -> CGRect { CGRect(x: pad + CGFloat(i) * (bw + gap), y: top, width: bw, height: bh) }
-    private var anchorRect: CGRect { CGRect(x: pad + CGFloat(blocks.count) * (bw + gap), y: top + 22, width: aw, height: bh - 44) }
+    private func rect(_ i: Int, _ w: CGFloat) -> CGRect { CGRect(x: 0, y: 2 + CGFloat(i) * (bh + gap), width: w, height: bh) }
+    private func anchorRect(_ w: CGFloat) -> CGRect { CGRect(x: 0, y: 2 + CGFloat(blocks.count) * (bh + gap), width: w, height: ah) }
     private func short(_ h: String) -> String { String(h.prefix(8)) }
     private var zero: String { String(repeating: "0", count: 64) }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                TimelineView(.animation) { tl in
-                    Canvas { ctx, size in draw(&ctx, now: tl.date.timeIntervalSinceReferenceDate) }
-                }
-                .frame(width: width, height: bh + top * 2)
-                .overlay {
-                    Color.clear.contentShape(.rect).onTapGesture { p in
-                        if let i = blocks.indices.first(where: { rect($0).insetBy(dx: -(gap / 2), dy: 0).contains(p) }) { onSelect(i) }
-                    }
-                }
-                .overlay(alignment: .trailing) { Color.clear.frame(width: 1).id("end") }
-            }
-            .onChange(of: blocks.count) { _, _ in withAnimation { proxy.scrollTo("end", anchor: .trailing) } }
+        TimelineView(.animation) { tl in
+            Canvas { ctx, size in draw(&ctx, size.width, now: tl.date.timeIntervalSinceReferenceDate) }
         }
-        .frame(height: bh + top * 2)
+        .frame(height: height)
+        .overlay {
+            GeometryReader { g in
+                Color.clear.contentShape(.rect).onTapGesture { p in
+                    if let i = blocks.indices.first(where: { rect($0, g.size.width).insetBy(dx: 0, dy: -gap / 2).contains(p) }) { onSelect(i) }
+                }
+            }
+        }
+        .animation(.snappy, value: blocks.count)
         .accessibilityElement()
         .accessibilityLabel(L("Ланцюг").s)
     }
@@ -247,115 +246,118 @@ private struct ChainCanvas: View {
         switch w.kind {
         case .tamper(let i): 0.9 + Double(blocks.count - i) * 0.35 + 0.8
         case .reseal: 0.9 + Double(blocks.count) * 0.3 + 0.8
-        case .append: 1.4
+        case .append: 1.6
         }
     }
 
-    private func draw(_ ctx: inout GraphicsContext, now t: TimeInterval) {
+    private func pulse(_ ctx: inout GraphicsContext, _ r: CGRect, tint: Color, u: Double) {
+        guard u >= 0, u <= 1 else { return }
+        let grow = 10 * u
+        ctx.stroke(Path(roundedRect: r.insetBy(dx: -grow, dy: -grow), cornerRadius: 14 + grow, style: .continuous),
+                   with: .color(tint.opacity(0.9 * (1 - u))), lineWidth: 1.6)
+    }
+
+    private func draw(_ ctx: inout GraphicsContext, _ w: CGFloat, now t: TimeInterval) {
         let e = wave.map { t - $0.start } ?? .infinity
         let active = wave.map { e < duration($0) } ?? false
+        let n = blocks.count
         func shown(_ k: Int) -> Bool {
             let b = k < bad.count ? bad[k] : false
-            guard active, let w = wave else { return b }
-            switch w.kind {
+            guard active, let wv = wave else { return b }
+            switch wv.kind {
             case .tamper(let i): return b && k >= i ? e >= 0.1 + Double(k - i) * 0.35 : b
-            case .reseal: return k < w.prevBad.count && w.prevBad[k] && e < 0.2 + Double(k) * 0.3 ? true : b
+            case .reseal: return k < wv.prevBad.count && wv.prevBad[k] && e < 0.2 + Double(k) * 0.3 ? true : b
             case .append: return b
             }
         }
         var anchorBad = !anchorOK
-        if active, let w = wave {
-            switch w.kind {
-            case .tamper(let i): anchorBad = !anchorOK && e >= 0.1 + Double(blocks.count - i) * 0.35
-            case .reseal: anchorBad = !anchorOK && e >= 0.3 + Double(blocks.count) * 0.3
+        if active, let wv = wave {
+            switch wv.kind {
+            case .tamper(let i): anchorBad = !anchorOK && e >= 0.1 + Double(n - i) * 0.35
+            case .reseal: anchorBad = !anchorOK && e >= 0.2 + Double(n) * 0.3
             case .append: break
             }
         }
         let appended: Int? = { if case .append(let i)? = wave?.kind, active { return i }; return nil }()
 
-        // ланки між блоками
-        for k in 0..<blocks.count {
-            let a = CGPoint(x: rect(k).maxX, y: rect(k).midY)
-            let b = CGPoint(x: k + 1 < blocks.count ? rect(k + 1).minX : anchorRect.minX, y: rect(k).midY)
-            let broken = k + 1 < blocks.count ? shown(k + 1) : anchorBad
+        // рейка між блоками
+        for k in 0..<n {
             if let ap = appended, k + 1 > ap { continue }
-            if k + 1 == blocks.count {
-                var d = Path(); d.move(to: a); d.addLine(to: b)
-                ctx.stroke(d, with: .color((broken ? Theme.alert : Theme.accent).opacity(0.6)), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
-                if broken { LabFX.sparks(&ctx, CGPoint(x: (a.x + b.x) / 2, y: a.y), k: (e.truncatingRemainder(dividingBy: 1.2)) / 1.2, tint: Theme.alert, count: 5) }
-                continue
-            }
-            link(&ctx, a, b, broken: broken, time: t)
+            let a = CGPoint(x: rail, y: rect(k, w).maxY)
+            let b = CGPoint(x: rail, y: k + 1 < n ? rect(k + 1, w).minY : anchorRect(w).minY)
+            connector(&ctx, a, b, broken: k + 1 < n ? shown(k + 1) : anchorBad, dashed: k + 1 == n, time: t)
         }
 
         // блоки
-        for k in 0..<blocks.count {
-            var r = rect(k)
+        for k in 0..<n {
+            var r = rect(k, w)
             if let ap = appended, k == ap {
                 let u = min(max((e - 0.5) / 0.5, 0), 1)
-                r = r.offsetBy(dx: 30 * (1 - u), dy: 0)
+                r = r.offsetBy(dx: 0, dy: 14 * (1 - u))
                 ctx.opacity = u
             }
             block(&ctx, k, r, bad: shown(k))
             ctx.opacity = 1
         }
 
-        // якір
-        let ar = anchorRect
-        let ap = Path(roundedRect: ar, cornerRadius: 12, style: .continuous)
-        ctx.fill(ap, with: .color(anchorBad ? Theme.alert.opacity(0.2) : Theme.ink.opacity(0.06)))
-        ctx.stroke(ap, with: .color(anchorBad ? Theme.alert : Theme.accent.opacity(0.6)), style: StrokeStyle(lineWidth: 1.4, dash: [5, 3]))
-        ctx.draw(Text(L("Записано окремо").s).font(.system(size: 9.5, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.55)), at: CGPoint(x: ar.midX, y: ar.minY + 14))
-        ctx.draw(Text(short(anchor)).font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundStyle(anchorBad ? Theme.alert : Theme.accent), at: CGPoint(x: ar.midX, y: ar.midY))
-        ctx.draw(Text(anchorBad ? "✕" : "✓").font(.system(size: 16, weight: .bold)).foregroundStyle(anchorBad ? Theme.alert : Theme.accent), at: CGPoint(x: ar.midX, y: ar.maxY - 14))
+        // запис окремо
+        let ar = anchorRect(w)
+        let shape = Path(roundedRect: ar, cornerRadius: 14, style: .continuous)
+        let tint = anchorBad ? Theme.alert : Theme.accent
+        ctx.fill(shape, with: .color(anchorBad ? Theme.alert.opacity(0.12) : Theme.ink.opacity(0.04)))
+        ctx.stroke(shape, with: .color(tint.opacity(anchorBad ? 0.9 : 0.5)), style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
+        ctx.draw(Text(L("Записано окремо").s).font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.6)),
+                 at: CGPoint(x: ar.minX + 14, y: ar.midY), anchor: .leading)
+        ctx.draw(Text(anchorBad ? "✕" : "✓").font(.system(size: 15, weight: .bold)).foregroundStyle(tint), at: CGPoint(x: ar.maxX - 16, y: ar.midY))
+        ctx.draw(Text("# " + short(anchor)).font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundStyle(tint),
+                 at: CGPoint(x: ar.maxX - 34, y: ar.midY), anchor: .trailing)
 
         // хвилі
-        guard active, let w = wave else { return }
-        switch w.kind {
+        guard active, let wv = wave else { return }
+        func linkEnds(_ k: Int) -> (CGPoint, CGPoint) {
+            (CGPoint(x: rail, y: rect(k, w).maxY), CGPoint(x: rail, y: k + 1 < n ? rect(k + 1, w).minY : ar.minY))
+        }
+        switch wv.kind {
         case .tamper(let i):
-            let c = CGPoint(x: rect(i).midX, y: rect(i).midY)
-            LabFX.ring(&ctx, c, r: 20 + 50 * min(e / 0.7, 1), tint: Theme.alert, alpha: 1 - min(e / 0.7, 1))
-            LabFX.sparks(&ctx, CGPoint(x: rect(i).midX, y: rect(i).minY), k: e / 0.7, tint: Theme.alert)
-            for k in i..<blocks.count {
-                let a = CGPoint(x: rect(k).maxX, y: rect(k).midY)
-                let b = CGPoint(x: k + 1 < blocks.count ? rect(k + 1).minX : anchorRect.minX, y: rect(k).midY)
-                LabFX.comet(&ctx, from: a, to: b, t: (e - 0.1 - Double(k - i) * 0.35 + 0.35) / 0.35, tint: Theme.alert)
-                if k + 1 < blocks.count {
-                    let at = 0.1 + Double(k + 1 - i) * 0.35
-                    LabFX.ring(&ctx, CGPoint(x: rect(k + 1).midX, y: rect(k + 1).midY), r: 24 + 40 * ((e - at) / 0.6), tint: Theme.alert, alpha: (e > at ? 1 - (e - at) / 0.6 : 0) * 0.7)
-                }
+            pulse(&ctx, rect(i, w), tint: Theme.alert, u: e / 0.7)
+            for k in i..<n {
+                let start = 0.1 + Double(k - i) * 0.35
+                let (a, b) = linkEnds(k)
+                LabFX.comet(&ctx, from: a, to: b, t: (e - start) / 0.35, tint: Theme.alert)
+                if k + 1 < n { pulse(&ctx, rect(k + 1, w), tint: Theme.alert, u: (e - start - 0.35) / 0.6) }
             }
         case .reseal:
-            for k in 0..<blocks.count {
+            for k in 0..<n {
                 let at = 0.2 + Double(k) * 0.3
-                if k > 0 {
-                    LabFX.comet(&ctx, from: CGPoint(x: rect(k - 1).maxX, y: rect(k).midY), to: CGPoint(x: rect(k).minX, y: rect(k).midY), t: (e - at + 0.3) / 0.3, tint: Theme.accent)
-                }
-                LabFX.ring(&ctx, CGPoint(x: rect(k).midX, y: rect(k).midY), r: 24 + 36 * ((e - at) / 0.6), tint: Theme.accent, alpha: (e > at ? 1 - (e - at) / 0.6 : 0) * 0.8)
+                if k > 0 { let (a, b) = linkEnds(k - 1); LabFX.comet(&ctx, from: a, to: b, t: (e - (at - 0.3)) / 0.3, tint: Theme.accent) }
+                pulse(&ctx, rect(k, w), tint: Theme.accent, u: (e - at) / 0.6)
             }
-            let end = 0.3 + Double(blocks.count) * 0.3
-            let c = CGPoint(x: anchorRect.midX, y: anchorRect.midY)
-            LabFX.comet(&ctx, from: CGPoint(x: rect(blocks.count - 1).maxX, y: rect(blocks.count - 1).midY), to: CGPoint(x: anchorRect.minX, y: rect(blocks.count - 1).midY), t: (e - end + 0.3) / 0.3, tint: Theme.accent)
-            if !anchorOK { LabFX.sparks(&ctx, c, k: (e - end) / 0.7, tint: Theme.alert) }
-            else { LabFX.ring(&ctx, c, r: 30 + 40 * ((e - end) / 0.7), tint: Theme.accent, alpha: e > end ? 1 - (e - end) / 0.7 : 0) }
+            let last = 0.2 + Double(n - 1) * 0.3
+            let (a, b) = linkEnds(n - 1)
+            LabFX.comet(&ctx, from: a, to: b, t: (e - last) / 0.3, tint: Theme.accent)
+            let end = last + 0.3
+            pulse(&ctx, ar, tint: anchorOK ? Theme.accent : Theme.alert, u: (e - end) / 0.7)
         case .append(let i):
-            LabFX.comet(&ctx, from: CGPoint(x: rect(i - 1).maxX - 10, y: rect(i).midY), to: CGPoint(x: rect(i).minX, y: rect(i).midY), t: (e - 0.1) / 0.5, tint: Theme.accent)
-            LabFX.ring(&ctx, CGPoint(x: rect(i).midX, y: rect(i).midY), r: 24 + 40 * ((e - 0.9) / 0.5), tint: Theme.accent, alpha: e > 0.9 ? 1 - (e - 0.9) / 0.5 : 0)
+            let (a, b) = linkEnds(i - 1)
+            LabFX.comet(&ctx, from: a, to: b, t: (e - 0.1) / 0.5, tint: Theme.accent)
+            pulse(&ctx, rect(i, w), tint: Theme.accent, u: (e - 0.9) / 0.6)
         }
     }
 
-    private func link(_ ctx: inout GraphicsContext, _ a: CGPoint, _ b: CGPoint, broken: Bool, time t: TimeInterval) {
-        let tint = broken ? Theme.alert : Theme.accent
-        let mid = (a.x + b.x) / 2
-        func cell(_ cx: CGFloat) -> Path { Path(roundedRect: CGRect(x: cx - 12, y: a.y - 7, width: 24, height: 14), cornerRadius: 7) }
+    /// Тонка рейка між блоками: цілою - рівна лінія з точкою, розірваною - дві зламані половини з іскрами.
+    private func connector(_ ctx: inout GraphicsContext, _ a: CGPoint, _ b: CGPoint, broken: Bool, dashed: Bool, time t: TimeInterval) {
+        let mid = CGPoint(x: a.x, y: (a.y + b.y) / 2)
         if broken {
-            let j = sin(t * 40) * 1.2
-            ctx.stroke(cell(a.x + 8 - 3 + j), with: .color(tint), lineWidth: 2)
-            ctx.stroke(cell(b.x - 8 + 3 - j), with: .color(tint), lineWidth: 2)
-            LabFX.sparks(&ctx, CGPoint(x: mid, y: a.y), k: (t.truncatingRemainder(dividingBy: 1.1)) / 1.1, tint: tint, count: 5)
+            let j = sin(t * 38) * 1.3
+            var top = Path(); top.move(to: a); top.addLine(to: CGPoint(x: a.x + j, y: mid.y - 5))
+            var bot = Path(); bot.move(to: CGPoint(x: a.x - j, y: mid.y + 5)); bot.addLine(to: b)
+            ctx.stroke(top, with: .color(Theme.alert), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+            ctx.stroke(bot, with: .color(Theme.alert), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+            LabFX.sparks(&ctx, mid, k: t.truncatingRemainder(dividingBy: 1.1) / 1.1, tint: Theme.alert, count: 6)
         } else {
-            ctx.stroke(cell(mid - 7), with: .color(tint.opacity(0.75)), lineWidth: 2)
-            ctx.stroke(cell(mid + 7), with: .color(tint.opacity(0.75)), lineWidth: 2)
+            var l = Path(); l.move(to: a); l.addLine(to: b)
+            ctx.stroke(l, with: .color(Theme.accent.opacity(0.55)), style: StrokeStyle(lineWidth: 1.6, lineCap: .round, dash: dashed ? [3, 4] : []))
+            ctx.fill(Path(ellipseIn: CGRect(x: mid.x - 3, y: mid.y - 3, width: 6, height: 6)), with: .color(Theme.accent.opacity(0.8)))
         }
     }
 
@@ -363,18 +365,16 @@ private struct ChainCanvas: View {
         let b = blocks[k]
         let sel = k == selected
         let shape = Path(roundedRect: r, cornerRadius: 14, style: .continuous)
-        ctx.fill(shape, with: .color(bad ? Theme.alert.opacity(0.2) : Theme.ink.opacity(sel ? 0.12 : 0.06)))
-        ctx.stroke(shape, with: .color(bad ? Theme.alert : sel ? Theme.accent : Theme.accent.opacity(0.35)), lineWidth: sel || bad ? 1.8 : 1)
-        let x = r.minX + 11
-        ctx.draw(Text("№\(b.id)").font(.system(size: 10, weight: .semibold)).foregroundStyle(Theme.ink.opacity(0.45)), at: CGPoint(x: x, y: r.minY + 15), anchor: .leading)
-        ctx.draw(Text(String(b.note.prefix(11))).font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.ink), at: CGPoint(x: x, y: r.minY + 36), anchor: .leading)
-        ctx.draw(Text(Format.short(b.amount)).font(.system(size: 14, weight: .semibold).monospacedDigit()).foregroundStyle(bad ? Theme.alert : Theme.ink), at: CGPoint(x: x, y: r.minY + 58), anchor: .leading)
-        var line = Path()
-        line.move(to: CGPoint(x: x, y: r.minY + 76)); line.addLine(to: CGPoint(x: r.maxX - 11, y: r.minY + 76))
-        ctx.stroke(line, with: .color(Theme.ink.opacity(0.12)), lineWidth: 1)
-        ctx.draw(Text("← " + short(k == 0 ? zero : blocks[k - 1].hash)).font(.system(size: 9.5, design: .monospaced)).foregroundStyle(Theme.ink.opacity(0.35)),
-                 at: CGPoint(x: x, y: r.minY + 92), anchor: .leading)
-        ctx.draw(Text("# " + short(b.hash)).font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundStyle(bad ? Theme.alert : Theme.accent),
-                 at: CGPoint(x: x, y: r.minY + 108), anchor: .leading)
+        ctx.fill(shape, with: .color(bad ? Theme.alert.opacity(0.12) : Theme.ink.opacity(sel ? 0.09 : 0.05)))
+        ctx.stroke(shape, with: .color(bad ? Theme.alert.opacity(0.9) : sel ? Theme.accent : Theme.ink.opacity(0.12)), lineWidth: sel || bad ? 1.4 : 1)
+        let x = r.minX + 14
+        ctx.draw(Text("№\(b.id)").font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.ink.opacity(0.4)), at: CGPoint(x: x, y: r.minY + 22), anchor: .leading)
+        ctx.draw(Text(String(b.note.prefix(20))).font(.system(size: 14, weight: .medium)).foregroundStyle(Theme.ink), at: CGPoint(x: x + 30, y: r.minY + 22), anchor: .leading)
+        ctx.draw(Text(Format.short(b.amount)).font(.system(size: 15, weight: .semibold).monospacedDigit()).foregroundStyle(bad ? Theme.alert : Theme.ink),
+                 at: CGPoint(x: r.maxX - 14, y: r.minY + 22), anchor: .trailing)
+        ctx.draw(Text("← " + short(k == 0 ? zero : blocks[k - 1].hash)).font(.system(size: 10.5, design: .monospaced)).foregroundStyle(Theme.ink.opacity(0.32)),
+                 at: CGPoint(x: x, y: r.minY + 47), anchor: .leading)
+        ctx.draw(Text("# " + short(b.hash)).font(.system(size: 11.5, weight: .semibold, design: .monospaced)).foregroundStyle(bad ? Theme.alert : Theme.accent),
+                 at: CGPoint(x: r.maxX - 14, y: r.minY + 47), anchor: .trailing)
     }
 }
