@@ -266,6 +266,20 @@ class PaymentCore:
             )
             tx_in_id = insert_last_id(cur_in)
 
+            # Хеші цілісності (IntegrityService) — ланки хеш-ланцюга обох рахунків, що
+            # дозволяють згодом виявити ручне втручання в БД (підміну суми, напрямку, часу
+            # чи видалення рядка напряму через SQL, минаючи API). Пишуться в цій самій
+            # транзакції: рядки обох рахунків уже заблоковано UPDATE-ами вище, тож
+            # паралельні перекази додають ланки по черзі, а переказу без ланки не буває.
+            # Хешуються сума й created_at у тому вигляді, в якому їх записала БД (DECIMAL,
+            # DEFAULT CURRENT_TIMESTAMP): verify_account() перераховує хеш саме з рядка в БД.
+            stored = {int(r['id']): r for r in conn.execute(
+                'SELECT id, amount, created_at FROM transactions WHERE id IN (%s, %s)', (tx_out_id, tx_in_id)
+            ).fetchall()}
+            for tx_id, acc_id, direction in ((tx_out_id, sender['id'], 'out'), (tx_in_id, recipient['id'], 'in')):
+                row = stored[int(tx_id)]
+                self._integrity.append(conn, tx_id, acc_id, float(row['amount']), direction, str(row['created_at']))
+
         # Основна атомарна транзакція вище вже закомічена (вихід з `with`).
         # Тепер читаємо оновлені баланси окремим запитом — вони потрібні лише
         # для запису в журнал (ledger), сам переказ уже виконано і незворотний.
@@ -296,18 +310,6 @@ class PaymentCore:
                 sender_balance_after=sender_bal_after,
                 recipient_balance_after=recipient_bal_after,
             )
-        except Exception:
-            pass
-
-        # Хеші цілісності (IntegrityService) — криптографічний "відбиток"
-        # кожної транзакції, що дозволяє згодом виявити ручне втручання в БД
-        # (підміну суми/рахунку напряму через SQL, минаючи API).
-        # Записуються поза основною транзакцією — best-effort.
-        try:
-            import datetime
-            now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
-            self._integrity.record(tx_out_id, sender['id'], amount, 'out', now_str)
-            self._integrity.record(tx_in_id, recipient['id'], amount, 'in', now_str)
         except Exception:
             pass
 

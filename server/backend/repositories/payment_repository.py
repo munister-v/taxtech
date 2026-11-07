@@ -110,20 +110,24 @@ class PaymentRepository:
                        WHERE id = %s""",
                     (status, tx_id_out, tx_id_in, failure_reason, order_id)
                 )
-            if prev and str(prev.get('status') or '') != str(status):
-                conn.execute(
-                    """INSERT INTO payment_order_events
-                       (payment_order_id, actor_user_id, event_type, details)
-                       VALUES (%s,NULL,'status_changed',%s)""",
-                    (order_id, f'{prev.get("status")}->{status}')
-                )
             else:
+                # Раніше цей UPDATE стояв у else-гілці перевірки «статус змінився», тож
+                # справжній перехід (pending -> processing -> completed) лише писав подію,
+                # а замовлення лишалось pending: повтор із тим самим Idempotency-Key не
+                # бачив completed і падав на UNIQUE замість того, щоб повернути результат.
                 conn.execute(
                     """UPDATE payment_orders
                        SET status = %s, tx_id_out = %s, tx_id_in = %s,
                            failure_reason = %s, updated_at = CURRENT_TIMESTAMP
                        WHERE id = %s""",
                     (status, tx_id_out, tx_id_in, failure_reason, order_id)
+                )
+            if prev and str(prev.get('status') or '') != str(status):
+                conn.execute(
+                    """INSERT INTO payment_order_events
+                       (payment_order_id, actor_user_id, event_type, details)
+                       VALUES (%s,NULL,'status_changed',%s)""",
+                    (order_id, f'{prev.get("status")}->{status}')
                 )
 
     def list_orders(self, limit: int = 100, offset: int = 0,

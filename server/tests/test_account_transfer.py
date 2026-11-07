@@ -130,6 +130,68 @@ def test_transfer_updates_both_balances(client):
     assert float(acc2_after['balance']) == 1500.0
 
 
+def test_transfer_hash_chain_verifies_and_catches_tampering(client):
+    """Ланки хеш-ланцюга, записані реальним переказом, проходять перевірку,
+    а правка суми в БД в обхід застосунку ламає саме цю ланку."""
+    from backend.database import get_connection
+    from backend.services.integrity_service import IntegrityService
+
+    _, tok1 = _register(client)
+    _, tok2 = _register(client)
+    h1 = {'Authorization': f'Bearer {tok1}'}
+    client.post('/api/transactions/topup', json={'amount': 5000}, headers=h1)
+    acc1, acc2 = _get_account(client, tok1), _get_account(client, tok2)
+    for amount in (100, 250.5, 75):
+        r = client.post('/api/transactions/transfer', json={
+            'recipient_account_number': acc2['account_number'], 'amount': amount,
+        }, headers=h1)
+        assert r.get_json()['ok'] is True
+
+    integrity = IntegrityService()
+    for acc in (acc1, acc2):
+        report = integrity.verify_account(acc['id'])
+        assert report['ok'] and report['total'] == 3, report
+
+    with get_connection() as conn:
+        tx = conn.execute(
+            "SELECT id FROM transactions WHERE account_id = %s AND direction = 'out' ORDER BY id LIMIT 1 OFFSET 1",
+            (acc1['id'],),
+        ).fetchone()
+        conn.execute('UPDATE transactions SET amount = amount + 0.01 WHERE id = %s', (tx['id'],))
+    report = integrity.verify_account(acc1['id'])
+    assert not report['ok'] and report['broken_at'] == tx['id']
+
+
+def test_transfer_retry_with_same_key_returns_original_result(client):
+    """Повтор того самого переказу (той самий Idempotency-Key) повертає перший
+    результат і не списує вдруге; замовлення доходить до completed."""
+    from backend.database import get_connection
+
+    _, tok1 = _register(client)
+    _, tok2 = _register(client)
+    h1 = {'Authorization': f'Bearer {tok1}', 'Idempotency-Key': 'retry-key-' + _rand_uid()}
+    client.post('/api/transactions/topup', json={'amount': 1000},
+                headers={'Authorization': f'Bearer {tok1}'})
+    body = {'recipient_account_number': _get_account(client, tok2)['account_number'], 'amount': 300}
+
+    first = client.post('/api/transactions/transfer', json=body, headers=h1).get_json()
+    assert first['ok'] is True, first
+    for _ in range(3):
+        again = client.post('/api/transactions/transfer', json=body, headers=h1).get_json()
+        assert again['ok'] is True, again
+        assert float(again['data']['balance']) == 700.0
+
+    account = _get_account(client, tok1)
+    assert float(account['balance']) == 700.0
+    with get_connection() as conn:
+        orders = conn.execute('SELECT status FROM payment_orders WHERE idempotency_key = %s',
+                              (h1['Idempotency-Key'],)).fetchall()
+        debits = conn.execute("SELECT COUNT(*) AS n FROM transactions WHERE account_id = %s AND direction = 'out'",
+                              (account['id'],)).fetchone()
+    assert [o['status'] for o in orders] == ['completed']
+    assert int(debits['n']) == 1
+
+
 def test_transfer_insufficient_funds(client):
     uid1, tok1 = _register(client)
     uid2, tok2 = _register(client)

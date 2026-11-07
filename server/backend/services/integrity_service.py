@@ -52,21 +52,32 @@ class IntegrityService:
                amount: float, direction: str, created_at: str) -> str:
         """Обчислює і зберігає хеш нової транзакції. Повертає хеш."""
         with get_connection() as conn:
-            # Беремо хеш останньої ланки рахунку — він стане prev_hash для нової.
-            row = conn.execute(
-                """SELECT chain_hash FROM integrity_hashes
-                   WHERE account_id = %s
-                   ORDER BY id DESC LIMIT 1""",
-                (account_id,)
-            ).fetchone()
-            prev_hash = row['chain_hash'] if row else '0' * 64   # перша транзакція -> «нульовий» корінь ланцюга
-            tx_hash = _hash_tx(tx_id, account_id, amount, direction, created_at, prev_hash)  # нова ланка
-            conn.execute(
-                """INSERT INTO integrity_hashes
-                   (account_id, transaction_id, prev_hash, tx_hash, chain_hash)
-                   VALUES (%s, %s, %s, %s, %s)""",
-                (account_id, tx_id, prev_hash, tx_hash, tx_hash)
-            )
+            return self.append(conn, tx_id, account_id, amount, direction, created_at)
+
+    def append(self, conn, tx_id: int, account_id: int,
+               amount: float, direction: str, created_at: str) -> str:
+        """Додає ланку в межах уже відкритої транзакції БД.
+
+        Платіжне ядро викликає це в тій самій транзакції, що списує й зараховує кошти:
+        рядок рахунку там уже заблоковано UPDATE-ом, тож паралельні перекази одного
+        рахунку додають ланки по черзі. Окремим з'єднанням два перекази брали той самий
+        prev_hash, ланцюг «роздвоювався», і перевірка бачила підміну там, де її не було.
+        """
+        # Беремо хеш останньої ланки рахунку — він стане prev_hash для нової.
+        row = conn.execute(
+            """SELECT chain_hash FROM integrity_hashes
+               WHERE account_id = %s
+               ORDER BY id DESC LIMIT 1""",
+            (account_id,)
+        ).fetchone()
+        prev_hash = row['chain_hash'] if row else '0' * 64   # перша транзакція -> «нульовий» корінь ланцюга
+        tx_hash = _hash_tx(tx_id, account_id, amount, direction, created_at, prev_hash)  # нова ланка
+        conn.execute(
+            """INSERT INTO integrity_hashes
+               (account_id, transaction_id, prev_hash, tx_hash, chain_hash)
+               VALUES (%s, %s, %s, %s, %s)""",
+            (account_id, tx_id, prev_hash, tx_hash, tx_hash)
+        )
         return tx_hash
 
     def verify_account(self, account_id: int) -> dict:
