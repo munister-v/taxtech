@@ -40,7 +40,7 @@ enum Theme {
     static let edge = LinearGradient(colors: [.white.opacity(0.1), .white.opacity(0.1)], startPoint: .top, endPoint: .bottom)
 
     static func balance(_ size: CGFloat = 46) -> Font {
-        .custom("Futura-Medium", size: size)
+        .system(size: size, weight: .semibold)
     }
 
     /// Відтінок за місцем у переліку: найбільша категорія найтемніша.
@@ -103,10 +103,8 @@ struct MarkView: View {
 extension View {
     /// Мала підпис-мітка над блоком: капітель, розряджений набір.
     func caption() -> some View {
-        font(.custom("Futura-Medium", size: 12))
-            .tracking(2.2)
-            .textCase(.uppercase)
-            .foregroundStyle(Theme.gold)
+        font(.subheadline.weight(.medium))
+            .foregroundStyle(.secondary)
     }
 
     /// Золота волоскова рамка, як на панелях лендингу.
@@ -157,7 +155,7 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(.custom("Futura-Medium", size: 21))
+            Text(text).font(.system(size: 21, weight: .semibold))
             Spacer()
             if let trailing {
                 Text(trailing).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary).monospacedDigit()

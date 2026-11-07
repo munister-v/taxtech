@@ -308,7 +308,7 @@ struct ExperimentScreen: View {
                 if i > 0 { Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.5) }
                 HStack(alignment: .firstTextBaseline, spacing: 16) {
                     Text(String(format: "%02d", i + 1))
-                        .font(.custom("Futura-Medium", size: 13)).tracking(1.5)
+                        .font(.system(size: 13, weight: .semibold)).tracking(1.5)
                         .foregroundStyle(Theme.gold).frame(width: 24, alignment: .leading)
                     Text(text).font(.system(size: 17)).lineSpacing(5).fixedSize(horizontal: false, vertical: true)
                 }
@@ -373,7 +373,7 @@ struct QuizView: View {
         let q = qs[i]
         return VStack(alignment: .leading, spacing: 14) {
             Text(String(format: "%02d / %02d", i + 1, qs.count))
-                .font(.custom("Futura-Medium", size: 13)).tracking(1.5).foregroundStyle(Theme.gold)
+                .font(.system(size: 13, weight: .semibold)).tracking(1.5).foregroundStyle(Theme.gold)
             Text(q.text).font(.display(24, .medium)).tracking(-0.4).fixedSize(horizontal: false, vertical: true)
             VStack(spacing: 10) {
                 ForEach(q.options.indices, id: \.self) { o in option(i, q, o) }
@@ -422,7 +422,7 @@ struct QuizView: View {
         } label: {
             HStack(spacing: 14) {
                 Text(["A", "B", "C", "D"][min(o, 3)])
-                    .font(.custom("Futura-Medium", size: 13)).tracking(1)
+                    .font(.system(size: 13, weight: .semibold)).tracking(1)
                     .foregroundStyle(revealed && right ? Theme.accent : (wrong ? Theme.alert : Theme.gold))
                     .frame(width: 18)
                 Text(q.options[o]).font(.subheadline.weight(.medium)).multilineTextAlignment(.leading)

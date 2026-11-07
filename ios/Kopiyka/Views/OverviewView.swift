@@ -14,6 +14,7 @@ struct OverviewView: View {
     @State private var sheet: Sheet?
     @State private var prefill = ""
     @State private var showProfile = false
+    @State private var showTerminal = false
     @State private var selected: API.Transaction?
     @State private var hits: [API.Product] = []
     @State private var shown: Double = 0
@@ -32,10 +33,10 @@ struct OverviewView: View {
                 VStack(spacing: 0) {
                     hero
                     VStack(spacing: 12) {
-                        activity.rise(2)
-                        if !recipients.isEmpty { quickTransfer.rise(3) }
-                        wallet.rise(3)
-                        spending.rise(4)
+                        terminalTile.rise(3)
+                        activity.rise(4)
+                        if !recipients.isEmpty { quickTransfer.rise(5) }
+                        spending.rise(6)
                         if points.count > 1 { balanceTrend.rise(4) }
                         HStack(spacing: 12) {
                             taxesCard
@@ -53,6 +54,9 @@ struct OverviewView: View {
             .screenBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
+            #if DEBUG
+            .onAppear { if ProcessInfo.processInfo.environment["KOPIYKA_POS"] == "1" { showTerminal = true } }
+            #endif
             .refreshable { await load() }
             .sheet(item: $sheet) { s in
                 switch s {
@@ -61,6 +65,7 @@ struct OverviewView: View {
                 case .byAccount: TransferView(balance: bank.account?.balance ?? 0, startRecipient: prefill) { await load() }
                 }
             }
+            .fullScreenCover(isPresented: $showTerminal, onDismiss: { Task { await load() } }) { PosTerminalView() }
             .sheet(isPresented: $showProfile) { ProfileView().presentationDragIndicator(.visible) }
             .sheet(item: $selected) { tx in TransactionDetailView(tx: tx) }
         }
@@ -89,25 +94,26 @@ struct OverviewView: View {
 
     // MARK: Шапка з балансом
 
-    /// Спокійна шапка на тлі екрана: аватар і сповіщення, баланс по центру, рахунок і круглі дії.
+    /// Живе тло, привітання, великий баланс, картка-предмет, що нахиляється за телефоном, і круглі дії.
     private var hero: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 12) {
                 Button { showProfile = true } label: {
-                    // поки профіль не прийшов - значок, а не чужі «TT», що потім стрибають на справжні
-                    AvatarView(initials: initials ?? "TT", size: 40)
+                    AvatarView(initials: initials ?? "TT", size: 44)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(L("Профіль").s)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(Self.greeting).font(.footnote).foregroundStyle(.secondary)
+                    Text(firstName).font(.system(size: 17, weight: .semibold)).lineLimit(1)
+                }
                 Spacer()
-                BrandLockup(height: 26, color: Theme.ink)
-                Spacer()
+                GearButton()
                 NavigationLink { NoticesView() } label: {
                     Image(systemName: unread > 0 ? "bell.badge" : "bell").font(.system(size: 16, weight: .semibold)).foregroundStyle(Theme.ink)
                         .symbolEffect(.wiggle, value: unread)
                         .frame(width: 40, height: 40)
-                        .background(Theme.surface, in: .circle)
-                        .overlay(Circle().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+                        .glassCircle()
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(unread > 0 ? L("Сповіщення, нових: \(unread)").s : L("Сповіщення").s)
@@ -115,8 +121,7 @@ struct OverviewView: View {
             .padding(.top, 8)
             .rise(0)
 
-            VStack(spacing: 6) {
-                Text(L("Основний рахунок · TAX").s).caption()
+            VStack(spacing: 8) {
                 Button { withAnimation(.snappy) { hidden.toggle() } } label: {
                     HeroAmount(value: shown, hidden: hidden)
                 }
@@ -130,17 +135,17 @@ struct OverviewView: View {
                 .sensoryFeedback(.success, trigger: shown > 0)
                 if let m = summary?.currentMonth, !hidden {
                     HStack(spacing: 8) {
-                        monthPill("arrow.down.left", "+" + Self.compact(m.totalIn), tint: .green)
-                        monthPill("arrow.up.right", "−" + Self.compact(m.totalOut), tint: .orange)
+                        monthPill("arrow.down.left", "+" + Self.compact(m.totalIn), tint: Theme.accent)
+                        if m.totalOut > 0 { monthPill("arrow.up.right", "−" + Self.compact(m.totalOut), tint: .secondary) }
                     }
-                    .padding(.top, 6)
                     .transition(.opacity.combined(with: .scale(scale: 0.9)))
                 }
             }
-            .padding(.top, 44)
-            .padding(.bottom, 36)
+            .padding(.top, 30)
             .frame(maxWidth: .infinity)
             .rise(1)
+
+            heroCard.padding(.top, 30).rise(2)
 
             HStack(alignment: .top, spacing: 0) {
                 CircleAction(title: L("Поповнити").s, symbol: "plus", primary: true) { sheet = .topUp }
@@ -148,19 +153,72 @@ struct OverviewView: View {
                 CircleAction(title: L("На картку").s, symbol: "creditcard") { sheet = .byCard }
                 CircleAction(title: L("Податки").s, symbol: "percent") { open(.taxes) }
             }
-            .padding(.bottom, 24)
-            .rise(2)
+            .padding(.top, 26)
+            .padding(.bottom, 8)
+            .rise(3)
         }
         .padding(.horizontal, Theme.gutter)
-        .background(alignment: .top) {
-            Canvas { ctx, size in
-                let c = CGPoint(x: size.width * 0.5, y: size.height * 0.34)
-                Engraving.rosette(in: &ctx, center: c, radius: size.width * 0.62, curves: 26, lobes: 8, depth: 0.2, second: 0.06,
-                                  steps: 220, color: Theme.goldLight.opacity(0.11), width: 0.4)
-                Engraving.rings(in: &ctx, center: c, from: size.width * 0.58, to: size.width * 0.61, count: 3, color: Theme.goldLight.opacity(0.14))
+        .background(alignment: .top) { AuroraField().frame(height: 560).offset(y: -60) }
+    }
+
+    /// Головна картка великою: решта колоди визирає з-за неї. Торкання відкриває «Carte».
+    private var heroCard: some View {
+        let deck = Array(bank.cards.filter { !$0.isClosed }.sorted { $0.isPrimary && !$1.isPrimary }.prefix(3))
+        return Button { open(.cards) } label: {
+            ZStack {
+                if deck.isEmpty {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .strokeBorder(Theme.ink.opacity(0.22), style: StrokeStyle(lineWidth: 1.2, dash: [7, 6]))
+                        .aspectRatio(1.586, contentMode: .fit)
+                        .overlay(Label(L("Випустити картку").s, systemImage: "plus").font(.headline))
+                }
+                ForEach(Array(deck.enumerated().reversed()), id: \.element.id) { i, c in
+                    VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: nil, look: c.look, frozen: c.isBlocked)
+                        .padding(.horizontal, Double(i) * 14)
+                        .offset(y: Double(i) * -16)
+                        .brightness(Double(i) * -0.12)
+                        .modifier(CardTilt(active: i == 0))
+                }
             }
-            .mask(LinearGradient(colors: [.black, .black.opacity(0.6), .clear], startPoint: .top, endPoint: .bottom))
-            .allowsHitTesting(false)
+            .padding(.top, CGFloat(max(deck.count - 1, 0)) * 16)
+            .background(alignment: .bottom) {
+                Ellipse().fill(Theme.accent.opacity(0.32)).blur(radius: 40)
+                    .frame(width: 240, height: 60).offset(y: 34)
+            }
+        }
+        .buttonStyle(PressScale())
+        .sensoryFeedback(.impact(weight: .light), trigger: bank.cards.count)
+    }
+
+    /// Вхід у віртуальний POS-термінал.
+    private var terminalTile: some View {
+        Button { showTerminal = true } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "wave.3.right").font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.onAccent)
+                    .frame(width: 48, height: 48)
+                    .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .circle)
+                Text(L("Термінал").s).font(.system(size: 20, weight: .semibold))
+                Spacer()
+                Image(systemName: "arrow.up.right").font(.footnote.weight(.bold)).foregroundStyle(.secondary)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: Theme.hairline))
+        }
+        .buttonStyle(PressScale())
+    }
+
+    private var firstName: String {
+        (me?.fullName ?? "").split(separator: " ").first.map(String.init) ?? Brand.name
+    }
+
+    static var greeting: String {
+        switch Calendar.current.component(.hour, from: .now) {
+        case 5..<12: L("Доброго ранку").s
+        case 12..<18: L("Добрий день").s
+        case 18..<23: L("Добрий вечір").s
+        default: L("Доброї ночі").s
         }
     }
 
@@ -177,8 +235,7 @@ struct OverviewView: View {
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 10)
         .frame(height: 28)
-        .background(Theme.surface, in: .capsule)
-        .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+        .glassCapsule()
     }
 
     // MARK: Картки під шапкою
@@ -189,7 +246,6 @@ struct OverviewView: View {
             HStack {
                 Text(L("Швидкий переказ").s).caption()
                 Spacer()
-                Text(L("за історією").s).font(.footnote).foregroundStyle(.secondary)
             }
             .padding([.horizontal, .top], 18)
             ScrollView(.horizontal, showsIndicators: false) {
@@ -211,7 +267,7 @@ struct OverviewView: View {
                                 let shop = r.relatedAccount.hasPrefix("MRC-")
                                 Group {
                                     if shop { Image(systemName: "storefront.fill").font(.title3) }
-                                    else { Text(String(r.relatedAccount.suffix(2))).font(.custom("Futura-Medium", size: 19)).monospacedDigit() }
+                                    else { Text(String(r.relatedAccount.suffix(2))).font(.system(size: 19, weight: .semibold)).monospacedDigit() }
                                 }
                                     .foregroundStyle(Theme.goldFill)
                                     .frame(width: 54, height: 54)
@@ -233,55 +289,6 @@ struct OverviewView: View {
         }
     }
 
-    /// Гаманець: справжні картки віялом, верхня - головна; торкання веде у «Картки».
-    private var wallet: some View {
-        let shownCards = Array(bank.cards.filter { !$0.isClosed }.sorted { $0.isPrimary && !$1.isPrimary }.prefix(3))
-        return Button { open(.cards) } label: {
-            Card {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(L("Гаманець").s).caption()
-                        Text(bank.cards.isEmpty ? L("Карток ще немає").s : "\(bank.cards.count) " + cardsWord(bank.cards.count))
-                            .font(.footnote).foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
-                }
-                .padding([.horizontal, .top], 18)
-                ZStack {
-                    if shownCards.isEmpty {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(Theme.ink.opacity(0.2), style: StrokeStyle(lineWidth: 1.2, dash: [6, 5]))
-                            .aspectRatio(1.586, contentMode: .fit)
-                            .frame(width: 200)
-                            .overlay(Label(L("Випустити").s, systemImage: "plus").font(.subheadline.weight(.semibold)))
-                    }
-                    ForEach(Array(shownCards.enumerated().reversed()), id: \.element.id) { i, c in
-                        let spread = Double(i) - Double(shownCards.count - 1) / 2
-                        VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: nil, look: c.look,
-                                        frozen: c.isBlocked)
-                            .frame(width: 230)
-                            .scaleEffect(1 - Double(i) * 0.06)
-                            .rotationEffect(.degrees(ringIn ? spread * 7 : 0), anchor: .bottom)
-                            .offset(x: ringIn ? spread * 34 : 0, y: Double(i) * -10)
-                            .animation(.spring(response: 0.8, dampingFraction: 0.7).delay(0.25), value: ringIn)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 190)
-                .padding(.vertical, 12)
-            }
-        }
-        .buttonStyle(PressScale())
-    }
-
-    private func cardsWord(_ n: Int) -> String {
-        let d = n % 10, h = n % 100
-        if d == 1 && h != 11 { return L("картка").s }
-        if (2...4).contains(d) && !(12...14).contains(h) { return L("картки").s }
-        return L("карток").s
-    }
-
     /// Баланс за 30 днів: лінія з тінню-градієнтом і різниця від початку.
     private var balanceTrend: some View {
         let first = points.first?.balance ?? 0, last = points.last?.balance ?? 0
@@ -292,10 +299,10 @@ struct OverviewView: View {
                 Text(L("Баланс за 30 днів").s).caption()
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text((delta >= 0 ? "+" : "−") + Self.compact(abs(delta)))
-                        .font(.custom("Futura-Medium", size: 30)).monospacedDigit()
+                        .font(.system(size: 30, weight: .semibold)).monospacedDigit()
                     Image(systemName: delta >= 0 ? "arrow.up.right" : "arrow.down.right")
                         .font(.footnote.weight(.bold))
-                        .foregroundStyle(delta >= 0 ? .green : .orange)
+                        .foregroundStyle(delta >= 0 ? Theme.accent : Color.secondary)
                 }
                 Chart(Array(points.enumerated()), id: \.offset) { i, p in
                     AreaMark(x: .value(L("День").s, i), yStart: .value(L("Мін").s, low - (high - low) * 0.1), yEnd: .value(L("Баланс").s, p.balance))
@@ -436,6 +443,14 @@ struct OverviewView: View {
     }
 }
 
+/// Нахил картки за телефоном; на іншій, не головній картці - без руху.
+private struct CardTilt: ViewModifier {
+    let active: Bool
+    func body(content: Content) -> some View {
+        if active { content.tilt(cornerRadius: 20) } else { content }
+    }
+}
+
 /// Біла картка на сірому тлі, як у Revolut: великий радіус, без рамок і тіней.
 struct Card<Content: View>: View {
     @ViewBuilder var content: Content
@@ -444,6 +459,8 @@ struct Card<Content: View>: View {
         VStack(alignment: .leading, spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
+            .background(LinearGradient(colors: [.white.opacity(0.07), .clear], startPoint: .top, endPoint: .center),
+                        in: .rect(cornerRadius: 24, style: .continuous))
             .clipShape(.rect(cornerRadius: 24, style: .continuous))
             .goldEdge(24)
             .contentShape(.rect(cornerRadius: 24, style: .continuous))
@@ -464,14 +481,7 @@ struct TxGlyph: View {
         }
     }
 
-    private var tint: Color {
-        if tx.isIncome { return Color(red: 0.20, green: 0.78, blue: 0.50) }
-        switch tx.txType {
-        case "payment": return Theme.accent
-        case "transfer": return Color(red: 0.35, green: 0.56, blue: 0.95)
-        default: return Color(red: 0.88, green: 0.62, blue: 0.25)
-        }
-    }
+    private var tint: Color { tx.isIncome ? Theme.accent : Theme.ink.opacity(0.85) }
 
     var body: some View { GuillocheBadge(symbol: symbol, tint: tint, size: size) }
 }
@@ -492,9 +502,9 @@ struct ActivityRow: View {
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
                 Text((tx.isIncome ? "+" : "−") + tx.amount.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
-                    .font(.custom("Futura-Medium", size: 20)).monospacedDigit()
+                    .font(.system(size: 20, weight: .semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
-                    .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
+                    .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
                 Text("TAX").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
             }
             .fixedSize(horizontal: true, vertical: false)
@@ -518,17 +528,18 @@ struct HeroAmount: View {
 
     var body: some View {
         let s = value.formatted(.number.precision(.fractionLength(2)).locale(Lang.current.locale))
-        let parts = s.split(separator: ",", maxSplits: 1).map(String.init)
+        let sep = Lang.current.locale.decimalSeparator ?? ","
+        let parts = s.split(separator: Character(sep), maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {
-                Text("••••••").font(.custom("Futura-Medium", size: 52))
+                Text("••••••").font(.system(size: 52, weight: .semibold))
             } else {
-                Text(parts.first ?? s).font(.custom("Futura-Medium", size: 58)).tracking(-1)
+                Text(parts.first ?? s).font(.system(size: 66, weight: .semibold)).tracking(-1.5)
                 if parts.count > 1, parts[1] != "00" {
-                    Text(",\(parts[1])").font(.custom("Futura-Medium", size: 28)).opacity(0.55)
+                    Text("\(sep)\(parts[1])").font(.system(size: 28, weight: .semibold)).opacity(0.55)
                 }
             }
-            Text(" TAX").font(.custom("Futura-Medium", size: 20)).tracking(2).foregroundStyle(Theme.accent)
+            Text(" TAX").font(.system(size: 20, weight: .semibold)).tracking(2).foregroundStyle(Theme.accent)
         }
         .monospacedDigit()
         .foregroundStyle(Theme.goldFill)
@@ -548,14 +559,15 @@ struct BigAmount: View {
 
     var body: some View {
         let s = Format.money(value).replacingOccurrences(of: " TAX", with: "")
-        let parts = s.split(separator: ",", maxSplits: 1).map(String.init)
+        let sep = Lang.current.locale.decimalSeparator ?? ","
+        let parts = s.split(separator: Character(sep), maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {
                 Text("••••••").font(.system(size: size, weight: .semibold))
             } else {
                 Text(parts.first ?? s).font(.display(size)).tracking(-size * 0.025)
                 if parts.count > 1, parts[1] != "00" {
-                    Text(",\(parts[1])").font(.system(size: size * 0.5, weight: .regular)).foregroundStyle(.secondary)
+                    Text("\(sep)\(parts[1])").font(.system(size: size * 0.5, weight: .regular)).foregroundStyle(.secondary)
                 }
             }
             Text(" TAX").font(.system(size: size * 0.36, weight: .semibold)).foregroundStyle(.secondary)

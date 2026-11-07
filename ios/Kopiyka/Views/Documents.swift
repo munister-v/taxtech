@@ -128,7 +128,7 @@ struct VerifySeal: View {
                     .textSelection(.enabled).minimumScaleFactor(0.7).lineLimit(1)
             }
             Text(L("Наведіть камеру на QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.").s)
-                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
             HStack(spacing: 10) {
                 if let url = doc.url {
                     Link(destination: url) {
@@ -196,7 +196,7 @@ struct DocumentsView: View {
                     }
                     Rule().padding(.horizontal, -16).padding(.top, 14)
                     Text(L("Кожен документ має власний код і QR. Перевірити його можна в інтернеті: сторінка звіряє запис із реєстром операцій.").s)
-                        .font(.footnote).foregroundStyle(.secondary).padding(.top, 6)
+                        .font(.footnote).foregroundStyle(.secondary).padding(.top, 6).expertOnly()
                 }
 
                 SegmentBar(items: [(Kind.all, L("Усі").s), (.receipt, L("Квитанції").s), (.statement, L("Виписки").s)], selection: $kind)
@@ -208,7 +208,7 @@ struct DocumentsView: View {
                             Text(failed ? L("Не вдалося завантажити документи").s : L("Документів поки немає").s)
                                 .font(.headline)
                             Text(L("Відкрийте операцію й натисніть «Переглянути квитанцію», або сформуйте виписку: вони з'являться тут.").s)
-                                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
                         }
                         .frame(maxWidth: .infinity).padding(24)
                     }
@@ -320,7 +320,7 @@ struct DocumentDetailView: View {
 
                     Surface { VerifySeal(doc: doc).padding(18) }
 
-                    Surface { LearnLink(.seal).padding(.horizontal, 16).padding(.vertical, 8) }
+                    Surface { LearnLink(.seal).padding(.horizontal, 16).padding(.vertical, 8) }.expertOnly()
 
                     Button {
                         Task {

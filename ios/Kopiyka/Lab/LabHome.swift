@@ -94,7 +94,7 @@ struct LabHome: View {
     private func row(_ e: Experiment) -> some View {
         HStack(alignment: .top, spacing: 16) {
             Text(String(format: "%02d", e.number))
-                .font(.custom("Futura-Medium", size: 13)).tracking(1.5)
+                .font(.system(size: 13, weight: .semibold)).tracking(1.5)
                 .foregroundStyle(Theme.gold)
                 .frame(width: 24, alignment: .leading)
                 .padding(.top, 6)
@@ -114,44 +114,54 @@ struct LabHome: View {
     }
 }
 
-/// «Пісочниця» без входу: що всередині й вхід. Сам банк відкривається лише після входу.
+/// Piazza без входу: живе тло, картка-предмет і одна кнопка. Шестерня відкриває експертний режим із лабораторією.
 struct SandboxGate: View {
     @State private var signIn = false
-    @State private var learn: Experiment?
+    @State private var float = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                ScreenTitle(title: "Piazza", subtitle: L("Пісочниця").s) { EmptyView() }
-                RowGroup {
-                    row("creditcard", L("Рахунок і картки").s, .hold)
-                    row("arrow.left.arrow.right", L("Перекази з перевіркою антифроду").s, .fraud)
-                    row("link", L("Операції в хеш-ланцюзі").s, .chain)
+        ZStack {
+            Theme.bg.ignoresSafeArea()
+            AuroraField().frame(maxHeight: .infinity, alignment: .top).ignoresSafeArea()
+            VStack(spacing: 0) {
+                HStack {
+                    MarkView(height: 30)
+                    Spacer()
+                    GearButton()
                 }
-                Button(L("Увійти").s) { signIn = true }.buttonStyle(InkButton())
-                Text(L("Токен TAX - навчальна одиниця, а не гроші.").s)
-                    .font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 8)
+                .rise(0)
+                Spacer(minLength: 0)
+                VStack(spacing: 26) {
+                    ZStack {
+                        VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", design: .gold)
+                            .scaleEffect(0.9).offset(y: -34).brightness(-0.22).rotationEffect(.degrees(-5))
+                        VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", design: .dark)
+                            .tilt(cornerRadius: 20)
+                    }
+                    .padding(.top, 34)
+                    .offset(y: float ? -6 : 6)
+                    .animation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true), value: float)
+                    Text(Brand.name)
+                        .font(.display(54, .medium)).tracking(-1.5)
+                        .foregroundStyle(Theme.goldFill)
+                    VStack(spacing: 4) {
+                        Text(Brand.lab).foregroundStyle(.secondary)
+                        Text(L("Токен TAX - навчальна одиниця, а не гроші.").s).foregroundStyle(Theme.ink)
+                    }
+                    .font(.footnote).multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                }
+                .rise(1)
+                Spacer(minLength: 0)
+                Button(L("Увійти").s) { signIn = true }
+                    .buttonStyle(InkButton())
+                    .padding(.bottom, 8)
+                    .rise(2)
             }
             .padding(.horizontal, Theme.gutter)
-            .padding(.bottom, 32)
         }
-        .scrollIndicators(.hidden)
-        .screenBackground()
+        .onAppear { float = true }
         .fullScreenCover(isPresented: $signIn) { AuthView(onClose: { signIn = false }) }
-        .sheet(item: $learn) { LearnSheet(experiment: $0) }
-    }
-
-    private func row(_ symbol: String, _ title: String, _ e: Experiment) -> some View {
-        Button { learn = e } label: {
-            HStack(spacing: 14) {
-                Image(systemName: symbol).foregroundStyle(Theme.accent).frame(width: 24)
-                Text(title).font(.body.weight(.medium)).multilineTextAlignment(.leading)
-                Spacer()
-                Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 16).padding(.vertical, 15)
-            .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
     }
 }

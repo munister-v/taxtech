@@ -140,7 +140,7 @@ struct TransferView: View {
                         }
                         RoutedNote(record: record)
                     }
-                    Section { LearnLink(.fraud) }
+                    Section { LearnLink(.fraud) }.expertOnly()
                     if outcome == nil {
                         Section {
                             if verdict.level == "critical" {
@@ -154,7 +154,7 @@ struct TransferView: View {
                     }
                 }
 
-                if let outcome { Section { Text(outcome); LearnLink(.idempotency) } }
+                if let outcome { Section { Text(outcome); LearnLink(.idempotency).expertOnly() } }
                 if let error { Section { Text(error).foregroundStyle(.secondary) } }
             }
             .labForm()

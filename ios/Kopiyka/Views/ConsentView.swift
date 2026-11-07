@@ -1,26 +1,25 @@
 import SwiftUI
 
-/// Перший запуск: чотири великі екрани про те, що це, і п'ятий - згода на сервер.
+/// Перший запуск: заставка з назвою і згода на сервер. Пояснення механізмів - в експертному режимі.
 struct ConsentView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var page = 0
 
-    private let last = 4
+    private let last = 1
 
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $page) {
                 welcome.tag(0)
-                ledger.tag(1)
-                bank.tag(2)
-                router.tag(3)
-                privacy.tag(4)
+                privacy.tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             footer
         }
-        .screenBackground()
+        .background(alignment: .top) {
+            ZStack(alignment: .top) { Theme.bg; AuroraField().frame(height: 700) }.ignoresSafeArea()
+        }
         .interactiveDismissDisabled()
         .animation(.smooth(duration: 0.25), value: page)
     }
@@ -64,92 +63,65 @@ struct ConsentView: View {
     // MARK: Сторінки
 
     private var welcome: some View {
-        Slide {
-            Spacer(minLength: 0)
-            MarkView(height: 150)
-            Text(Brand.name)
-                .font(.system(size: 64, weight: .semibold))
-                .tracking(-2)
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
-                .padding(.top, 28)
-            Text(Brand.lab)
-                .font(.title3)
-                .foregroundStyle(.secondary)
-                .padding(.top, 8)
-            Spacer(minLength: 0)
-        }
-    }
-
-    private var ledger: some View {
-        Slide {
-            Text("01").caption()
-            Text(L("Усі гроші\nв одному місці").s)
-                .headline1()
-            Text(L("Витрати, чеки й нотатки. Усе лишається на цьому телефоні.").s)
-                .lead()
-            Spacer(minLength: 24)
-            BarsSketch()
-                .frame(height: 150)
-            Spacer(minLength: 0)
-        }
-    }
-
-    private var bank: some View {
-        Slide {
-            Text("02").caption()
-            Text(L("Навчальний\nбанк").s)
-                .headline1()
-            Text(L("Картки, депозити, кредити й цілі - на віртуальних грошах. Справжніх рахунків і переказів немає.").s)
-                .lead()
-            Spacer(minLength: 24)
-            VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", design: .dark)
-                .padding(.horizontal, 8)
-            Spacer(minLength: 0)
-        }
-    }
-
-    private var router: some View {
-        Slide {
-            Text("03").caption()
-            Text(L("Телефон\nчи сервер").s)
-                .headline1()
-            Text(L("Кожну розумну задачу застосунок виконує там, де краще: залежно від мережі, заряду й упевненості моделі. Це частина студентського дослідження.").s)
-                .lead()
-            Spacer(minLength: 24)
-            RouteSketch()
-                .frame(height: 110)
-            Spacer(minLength: 0)
+        ZStack {
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", design: .dark)
+                    .tilt(cornerRadius: 20)
+                    .padding(.horizontal, 24)
+                Text(Brand.name)
+                    .font(.display(60, .medium)).tracking(-2)
+                    .foregroundStyle(Theme.goldFill)
+                    .minimumScaleFactor(0.7).lineLimit(1)
+                    .padding(.top, 36)
+                VStack(spacing: 6) {
+                    Text(Brand.lab).foregroundStyle(.secondary)
+                    Text(L("Токен TAX - навчальна одиниця, а не гроші.").s).foregroundStyle(Theme.ink)
+                }
+                .font(.subheadline).multilineTextAlignment(.center)
+                .padding(.horizontal, 32).padding(.top, 14)
+                Spacer(minLength: 0)
+            }
         }
     }
 
     private var privacy: some View {
-        Slide {
-            Text("04").caption()
+        VStack(alignment: .leading, spacing: 24) {
             Text(L("Ваші дані").s)
-                .headline1()
-            VStack(alignment: .leading, spacing: 0) {
-                fact(L("Лише телефон").s,
+                .font(.system(size: 40, weight: .semibold)).tracking(-1.2)
+                .padding(.top, 56)
+            VStack(spacing: 0) {
+                fact("iphone", L("Лише телефон").s,
                      L("Фото чека розпізнається на телефоні й нікуди не йде.").s)
-                fact(L("Що може піти на сервер").s,
+                Rectangle().fill(.white.opacity(0.08)).frame(height: Theme.hairline).padding(.leading, 70)
+                fact("sparkles", L("Що може піти на сервер").s,
                      L("Текст чека чи питання помічнику для мовної моделі Anthropic - але спершу телефон прибирає номери карток, рахунків, телефонів, пошту, ІПН і паспорт.").s)
-                fact(L("Згоду можна змінити").s,
-                     L("Будь-коли в «Журналі рішень».").s)
+                Rectangle().fill(.white.opacity(0.08)).frame(height: Theme.hairline).padding(.leading, 70)
+                fact("slider.horizontal.3", L("Згоду можна змінити").s,
+                     L("Налаштування, експертний режим, журнал рішень.").s)
             }
-            .padding(.top, 8)
+            .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: Theme.hairline))
             Spacer(minLength: 0)
         }
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 
-    private func fact(_ title: String, _ text: String) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Rectangle().fill(Theme.line).frame(height: Theme.hairline)
+    private func fact(_ symbol: String, _ title: String, _ text: String) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: symbol)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(Theme.accent)
+                .frame(width: 40, height: 40)
+                .background(Theme.accent.opacity(0.14), in: .circle)
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.headline)
-                Text(text).foregroundStyle(.secondary)
+                Text(text).font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.vertical, 14)
+            Spacer(minLength: 0)
         }
+        .padding(18)
     }
 
     private func decide(_ allowed: Bool) {
@@ -183,45 +155,5 @@ private extension View {
 
     func lead() -> some View {
         font(.title3).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-    }
-}
-
-/// Плоскі стовпчики - «облік»: тиждень витрат.
-private struct BarsSketch: View {
-    private let values: [CGFloat] = [0.35, 0.6, 0.25, 0.8, 0.5, 1, 0.4]
-
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 10) {
-            ForEach(Array(values.enumerated()), id: \.offset) { i, v in
-                Rectangle()
-                    .fill(i == 5 ? Theme.ink : Theme.ink.opacity(0.14))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 150 * v)
-            }
-        }
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        .accessibilityHidden(true)
-    }
-}
-
-/// Два блоки з лінією між ними - «телефон» і «сервер».
-private struct RouteSketch: View {
-    var body: some View {
-        HStack(spacing: 0) {
-            node(L("Телефон").s, filled: true)
-            Rectangle().fill(Theme.ink).frame(height: 1.5)
-            node(L("Сервер").s, filled: false)
-        }
-        .accessibilityHidden(true)
-    }
-
-    private func node(_ title: String, filled: Bool) -> some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(filled ? Theme.onInk : Theme.ink)
-            .frame(width: 110, height: 110)
-            .background(filled ? Theme.ink : .clear, in: .rect(cornerRadius: Theme.corner, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: Theme.corner, style: .continuous)
-                .strokeBorder(Theme.ink, lineWidth: 1.5))
     }
 }

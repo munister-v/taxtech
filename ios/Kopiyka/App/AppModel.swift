@@ -48,6 +48,11 @@ final class AppModel {
         didSet { UserDefaults.standard.set(lastIdentity, forKey: "lastIdentity") }
     }
 
+    /// Експертний режим: лабораторія, пояснення механізмів і журнал рішень. Вимкнений - чистий банк.
+    var expert: Bool = UserDefaults.standard.bool(forKey: "expertMode") {
+        didSet { UserDefaults.standard.set(expert, forKey: "expertMode") }
+    }
+
     var consentAsked: Bool = UserDefaults.standard.bool(forKey: "consentAsked") {
         didSet { UserDefaults.standard.set(consentAsked, forKey: "consentAsked") }
     }

@@ -34,7 +34,7 @@ struct CardsTab: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 110)
             }
-            .screenBackground()
+            .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
             .refreshable { await load() }
@@ -96,7 +96,7 @@ struct CardsTab: View {
                 .opacity(0.6)
             Text(L("Карток ще немає").s).font(.title3.weight(.semibold))
             Text(L("Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.").s)
-                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
             Button(L("Випустити картку").s) { issuing = true }.buttonStyle(InkButton())
         }
         .frame(maxWidth: .infinity)
@@ -181,7 +181,7 @@ struct CardsTab: View {
                 NavigationLink { SecurityView() } label: { RoundActionLabel(title: "PIN", symbol: "lock") }
                     .buttonStyle(PressScale())
             }
-            Surface { LearnLink(.hold).padding(.horizontal, 16).padding(.vertical, 8) }
+            Surface { LearnLink(.hold).padding(.horizontal, 16).padding(.vertical, 8) }.expertOnly()
             Surface {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {

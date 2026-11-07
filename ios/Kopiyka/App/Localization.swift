@@ -17,11 +17,10 @@ enum Lang: String, CaseIterable, Identifiable {
 
     static let key = "appLang"
 
-    /// Поточна мова: вибрана в профілі, а без вибору - мова системи (інші мови системи -> English).
+    /// Поточна мова: вибрана в налаштуваннях, а без вибору - завжди English, незалежно від мови системи.
     nonisolated(unsafe) static var current: Lang = {
         if let raw = UserDefaults.standard.string(forKey: key), let l = Lang(rawValue: raw) { return l }
-        let sys = Locale.preferredLanguages.first.map { String($0.prefix(2)) } ?? "uk"
-        return Lang(rawValue: sys) ?? .en
+        return .en
     }()
 
     static func set(_ l: Lang) {

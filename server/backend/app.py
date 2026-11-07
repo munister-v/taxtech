@@ -37,6 +37,7 @@ from .routes.marketplace_routes import marketplace_bp
 from .routes.three_ds_routes import three_ds_bp
 from .routes.passkey_routes import passkey_bp
 from .routes.taxpay_routes import taxpay_bp
+from .routes.pos_routes import pos_bp
 from .routes.document_routes import document_bp, verify_page_bp
 
 API_VERSION = '1.0.0'
@@ -173,6 +174,7 @@ def create_app() -> Flask:
     app.register_blueprint(three_ds_bp, url_prefix=prefix + '/api/3ds')
     app.register_blueprint(passkey_bp, url_prefix=prefix + '/api/auth/passkey')
     app.register_blueprint(taxpay_bp, url_prefix=prefix or None)
+    app.register_blueprint(pos_bp, url_prefix=prefix + '/api')
     app.register_blueprint(document_bp, url_prefix=prefix + '/api')
     app.register_blueprint(verify_page_bp, url_prefix=prefix or None)
 

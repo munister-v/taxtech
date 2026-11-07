@@ -5,7 +5,7 @@ struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var phase
     @State private var showConsent = false
-    @State private var selection = AppTab.lab
+    @State private var selection = AppTab.overview
     @State private var pinRequired = false
     @State private var splash = true
 
@@ -14,7 +14,6 @@ struct RootView: View {
     var body: some View {
         Group {
             TabView(selection: $selection) {
-                Tab("Studio", systemImage: "square.grid.2x2", value: AppTab.lab) { LabHome() }
                 if model.signedIn {
                     Tab("Piazza", systemImage: "square.stack.3d.up", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
                     Tab("Registro", systemImage: "list.bullet.rectangle", value: AppTab.operations) { bank { OperationsView() } }
@@ -26,8 +25,12 @@ struct RootView: View {
                 } else {
                     Tab("Piazza", systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }
                 }
+                if model.expert {
+                    Tab("Studio", systemImage: "flask", value: AppTab.lab) { LabHome() }
+                }
             }
             .tint(Theme.tint)
+            .toolbarVisibility(model.signedIn || model.expert ? .automatic : .hidden, for: .tabBar)
             .tabBarMinimizeBehavior(.onScrollDown)
             // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
             .overlay(alignment: .top) { if selection != .overview && selection != .lab { TopFade() } }
@@ -44,7 +47,10 @@ struct RootView: View {
             model.jumpTab = nil
         }
         .onChange(of: model.signedIn) { _, signedIn in
-            if !signedIn { selection = .lab }
+            if !signedIn { selection = .overview }
+        }
+        .onChange(of: model.expert) { _, on in
+            if !on && selection == .lab { selection = .overview }
         }
         .onChange(of: phase) { _, p in
             // з фону банк знову просить PIN
@@ -55,6 +61,7 @@ struct RootView: View {
         .onAppear {
             #if DEBUG
             // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|taxes|shop
+            if ProcessInfo.processInfo.environment["KOPIYKA_EXPERT"] == "1" || ProcessInfo.processInfo.environment["KOPIYKA_EXPERIMENT"] != nil { model.expert = true }
             switch ProcessInfo.processInfo.environment["KOPIYKA_TAB"] {
             case "lab": selection = .lab
             case "overview": selection = .overview
@@ -117,7 +124,7 @@ struct RoutedNote: View {
             Text(record.reason)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
-            LearnLink(.router).padding(.top, 4)
+            LearnLink(.router).padding(.top, 4).expertOnly()
         }
     }
 

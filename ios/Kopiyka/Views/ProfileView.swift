@@ -41,7 +41,7 @@ struct AvatarView: View {
             if let img = ProfilePhoto.load() {
                 Image(uiImage: img).resizable().scaledToFill()
             } else {
-                Text(initials).font(.custom("Futura-Medium", size: size * 0.38))
+                Text(initials).font(.system(size: size * 0.38, weight: .semibold))
                     .foregroundStyle(Theme.onAccent)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Theme.goldFill)
@@ -105,7 +105,7 @@ struct ProfileView: View {
                         sheet(L("Облік витрат").s, "list.bullet.rectangle", .money)
                         sheet(L("Розпізнати чек").s, "doc.text.viewfinder", .receipt)
                         sheet(L("Помічник").s, "text.bubble", .assistant)
-                        sheet(L("Журнал рішень").s, "arrow.triangle.branch", .lab)
+                        if model.expert { sheet(L("Журнал рішень").s, "arrow.triangle.branch", .lab) }
                     }
                     RowGroup(title: L("Мова").s) {
                         ForEach(Lang.allCases) { l in
@@ -124,7 +124,7 @@ struct ProfileView: View {
                     }
                     HStack(spacing: 8) {
                         MarkView(height: 18, color: .secondary)
-                        Text(Brand.lab).font(.caption).foregroundStyle(.secondary)
+                        Text(Brand.lab).font(.caption).foregroundStyle(.secondary).expertOnly()
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -195,7 +195,7 @@ struct ProfileView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(me?.fullName ?? " ").font(.custom("Futura-Medium", size: 24)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(me?.fullName ?? " ").font(.system(size: 24, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                     if let e = me?.email, !e.isEmpty {
                         Text(e).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                     }

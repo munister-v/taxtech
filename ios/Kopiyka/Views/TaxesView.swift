@@ -42,13 +42,13 @@ struct TaxesView: View {
                     }
                     Text(L("Ставки \(String(r.year)) року, 1 TAX = 1 гривня. Розрахунок орієнтовний.").s)
                         .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.secondary).expertOnly()
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 32)
             }
             .scrollDismissesKeyboard(.interactively)
-            .screenBackground()
+            .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task {
                 async let h = model.api.history(API.HistoryFilter())
@@ -203,7 +203,7 @@ private struct SalaryPart: View {
                 Rule()
                 Line2(L("На руки").s, Format.money(s.net))
             }
-            Surface { LearnLink(.tax).padding(.horizontal, 16).padding(.vertical, 8) }
+            Surface { LearnLink(.tax).padding(.horizontal, 16).padding(.vertical, 8) }.expertOnly()
             VStack(alignment: .leading, spacing: 12) {
                 BlockTitle(L("Роботодавець платить").s)
                 Surface {
@@ -350,7 +350,7 @@ private struct DeductionPart: View {
                 }
             }
             Text(L("Декларація - до 31 грудня наступного року. Навчання - до \(Format.money(TaxMath.educationLimitPerMonth(r))) на місяць.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(.footnote).foregroundStyle(.secondary).expertOnly()
         }
         .sheet(isPresented: $adding) { NewDeductionView { tax.deductions.append($0) } }
     }
@@ -403,7 +403,7 @@ private struct CalendarPart: View {
             .sorted { $0.key < $1.key }
         VStack(alignment: .leading, spacing: 18) {
             Text(group.map { L("Строки для фізособи і ФОП, \($0.title.lowercased()).").s } ?? L("Строки для фізособи. Оберіть групу у вкладці ФОП, щоб додати строки підприємця.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(.footnote).foregroundStyle(.secondary).expertOnly()
             ForEach(byMonth, id: \.key) { month, items in
                 VStack(alignment: .leading, spacing: 10) {
                     BlockTitle(BankText.monthYear(month))

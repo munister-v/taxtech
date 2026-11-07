@@ -57,7 +57,7 @@ struct OperationsView: View {
                              selection: $filter.direction)
                     if filter.search.isEmpty && filter.direction != "in" { spending }
                     if filter.search.isEmpty, let summary { byType(summary) }
-                    if filter.search.isEmpty && !insights.isEmpty { insightList }
+                    if filter.search.isEmpty && !insights.isEmpty && model.expert { insightList }
                     history
                     if filter.search.isEmpty {
                         Surface {
@@ -68,12 +68,13 @@ struct OperationsView: View {
                             }
                             .padding(.horizontal, 16).padding(.vertical, 8)
                         }
+                        .expertOnly()
                     }
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 32)
             }
-            .screenBackground()
+            .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task(id: "\(filter.search)|\(filter.direction ?? "")") {
                 try? await Task.sleep(for: .milliseconds(250))

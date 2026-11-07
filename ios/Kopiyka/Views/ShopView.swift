@@ -532,7 +532,7 @@ struct ProductView: View {
                             Text(product.brand).font(ShopStyle.caps(12, .semibold)).tracking(2.2).textCase(.uppercase)
                                 .foregroundStyle(.secondary)
                         }
-                        Text(product.shortName).font(.custom("Futura-Medium", size: 28)).tracking(0.3)
+                        Text(product.shortName).font(.system(size: 28, weight: .semibold)).tracking(0.3)
                             .foregroundStyle(Theme.ink)
                         if let code = product.code { Text(code).font(.footnote).foregroundStyle(.tertiary) }
                     }

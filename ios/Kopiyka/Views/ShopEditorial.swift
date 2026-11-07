@@ -9,7 +9,7 @@ enum ShopStyle {
 
     /// Широкий гротеск, як геометричний шрифт на сайті.
     static func caps(_ size: CGFloat, _ weight: Font.Weight = .medium) -> Font {
-        .custom("Futura-Medium", size: size)
+        .system(size: size, weight: .semibold)
     }
 }
 
@@ -50,7 +50,7 @@ struct ShopWordmark: View {
 
     var body: some View {
         Text("SAINT AGNES")
-            .font(.custom("Futura-Medium", size: size))
+            .font(.system(size: size, weight: .semibold))
             .tracking(size * 0.3)
             .foregroundStyle(Theme.ink)
             .lineLimit(1)
@@ -105,7 +105,7 @@ struct ShopHero: View {
                     Text(L("Осінь").s).foregroundStyle(ShopStyle.cream)
                     Text(L("вже тут").s).foregroundStyle(ShopStyle.tan)
                 }
-                .font(.custom("Futura-Medium", size: 40))
+                .font(.system(size: 40, weight: .semibold))
                 .textCase(.uppercase)
                 .tracking(0.8)
                 HStack(spacing: 16) {

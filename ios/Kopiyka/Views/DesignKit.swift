@@ -12,7 +12,6 @@ struct ScreenTitle<Trailing: View>: View {
     var body: some View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
-                if let subtitle { Text(subtitle).caption() }
                 Text(title).font(.display(38, .medium)).tracking(-1)
             }
             Spacer()
@@ -148,9 +147,16 @@ struct CircleAction: View {
             VStack(spacing: 9) {
                 Image(systemName: symbol)
                     .font(.system(size: 21, weight: .semibold))
-                    .frame(width: 60, height: 60)
-                    .background(primary ? Theme.accent : Theme.surface, in: .circle)
-                    .overlay(Circle().strokeBorder(Theme.ink.opacity(primary ? 0 : 0.09), lineWidth: Theme.hairline))
+                    .frame(width: 62, height: 62)
+                    .background {
+                        if primary {
+                            Circle().fill(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+                        } else {
+                            Circle().fill(.ultraThinMaterial)
+                        }
+                    }
+                    .overlay(Circle().strokeBorder(.white.opacity(primary ? 0.35 : 0.14), lineWidth: Theme.hairline))
+                    .shadow(color: primary ? Theme.accent.opacity(0.45) : .clear, radius: 14, y: 6)
                     .foregroundStyle(primary ? Theme.onAccent : Theme.ink)
                 Text(title)
                     .font(.caption.weight(.medium))

@@ -8332,5 +8332,179 @@
 "it": "Catena",
 "de": "Kette",
 "ru": "Цепочка"
+},
+"Налаштування": {
+"en": "Settings",
+"it": "Impostazioni",
+"de": "Einstellungen",
+"ru": "Настройки"
+},
+"Експертний режим": {
+"en": "Expert mode",
+"it": "Modalità esperto",
+"de": "Expertenmodus",
+"ru": "Экспертный режим"
+},
+"Лабораторія, пояснення, журнал рішень": {
+"en": "Lab, explanations, decision log",
+"it": "Laboratorio, spiegazioni, registro decisioni",
+"de": "Labor, Erklärungen, Entscheidungsprotokoll",
+"ru": "Лаборатория, пояснения, журнал решений"
+},
+"Доброго ранку": {
+"en": "Good morning",
+"it": "Buongiorno",
+"de": "Guten Morgen",
+"ru": "Доброе утро"
+},
+"Добрий день": {
+"en": "Good afternoon",
+"it": "Buon pomeriggio",
+"de": "Guten Tag",
+"ru": "Добрый день"
+},
+"Добрий вечір": {
+"en": "Good evening",
+"it": "Buonasera",
+"de": "Guten Abend",
+"ru": "Добрый вечер"
+},
+"Доброї ночі": {
+"en": "Good night",
+"it": "Buonanotte",
+"de": "Gute Nacht",
+"ru": "Доброй ночи"
+},
+"Налаштування, експертний режим, журнал рішень.": {
+"en": "Settings, expert mode, decision log.",
+"it": "Impostazioni, modalità esperto, registro decisioni.",
+"de": "Einstellungen, Expertenmodus, Entscheidungsprotokoll.",
+"ru": "Настройки, экспертный режим, журнал решений."
+},
+"Термінал": {
+"en": "Terminal",
+"it": "Terminale",
+"de": "Terminal",
+"ru": "Терминал"
+},
+"Списати %@": {
+"en": "Charge %@",
+"it": "Addebita %@",
+"de": "Abbuchen %@",
+"ru": "Списать %@"
+},
+"Введіть суму": {
+"en": "Enter an amount",
+"it": "Inserisci l'importo",
+"de": "Betrag eingeben",
+"ru": "Введите сумму"
+},
+"Пачка": {
+"en": "Batch",
+"it": "Lotto",
+"de": "Stapel",
+"ru": "Пачка"
+},
+"Оборот": {
+"en": "Turnover",
+"it": "Volume",
+"de": "Umsatz",
+"ru": "Оборот"
+},
+"Комісія": {
+"en": "Fees",
+"it": "Commissioni",
+"de": "Gebühren",
+"ru": "Комиссия"
+},
+"Платежів": {
+"en": "Payments",
+"it": "Pagamenti",
+"de": "Zahlungen",
+"ru": "Платежей"
+},
+"Повернено": {
+"en": "Refunded",
+"it": "Rimborsato",
+"de": "Erstattet",
+"ru": "Возвращено"
+},
+"Відхилено": {
+"en": "Declined",
+"it": "Rifiutato",
+"de": "Abgelehnt",
+"ru": "Отклонено"
+},
+"Карток немає": {
+"en": "No cards",
+"it": "Nessuna carta",
+"de": "Keine Karten",
+"ru": "Нет карт"
+},
+"Прикласти картку": {
+"en": "Tap card",
+"it": "Avvicina la carta",
+"de": "Karte antippen",
+"ru": "Приложить карту"
+},
+"Еквайр": {
+"en": "Acquirer",
+"it": "Acquirer",
+"de": "Acquirer",
+"ru": "Эквайер"
+},
+"Емітент": {
+"en": "Issuer",
+"it": "Emittente",
+"de": "Emittent",
+"ru": "Эмитент"
+},
+"Код для підтвердження платежу": {
+"en": "Code to confirm the payment",
+"it": "Codice per confermare il pagamento",
+"de": "Code zur Zahlungsbestätigung",
+"ru": "Код для подтверждения платежа"
+},
+"Підставити": {
+"en": "Fill in",
+"it": "Inserisci",
+"de": "Einfügen",
+"ru": "Подставить"
+},
+"Код авторизації": {
+"en": "Authorization code",
+"it": "Codice di autorizzazione",
+"de": "Autorisierungscode",
+"ru": "Код авторизации"
+},
+"Код відповіді": {
+"en": "Response code",
+"it": "Codice di risposta",
+"de": "Antwortcode",
+"ru": "Код ответа"
+},
+"Комісія еквайра": {
+"en": "Acquirer fee",
+"it": "Commissione acquirer",
+"de": "Acquirer-Gebühr",
+"ru": "Комиссия эквайера"
+},
+"Магазин отримає": {
+"en": "Merchant receives",
+"it": "L'esercente riceve",
+"de": "Händler erhält",
+"ru": "Магазин получит"
+},
+"Повернути платіж": {
+"en": "Refund payment",
+"it": "Rimborsa il pagamento",
+"de": "Zahlung erstatten",
+"ru": "Вернуть платёж"
+},
+"Статус": {
+"en": "Status",
+"it": "Stato",
+"de": "Status",
+"ru": "Статус"
 }
 }

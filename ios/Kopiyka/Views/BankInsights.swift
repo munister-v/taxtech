@@ -23,7 +23,7 @@ struct TransactionDetailView: View {
                             Text(TransactionRow(tx: tx).title)
                                 .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
-                                .font(.custom("Futura-Medium", size: 44)).monospacedDigit()
+                                .font(.system(size: 44, weight: .semibold)).monospacedDigit()
                                 .minimumScaleFactor(0.5).lineLimit(1)
                                 .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
                             Label(L("Виконано").s, systemImage: "checkmark.seal.fill")
@@ -72,8 +72,7 @@ struct TransactionDetailView: View {
                                     copied = true
                                 }
                                 .font(.footnote.weight(.semibold)).foregroundStyle(Theme.ink)
-                                Rule()
-                                LearnLink(.chain)
+                                Group { Rule(); LearnLink(.chain) }.expertOnly()
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(16)

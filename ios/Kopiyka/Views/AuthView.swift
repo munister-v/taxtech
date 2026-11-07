@@ -20,7 +20,7 @@ struct AuthView: View {
             HStack(spacing: 10) {
                 MarkView(height: 26, color: .white)
                 (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
-                    .font(.custom("Futura-Medium", size: 22)).tracking(0.6).foregroundStyle(.white)
+                    .font(.system(size: 22, weight: .semibold)).tracking(0.6).foregroundStyle(.white)
                 Spacer()
                 Menu {
                     ForEach(Lang.allCases) { l in
@@ -283,7 +283,7 @@ struct SignInSheet: View {
                     HStack(spacing: 10) {
                         MarkView(height: 24, color: Theme.accent)
                         (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
-                            .font(.custom("Futura-Medium", size: 20)).tracking(0.6).foregroundStyle(.white)
+                            .font(.system(size: 20, weight: .semibold)).tracking(0.6).foregroundStyle(.white)
                         Spacer()
                         Button { dismiss() } label: {
                             Image(systemName: "xmark").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white.opacity(0.8))
