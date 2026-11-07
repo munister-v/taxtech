@@ -62,13 +62,15 @@ function Door({ x, tail }: { x: number; tail?: boolean }) {
   );
 }
 
-export default function HoodPlatform({ phase, roman, name, next, going, rose }: { phase: PlatPhase; roman: string; name: string; next: string; going: boolean; rose: string }) {
+export default function HoodPlatform({ phase, roman, name, next, nextRoman, going, rose }: { phase: PlatPhase; roman: string; name: string; next: string; nextRoman: string; going: boolean; rose: string }) {
   const led = (going ? `→ ${next}` : `${roman} ${name}`).toUpperCase();
+  // the station signs switch to the next stop once the old train is out of sight
+  const sign = going && phase !== 'out' ? [nextRoman, next] : [roman, name];
   // The 3D train (three.js, loaded on demand) replaces the flat SVG one where WebGL is available.
   const host = useRef<HTMLDivElement | null>(null);
   const api = useRef<TrainApi | null>(null);
   const [gl, setGl] = useState(false);
-  const last = useRef({ phase, led }); last.current = { phase, led };
+  const last = useRef({ phase, led, sign }); last.current = { phase, led, sign };
   useEffect(() => {
     let dead = false;
     let a: TrainApi | null = null;
@@ -81,7 +83,7 @@ export default function HoodPlatform({ phase, roman, name, next, going, rose }: 
       io.disconnect();
       import('./hoodTrain3d').then(m => {
         if (dead || !host.current) return;
-        try { a = m.mountTrain(host.current, rose); api.current = a; a.setLed(last.current.led); a.setPhase(last.current.phase); setGl(true); } catch { a?.dispose(); a = null; }
+        try { a = m.mountTrain(host.current, rose); api.current = a; a.setLed(last.current.led); a.setSign(last.current.sign[0], last.current.sign[1]); a.setPhase(last.current.phase); setGl(true); } catch { a?.dispose(); a = null; }
       }).catch(() => {});
     }, { root: el.closest('.bl'), rootMargin: '1800px 0px' });
     io.observe(el);
@@ -90,6 +92,7 @@ export default function HoodPlatform({ phase, roman, name, next, going, rose }: 
   }, []);
   useEffect(() => { api.current?.setPhase(phase); }, [phase]);
   useEffect(() => { api.current?.setLed(led); }, [led]);
+  useEffect(() => { api.current?.setSign(sign[0], sign[1]); }, [sign[0], sign[1]]);
   return (
     <div className={`bl-plat ${phase}${gl ? ' gl' : ''}`} aria-hidden>
       <div className="bl-plat-glhost" ref={host} />

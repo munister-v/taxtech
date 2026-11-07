@@ -1,5 +1,10 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
 
 // A metro train in a Roman station, rendered with three.js: three 19 m cars with a driver's cab, silver shell, our dark livery
 // with the mark and the wordmark, lit windows, sliding plug doors, wheels and bogies, rails, a platform edge, arches behind.
@@ -7,7 +12,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 // them and leaves. Units are metres.
 
 export type TrainPhase = 'at' | 'out' | 'left';
-export type TrainApi = { setPhase: (p: TrainPhase) => void; setLed: (s: string) => void; dispose: () => void };
+export type TrainApi = { setPhase: (p: TrainPhase) => void; setLed: (s: string) => void; setSign: (roman: string, name: string) => void; dispose: () => void };
 
 const L = 19.2, GAP = 1.1, W = 2.9, BT = 0.07;       // car length, gangway, width, bevel
 const Y0 = 0.55, Y1 = 3.72;                            // underside and roof of the shell
@@ -129,6 +134,29 @@ function ledTexture(): { tex: THREE.CanvasTexture; set: (s: string) => void } {
   return { tex, set };
 }
 
+// The hanging station sign: line T in a yellow disc, the station's Roman numeral in gold, its name in white.
+function signTexture(): { tex: THREE.CanvasTexture; set: (roman: string, name: string) => void } {
+  const { tex, ctx: c } = canvasTex(1024, 192, () => {});
+  const set = (roman: string, name: string) => {
+    const g = c.createLinearGradient(0, 0, 0, 192); g.addColorStop(0, '#16130e'); g.addColorStop(1, '#070605');
+    c.fillStyle = g; c.fillRect(0, 0, 1024, 192);
+    c.fillStyle = 'rgba(220,193,149,.75)'; c.fillRect(0, 10, 1024, 2); c.fillRect(0, 180, 1024, 2);
+    c.fillStyle = '#ffd400'; c.beginPath(); c.arc(100, 96, 52, 0, 6.3); c.fill();
+    c.fillStyle = '#14100a'; c.font = '700 64px Inter, "SF Pro Display", Helvetica, Arial, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('T', 100, 100);
+    c.textAlign = 'left';
+    c.fillStyle = '#e8cf9c'; c.font = '300 70px "Cormorant Garamond", Georgia, serif'; c.fillText(roman, 186, 100);
+    const rw = c.measureText(roman).width;
+    let size = 64; const room = 1024 - (186 + rw + 34) - 40;
+    c.font = `600 ${size}px Inter, "SF Pro Display", Helvetica, Arial, sans-serif`;
+    const up = name.toUpperCase();
+    while (c.measureText(up).width > room && size > 30) { size -= 2; c.font = `600 ${size}px Inter, "SF Pro Display", Helvetica, Arial, sans-serif`; }
+    c.fillStyle = '#ffffff'; c.fillText(up, 186 + rw + 34, 100);
+    tex.needsUpdate = true;
+  };
+  set('', '');
+  return { tex, set };
+}
+
 function glowTexture(): THREE.CanvasTexture {
   return canvasTex(128, 128, c => {
     const g = c.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -139,43 +167,80 @@ function glowTexture(): THREE.CanvasTexture {
 
 export function mountTrain(host: HTMLElement, rose: string): TrainApi {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'low-power' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.92;
   renderer.domElement.className = 'bl-plat-gl';
   host.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x070605);
-  scene.fog = new THREE.Fog(0x070605, 26, 60);
+  scene.fog = new THREE.Fog(0x070605, 30, 92);
   const pm = new THREE.PMREMGenerator(renderer);
   scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.55;
+  scene.environmentIntensity = 0.38;
 
-  const camera = new THREE.PerspectiveCamera(26, 3.5, 0.5, 120);
-  const camBase = new THREE.Vector3(-2.2, 2.6, 13.5);
-  camera.position.copy(camBase); camera.lookAt(0.4, 2.0, 0);
+  // The camera stands on the platform and looks down the line: the train rushes past it and brakes into the depth.
+  const camera = new THREE.PerspectiveCamera(40, 2, 0.3, 160);
+  const camBase = new THREE.Vector3(-16, 2.5, 7.4), look = new THREE.Vector3(4, 2.3, -0.6);
+  camera.position.copy(camBase); camera.lookAt(look);
+  const big = (host.clientWidth || 0) >= 700;
 
-  scene.add(new THREE.HemisphereLight(0xffe2b0, 0x1a1008, 0.5));
-  [-9, 0, 9].forEach(x => { const p = new THREE.PointLight(0xffd8a0, 38, 22, 2); p.position.set(x, 5.4, 3.5); scene.add(p); });
+  scene.add(new THREE.HemisphereLight(0xffe2b0, 0x1a1008, 0.32));
+  [-20, -8, 4, 16, 28].forEach(x => { const p = new THREE.PointLight(0xffc98a, 16, 20, 2); p.position.set(x, 6.2, 4.2); scene.add(p); });
 
   // ── station: tunnel wall with arches, track bed, rails, platform edge
   const wallTex = wallTexture();
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(61, 11), new THREE.MeshBasicMaterial({ map: wallTex, fog: true }));
-  wall.position.set(0, 4.6, -4.4); scene.add(wall);
-  const bed = new THREE.Mesh(new THREE.PlaneGeometry(80, 6.2), new THREE.MeshStandardMaterial({ color: 0x0d0c0b, roughness: 0.95 }));
-  bed.rotation.x = -Math.PI / 2; bed.position.set(0, 0, -1.35); scene.add(bed);
+  const SX = 12, SL = 140;                                // the station runs from -58 to 82 and fades into fog both ways
+  wallTex.repeat.set(SL / 61, 1);
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(SL, 11), new THREE.MeshBasicMaterial({ map: wallTex, fog: true }));
+  wall.position.set(SX, 4.6, -4.4); scene.add(wall);
+  const wall2 = new THREE.Mesh(new THREE.PlaneGeometry(SL, 11), new THREE.MeshBasicMaterial({ map: wallTex, fog: true, color: 0x8a8070 }));
+  wall2.rotation.y = Math.PI; wall2.position.set(SX, 5.6, 10.6); scene.add(wall2);
+  const bed = new THREE.Mesh(new THREE.PlaneGeometry(SL, 6.2), new THREE.MeshStandardMaterial({ color: 0x0d0c0b, roughness: 0.95 }));
+  bed.rotation.x = -Math.PI / 2; bed.position.set(SX, 0, -1.35); scene.add(bed);
   const railM = new THREE.MeshStandardMaterial({ color: 0x8a919b, metalness: 0.9, roughness: 0.35 });
-  [-0.72, 0.72].forEach(z => { const r = new THREE.Mesh(new THREE.BoxGeometry(80, 0.18, 0.12), railM); r.position.set(0, 0.12, z); scene.add(r); });
-  const sleepers = new THREE.InstancedMesh(new THREE.BoxGeometry(0.28, 0.1, 2.5), new THREE.MeshStandardMaterial({ color: 0x1b1814, roughness: 0.9 }), 140);
-  { const m = new THREE.Matrix4(); for (let i = 0; i < 140; i++) { m.setPosition(-40 + i * 0.58, 0.05, 0); sleepers.setMatrixAt(i, m); } scene.add(sleepers); }
-  const platTop = new THREE.Mesh(new THREE.BoxGeometry(80, 1.2, 9), new THREE.MeshStandardMaterial({ color: 0x241d16, roughness: 0.28, metalness: 0.15, envMapIntensity: 0.8 }));
-  platTop.position.set(0, 0.4, 6.3); scene.add(platTop);                 // top face at y = 1.0, edge at z = 1.8
-  const strip = new THREE.Mesh(new THREE.BoxGeometry(80, 0.02, 0.4), new THREE.MeshStandardMaterial({ color: 0xffd400, emissive: 0x6a5500, roughness: 0.5 }));
-  strip.position.set(0, 1.011, 2.05); scene.add(strip);
-  const tile = canvasTex(256, 256, c => { c.fillStyle = '#16120d'; c.fillRect(0, 0, 256, 256); c.strokeStyle = 'rgba(220,193,149,.14)'; c.lineWidth = 2; for (let i = 0; i <= 256; i += 64) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i, 256); c.moveTo(0, i); c.lineTo(256, i); c.stroke(); } }).tex;
-  tile.wrapS = tile.wrapT = THREE.RepeatWrapping; tile.repeat.set(40, 4);
-  (platTop.material as THREE.MeshStandardMaterial).map = tile;
+  [-0.72, 0.72].forEach(z => { const r = new THREE.Mesh(new THREE.BoxGeometry(SL, 0.18, 0.12), railM); r.position.set(SX, 0.12, z); scene.add(r); });
+  const NS = Math.round(SL / 0.58);
+  const sleepers = new THREE.InstancedMesh(new THREE.BoxGeometry(0.28, 0.1, 2.5), new THREE.MeshStandardMaterial({ color: 0x1b1814, roughness: 0.9 }), NS);
+  { const m = new THREE.Matrix4(); for (let i = 0; i < NS; i++) { m.setPosition(SX - SL / 2 + i * 0.58, 0.05, 0); sleepers.setMatrixAt(i, m); } scene.add(sleepers); }
+  const platTop = new THREE.Mesh(new THREE.BoxGeometry(SL, 1.2, 9), new THREE.MeshStandardMaterial({ color: 0x241d16, roughness: 0.28, metalness: 0.15, envMapIntensity: 0.8 }));
+  platTop.position.set(SX, 0.4, 6.3); scene.add(platTop);                // top face at y = 1.0, edge at z = 1.8
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(SL, 0.02, 0.4), new THREE.MeshStandardMaterial({ color: 0xffd400, emissive: 0x2a2200, roughness: 0.5 }));
+  strip.position.set(SX, 1.013, 2.05); scene.add(strip);
+  // polished stone: a real mirror under a translucent tiled floor, so the lit train and the lamps shine in it
+  const tile = canvasTex(256, 256, c => { c.fillStyle = 'rgba(14,11,8,.86)'; c.fillRect(0, 0, 256, 256); c.strokeStyle = 'rgba(220,193,149,.16)'; c.lineWidth = 2; for (let i = 0; i <= 256; i += 128) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i, 256); c.moveTo(0, i); c.lineTo(256, i); c.stroke(); } }).tex;
+  tile.wrapS = tile.wrapT = THREE.RepeatWrapping; tile.repeat.set(SL / 2.4, 9 / 2.4);
+  let mirror: Reflector | null = null;
+  {
+    mirror = new Reflector(new THREE.PlaneGeometry(SL, 8.8), { color: 0x4a4038, textureWidth: big ? 1024 : 512, textureHeight: big ? 512 : 512, clipBias: 0.003 });
+    mirror.rotation.x = -Math.PI / 2; mirror.position.set(SX, 1.004, 6.25); scene.add(mirror);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(SL, 8.8), new THREE.MeshBasicMaterial({ map: tile, transparent: true }));
+    floor.rotation.x = -Math.PI / 2; floor.position.set(SX, 1.008, 6.25); scene.add(floor);
+  }
+
+  // vaulted ceiling with two rows of light lines running into the distance
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(SL, 16), new THREE.MeshStandardMaterial({ color: 0x0b0907, roughness: 0.9 }));
+  ceil.rotation.x = Math.PI / 2; ceil.position.set(SX, 7.6, 2); scene.add(ceil);
+  const lineM = new THREE.MeshBasicMaterial({ color: 0xfff0cc });
+  const NL = Math.floor(SL / 6);
+  [4.6, 0.4].forEach(z => {
+    const lines = new THREE.InstancedMesh(new THREE.BoxGeometry(4.4, 0.06, 0.2), lineM, NL);
+    const m = new THREE.Matrix4(); for (let i = 0; i < NL; i++) { m.setPosition(SX - SL / 2 + 3 + i * 6, 7.0, z); lines.setMatrixAt(i, m); }
+    scene.add(lines);
+  });
+
+  // hanging station signs over the platform, facing the camera
+  const sign = signTexture();
+  const signM = new THREE.MeshBasicMaterial({ map: sign.tex, side: THREE.DoubleSide });
+  const rodM = new THREE.MeshStandardMaterial({ color: 0x3a342b, metalness: 0.7, roughness: 0.4 });
+  [-3, 13, 29, 45].forEach(sx => {
+    const sg = new THREE.Group(); sg.position.set(sx, 5.35, 3.6);
+    const pnl = new THREE.Mesh(new THREE.PlaneGeometry(3.9, 0.73), signM); pnl.rotation.y = -Math.PI / 2; sg.add(pnl);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.8, 4.0), rodM); back.position.x = 0.05; sg.add(back);
+    [-1.5, 1.5].forEach(dz => { const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.9, 6), rodM); rod.position.set(0.05, 1.3, dz); sg.add(rod); });
+    scene.add(sg);
+  });
 
   // ── the train
   const train = new THREE.Group();
@@ -249,6 +314,9 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
       // headlight and the red marker on the tail
       const hl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: 0xfff2c0, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
       hl.position.set(L / 2 + 0.2, 1.05, 1.0); hl.scale.set(4, 4, 1); car.add(hl);
+      // a real beam: it sweeps the track and the wall as the train comes in
+      const beam = new THREE.SpotLight(0xfff1c8, 160, 46, 0.42, 0.7, 1.6); beam.position.set(L / 2, 1.2, 0);
+      const aim = new THREE.Object3D(); aim.position.set(L / 2 + 20, 0.2, 0); car.add(aim); beam.target = aim; car.add(beam);
     }
 
     // plug doors: lit vestibule, two leaves that slide apart, a status light above
@@ -325,15 +393,27 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
       else { setOpen(0); if (reduce) { x = from = to = XOFF; } else go(XOFF, 1500, ease.inCubic, 600); }
     },
     setLed(s) { led.set(s); },
-    dispose() { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); renderer.dispose(); scene.traverse(o => { const m = o as THREE.Mesh; if (m.geometry) m.geometry.dispose(); }); renderer.domElement.remove(); },
+    setSign(r, n) { sign.set(r, n); },
+    dispose() { cancelAnimationFrame(raf); ro.disconnect(); io.disconnect(); bloom.dispose(); composer.dispose(); mirror?.dispose(); renderer.dispose(); scene.traverse(o => { const m = o as THREE.Mesh; if (m.geometry) m.geometry.dispose(); }); renderer.domElement.remove(); },
   };
 
-  let raf = 0, visible = true;
+  // bloom: the windows, the lamps, the LED boards and the headlight glow
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(512, 256), 0.42, 0.5, 0.86);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+
+  let raf = 0, visible = true, px = x, pt = performance.now();
   const resize = () => {
     const w = host.clientWidth || 1, h = host.clientHeight || 1;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.fov = w / h < 2 ? 38 : 33;
+    composer.setSize(w, h);
+    const a = w / h;
+    camera.aspect = a;
+    // a tall phone frame needs a wider lens and a camera further back to keep the train in shot
+    camera.fov = a < 1 ? 62 : a < 1.6 ? 50 : 40;
+    camBase.set(a < 1 ? -17 : -16, a < 1 ? 2.3 : 2.5, a < 1 ? 8.2 : 7.4);
     camera.updateProjectionMatrix();
   };
   const ro = new ResizeObserver(resize); ro.observe(host); resize();
@@ -349,9 +429,12 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
     leaves.forEach(l => { l.m.position.x = l.base + l.dir * 0.66 * open; });
     spills.forEach(sp => { sp.position.x = x + (sp.userData.car as THREE.Group).position.x + sp.userData.dc; (sp.material as THREE.MeshBasicMaterial).opacity = 0.55 * open; });
     const s = now / 1000;
-    camera.position.set(camBase.x + Math.sin(s * 0.25) * 0.25, camBase.y + Math.sin(s * 0.19) * 0.04, camBase.z);
-    camera.lookAt(0.4, 2.0, 0);
-    renderer.render(scene, camera);
+    // the platform trembles a little while the train is fast, and the camera breathes when it stands
+    const v = Math.abs(x - px) / Math.max(1, now - pt) * 1000; px = x; pt = now;
+    const shake = Math.min(1, v / 30) * 0.035;
+    camera.position.set(camBase.x + Math.sin(s * 0.21) * 0.35, camBase.y + Math.sin(s * 0.17) * 0.05 + Math.sin(now * 0.09) * shake, camBase.z + Math.sin(s * 0.13) * 0.2);
+    camera.lookAt(look);
+    composer.render();
     raf = requestAnimationFrame(frame);
   }
   raf = requestAnimationFrame(frame);

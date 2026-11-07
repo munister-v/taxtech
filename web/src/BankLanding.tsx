@@ -650,13 +650,15 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         </section>
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
-        <Lazy id="inside" className="bl-sec bl-inside" h={[1527, 1568]}>
-          <div className="bl-wrap">
-            <div className="bl-inside-head bl-rv">
+        <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
+          <div className="bl-lt-stage">
+            <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
+            <div className="bl-wrap bl-lt-head">
               <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
             </div>
+          </div>
+          <div className="bl-wrap">
             <div className="bl-hood bl-rv" ref={hoodRefCb}>
-              <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} rose={CARD_ROSETTE} />
               <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
                 onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
                 onArrive={i => { hoodIdle.current.going = false; hoodIdle.current.since = Date.now(); setHood(i); setHoodGo(false); }} />
@@ -666,17 +668,18 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                   <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite"
                     onPointerEnter={() => { hoodIdle.current.hold = true; hoodRef.current?.classList.add('hold'); }}
                     onPointerLeave={() => { hoodIdle.current.hold = false; hoodRef.current?.classList.remove('hold'); }}>
-                    <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
-                      <svg className="bl-tx-rose" viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="currentColor" strokeWidth=".25" /></svg>
-                      <span className="bl-tx-num" aria-hidden>{ROMAN[hood]}</span>
-                      <span className="bl-tx-place" aria-hidden>{HOOD_PLACES[hood].name}</span>
-                      <Stage kind={x.kind} t={t} />
+                    <div className="bl-lt-st">
+                      <span className="bl-lt-num" aria-hidden>{ROMAN[hood]}</span>
+                      <span className="bl-lt-place" aria-hidden>{HOOD_PLACES[hood].name}</span>
                     </div>
                     <div className="bl-tx-body">
                       <h3>{t(x.uk[0], x.en[0])}</h3>
                       <p>{t(x.uk[1], x.en[1])}</p>
-                      <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
                     </div>
+                    <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
+                      <Stage kind={x.kind} t={t} />
+                    </div>
+                    <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
                   </article>
                 );
               })()}
