@@ -640,8 +640,8 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           <div className="bl-wrap">
             <div className="bl-agnes bl-agnes-soon bl-rv">
               <div className="bl-agnes-text">
-                <h4>{t('Незабаром в App Store.', 'Coming soon to the App Store.')}</h4>
-                <img className="bl-appbadge" src="/app-store-black.svg" alt="App Store" width="180" height="60" loading="lazy" decoding="async" />
+                <h4>{t('Тепер в App Store.', 'Now on the App Store.')}</h4>
+                <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer" aria-label="App Store"><img className="bl-appbadge" src="/app-store-black.svg" alt="App Store" width="180" height="60" loading="lazy" decoding="async" /></a>
               </div>
               <div className="bl-agnes-img"><img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" /></div>
             </div>
