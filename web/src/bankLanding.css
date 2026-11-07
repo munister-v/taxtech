@@ -1093,3 +1093,54 @@
 .bl .bl-lt-head .bl-h { font-size: clamp(64px, 10vw, 150px); text-shadow: none; }
 @media (max-width: 860px) { .bl-lt-head { top: auto; bottom: 14%; } }
 .rm-lamp { opacity: .4; }
+
+/* 2026-11-08 round 3. Line T: the map rises into the fading scene; the station reads as one gold line over the title;
+   the feature demo floats on the page, no photo strip and no glass box. */
+.bl-lt-stage { margin-bottom: calc(-1 * clamp(40px, 9vh, 110px)); z-index: 1; }
+.bl-lt > .bl-wrap { position: relative; z-index: 2; }
+.bl-lt .hm { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(180deg, transparent 0, #000 10%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(180deg, transparent 0, #000 10%, #000 100%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+.bl-lt .bl-tilex { justify-content: center; }
+.bl-lt-st { align-items: center; gap: 14px; margin-bottom: 18px; }
+.bl-lt-num { font-size: 30px; line-height: 1; letter-spacing: .08em; }
+.bl-lt-st i { width: 28px; height: 1px; background: linear-gradient(90deg, var(--gold-l), rgba(220,193,149,.2)); }
+.bl-lt-place { font-size: 11.5px; color: #c9b88f; }
+.bl .bl-lt .bl-tilex h3 { font-size: clamp(30px, 2.8vw, 42px); }
+.bl-lt .bl-tx-art { height: auto; margin-top: 30px; padding: 0; border-radius: 0; overflow: visible; isolation: auto; }
+.bl-lt .bl-tx-art::before, .bl-lt .bl-tx-art::after { content: none; }
+.bl-lt .bl-tx-art .bl-mini { height: 120px; border-radius: 16px; background: radial-gradient(90% 120% at 50% 0%, rgba(220,193,149,.10), transparent 70%), rgba(255,255,255,.025); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+.bl-lt .bl-tilex-proof { margin-top: 16px; padding-top: 0; }
+.bl-lt .bl-tilex-proof::before { content: none; }
+@media (max-width: 860px) { .bl-lt-stage { margin-bottom: -24px; } }
+
+/* Saint Agnes: an editorial page. The headline and the line under it in one column, product shots on one paper tone
+   (white studio backgrounds melt into it), finer corners, the lookbook as tall as the four pieces beside it. */
+.bl-shopx { padding: 120px 0 112px; }
+.bl-shopx-head { grid-template-columns: 1fr; gap: 18px; }
+.bl-shopx-sub { margin: 0; max-width: 46ch; font-size: 18px; color: #6b6356; }
+.bl-shopx-grid { gap: 28px; margin-top: 56px; align-items: stretch; }
+.bl-shopx-look { min-height: 0; border-radius: 18px; }
+.bl-shopx-list { gap: 28px 22px; }
+.bl-shopx-img { border-radius: 12px; background: #ece5d8; }
+.bl-shopx-img img { mix-blend-mode: multiply; }
+.bl-shopx-item small { margin-top: 16px; }
+.bl-shopx-item span { font-size: 15.5px; }
+.bl-shopx-item b { margin-top: 8px; font-size: 18px; }
+.bl-shopx-tag { left: 20px; top: 18px; }
+@media (max-width: 860px) { .bl-shopx { padding: 80px 0 76px; } .bl-shopx-look { aspect-ratio: 4 / 5; } }
+
+.bl-lt-stage { margin-bottom: 8px; -webkit-mask-image: none; }
+.bl-lt-stage .bl-plat { -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 84%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 84%, transparent 100%); }
+.bl-lt-head { bottom: 12%; }
+.bl-lt .bl-tx-body { flex: none; }
+@media (max-width: 860px) { .bl-lt-stage { margin-bottom: 0; } .bl-lt-head { bottom: 12%; } }
+
+.bl-lt { padding-top: 120px; }
+.bl-lt-head, .bl-lt-head { position: relative; top: auto; bottom: auto; left: auto; right: auto; z-index: 2; pointer-events: auto; margin-bottom: clamp(-60px, -4vw, -24px); }
+.bl .bl-lt-head .bl-h { font-size: clamp(56px, 8vw, 120px); }
+@media (max-width: 860px) { .bl-lt { padding-top: 80px; } .bl-lt-head { top: auto; bottom: auto; margin-bottom: -12px; } }
+.bl-lt-stage { margin-bottom: calc(-1 * clamp(60px, 11vh, 140px)); }
+.bl-lt .hm { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(180deg, transparent 0, #000 18%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(180deg, transparent 0, #000 18%, #000 100%); }
+@media (max-width: 860px) { .bl-lt-stage { margin-bottom: -40px; } }

@@ -467,7 +467,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#shop', 'Saint Agnes'], ['#faq', t('Питання', 'Questions')]];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#shop', 'Saint Agnes'], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#faq', t('Питання', 'Questions')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (
@@ -649,13 +649,45 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
+        {/* ── Saint Agnes: a cream lookbook page like the shop itself; the shoot on the left, four pieces priced in TAX ── */}
+        <Lazy id="shop" className="bl-shopx" h={[1400, 1225]}>
+          <div className="bl-wrap">
+            <div className="bl-shopx-head bl-rv">
+              <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
+              <p className="bl-shopx-sub">{t('Ціни в TAX. Оплата через TaxPay одним дотиком.', 'Priced in TAX. Paid through TaxPay in one tap.')}</p>
+            </div>
+            <div className="bl-shopx-grid">
+              <a className="bl-shopx-look bl-rv" href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="Saint Agnes">
+                <img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" />
+                <span className="bl-shopx-tag">{t('Осінь · лукбук', 'Autumn · lookbook')}</span>
+                <div className="bl-toast bl-push bl-shopx-paid">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
+              </a>
+              <div className="bl-shopx-list bl-rv">
+                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map(p => {
+                  const name = p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : '';
+                  const brand = name.match(/\s([A-Z0-9][A-Z0-9 .&'-]+)$/)?.[1] || '';
+                  return (
+                    <a key={p.id} className="bl-shopx-item" href={SHOP_URL} target="_blank" rel="noreferrer">
+                      <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}</div>
+                      <small>{brand || '\u00a0'}</small>
+                      <span>{(brand ? name.slice(0, -brand.length) : name).trim() || '\u00a0'}</span>
+                      <b>{p.price ? <>{fmt(Number(p.price))} <em>TAX</em></> : '\u00a0'}</b>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="bl-shopx-foot bl-rv"><a className="bl-pill bl-pill-dark" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')} ›</a></div>
+          </div>
+        </Lazy>
+
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
+          <div className="bl-wrap bl-lt-head">
+            <h2 className="bl-h bl-rv">{t('Лінія T.', 'Line T.')}</h2>
+          </div>
           <div className="bl-lt-stage">
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
-            <div className="bl-wrap bl-lt-head">
-              <h2 className="bl-h">{t('Лінія T.', 'Line T.')}</h2>
-            </div>
           </div>
           <div className="bl-wrap">
             <div className="bl-hood bl-rv" ref={hoodRefCb}>
@@ -668,9 +700,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                   <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite"
                     onPointerEnter={() => { hoodIdle.current.hold = true; hoodRef.current?.classList.add('hold'); }}
                     onPointerLeave={() => { hoodIdle.current.hold = false; hoodRef.current?.classList.remove('hold'); }}>
-                    <div className="bl-lt-st">
-                      <span className="bl-lt-num" aria-hidden>{ROMAN[hood]}</span>
-                      <span className="bl-lt-place" aria-hidden>{HOOD_PLACES[hood].name}</span>
+                    <div className="bl-lt-st" aria-hidden>
+                      <span className="bl-lt-num">{ROMAN[hood]}</span>
+                      <i />
+                      <span className="bl-lt-place">{HOOD_PLACES[hood].name}</span>
                     </div>
                     <div className="bl-tx-body">
                       <h3>{t(x.uk[0], x.en[0])}</h3>
@@ -708,38 +741,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               ))}
             </div>
             <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
-          </div>
-        </Lazy>
-
-        {/* ── Saint Agnes: a cream lookbook page like the shop itself; the shoot on the left, four pieces priced in TAX ── */}
-        <Lazy id="shop" className="bl-shopx" h={[1400, 1225]}>
-          <div className="bl-wrap">
-            <div className="bl-shopx-head bl-rv">
-              <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
-              <p className="bl-shopx-sub">{t('Ціни в TAX. Оплата через TaxPay одним дотиком.', 'Priced in TAX. Paid through TaxPay in one tap.')}</p>
-            </div>
-            <div className="bl-shopx-grid">
-              <a className="bl-shopx-look bl-rv" href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="Saint Agnes">
-                <img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" />
-                <span className="bl-shopx-tag">{t('Осінь · лукбук', 'Autumn · lookbook')}</span>
-                <div className="bl-toast bl-push bl-shopx-paid">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
-              </a>
-              <div className="bl-shopx-list bl-rv">
-                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map(p => {
-                  const name = p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : '';
-                  const brand = name.match(/\s([A-Z0-9][A-Z0-9 .&'-]+)$/)?.[1] || '';
-                  return (
-                    <a key={p.id} className="bl-shopx-item" href={SHOP_URL} target="_blank" rel="noreferrer">
-                      <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}</div>
-                      <small>{brand || '\u00a0'}</small>
-                      <span>{(brand ? name.slice(0, -brand.length) : name).trim() || '\u00a0'}</span>
-                      <b>{p.price ? <>{fmt(Number(p.price))} <em>TAX</em></> : '\u00a0'}</b>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="bl-shopx-foot bl-rv"><a className="bl-pill bl-pill-dark" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')} ›</a></div>
           </div>
         </Lazy>
 
