@@ -8506,5 +8506,107 @@
 "it": "Stato",
 "de": "Status",
 "ru": "Статус"
+},
+"Розбір платежу": {
+"en": "Payment breakdown",
+"it": "Dettaglio del pagamento",
+"de": "Zahlungsdetails",
+"ru": "Разбор платежа"
+},
+"Клірінг і розрахунок": {
+"en": "Clearing and settlement",
+"it": "Compensazione e regolamento",
+"de": "Clearing und Abrechnung",
+"ru": "Клиринг и расчёт"
+},
+"Авторизація": {
+"en": "Authorization",
+"it": "Autorizzazione",
+"de": "Autorisierung",
+"ru": "Авторизация"
+},
+"Списання": {
+"en": "Capture",
+"it": "Addebito",
+"de": "Abbuchung",
+"ru": "Списание"
+},
+"Клірінг": {
+"en": "Clearing",
+"it": "Compensazione",
+"de": "Clearing",
+"ru": "Клиринг"
+},
+"Виплата магазину": {
+"en": "Merchant payout",
+"it": "Pagamento all'esercente",
+"de": "Auszahlung an den Händler",
+"ru": "Выплата магазину"
+},
+"Магазин": {
+"en": "Merchant",
+"it": "Esercente",
+"de": "Händler",
+"ru": "Магазин"
+},
+"Платежів поки немає": {
+"en": "No payments yet",
+"it": "Ancora nessun pagamento",
+"de": "Noch keine Zahlungen",
+"ru": "Платежей пока нет"
+},
+"Чистий оборот": {
+"en": "Net turnover",
+"it": "Fatturato netto",
+"de": "Nettoumsatz",
+"ru": "Чистый оборот"
+},
+"Схвалено": {
+"en": "Approved",
+"it": "Approvati",
+"de": "Genehmigt",
+"ru": "Одобрено"
+},
+"Повернення": {
+"en": "Refunds",
+"it": "Rimborsi",
+"de": "Erstattungen",
+"ru": "Возвраты"
+},
+"Відмов": {
+"en": "Declines",
+"it": "Rifiuti",
+"de": "Ablehnungen",
+"ru": "Отказов"
+},
+"Виплати": {
+"en": "Payouts",
+"it": "Pagamenti",
+"de": "Auszahlungen",
+"ru": "Выплаты"
+},
+"Магазини": {
+"en": "Merchants",
+"it": "Esercenti",
+"de": "Händler",
+"ru": "Магазины"
+},
+"Виплачено": {
+"en": "Paid out",
+"it": "Pagato",
+"de": "Ausgezahlt",
+"ru": "Выплачено"
+},
+"Заплановано": {
+"en": "Scheduled",
+"it": "Programmato",
+"de": "Geplant",
+"ru": "Запланировано"
+},
+"Зупинити": {
+"en": "Stop",
+"it": "Ferma",
+"de": "Stopp",
+"ru": "Остановить"
 }
 }

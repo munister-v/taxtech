@@ -4,6 +4,26 @@ import Foundation
 extension API {
     struct PosStage: Decodable, Sendable, Hashable { let stage: String; let ms: Int }
 
+    struct PosIso: Decodable, Sendable, Hashable, Identifiable { let field: String; let name: String; let value: String; var id: String { field } }
+
+    struct PosSettlement: Decodable, Sendable, Hashable {
+        let clearingDate: String, payoutDate: String
+        let paidOut: Bool
+        let gross: Double, mdr: Double, fee: Double, net: Double
+    }
+
+    struct PosMerchantSummary: Decodable, Sendable {
+        struct Totals: Decodable, Sendable {
+            let gross: Double, fee: Double, net: Double, refunded: Double, approvalRate: Double, mdr: Double
+            let count: Int, declined: Int
+        }
+        struct Shop: Decodable, Sendable, Identifiable { let merchant: String; let gross: Double, fee: Double, net: Double; let count: Int; var id: String { merchant } }
+        struct Payout: Decodable, Sendable, Identifiable { let date: String; let gross: Double, fee: Double, net: Double; let count: Int; let paidOut: Bool; var id: String { date } }
+        let totals: Totals
+        let merchants: [Shop]
+        let payouts: [Payout]
+    }
+
     struct PosPayment: Decodable, Sendable, Identifiable, Hashable {
         let id: Int?
         let merchant: String?
@@ -24,6 +44,9 @@ extension API {
         let needs3Ds: Bool?
         let newBalance: Double?
         let stages: [PosStage]?
+        let outcome: String?
+        let iso: [PosIso]?
+        let settlement: PosSettlement?
 
         var isApproved: Bool { approved ?? (status == "captured") }
         var isRefunded: Bool { status == "refunded" }
@@ -39,6 +62,11 @@ extension API {
 
     func posPayments() async throws -> [PosPayment] {
         let w: Wrapped<[PosPayment]> = try await send(request("pos/payments", method: "GET"))
+        return w.data
+    }
+
+    func posMerchant() async throws -> PosMerchantSummary {
+        let w: Wrapped<PosMerchantSummary> = try await send(request("pos/merchant", method: "GET"))
         return w.data
     }
 
