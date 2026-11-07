@@ -1076,3 +1076,20 @@
   .bl-lt .bl-hood { grid-template-columns: 1fr; }
   .bl-lt .hm { min-height: 440px; }
 }
+
+/* Visual audit 2026-11-08 (hero + Line T) */
+/* hero: a quiet map, a clean gold word, the card lit by its own shadow instead of a yellow halo */
+.bl .bl-hero h1 .bl-gold { text-shadow: none; background: linear-gradient(176deg, #fff7e2 0%, #f1d796 34%, #d2a95a 66%, #9c7432 100%); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 8px 40px rgba(0,0,0,.55)); }
+.bl-cine .bl-hero::before { background: linear-gradient(90deg, rgba(4,6,13,.9) 0%, rgba(4,6,13,.62) 34%, rgba(4,6,13,0) 62%), radial-gradient(60% 46% at 50% 34%, rgba(4,6,13,.5) 0%, transparent 100%); }
+@media (min-width: 861px) {
+  .bl-hero-pay { width: min(440px, 32vw); }
+  .bl-hero-card > .bl-card { box-shadow: 0 60px 100px -30px rgba(0,0,0,.9), 0 24px 40px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12); }
+  .bl-hero-pay::after { opacity: .7; }
+}
+@media (max-width: 860px) { .bl-cine .bl-hero::before { background: linear-gradient(180deg, rgba(4,6,13,.85) 0%, rgba(4,6,13,.4) 50%, rgba(4,6,13,.1) 100%); } }
+.rm-pin span { opacity: calc(.32 + var(--on, 0) * .55); }
+/* Line T: the title sits on the dark floor, under the train, not over its roof */
+.bl-lt-head { top: auto; bottom: 6%; }
+.bl .bl-lt-head .bl-h { font-size: clamp(64px, 10vw, 150px); text-shadow: none; }
+@media (max-width: 860px) { .bl-lt-head { top: auto; bottom: 14%; } }
+.rm-lamp { opacity: .4; }

@@ -111,10 +111,10 @@ export default function RomeMap() {
         ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         const stroke = (path: Path2D, color: string, width: number) => { ctx.strokeStyle = color; ctx.lineWidth = px(width); ctx.stroke(path); };
         stroke(layers.river, 'rgba(110,150,225,.2)', 9);
-        stroke(layers.minor, 'rgba(255,255,255,.17)', 0.7);
-        stroke(layers.mid, 'rgba(255,255,255,.3)', 1);
-        stroke(layers.major, 'rgba(255,226,140,.62)', 1.5);
-        for (const a of AMBIENT) stroke(routes[a].path, 'rgba(255,212,0,.28)', 2);
+        stroke(layers.minor, 'rgba(255,255,255,.085)', 0.7);
+        stroke(layers.mid, 'rgba(255,255,255,.16)', 1);
+        stroke(layers.major, 'rgba(232,206,150,.32)', 1.3);
+        for (const a of AMBIENT) stroke(routes[a].path, 'rgba(232,200,120,.16)', 1.6);
         if (pulseA > 0.01) {
           AMBIENT.forEach((a, i) => {
             const r = routes[a], dur = 7 + (i % 4) * 1.6;

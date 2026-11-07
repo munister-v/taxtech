@@ -50,7 +50,7 @@ function interiorTexture(seed: number): THREE.CanvasTexture {
     c.strokeStyle = 'rgba(190,196,206,.9)'; c.lineWidth = 3.5;
     for (let x = 70; x < 512; x += 170) { c.beginPath(); c.moveTo(x, 6); c.lineTo(x, 152); c.stroke(); }
     c.beginPath(); c.moveTo(0, 38); c.lineTo(512, 38); c.stroke();
-    c.filter = 'blur(2.4px)'; c.fillStyle = 'rgba(38,24,10,.78)';
+    c.filter = 'blur(3px)'; c.fillStyle = 'rgba(38,24,10,.42)';
     let s = seed * 9301 + 49297;
     const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
     for (let i = 0; i < 3; i++) {
@@ -93,11 +93,11 @@ function liveryTexture(rose: string, onLoad: () => void): THREE.CanvasTexture {
   const draw = (c: CanvasRenderingContext2D, withLogo: boolean) => {
     c.clearRect(0, 0, 1024, 256);
     const g = c.createLinearGradient(0, 0, 0, 256);
-    g.addColorStop(0, '#202329'); g.addColorStop(1, '#0a0b0e');
+    g.addColorStop(0, '#16171b'); g.addColorStop(1, '#08080a');
     c.fillStyle = g; c.fillRect(0, 0, 1024, 256);
     // the card's guilloche, engraved in gold, behind the lettering
     c.save(); c.translate(512, 128); c.scale(7.2, 7.2); c.translate(-50, -50);
-    c.strokeStyle = 'rgba(255,212,0,.5)'; c.lineWidth = 0.1; c.stroke(new Path2D(rose));
+    c.strokeStyle = 'rgba(220,193,149,.55)'; c.lineWidth = 0.1; c.stroke(new Path2D(rose));
     c.restore();
     const vg = c.createLinearGradient(0, 0, 1024, 0);
     vg.addColorStop(0, 'rgba(0,0,0,.85)'); vg.addColorStop(0.28, 'rgba(0,0,0,0)'); vg.addColorStop(0.72, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.85)');
@@ -206,7 +206,7 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
   { const m = new THREE.Matrix4(); for (let i = 0; i < NS; i++) { m.setPosition(SX - SL / 2 + i * 0.58, 0.05, 0); sleepers.setMatrixAt(i, m); } scene.add(sleepers); }
   const platTop = new THREE.Mesh(new THREE.BoxGeometry(SL, 1.2, 9), new THREE.MeshStandardMaterial({ color: 0x241d16, roughness: 0.28, metalness: 0.15, envMapIntensity: 0.8 }));
   platTop.position.set(SX, 0.4, 6.3); scene.add(platTop);                // top face at y = 1.0, edge at z = 1.8
-  const strip = new THREE.Mesh(new THREE.BoxGeometry(SL, 0.02, 0.4), new THREE.MeshStandardMaterial({ color: 0xffd400, emissive: 0x2a2200, roughness: 0.5 }));
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(SL, 0.02, 0.4), new THREE.MeshStandardMaterial({ color: 0xa88645, emissive: 0x140e04, roughness: 0.3, metalness: 0.9 }));
   strip.position.set(SX, 1.013, 2.05); scene.add(strip);
   // polished stone: a real mirror under a translucent tiled floor, so the lit train and the lamps shine in it
   const tile = canvasTex(256, 256, c => { c.fillStyle = 'rgba(14,11,8,.86)'; c.fillRect(0, 0, 256, 256); c.strokeStyle = 'rgba(220,193,149,.16)'; c.lineWidth = 2; for (let i = 0; i <= 256; i += 128) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i, 256); c.moveTo(0, i); c.lineTo(256, i); c.stroke(); } }).tex;
@@ -246,9 +246,10 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
   const train = new THREE.Group();
   scene.add(train);
   const stepX = L + GAP;
-  const bodyM = new THREE.MeshPhysicalMaterial({ color: 0xdde1e7, metalness: 0.72, roughness: 0.34, clearcoat: 0.7, clearcoatRoughness: 0.18, envMapIntensity: 1.25 });
+  // graphite lacquer with a gold line, the same livery as the card
+  const bodyM = new THREE.MeshPhysicalMaterial({ color: 0x24252a, metalness: 0.78, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 1.5 });
   const darkM = new THREE.MeshPhysicalMaterial({ color: 0x0b0c10, metalness: 0.35, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.12 });
-  const yellowM = new THREE.MeshStandardMaterial({ color: 0xffd400, emissive: 0x4d3b00, roughness: 0.38, metalness: 0.25 });
+  const yellowM = new THREE.MeshStandardMaterial({ color: 0xd6b26a, emissive: 0x2a1f0a, roughness: 0.22, metalness: 0.95, envMapIntensity: 1.6 });
   const rubberM = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.85 });
   const steelM = new THREE.MeshStandardMaterial({ color: 0x9aa1ab, metalness: 0.9, roughness: 0.35 });
   const glassM = new THREE.MeshPhysicalMaterial({ color: 0x05080e, metalness: 1, roughness: 0.04, transparent: true, opacity: 0.3, envMapIntensity: 1.8, depthWrite: false });
@@ -326,7 +327,7 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
       car.add(plane(1.5, 0.06, rubberM, dc, 3.05, ZF + 0.008));
       [-1, 1].forEach(dir => {
         const leaf = new THREE.Group();
-        const slab = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.96, 0.05), new THREE.MeshPhysicalMaterial({ color: 0xcfd4db, metalness: 0.7, roughness: 0.3, clearcoat: 0.6 }));
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.96, 0.05), new THREE.MeshPhysicalMaterial({ color: 0x2c2d33, metalness: 0.78, roughness: 0.28, clearcoat: 1 }));
         leaf.add(slab);
         const gl = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 1.12), cabGlassM); gl.position.set(0, 0.28, 0.027); leaf.add(gl);
         const gm = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 1.12), glassM); gm.position.set(0, 0.28, 0.029); leaf.add(gm);
@@ -337,12 +338,12 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
       });
       const lamp = plane(0.4, 0.08, new THREE.MeshBasicMaterial({ color: 0x2fd07a }), dc, 3.2, ZF + 0.008); car.add(lamp);
       // light spilling onto the platform
-      const sp = new THREE.Mesh(new THREE.PlaneGeometry(2.1, 2.2), new THREE.MeshBasicMaterial({ map: glow, color: 0xffe3a0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+      const sp = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.6), new THREE.MeshBasicMaterial({ map: glow, color: 0xffd9a0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
       sp.rotation.x = -Math.PI / 2; sp.position.set(car.position.x + dc, 1.02, 3.0); sp.userData.dc = dc; spills.push(sp); scene.add(sp); sp.userData.car = car;
     });
 
     // roof equipment and the destination board under the roof line
-    [-5.4, 5.4].forEach(x => { const ac = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.34, 1.5), new THREE.MeshStandardMaterial({ color: 0xb7bdc7, metalness: 0.6, roughness: 0.4 })); ac.position.set(x, Y1 + 0.16, 0); car.add(ac); });
+    [-5.4, 5.4].forEach(x => { const ac = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.34, 1.5), new THREE.MeshStandardMaterial({ color: 0x3a3b40, metalness: 0.7, roughness: 0.4 })); ac.position.set(x, Y1 + 0.16, 0); car.add(ac); });
     if (i === 1) {
       const pg = new THREE.Group();
       [[-0.9, 0.9], [0.9, 0.9]].forEach(([x, y]) => { const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.5, 6), steelM); arm.position.set(x * 0.4, y * 0.75, 0); arm.rotation.z = x * 0.4; pg.add(arm); });
@@ -427,7 +428,7 @@ export function mountTrain(host: HTMLElement, rose: string): TrainApi {
     train.position.x = x;
     if (openDelay && now >= openT0) { const k = clamp((now - openT0) / 650); open = openFrom + (openTo - openFrom) * ease.inOut(k); if (k >= 1) openDelay = 0; }
     leaves.forEach(l => { l.m.position.x = l.base + l.dir * 0.66 * open; });
-    spills.forEach(sp => { sp.position.x = x + (sp.userData.car as THREE.Group).position.x + sp.userData.dc; (sp.material as THREE.MeshBasicMaterial).opacity = 0.55 * open; });
+    spills.forEach(sp => { sp.position.x = x + (sp.userData.car as THREE.Group).position.x + sp.userData.dc; (sp.material as THREE.MeshBasicMaterial).opacity = 0.22 * open; });
     const s = now / 1000;
     // the platform trembles a little while the train is fast, and the camera breathes when it stands
     const v = Math.abs(x - px) / Math.max(1, now - pt) * 1000; px = x; pt = now;
