@@ -75,7 +75,7 @@ struct CardsTab: View {
     // MARK: Тло, шапка, стрічка
 
     private var header: some View {
-        ScreenTitle(title: "Carte", subtitle: L("Картки").s) {
+        ScreenTitle(title: RootView.AppTab.cards.title) {
             Button { issuing = true } label: {
                 Label(L("Випустити").s, systemImage: "plus")
                     .font(.subheadline.weight(.semibold))

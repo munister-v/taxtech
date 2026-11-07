@@ -6,6 +6,7 @@ import csv
 
 from ..database import get_returning_id_suffix, insert_last_id
 from ..config import USE_PG
+from ..i18n import tr, tr_text
 from .base import BaseRepository
 
 
@@ -402,7 +403,7 @@ class AccountRepository(BaseRepository):
         transactions = self.list_transactions(account_id, from_date=from_date, to_date=to_date)
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(['ID', 'Тип', 'Напрям', 'Сума (TAX)', 'Опис', "Пов'язаний рахунок", 'Дата'])
+        writer.writerow(['ID', tr('Тип'), tr('Напрям'), tr('Сума (TAX)'), tr('Опис'), tr("Пов'язаний рахунок"), tr('Дата')])
         type_labels = {
             'topup': 'Поповнення', 'transfer': 'Переказ', 'payment': 'Оплата', 'payout': 'Виплата',
             'donation': 'Донат', 'savings': 'Накопичення',
@@ -411,10 +412,10 @@ class AccountRepository(BaseRepository):
         for tx in transactions:
             writer.writerow([
                 tx['id'],
-                type_labels.get(tx['tx_type'], tx['tx_type']),
-                'Прихід' if tx['direction'] == 'in' else 'Відхід',
+                tr(type_labels[tx['tx_type']]) if tx['tx_type'] in type_labels else tx['tx_type'],
+                tr('Прихід') if tx['direction'] == 'in' else tr('Відхід'),
                 tx['amount'],
-                tx['description'],
+                tr_text(tx['description'] or ''),
                 tx.get('related_account') or '',
                 tx['created_at'],
             ])

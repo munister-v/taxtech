@@ -29,6 +29,8 @@ extension API {
 
         var isReceipt: Bool { kind == "receipt" }
         var url: URL? { URL(string: verifyUrl) }
+        /// Сторінка перевірки мовою застосунку; поширюється й друкується звичайне посилання без мови.
+        var openUrl: URL? { URL(string: verifyUrl + (verifyUrl.contains("?") ? "&" : "?") + "lang=\(Lang.current.rawValue)") }
         /// Час у UTC без зони, як і в операціях.
         var date: Date {
             let f = DateFormatter()
@@ -131,14 +133,14 @@ struct VerifySeal: View {
                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
             HStack(spacing: 10) {
                 if let url = doc.url {
-                    Link(destination: url) {
+                    Link(destination: doc.openUrl ?? url) {
                         Label(L("Перевірити онлайн").s, systemImage: "checkmark.shield")
                             .font(.subheadline.weight(.semibold))
                             .frame(maxWidth: .infinity).padding(.vertical, 12)
                             .foregroundStyle(Theme.onAccent)
                             .background(Theme.accent, in: .rect(cornerRadius: 14, style: .continuous))
                     }
-                    ShareLink(item: url, subject: Text(doc.title), message: Text(L("Код \(doc.code)").s)) {
+                    ShareLink(item: url, subject: Text(Translator.server(doc.title)), message: Text(L("Код \(doc.code)").s)) {
                         Image(systemName: "square.and.arrow.up").font(.subheadline.weight(.semibold))
                             .frame(width: 48).padding(.vertical, 12)
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -256,7 +258,7 @@ struct DocumentRow: View {
             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                            tint: doc.isReceipt ? .green : Theme.accent, size: 46)
             VStack(alignment: .leading, spacing: 3) {
-                Text(doc.title).font(.body.weight(.medium)).lineLimit(2).minimumScaleFactor(0.85)
+                Text(Translator.server(doc.title)).font(.body.weight(.medium)).lineLimit(2).minimumScaleFactor(0.85)
                 Text(doc.code).font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary)
                     .lineLimit(1).minimumScaleFactor(0.7)
             }
@@ -266,7 +268,7 @@ struct DocumentRow: View {
                     Text((doc.direction == "in" ? "+" : doc.direction == "out" ? "−" : "") + Format.money(a))
                         .font(.callout.weight(.semibold)).monospacedDigit()
                         .lineLimit(1).fixedSize()
-                        .foregroundStyle(doc.direction == "in" ? Color.green : Theme.ink)
+                        .foregroundStyle(doc.direction == "in" ? Theme.accent : Theme.ink)
                 }
                 Image(systemName: "qrcode").font(.footnote).foregroundStyle(Theme.tint)
             }
@@ -293,12 +295,12 @@ struct DocumentDetailView: View {
                         VStack(spacing: 8) {
                             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                                            tint: doc.isReceipt ? .green : Theme.accent, size: 72)
-                            Text(doc.title).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Text(Translator.server(doc.title)).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             if let a = doc.amount {
                                 Text((doc.direction == "in" ? "+" : "−") + Format.money(a))
                                     .font(.system(size: 38, weight: .bold)).monospacedDigit()
                                     .minimumScaleFactor(0.5).lineLimit(1)
-                                    .foregroundStyle(doc.direction == "in" ? Color.green : Theme.ink)
+                                    .foregroundStyle(doc.direction == "in" ? Theme.accent : Theme.ink)
                             }
                         }
                         .frame(maxWidth: .infinity)

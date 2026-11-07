@@ -62,6 +62,20 @@ extension View {
         background { Theme.bg.ignoresSafeArea() }
     }
 
+    /// Контент, що з'їжджає вгору, розчиняється під годинником, а не налазить на нього.
+    /// `amount` 0...1: у спокої затемнення не видно, воно проявляється разом із прокруткою.
+    func statusScrim(_ amount: CGFloat = 1) -> some View {
+        overlay(alignment: .top) {
+            Rectangle().fill(.ultraThinMaterial)
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0.55), .init(color: .clear, location: 1)],
+                                     startPoint: .top, endPoint: .bottom))
+                .frame(height: 76)
+                .ignoresSafeArea(edges: .top)
+                .opacity(amount)
+                .allowsHitTesting(false)
+        }
+    }
+
     /// Тло форми: без стандартного тла груп.
     func labForm() -> some View {
         scrollContentBackground(.hidden).screenBackground()
@@ -391,7 +405,7 @@ struct VirtualCardView: View {
             }
             .font(.caption.weight(.medium))
             .opacity(0.85)
-            .padding(.top, 4)
+            .padding(.top, 10)
         }
         .padding(20)
         .foregroundStyle(l.text)

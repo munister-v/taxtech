@@ -29,10 +29,10 @@ extension Experiment {
 extension RootView.AppTab {
     var title: String {
         switch self {
-        case .overview: "Piazza"
-        case .operations: "Registro"
-        case .cards: "Carte"
-        case .taxes: "Fisco"
+        case .overview: L("Домівка").s
+        case .operations: L("Активність").s
+        case .cards: L("Картки").s
+        case .taxes: L("Податки").s
         case .lab: "Studio"
         case .shop: L("Магазин").s
         }

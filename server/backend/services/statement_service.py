@@ -18,6 +18,7 @@ from reportlab.platypus import (
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+from ..i18n import tr, tr_text
 from ..repositories.account_repository import AccountRepository
 from ..repositories.user_repository import UserRepository
 from ..repositories.feature_repository import FeatureRepository
@@ -209,8 +210,8 @@ _TX_TYPE_LABELS = {
 def _tx_label(raw, default: str = 'Операція') -> str:
     raw = str(raw or '')
     if not raw:
-        return default
-    return _TX_TYPE_LABELS.get(raw) or raw.replace('_', ' ').capitalize()
+        return tr(default)
+    return tr(_TX_TYPE_LABELS[raw]) if raw in _TX_TYPE_LABELS else raw.replace('_', ' ').capitalize()
 
 _REPORT_TYPE_LABELS = {
     'standard': 'Стандартна виписка',
@@ -326,7 +327,7 @@ class StatementService:
             'order_id': order_id,
             'status': 'ready',
             'report_type': report_type,
-            'report_type_label': _REPORT_TYPE_LABELS[report_type],
+            'report_type_label': tr(_REPORT_TYPE_LABELS[report_type]),
             'from_date': from_date,
             'to_date': to_date,
             'period_label': self._period_label(from_date, to_date),
@@ -411,7 +412,7 @@ class StatementService:
         }
         doc = dsvc.issue(
             user_id, KIND_STATEMENT, f'{from_date or ""}|{to_date or ""}|{report_type}',
-            title=f'{_REPORT_TYPE_LABELS[report_type]} · {period_str}',
+            title=f'{tr(_REPORT_TYPE_LABELS[report_type])} · {period_str}',
             digest=dsvc.statement_digest(self._accounts, account, doc_meta),
             amount=float(summary.get('total_out') or 0), direction='out', meta=doc_meta,
         )
@@ -506,8 +507,8 @@ class StatementService:
         return {
             'order_id': order_id,
             'report_type': report_type,
-            'report_type_label': _REPORT_TYPE_LABELS[report_type],
-            'period_label': result.get('period') or 'весь час',
+            'report_type_label': tr(_REPORT_TYPE_LABELS[report_type]),
+            'period_label': result.get('period') or tr('весь час'),
             'filename': filename,
             'download_query': urlencode(query),
         }
@@ -516,10 +517,10 @@ class StatementService:
         if from_date and to_date:
             return f'{from_date} — {to_date}'
         if from_date:
-            return f'з {from_date}'
+            return f'{tr("з")} {from_date}'
         if to_date:
-            return f'по {to_date}'
-        return 'весь час'
+            return f'{tr("по")} {to_date}'
+        return tr('весь час')
 
     def _verify_block(self, doc: dict | None, root: str | None, width: float):
         """Блок «Перевірка документа»: QR із посиланням, код і пояснення."""
@@ -532,9 +533,9 @@ class StatementService:
         link = ParagraphStyle('vu', fontName=_f(), fontSize=6.3, leading=8.6, textColor=_MUTED)
         t = Table(
             [[qr_drawing(url, 24 * mm),
-              [Paragraph('ПЕРЕВІРКА ДОКУМЕНТА', ParagraphStyle('vh', fontName=_f(True), fontSize=7.4, leading=10, textColor=_GOLD)),
+              [Paragraph(tr('ПЕРЕВІРКА ДОКУМЕНТА'), ParagraphStyle('vh', fontName=_f(True), fontSize=7.4, leading=10, textColor=_GOLD)),
                Paragraph(doc['code'], code),
-               Paragraph('Скануйте QR або відкрийте адресу: документ звіряється з реєстром TaxTech.', label),
+               Paragraph(tr('Скануйте QR або відкрийте адресу: документ звіряється з реєстром TaxTech.'), label),
                Paragraph(url, link)]]],
             colWidths=[27 * mm, width - 27 * mm],
         )
@@ -593,7 +594,7 @@ class StatementService:
             [[_mark_drawing(11 * mm)],
              [P('TaxTech', 15, True, colors.white)],
              [P('STATE TAX UNIVERSITY', 6.3, True, colors.HexColor('#8c8c8c'))],
-             [P('КВИТАНЦІЯ', 6.8, True, colors.HexColor('#e8e8e8'))]],
+             [P(tr('КВИТАНЦІЯ'), 6.8, True, colors.HexColor('#e8e8e8'))]],
             colWidths=[width], rowHeights=None)
         band.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d0d0f')),
@@ -611,7 +612,7 @@ class StatementService:
                                    ('BOTTOMPADDING', (0, 0), (-1, -1), 0)]))
         story.append(badge)
         story.append(Spacer(1, 2.5 * mm))
-        story.append(P('Операцію виконано', 8.2, False, _MUTED))
+        story.append(P(tr('Операцію виконано'), 8.2, False, _MUTED))
         story.append(Spacer(1, 2.5 * mm))
         story.append(P(amount_str, 22, True, _OKGREEN if is_in else _INK, leading=26))
         story.append(Spacer(1, 1 * mm))
@@ -622,15 +623,15 @@ class StatementService:
         lbl = ParagraphStyle('rl', fontName=_f(), fontSize=7.6, leading=10.5, textColor=_MUTED)
         val = ParagraphStyle('rv', fontName=_f(True), fontSize=8, leading=10.5, textColor=_INK, alignment=2)
 
-        rows = [('Дата й час', date_str), ('Власник', user.get('full_name') or '—'),
-                ('Рахунок', account.get('account_number') or '—')]
+        rows = [(tr('Дата й час'), date_str), (tr('Власник'), user.get('full_name') or '—'),
+                (tr('Рахунок'), account.get('account_number') or '—')]
         related = tx.get('related_account')
         if related:
-            rows.append(('Контрагент', str(related)))
-        desc = str(tx.get('description') or '').strip()
+            rows.append((tr('Контрагент'), str(related)))
+        desc = tr_text(str(tx.get('description') or '').strip())
         if desc:
-            rows.append(('Призначення', desc if len(desc) <= 60 else desc[:57] + '…'))
-        rows.append(('№ операції', f'#{tx_num}'))
+            rows.append((tr('Призначення'), desc if len(desc) <= 60 else desc[:57] + '…'))
+        rows.append((tr('№ операції'), f'#{tx_num}'))
         det = Table([[Paragraph(k, lbl), Paragraph(v, val)] for k, v in rows],
                     colWidths=[26 * mm, inner - 26 * mm])
         det.setStyle(TableStyle([
@@ -654,7 +655,7 @@ class StatementService:
             qr = qr_drawing(verify_url(doc['code'], root), 27 * mm)
             check = Table(
                 [[qr], [P(doc['code'], 9.5, True, _INK, font=_f(True))],
-                 [P('Скануйте QR, щоб звірити квитанцію з реєстром TaxTech', 6.8, False, _MUTED, leading=9)],
+                 [P(tr('Скануйте QR, щоб звірити квитанцію з реєстром TaxTech'), 6.8, False, _MUTED, leading=9)],
                  [P(f'SHA-256 · {record_hash[:32]}<br/>{record_hash[32:]}', 5.4, False, colors.HexColor('#a0a0a0'),
                     leading=7)]],
                 colWidths=[width])
@@ -669,7 +670,7 @@ class StatementService:
             story.append(check)
 
         story.append(Spacer(1, 4 * mm))
-        story.append(P('Навчальний документ: токени TAX не є грошима', 6.3, False, _MUTED))
+        story.append(P(tr('Навчальний документ: токени TAX не є грошима'), 6.3, False, _MUTED))
 
         pdf_doc.build(story)
         return buf.getvalue()
@@ -712,35 +713,35 @@ class StatementService:
         story.append(Spacer(1, 3 * mm))
 
         if summary.get('monthly') and len(summary['monthly']) > 1:
-            story.append(Paragraph('Помісячний рух коштів', ParagraphStyle(
+            story.append(Paragraph(tr('Помісячний рух коштів'), ParagraphStyle(
                 'sec0', parent=styles['Normal'], fontName=_f(True), fontSize=10.5, textColor=_NAVY, spaceAfter=2,
             )))
             story.append(self._monthly_table(summary['monthly']))
             story.append(Spacer(1, 3 * mm))
 
         if summary.get('by_type'):
-            story.append(Paragraph('Розподіл за типами операцій', ParagraphStyle(
+            story.append(Paragraph(tr('Розподіл за типами операцій'), ParagraphStyle(
                 'sec1', parent=styles['Normal'], fontName=_f(True), fontSize=10.5, textColor=_NAVY, spaceAfter=2,
             )))
             story.append(self._by_type_table(summary.get('by_type') or []))
             story.append(Spacer(1, 3 * mm))
 
         if report_type in {'detailed', 'tax'} and summary.get('daily'):
-            label = 'Денний підсумок руху коштів' if report_type == 'detailed' else 'Розрахунковий денний реєстр'
+            label = tr('Денний підсумок руху коштів') if report_type == 'detailed' else tr('Розрахунковий денний реєстр')
             story.append(Paragraph(label, ParagraphStyle(
                 'sec2', parent=styles['Normal'], fontName=_f(True), fontSize=10.5, textColor=_NAVY, spaceAfter=2,
             )))
             story.append(self._daily_table(summary.get('daily') or []))
             story.append(Spacer(1, 3 * mm))
 
-        story.append(Paragraph('Деталізація транзакцій', ParagraphStyle(
+        story.append(Paragraph(tr('Деталізація транзакцій'), ParagraphStyle(
             'sec3', parent=styles['Normal'], fontName=_f(True), fontSize=10.5, textColor=_NAVY, spaceAfter=2,
         )))
         if txs:
             story.append(self._tx_table(txs, summary.get('opening_balance') or 0.0))
         else:
             story.append(Paragraph(
-                'Транзакцій за вказаний період не знайдено.',
+                tr('Транзакцій за вказаний період не знайдено.'),
                 ParagraphStyle('empty', parent=styles['Normal'], fontName=_f(), fontSize=9, textColor=_MUTED),
             ))
 
@@ -752,7 +753,7 @@ class StatementService:
         story.append(HRFlowable(width='100%', thickness=0.6, color=_LIGHT, spaceAfter=2 * mm))
         now_str = datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M UTC')
         story.append(Paragraph(
-            f'TaxTech · {_REPORT_TYPE_LABELS.get(report_type, report_type)} · Сформовано: {now_str}',
+            f'TaxTech · {tr(_REPORT_TYPE_LABELS.get(report_type, report_type))} · {tr("Сформовано")}: {now_str}',
             ParagraphStyle('footer', parent=styles['Normal'], fontName=_f(), fontSize=7.5, textColor=_MUTED, alignment=1),
         ))
 
@@ -783,7 +784,7 @@ class StatementService:
         balance  = ParagraphStyle('bal', parent=styles['Normal'], fontSize=19, leading=23, fontName=_f(True), textColor=_NAVY)
 
         period_label = self._period_label(from_date, to_date)
-        report_label = _REPORT_TYPE_LABELS.get(report_type, report_type)
+        report_label = tr(_REPORT_TYPE_LABELS.get(report_type, report_type))
         current_balance = self._money(float(account.get('balance') or 0))
         now_str = datetime.now(timezone.utc).strftime('%d.%m.%Y %H:%M UTC')
 
@@ -810,13 +811,13 @@ class StatementService:
 
         # ── Row 1: account info (two columns) ────────────────────────────────
         left = [
-            Paragraph('Власник рахунку', subtitle),
+            Paragraph(tr('Власник рахунку'), subtitle),
             Paragraph(user.get('full_name') or '—', value),
             Spacer(1, 2 * mm),
-            Paragraph('Рахунок', subtitle),
+            Paragraph(tr('Рахунок'), subtitle),
             Paragraph(account.get('account_number') or '—', value),
             Spacer(1, 2 * mm),
-            Paragraph('Телефон / Email', subtitle),
+            Paragraph(tr('Телефон / Email'), subtitle),
             Paragraph(
                 user.get('phone') or user.get('email') or '—',
                 ParagraphStyle('ph', parent=styles['Normal'], fontSize=8.5, fontName=_f(), textColor=_STEEL),
@@ -824,19 +825,19 @@ class StatementService:
         ]
 
         right = [
-            Paragraph('Поточний баланс', subtitle),
+            Paragraph(tr('Поточний баланс'), subtitle),
             Paragraph(current_balance, balance),
             Spacer(1, 1.5 * mm),
-            Paragraph('Валюта', subtitle),
-            Paragraph('TAX — навчальний токен лабораторії', value),
+            Paragraph(tr('Валюта'), subtitle),
+            Paragraph(tr('TAX — навчальний токен лабораторії'), value),
             Spacer(1, 1.5 * mm),
-            Paragraph('Дата формування', subtitle),
+            Paragraph(tr('Дата формування'), subtitle),
             Paragraph(now_str, ParagraphStyle('nw', parent=styles['Normal'], fontSize=8.5, fontName=_f(), textColor=_STEEL)),
         ]
         if order_id:
             right.extend([
                 Spacer(1, 1.5 * mm),
-                Paragraph('ID замовлення', subtitle),
+                Paragraph(tr('ID замовлення'), subtitle),
                 Paragraph(order_id, ParagraphStyle('oid', parent=styles['Normal'], fontSize=8, fontName=_f(),
                                                    textColor=_MUTED)),
             ])
@@ -894,7 +895,7 @@ class StatementService:
 
             bucket = by_type.setdefault(tx_type, {
                 'tx_type': tx_type,
-                'label': _TX_TYPE_LABELS.get(tx_type, tx_type),
+                'label': _tx_label(tx_type) if tx_type in _TX_TYPE_LABELS else tx_type,
                 'count': 0,
                 'in_total': 0.0,
                 'out_total': 0.0,
@@ -974,11 +975,11 @@ class StatementService:
                                 textColor=_MUTED, alignment=1)
 
         cards_data = [
-            ('Поч. баланс', self._money(summary.get('opening_balance') or 0), val, '≡'),
-            ('Надходження', self._money(summary.get('total_in') or 0),        pos, '↓'),
-            ('Витрати',     self._money(summary.get('total_out') or 0),       neg, '↑'),
-            ('Кін. баланс', self._money(summary.get('closing_balance') or 0), val, '≡'),
-            ('Чистий рух',  f'{net_sign}{self._money(abs(net))}',             net_style, '~'),
+            (tr('Поч. баланс'), self._money(summary.get('opening_balance') or 0), val, '≡'),
+            (tr('Надходження'), self._money(summary.get('total_in') or 0),        pos, '↓'),
+            (tr('Витрати'),     self._money(summary.get('total_out') or 0),       neg, '↑'),
+            (tr('Кін. баланс'), self._money(summary.get('closing_balance') or 0), val, '≡'),
+            (tr('Чистий рух'),  f'{net_sign}{self._money(abs(net))}',             net_style, '~'),
         ]
 
         top_row = [
@@ -1015,15 +1016,15 @@ class StatementService:
         right = ParagraphStyle('r', parent=styles['Normal'], fontName=_f(True), fontSize=8.8, textColor=_NAVY, alignment=2)
 
         rows = [
-            [Paragraph('Кількість операцій (усього)', left), Paragraph(str(int(summary.get('count') or 0)), right)],
-            [Paragraph('Кількість надходжень / витрат', left), Paragraph(f"{int(summary.get('count_in') or 0)} / {int(summary.get('count_out') or 0)}", right)],
-            [Paragraph('Середній чек', left), Paragraph(self._money(summary.get('avg_ticket') or 0), right)],
-            [Paragraph('Середнє надходження', left), Paragraph(self._money(summary.get('avg_in') or 0), right)],
-            [Paragraph('Середня витрата', left), Paragraph(self._money(summary.get('avg_out') or 0), right)],
-            [Paragraph('Максимальне надходження', left), Paragraph(self._money(summary.get('max_in') or 0), right)],
-            [Paragraph('Максимальна витрата', left), Paragraph(self._money(summary.get('max_out') or 0), right)],
-            [Paragraph('Мінімальна сума операції', left), Paragraph(self._money(summary.get('min_tx') or 0), right)],
-            [Paragraph('Максимальна сума операції', left), Paragraph(self._money(summary.get('max_tx') or 0), right)],
+            [Paragraph(tr('Кількість операцій (усього)'), left), Paragraph(str(int(summary.get('count') or 0)), right)],
+            [Paragraph(tr('Кількість надходжень / витрат'), left), Paragraph(f"{int(summary.get('count_in') or 0)} / {int(summary.get('count_out') or 0)}", right)],
+            [Paragraph(tr('Середній чек'), left), Paragraph(self._money(summary.get('avg_ticket') or 0), right)],
+            [Paragraph(tr('Середнє надходження'), left), Paragraph(self._money(summary.get('avg_in') or 0), right)],
+            [Paragraph(tr('Середня витрата'), left), Paragraph(self._money(summary.get('avg_out') or 0), right)],
+            [Paragraph(tr('Максимальне надходження'), left), Paragraph(self._money(summary.get('max_in') or 0), right)],
+            [Paragraph(tr('Максимальна витрата'), left), Paragraph(self._money(summary.get('max_out') or 0), right)],
+            [Paragraph(tr('Мінімальна сума операції'), left), Paragraph(self._money(summary.get('min_tx') or 0), right)],
+            [Paragraph(tr('Максимальна сума операції'), left), Paragraph(self._money(summary.get('max_tx') or 0), right)],
         ]
 
         table = Table(rows, colWidths=['68%', '32%'])
@@ -1045,11 +1046,11 @@ class StatementService:
         num = ParagraphStyle('n', parent=cell, alignment=2)
 
         data = [[
-            Paragraph('Тип', hdr),
-            Paragraph('К-сть', hdr),
-            Paragraph('Надходження', hdr),
-            Paragraph('Витрати', hdr),
-            Paragraph('Оборот', hdr),
+            Paragraph(tr('Тип'), hdr),
+            Paragraph(tr('К-сть'), hdr),
+            Paragraph(tr('Надходження'), hdr),
+            Paragraph(tr('Витрати'), hdr),
+            Paragraph(tr('Оборот'), hdr),
         ]]
 
         for row in rows[:12]:
@@ -1081,11 +1082,11 @@ class StatementService:
         num = ParagraphStyle('n', parent=cell, alignment=2)
 
         data = [[
-            Paragraph('Дата', hdr),
-            Paragraph('Операцій', hdr),
-            Paragraph('Надходження', hdr),
-            Paragraph('Витрати', hdr),
-            Paragraph('Чистий рух', hdr),
+            Paragraph(tr('Дата'), hdr),
+            Paragraph(tr('Операцій'), hdr),
+            Paragraph(tr('Надходження'), hdr),
+            Paragraph(tr('Витрати'), hdr),
+            Paragraph(tr('Чистий рух'), hdr),
         ]]
 
         tail = rows[-31:] if len(rows) > 31 else rows
@@ -1121,18 +1122,18 @@ class StatementService:
         neg  = ParagraphStyle('ng', parent=num, textColor=_RED)
 
         _MONTH_UA = {
-            '01': 'Січень', '02': 'Лютий', '03': 'Березень',
-            '04': 'Квітень', '05': 'Травень', '06': 'Червень',
-            '07': 'Липень', '08': 'Серпень', '09': 'Вересень',
-            '10': 'Жовтень', '11': 'Листопад', '12': 'Грудень',
+            '01': tr('Січень'), '02': tr('Лютий'), '03': tr('Березень'),
+            '04': tr('Квітень'), '05': tr('Травень'), '06': tr('Червень'),
+            '07': tr('Липень'), '08': tr('Серпень'), '09': tr('Вересень'),
+            '10': tr('Жовтень'), '11': tr('Листопад'), '12': tr('Грудень'),
         }
 
         data = [[
-            Paragraph('Місяць', hdr),
-            Paragraph('К-сть', hdr),
-            Paragraph('Надходження', hdr),
-            Paragraph('Витрати', hdr),
-            Paragraph('Чистий рух', hdr),
+            Paragraph(tr('Місяць'), hdr),
+            Paragraph(tr('К-сть'), hdr),
+            Paragraph(tr('Надходження'), hdr),
+            Paragraph(tr('Витрати'), hdr),
+            Paragraph(tr('Чистий рух'), hdr),
         ]]
 
         for row in rows:
@@ -1162,7 +1163,7 @@ class StatementService:
             tot_cell  = ParagraphStyle('tc', parent=cell, fontName=_f(True))
             tot_num   = ParagraphStyle('tn', parent=tot_cell, alignment=2)
             data.append([
-                Paragraph('Разом', tot_cell),
+                Paragraph(tr('Разом'), tot_cell),
                 Paragraph(str(tot_cnt), tot_num),
                 Paragraph(self._money(tot_in), ParagraphStyle('tp', parent=tot_num, textColor=_GREEN)),
                 Paragraph(self._money(tot_out), ParagraphStyle('tn2', parent=tot_num, textColor=_RED)),
@@ -1197,11 +1198,11 @@ class StatementService:
 
         data = [[
             Paragraph('#', hdr),
-            Paragraph('Дата', hdr),
-            Paragraph('Опис / Контрагент', hdr),
-            Paragraph('Тип', hdr),
-            Paragraph('Сума', hdr),
-            Paragraph('Баланс після', hdr),
+            Paragraph(tr('Дата'), hdr),
+            Paragraph(tr('Опис / Контрагент'), hdr),
+            Paragraph(tr('Тип'), hdr),
+            Paragraph(tr('Сума'), hdr),
+            Paragraph(tr('Баланс після'), hdr),
         ]]
 
         # Рахуємо running balance у хронологічному порядку, відображаємо у зворотному
@@ -1236,7 +1237,7 @@ class StatementService:
             except Exception:
                 date_str = raw_dt[:16]
 
-            desc = str(tx.get('description') or '—')
+            desc = tr_text(str(tx.get('description') or '—'))
             if len(desc) > 70:
                 desc = desc[:67] + '…'
             related = tx.get('related_account')
@@ -1247,7 +1248,7 @@ class StatementService:
             if h:
                 desc_cells.append(Paragraph(f'#{h[:16]}', muted))
 
-            tx_type = _TX_TYPE_LABELS.get(tx.get('tx_type'), tx.get('tx_type') or '—')
+            tx_type = _tx_label(tx.get('tx_type')) if tx.get('tx_type') in _TX_TYPE_LABELS else (tx.get('tx_type') or '—')
             balance_after = balance_by_id.get(tx_id, 0.0)
 
             data.append([
@@ -1271,7 +1272,7 @@ class StatementService:
         data.append([
             Paragraph('', cl_cell),
             Paragraph('', cl_cell),
-            Paragraph(f'Оборот: +{self._money(tot_in)} / −{self._money(tot_out)}',
+            Paragraph(f'{tr("Оборот")}: +{self._money(tot_in)} / −{self._money(tot_out)}',
                       ParagraphStyle('cld', parent=cl_cell, fontSize=7.2, textColor=_MUTED)),
             Paragraph('', cl_cell),
             Paragraph('', cl_cell),

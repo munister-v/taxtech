@@ -432,7 +432,7 @@ struct PriceText: View {
     var color: Color = Paper.ink
 
     var body: some View {
-        (Text(value.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
+        (Text(Format.amount(value))
             .font(.system(size: size, weight: .bold)).monospacedDigit()
          + Text(" TAX").font(.system(size: size * 0.62, weight: .semibold)).foregroundColor(color.opacity(0.5)))
             .foregroundStyle(color)
@@ -538,7 +538,7 @@ struct ProductView: View {
                     }
                     HStack(alignment: .firstTextBaseline) {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
+                            Text(Format.amount(product.price))
                                 .font(.system(size: 34, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
                             Text("TAX").font(.system(size: 14, weight: .medium)).tracking(0.8).foregroundStyle(.tertiary)
                         }

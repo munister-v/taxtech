@@ -15,15 +15,15 @@ struct RootView: View {
         Group {
             TabView(selection: $selection) {
                 if model.signedIn {
-                    Tab("Piazza", systemImage: "square.stack.3d.up", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
-                    Tab("Registro", systemImage: "list.bullet.rectangle", value: AppTab.operations) { bank { OperationsView() } }
-                    Tab("Carte", systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
-                    Tab("Fisco", systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
+                    Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
+                    Tab(AppTab.operations.title, systemImage: "list.bullet.rectangle", value: AppTab.operations) { bank { OperationsView() } }
+                    Tab(AppTab.cards.title, systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
+                    Tab(AppTab.taxes.title, systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
                     if Build.shop {
                         Tab(L("Магазин").s, systemImage: "bag", value: AppTab.shop) { bank { ShopView() } }
                     }
                 } else {
-                    Tab("Piazza", systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }
+                    Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }
                 }
                 if model.expert {
                     Tab("Studio", systemImage: "flask", value: AppTab.lab) { LabHome() }
@@ -94,10 +94,14 @@ enum Format {
         v.formatted(.number.precision(.fractionLength(2)).locale(Lang.current.locale)) + " TAX"
     }
 
-    /// Сума без «,00»: копійки лише якщо вони є.
-    static func short(_ v: Double) -> String {
-        v.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)) + " TAX"
+    /// Число без «,00»: копійки лише якщо вони є, і тоді завжди дві цифри («350,50», не «350,5»).
+    static func amount(_ v: Double) -> String {
+        let whole = abs(v - v.rounded()) < 0.005
+        return v.formatted(.number.precision(.fractionLength(whole ? 0 : 2)).locale(Lang.current.locale))
     }
+
+    /// Сума без «,00»: копійки лише якщо вони є.
+    static func short(_ v: Double) -> String { amount(v) + " TAX" }
 
     static func ms(_ v: Double) -> String {
         v < 10 ? String(format: L("%.1f мс").s, v) : v < 1000 ? L("\(Int(v)) мс").s : String(format: L("%.1f с").s, v / 1000)

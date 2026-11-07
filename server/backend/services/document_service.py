@@ -17,6 +17,7 @@ from html import escape
 
 from ..config import PUBLIC_BASE_URL, SECRET_KEY, USE_PG
 from ..database import get_connection
+from ..i18n import current_lang, tr
 
 KIND_RECEIPT = 'receipt'
 KIND_STATEMENT = 'statement'
@@ -206,19 +207,19 @@ class DocumentService:
         v = self.verification(code)
         norm = normalize_code(code) or escape(code or '')
         if not v:
-            body = (_sheet_head('ДОКУМЕНТ · TAXTECH') + _medal(False, '?') +
-                    '<h1>Документ не знайдено</h1>'
-                    f'<p class="sub">Код <b class="mono">{escape(norm)}</b> не відповідає жодному документу TaxTech.</p>'
-                    '<p class="sub small">Перевірте код або скануйте QR із документа ще раз.</p>' + _sheet_end())
-            return _page('Документ не знайдено', body, ok=False), 404
+            body = (_sheet_head(tr('ДОКУМЕНТ · TAXTECH')) + _medal(False, '?') +
+                    f'<h1>{tr("Документ не знайдено")}</h1>'
+                    f'<p class="sub">{tr("Код")} <b class="mono">{escape(norm)}</b> {tr("не відповідає жодному документу TaxTech.")}</p>'
+                    f'<p class="sub small">{tr("Перевірте код або скануйте QR із документа ще раз.")}</p>' + _sheet_end())
+            return _page(tr('Документ не знайдено'), body, ok=False), 404
 
         receipt = v['kind'] == KIND_RECEIPT
-        kind = 'Квитанція' if receipt else 'Виписка'
+        kind = tr('Квитанція') if receipt else tr('Виписка')
         meta = v['meta']
         if v['intact']:
-            head_html = _medal(True) + '<h1>Документ дійсний</h1><p class="sub">Відбиток збігається з реєстром TaxTech.</p>'
+            head_html = _medal(True) + f'<h1>{tr("Документ дійсний")}</h1><p class="sub">{tr("Відбиток збігається з реєстром TaxTech.")}</p>'
         else:
-            head_html = _medal(False, '!') + '<h1>Дані змінилися</h1><p class="sub">Відбиток документа більше не збігається з реєстром.</p>'
+            head_html = _medal(False, '!') + f'<h1>{tr("Дані змінилися")}</h1><p class="sub">{tr("Відбиток документа більше не збігається з реєстром.")}</p>'
 
         hero = ''
         if receipt:
@@ -236,7 +237,7 @@ class DocumentService:
                      ('Надійшло', f"{_money(meta.get('total_in'))} TAX"), ('Витрачено', f"{_money(meta.get('total_out'))} TAX")]
         rows += [('Код', v['code']), ('Видано', _when(v['issued_at'])), ('Власник', v['holder']), ('Рахунок', v['account'])]
         table = ''.join(
-            f'<div class="row"><span>{escape(k)}</span><i></i><b{" class=mono" if k == "Код" else ""}>{escape(str(val))}</b></div>'
+            f'<div class="row"><span>{escape(tr(k))}</span><i></i><b{" class=mono" if k == "Код" else ""}>{escape(str(val))}</b></div>'
             for k, val in rows)
 
         d = v['digest']
@@ -245,10 +246,10 @@ class DocumentService:
         body = (
             _sheet_head(kind.upper()) + head_html + hero +
             f'<div class="perf"></div><div class="rows">{table}</div><div class="perf"></div>'
-            f'<div class="hash"><span>Відбиток SHA-256</span><code>{d[:32]}<br>{d[32:]}</code></div>'
+            f'<div class="hash"><span>{tr("Відбиток SHA-256")}</span><code>{d[:32]}<br>{d[32:]}</code></div>'
             f'<div class="qrbox"><div class="qr">{qr}</div><div class="qcode">{escape(v["code"])}</div>'
-            '<p>Скануйте QR: сторінка звіряє документ з реєстром операцій і не показує особистих даних.</p></div>'
-            f'<div class="checked">Перевірено {_when(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))}</div>'
+            f'<p>{tr("Скануйте QR: сторінка звіряє документ з реєстром операцій і не показує особистих даних.")}</p></div>'
+            f'<div class="checked">{tr("Перевірено")} {_when(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))}</div>'
             + _sheet_end())
         return _page(f'{kind} {v["code"]}', body, ok=bool(v['intact'])), 200
 
@@ -265,7 +266,7 @@ _TX_LABELS = {'marketplace_invoice': 'Оплата в магазині', 'market
 
 def _tx_label(raw) -> str:
     raw = str(raw or '')
-    return _TX_LABELS.get(raw) or raw.replace('_', ' ').capitalize() or 'Операція'
+    return tr(_TX_LABELS[raw]) if raw in _TX_LABELS else (raw.replace('_', ' ').capitalize() or tr('Операція'))
 
 
 def _money(v) -> str:
@@ -275,7 +276,7 @@ def _money(v) -> str:
 def _when(ts: str) -> str:
     try:
         d = datetime.strptime(ts[:19], '%Y-%m-%d %H:%M:%S')
-        return f'{d.day} {_MONTHS[d.month - 1]} {d.year}, {d:%H:%M} UTC'
+        return f'{d.day} {tr(_MONTHS[d.month - 1])} {d.year}, {d:%H:%M} UTC'
     except ValueError:
         return f'{ts} UTC'
 
@@ -306,12 +307,12 @@ def _sheet_head(label: str) -> str:
 
 
 def _sheet_end() -> str:
-    return ('</div></section><p class="foot">Навчальний документ TaxTech: токени TAX не є грошима.<br>'
-            'Особисті дані приховано.</p>')
+    return ('</div></section><p class="foot">' + tr('Навчальний документ TaxTech: токени TAX не є грошима.') +
+            '<br>' + tr('Особисті дані приховано.') + '</p>')
 
 
 def _page(title: str, body: str, ok: bool = True) -> str:
-    return f"""<!doctype html><html lang="uk"><head><meta charset="utf-8">
+    return f"""<!doctype html><html lang="{current_lang()}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark"><title>{escape(title)} · TaxTech</title><style>
 :root{{--bg:#ececea;--card:#fff;--ink:#111;--mute:#76767b;--line:#e9e9e7;--soft:#f6f6f4;--ok:#16a05a;--bad:#d64545;--notch:#ececea}}

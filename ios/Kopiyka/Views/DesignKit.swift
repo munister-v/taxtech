@@ -407,7 +407,7 @@ struct DayRibbon: View {
             Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
             Rectangle().fill(Theme.line).frame(height: Theme.hairline)
             Text(trailing).font(.footnote.weight(.semibold)).monospacedDigit()
-                .foregroundStyle(positive ? Color.green : Color.secondary)
+                .foregroundStyle(positive ? Theme.accent : Color.secondary)
         }
         .padding(.horizontal, 4)
     }

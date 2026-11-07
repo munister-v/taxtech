@@ -300,7 +300,7 @@ struct ShopCard: View {
                     }
                     Text(product.shortName).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(product.price.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
+                        Text(Format.amount(product.price))
                             .font(.system(size: 16, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
                         Text("TAX").font(.system(size: 10, weight: .medium)).tracking(0.6).foregroundStyle(.tertiary)
                     }

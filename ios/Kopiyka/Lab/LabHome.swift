@@ -24,7 +24,7 @@ struct LabHome: View {
                     }
                     RowGroup(title: L("Застосунок").s) {
                         Button { model.jumpTab = .overview } label: {
-                            IconRow(title: "Piazza", symbol: "square.stack.3d.up",
+                            IconRow(title: RootView.AppTab.overview.title, symbol: "square.stack.3d.up",
                                     detail: model.signedIn ? balance.map(Format.short) : L("Увійти").s)
                         }
                         .buttonStyle(.plain)

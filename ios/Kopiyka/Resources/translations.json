@@ -4608,7 +4608,7 @@
 "ru": "Доходы %@"
 },
 "податки, якщо це зарплата": {
-"en": "taxes, if it is salary",
+"en": "tax if paid as salary",
 "it": "imposte, se è stipendio",
 "de": "Steuern, wenn es Gehalt ist",
 "ru": "налоги, если это зарплата"
@@ -8788,5 +8788,1277 @@
 "it": "Il titolare ha un credito provvisorio. L'esercente accetta o contesta.",
 "de": "Der Karteninhaber hat eine vorläufige Gutschrift. Der Händler akzeptiert oder widerspricht.",
 "ru": "Держатель уже получил временный кредит. Магазин принимает спор или оспаривает."
+},
+"Домівка": {
+"en": "Home",
+"it": "Home",
+"de": "Start",
+"ru": "Главная"
+},
+"Активність": {
+"en": "Activity",
+"it": "Attività",
+"de": "Aktivität",
+"ru": "Активность"
+},
+"Challenge вже використано або прострочено (%@).": {
+"en": "The challenge was already used or has expired (%@).",
+"ru": "Challenge уже использован или просрочен (%@).",
+"de": "Die Challenge wurde schon verwendet oder ist abgelaufen (%@).",
+"it": "La challenge è già stata usata o è scaduta (%@)."
+},
+"Challenge не знайдено.": {
+"en": "Challenge not found.",
+"ru": "Challenge не найден.",
+"de": "Challenge nicht gefunden.",
+"it": "Challenge non trovata."
+},
+"Challenge не знайдено. Спробуйте ще раз.": {
+"en": "Challenge not found. Try again.",
+"ru": "Challenge не найден. Попробуйте ещё раз.",
+"de": "Challenge nicht gefunden. Versuchen Sie es erneut.",
+"it": "Challenge non trovata. Riprova."
+},
+"OTP-код прострочено. Запросіть новий.": {
+"en": "The OTP code has expired. Request a new one.",
+"ru": "OTP-код просрочен. Запросите новый.",
+"de": "Der OTP-Code ist abgelaufen. Fordern Sie einen neuen an.",
+"it": "Il codice OTP è scaduto. Richiedine uno nuovo."
+},
+"PIN повинен містити рівно 4 цифри.": {
+"en": "The PIN must be exactly 4 digits.",
+"ru": "PIN должен состоять ровно из 4 цифр.",
+"de": "Die PIN muss genau 4 Ziffern haben.",
+"it": "Il PIN deve avere esattamente 4 cifre."
+},
+"Passkey не знайдено": {
+"en": "Passkey not found",
+"ru": "Passkey не найден",
+"de": "Passkey nicht gefunden",
+"it": "Passkey non trovata"
+},
+"Ім'я контакту обов'язкове.": {
+"en": "The contact name is required.",
+"ru": "Имя контакта обязательно.",
+"de": "Der Kontaktname ist erforderlich.",
+"it": "Il nome del contatto è obbligatorio."
+},
+"Інвойс не знайдено.": {
+"en": "Invoice not found.",
+"ru": "Инвойс не найден.",
+"de": "Rechnung nicht gefunden.",
+"it": "Fattura non trovata."
+},
+"Інвойс недійсний або прострочений.": {
+"en": "The invoice is invalid or has expired.",
+"ru": "Инвойс недействителен или просрочен.",
+"de": "Die Rechnung ist ungültig oder abgelaufen.",
+"it": "La fattura non è valida o è scaduta."
+},
+"Акаунт із такою поштою чи телефоном не знайдено.": {
+"en": "No account with this email or phone was found.",
+"ru": "Аккаунт с такой почтой или телефоном не найден.",
+"de": "Kein Konto mit dieser E-Mail oder Telefonnummer gefunden.",
+"it": "Nessun account con questa email o questo telefono."
+},
+"Банківський рахунок не знайдено.": {
+"en": "Bank account not found.",
+"ru": "Банковский счёт не найден.",
+"de": "Bankkonto nicht gefunden.",
+"it": "Conto bancario non trovato."
+},
+"Борг не знайдено або вже закрито.": {
+"en": "The debt was not found or is already closed.",
+"ru": "Долг не найден или уже закрыт.",
+"de": "Die Schuld wurde nicht gefunden oder ist bereits geschlossen.",
+"it": "Debito non trovato o già chiuso."
+},
+"Борг не знайдено.": {
+"en": "Debt not found.",
+"ru": "Долг не найден.",
+"de": "Schuld nicht gefunden.",
+"it": "Debito non trovato."
+},
+"Введіть пароль, щоб підтвердити платіж.": {
+"en": "Enter your password to confirm the payment.",
+"ru": "Введите пароль, чтобы подтвердить платёж.",
+"de": "Geben Sie Ihr Passwort ein, um die Zahlung zu bestätigen.",
+"it": "Inserisci la password per confermare il pagamento."
+},
+"Вигляд картки має бути обʼєктом.": {
+"en": "The card look must be an object.",
+"ru": "Вид карты должен быть объектом.",
+"de": "Das Kartendesign muss ein Objekt sein.",
+"it": "L'aspetto della carta deve essere un oggetto."
+},
+"Вкажіть телефон або пошту.": {
+"en": "Enter a phone number or email.",
+"ru": "Укажите телефон или почту.",
+"de": "Geben Sie eine Telefonnummer oder E-Mail an.",
+"it": "Inserisci un telefono o un'email."
+},
+"Відкритого спору немає.": {
+"en": "There is no open dispute.",
+"ru": "Открытого спора нет.",
+"de": "Es gibt keinen offenen Streitfall.",
+"it": "Non ci sono contestazioni aperte."
+},
+"Відновлення пароля на цьому сервері вимкнене.": {
+"en": "Password recovery is turned off on this server.",
+"ru": "Восстановление пароля на этом сервере отключено.",
+"de": "Die Passwortwiederherstellung ist auf diesem Server deaktiviert.",
+"it": "Il recupero della password è disattivato su questo server."
+},
+"Відновлення пароля на цьому сервері вимкнене. Зверніться до адміністратора лабораторії.": {
+"en": "Password recovery is turned off on this server. Contact the lab administrator.",
+"ru": "Восстановление пароля на этом сервере отключено. Обратитесь к администратору лаборатории.",
+"de": "Die Passwortwiederherstellung ist auf diesem Server deaktiviert. Wenden Sie sich an den Administrator.",
+"it": "Il recupero della password è disattivato su questo server. Contatta l'amministratore."
+},
+"Головна картка вже використовує баланс рахунку.": {
+"en": "The main card already uses the account balance.",
+"ru": "Главная карта уже использует баланс счёта.",
+"de": "Die Hauptkarte nutzt bereits das Kontoguthaben.",
+"it": "La carta principale usa già il saldo del conto."
+},
+"Дата наступного виконання обов'язкова.": {
+"en": "The next run date is required.",
+"ru": "Дата следующего выполнения обязательна.",
+"de": "Das Datum der nächsten Ausführung ist erforderlich.",
+"it": "La data della prossima esecuzione è obbligatoria."
+},
+"Демо-нарахування вимкнено на цьому середовищі.": {
+"en": "Demo credits are turned off in this environment.",
+"ru": "Демо-начисления отключены в этой среде.",
+"de": "Demo-Gutschriften sind in dieser Umgebung deaktiviert.",
+"it": "Gli accrediti demo sono disattivati in questo ambiente."
+},
+"Депозит не знайдено.": {
+"en": "Deposit not found.",
+"ru": "Депозит не найден.",
+"de": "Einlage nicht gefunden.",
+"it": "Deposito non trovato."
+},
+"Депозит не можна закрити (статус: %@).": {
+"en": "The deposit can't be closed (status: %@).",
+"ru": "Депозит нельзя закрыть (статус: %@).",
+"de": "Die Einlage kann nicht geschlossen werden (Status: %@).",
+"it": "Il deposito non può essere chiuso (stato: %@)."
+},
+"Доступ заборонено.": {
+"en": "Access denied.",
+"ru": "Доступ запрещён.",
+"de": "Zugriff verweigert.",
+"it": "Accesso negato."
+},
+"Доступні строки: %@ місяців.": {
+"en": "Available terms: %@ months.",
+"ru": "Доступные сроки: %@ месяцев.",
+"de": "Verfügbare Laufzeiten: %@ Monate.",
+"it": "Durate disponibili: %@ mesi."
+},
+"Закрита картка не може бути головною.": {
+"en": "A closed card can't be the main one.",
+"ru": "Закрытая карта не может быть главной.",
+"de": "Eine geschlossene Karte kann nicht die Hauptkarte sein.",
+"it": "Una carta chiusa non può essere quella principale."
+},
+"Закрита картка не може бути заблокована.": {
+"en": "A closed card can't be frozen.",
+"ru": "Закрытую карту нельзя заблокировать.",
+"de": "Eine geschlossene Karte kann nicht gesperrt werden.",
+"it": "Una carta chiusa non può essere bloccata."
+},
+"Закрита картка не може змінювати вигляд.": {
+"en": "A closed card can't change its look.",
+"ru": "Закрытая карта не может менять вид.",
+"de": "Eine geschlossene Karte kann ihr Aussehen nicht ändern.",
+"it": "Una carta chiusa non può cambiare aspetto."
+},
+"Закрита картка не може змінювати дизайн.": {
+"en": "A closed card can't change its design.",
+"ru": "Закрытая карта не может менять дизайн.",
+"de": "Eine geschlossene Karte kann ihr Design nicht ändern.",
+"it": "Una carta chiusa non può cambiare design."
+},
+"Закрита картка.": {
+"en": "The card is closed.",
+"ru": "Карта закрыта.",
+"de": "Die Karte ist geschlossen.",
+"it": "La carta è chiusa."
+},
+"Замовлення не знайдено.": {
+"en": "Order not found.",
+"ru": "Заказ не найден.",
+"de": "Bestellung nicht gefunden.",
+"it": "Ordine non trovato."
+},
+"Запис не знайдено.": {
+"en": "Record not found.",
+"ru": "Запись не найдена.",
+"de": "Eintrag nicht gefunden.",
+"it": "Voce non trovata."
+},
+"Заповніть дані доставки (ПІБ та адресу).": {
+"en": "Fill in the delivery details (full name and address).",
+"ru": "Заполните данные доставки (ФИО и адрес).",
+"de": "Füllen Sie die Lieferdaten aus (Name und Adresse).",
+"it": "Compila i dati di consegna (nome completo e indirizzo)."
+},
+"Захисний токен запиту відсутній або застарів.": {
+"en": "The request token is missing or out of date.",
+"ru": "Защитный токен запроса отсутствует или устарел.",
+"de": "Das Sicherheitstoken fehlt oder ist veraltet.",
+"it": "Il token di sicurezza manca o è scaduto."
+},
+"Картку вже закрито.": {
+"en": "The card is already closed.",
+"ru": "Карта уже закрыта.",
+"de": "Die Karte ist bereits geschlossen.",
+"it": "La carta è già chiusa."
+},
+"Картку з таким номером не знайдено.": {
+"en": "No card with this number was found.",
+"ru": "Карта с таким номером не найдена.",
+"de": "Keine Karte mit dieser Nummer gefunden.",
+"it": "Nessuna carta con questo numero."
+},
+"Картку заблоковано — переказ неможливий.": {
+"en": "The card is frozen, so the transfer is not possible.",
+"ru": "Карта заблокирована, перевод невозможен.",
+"de": "Die Karte ist gesperrt, die Überweisung ist nicht möglich.",
+"it": "La carta è bloccata, il bonifico non è possibile."
+},
+"Картку закрито — переказ неможливий.": {
+"en": "The card is closed, so the transfer is not possible.",
+"ru": "Карта закрыта, перевод невозможен.",
+"de": "Die Karte ist geschlossen, die Überweisung ist nicht möglich.",
+"it": "La carta è chiusa, il bonifico non è possibile."
+},
+"Картку не знайдено.": {
+"en": "Card not found.",
+"ru": "Карта не найдена.",
+"de": "Karte nicht gefunden.",
+"it": "Carta non trovata."
+},
+"Клієнта TaxTech не знайдено.": {
+"en": "TaxTech customer not found.",
+"ru": "Клиент TaxTech не найден.",
+"de": "TaxTech-Kunde nicht gefunden.",
+"it": "Cliente TaxTech non trovato."
+},
+"Контакт не знайдено або немає прав для видалення.": {
+"en": "The contact was not found or you can't delete it.",
+"ru": "Контакт не найден или нет прав на удаление.",
+"de": "Der Kontakt wurde nicht gefunden oder Sie dürfen ihn nicht löschen.",
+"it": "Contatto non trovato o non hai i permessi per eliminarlo."
+},
+"Користувач з таким телефоном або email вже існує.": {
+"en": "A user with this phone or email already exists.",
+"ru": "Пользователь с таким телефоном или email уже существует.",
+"de": "Ein Nutzer mit dieser Telefonnummer oder E-Mail existiert bereits.",
+"it": "Esiste già un utente con questo telefono o questa email."
+},
+"Користувача не знайдено": {
+"en": "User not found",
+"ru": "Пользователь не найден",
+"de": "Nutzer nicht gefunden",
+"it": "Utente non trovato"
+},
+"Користувача не знайдено.": {
+"en": "User not found.",
+"ru": "Пользователь не найден.",
+"de": "Nutzer nicht gefunden.",
+"it": "Utente non trovato."
+},
+"Кошик порожній.": {
+"en": "The cart is empty.",
+"ru": "Корзина пуста.",
+"de": "Der Warenkorb ist leer.",
+"it": "Il carrello è vuoto."
+},
+"Кредит вже закрито.": {
+"en": "The loan is already closed.",
+"ru": "Кредит уже закрыт.",
+"de": "Der Kredit ist bereits geschlossen.",
+"it": "Il prestito è già chiuso."
+},
+"Кредит не знайдено.": {
+"en": "Loan not found.",
+"ru": "Кредит не найден.",
+"de": "Kredit nicht gefunden.",
+"it": "Prestito non trovato."
+},
+"Магазин не відповів, спробуйте ще раз.": {
+"en": "The shop didn't respond, try again.",
+"ru": "Магазин не ответил, попробуйте ещё раз.",
+"de": "Der Shop hat nicht geantwortet, versuchen Sie es erneut.",
+"it": "Il negozio non ha risposto, riprova."
+},
+"Максимальна кількість карток (%@) вже досягнута.": {
+"en": "You've reached the maximum number of cards (%@).",
+"ru": "Достигнуто максимальное количество карт (%@).",
+"de": "Die maximale Kartenanzahl (%@) ist erreicht.",
+"it": "Hai raggiunto il numero massimo di carte (%@)."
+},
+"Можна поповнити тільки активну картку.": {
+"en": "Only an active card can be topped up.",
+"ru": "Пополнить можно только активную карту.",
+"de": "Nur eine aktive Karte kann aufgeladen werden.",
+"it": "Si può ricaricare solo una carta attiva."
+},
+"Мінімальна сума депозиту — %@ TAX.": {
+"en": "The minimum deposit is %@ TAX.",
+"ru": "Минимальная сумма депозита — %@ TAX.",
+"de": "Die Mindesteinlage beträgt %@ TAX.",
+"it": "Il deposito minimo è %@ TAX."
+},
+"Назва картки - до %@ символів.": {
+"en": "The card name can be up to %@ characters.",
+"ru": "Название карты — до %@ символов.",
+"de": "Der Kartenname darf höchstens %@ Zeichen haben.",
+"it": "Il nome della carta può avere al massimo %@ caratteri."
+},
+"Назва обов'язкова.": {
+"en": "The name is required.",
+"ru": "Название обязательно.",
+"de": "Der Name ist erforderlich.",
+"it": "Il nome è obbligatorio."
+},
+"Назва товару обовʼязкова.": {
+"en": "The product name is required.",
+"ru": "Название товара обязательно.",
+"de": "Der Produktname ist erforderlich.",
+"it": "Il nome del prodotto è obbligatorio."
+},
+"Не вдалося згенерувати унікальний номер картки.": {
+"en": "Couldn't generate a unique card number.",
+"ru": "Не удалось создать уникальный номер карты.",
+"de": "Eine eindeutige Kartennummer konnte nicht erzeugt werden.",
+"it": "Impossibile generare un numero di carta univoco."
+},
+"Не вдалося згенерувати унікальний номер рахунку.": {
+"en": "Couldn't generate a unique account number.",
+"ru": "Не удалось создать уникальный номер счёта.",
+"de": "Eine eindeutige Kontonummer konnte nicht erzeugt werden.",
+"it": "Impossibile generare un numero di conto univoco."
+},
+"Не вдалося оформити кредит: %@": {
+"en": "Couldn't create the loan: %@",
+"ru": "Не удалось оформить кредит: %@",
+"de": "Der Kredit konnte nicht angelegt werden: %@",
+"it": "Impossibile richiedere il prestito: %@"
+},
+"Не вдалося перевірити токен Apple.": {
+"en": "Couldn't verify the Apple token.",
+"ru": "Не удалось проверить токен Apple.",
+"de": "Das Apple-Token konnte nicht geprüft werden.",
+"it": "Impossibile verificare il token Apple."
+},
+"Не вдалося створити депозит.": {
+"en": "Couldn't create the deposit.",
+"ru": "Не удалось создать депозит.",
+"de": "Die Einlage konnte nicht angelegt werden.",
+"it": "Impossibile creare il deposito."
+},
+"Не вдалося створити основний рахунок користувача.": {
+"en": "Couldn't create the user's main account.",
+"ru": "Не удалось создать основной счёт пользователя.",
+"de": "Das Hauptkonto des Nutzers konnte nicht angelegt werden.",
+"it": "Impossibile creare il conto principale dell'utente."
+},
+"Не вказано номер інвойсу.": {
+"en": "The invoice number is missing.",
+"ru": "Не указан номер инвойса.",
+"de": "Die Rechnungsnummer fehlt.",
+"it": "Manca il numero della fattura."
+},
+"Не заповнено обов'язкові поля: %@": {
+"en": "Required fields are empty: %@",
+"ru": "Не заполнены обязательные поля: %@",
+"de": "Pflichtfelder nicht ausgefüllt: %@",
+"it": "Campi obbligatori non compilati: %@"
+},
+"Не знайдено.": {
+"en": "Not found.",
+"ru": "Не найдено.",
+"de": "Nicht gefunden.",
+"it": "Non trovato."
+},
+"Не передано токен Apple.": {
+"en": "The Apple token was not provided.",
+"ru": "Токен Apple не передан.",
+"de": "Das Apple-Token wurde nicht übergeben.",
+"it": "Il token Apple non è stato fornito."
+},
+"Невідомий вид документа.": {
+"en": "Unknown document type.",
+"ru": "Неизвестный вид документа.",
+"de": "Unbekannte Dokumentart.",
+"it": "Tipo di documento sconosciuto."
+},
+"Невідомий тип картки.": {
+"en": "Unknown card type.",
+"ru": "Неизвестный тип карты.",
+"de": "Unbekannter Kartentyp.",
+"it": "Tipo di carta sconosciuto."
+},
+"Невідомий тип транзакції.": {
+"en": "Unknown transaction type.",
+"ru": "Неизвестный тип транзакции.",
+"de": "Unbekannter Transaktionstyp.",
+"it": "Tipo di transazione sconosciuto."
+},
+"Невідомі поля вигляду: %@.": {
+"en": "Unknown look fields: %@.",
+"ru": "Неизвестные поля вида: %@.",
+"de": "Unbekannte Designfelder: %@.",
+"it": "Campi di aspetto sconosciuti: %@."
+},
+"Невірний OTP-код.": {
+"en": "Wrong OTP code.",
+"ru": "Неверный OTP-код.",
+"de": "Falscher OTP-Code.",
+"it": "Codice OTP errato."
+},
+"Невірний PIN.": {
+"en": "Wrong PIN.",
+"ru": "Неверный PIN.",
+"de": "Falsche PIN.",
+"it": "PIN errato."
+},
+"Невірний код.": {
+"en": "Wrong code.",
+"ru": "Неверный код.",
+"de": "Falscher Code.",
+"it": "Codice errato."
+},
+"Невірний пароль. Гроші не списано.": {
+"en": "Wrong password. Nothing was charged.",
+"ru": "Неверный пароль. Деньги не списаны.",
+"de": "Falsches Passwort. Es wurde nichts abgebucht.",
+"it": "Password errata. Nessun addebito."
+},
+"Невірні облікові дані.": {
+"en": "Wrong email or password.",
+"ru": "Неверные учётные данные.",
+"de": "Falsche Zugangsdaten.",
+"it": "Credenziali errate."
+},
+"Недопустиме значення «%@».": {
+"en": "Invalid value \"%@\".",
+"ru": "Недопустимое значение «%@».",
+"de": "Ungültiger Wert „%@“.",
+"it": "Valore non valido «%@»."
+},
+"Недостатньо доступних коштів для hold: доступно %@, потрібно %@.": {
+"en": "Not enough available funds for the hold: %@ available, %@ needed.",
+"ru": "Недостаточно доступных средств для hold: доступно %@, нужно %@.",
+"de": "Nicht genug verfügbares Guthaben für die Reservierung: %@ verfügbar, %@ nötig.",
+"it": "Fondi disponibili insufficienti per l'hold: disponibili %@, servono %@."
+},
+"Недостатньо коштів (конкурентна операція).": {
+"en": "Not enough funds (concurrent operation).",
+"ru": "Недостаточно средств (параллельная операция).",
+"de": "Nicht genug Guthaben (gleichzeitige Operation).",
+"it": "Fondi insufficienti (operazione concorrente)."
+},
+"Недостатньо коштів для внеску в накопичення.": {
+"en": "Not enough funds for the savings contribution.",
+"ru": "Недостаточно средств для взноса в накопления.",
+"de": "Nicht genug Guthaben für die Sparrate.",
+"it": "Fondi insufficienti per il versamento nel risparmio."
+},
+"Недостатньо коштів для донату.": {
+"en": "Not enough funds for the donation.",
+"ru": "Недостаточно средств для доната.",
+"de": "Nicht genug Guthaben für die Spende.",
+"it": "Fondi insufficienti per la donazione."
+},
+"Недостатньо коштів для погашення.": {
+"en": "Not enough funds for the repayment.",
+"ru": "Недостаточно средств для погашения.",
+"de": "Nicht genug Guthaben für die Rückzahlung.",
+"it": "Fondi insufficienti per il rimborso."
+},
+"Недостатньо коштів для чайових.": {
+"en": "Not enough funds for the tip.",
+"ru": "Недостаточно средств для чаевых.",
+"de": "Nicht genug Guthaben für das Trinkgeld.",
+"it": "Fondi insufficienti per la mancia."
+},
+"Недостатньо коштів на рахунку.": {
+"en": "Not enough funds on the account.",
+"ru": "Недостаточно средств на счёте.",
+"de": "Nicht genug Guthaben auf dem Konto.",
+"it": "Fondi insufficienti sul conto."
+},
+"Недостатньо коштів — баланс змінився, спробуйте ще раз.": {
+"en": "Not enough funds: the balance changed, try again.",
+"ru": "Недостаточно средств: баланс изменился, попробуйте ещё раз.",
+"de": "Nicht genug Guthaben: Das Guthaben hat sich geändert, versuchen Sie es erneut.",
+"it": "Fondi insufficienti: il saldo è cambiato, riprova."
+},
+"Недостатньо коштів.": {
+"en": "Not enough funds.",
+"ru": "Недостаточно средств.",
+"de": "Nicht genug Guthaben.",
+"it": "Fondi insufficienti."
+},
+"Недостатньо прав.": {
+"en": "Not enough permissions.",
+"ru": "Недостаточно прав.",
+"de": "Nicht genug Berechtigungen.",
+"it": "Permessi insufficienti."
+},
+"Недійсна або прострочена сесія.": {
+"en": "The session is invalid or has expired.",
+"ru": "Сессия недействительна или просрочена.",
+"de": "Die Sitzung ist ungültig oder abgelaufen.",
+"it": "La sessione non è valida o è scaduta."
+},
+"Недійсна сума переказу.": {
+"en": "Invalid transfer amount.",
+"ru": "Недопустимая сумма перевода.",
+"de": "Ungültiger Überweisungsbetrag.",
+"it": "Importo del bonifico non valido."
+},
+"Недійсний напрям боргу.": {
+"en": "Invalid debt direction.",
+"ru": "Недопустимое направление долга.",
+"de": "Ungültige Schuldrichtung.",
+"it": "Direzione del debito non valida."
+},
+"Некоректна адреса електронної пошти.": {
+"en": "Invalid email address.",
+"ru": "Некорректный адрес электронной почты.",
+"de": "Ungültige E-Mail-Adresse.",
+"it": "Indirizzo email non valido."
+},
+"Некоректна дата завершення депозиту.": {
+"en": "Invalid deposit end date.",
+"ru": "Некорректная дата окончания депозита.",
+"de": "Ungültiges Enddatum der Einlage.",
+"it": "Data di scadenza del deposito non valida."
+},
+"Некоректна кількість товару.": {
+"en": "Invalid product quantity.",
+"ru": "Некорректное количество товара.",
+"de": "Ungültige Produktmenge.",
+"it": "Quantità del prodotto non valida."
+},
+"Некоректна ціна.": {
+"en": "Invalid price.",
+"ru": "Некорректная цена.",
+"de": "Ungültiger Preis.",
+"it": "Prezzo non valido."
+},
+"Некоректне значення залишку.": {
+"en": "Invalid remaining amount.",
+"ru": "Некорректное значение остатка.",
+"de": "Ungültiger Restbetrag.",
+"it": "Valore residuo non valido."
+},
+"Некоректний номер телефону.": {
+"en": "Invalid phone number.",
+"ru": "Некорректный номер телефона.",
+"de": "Ungültige Telefonnummer.",
+"it": "Numero di telefono non valido."
+},
+"Некоректний режим оплати.": {
+"en": "Invalid payment mode.",
+"ru": "Некорректный режим оплаты.",
+"de": "Ungültiger Zahlungsmodus.",
+"it": "Modalità di pagamento non valida."
+},
+"Некоректний склад кошика.": {
+"en": "Invalid cart contents.",
+"ru": "Некорректный состав корзины.",
+"de": "Ungültiger Warenkorbinhalt.",
+"it": "Contenuto del carrello non valido."
+},
+"Немає полів для оновлення.": {
+"en": "There are no fields to update.",
+"ru": "Нет полей для обновления.",
+"de": "Keine Felder zum Aktualisieren.",
+"it": "Nessun campo da aggiornare."
+},
+"Неможливо переказати кошти на власний рахунок.": {
+"en": "You can't transfer money to your own account.",
+"ru": "Нельзя перевести деньги на собственный счёт.",
+"de": "Sie können kein Geld auf Ihr eigenes Konto überweisen.",
+"it": "Non puoi trasferire denaro sul tuo stesso conto."
+},
+"Непідтримуваний дизайн картки.": {
+"en": "Unsupported card design.",
+"ru": "Неподдерживаемый дизайн карты.",
+"de": "Nicht unterstütztes Kartendesign.",
+"it": "Design della carta non supportato."
+},
+"Один або кілька товарів недоступні.": {
+"en": "One or more products are unavailable.",
+"ru": "Один или несколько товаров недоступны.",
+"de": "Ein oder mehrere Produkte sind nicht verfügbar.",
+"it": "Uno o più prodotti non sono disponibili."
+},
+"Операція вже виконується. Спробуйте пізніше.": {
+"en": "The operation is already in progress. Try again later.",
+"ru": "Операция уже выполняется. Попробуйте позже.",
+"de": "Der Vorgang läuft bereits. Versuchen Sie es später erneut.",
+"it": "L'operazione è già in corso. Riprova più tardi."
+},
+"Оплату ще не здійснено — квитанція недоступна.": {
+"en": "The payment hasn't been made yet, so no receipt is available.",
+"ru": "Оплата ещё не произведена, квитанция недоступна.",
+"de": "Die Zahlung ist noch nicht erfolgt, daher ist kein Beleg verfügbar.",
+"it": "Il pagamento non è ancora stato effettuato: la ricevuta non è disponibile."
+},
+"Пароль має містити щонайменше %@ символів.": {
+"en": "The password must have at least %@ characters.",
+"ru": "Пароль должен содержать не менее %@ символов.",
+"de": "Das Passwort muss mindestens %@ Zeichen haben.",
+"it": "La password deve avere almeno %@ caratteri."
+},
+"Переказ заблоковано системою безпеки (ризик: %@/100). Зверніться до підтримки.": {
+"en": "The transfer was blocked by the security system (risk: %@/100). Contact support.",
+"ru": "Перевод заблокирован системой безопасности (риск: %@/100). Обратитесь в поддержку.",
+"de": "Die Überweisung wurde vom Sicherheitssystem blockiert (Risiko: %@/100). Wenden Sie sich an den Support.",
+"it": "Il bonifico è stato bloccato dal sistema di sicurezza (rischio: %@/100). Contatta l'assistenza."
+},
+"Платіж не знайдено.": {
+"en": "Payment not found.",
+"ru": "Платёж не найден.",
+"de": "Zahlung nicht gefunden.",
+"it": "Pagamento non trovato."
+},
+"Платіж не оплачено, повертати нічого.": {
+"en": "The payment isn't paid, so there is nothing to refund.",
+"ru": "Платёж не оплачен, возвращать нечего.",
+"de": "Die Zahlung ist nicht bezahlt, es gibt nichts zu erstatten.",
+"it": "Il pagamento non è stato effettuato: non c'è nulla da rimborsare."
+},
+"Платіж уже обробляється.": {
+"en": "The payment is already being processed.",
+"ru": "Платёж уже обрабатывается.",
+"de": "Die Zahlung wird bereits verarbeitet.",
+"it": "Il pagamento è già in elaborazione."
+},
+"Повертати нічого.": {
+"en": "There is nothing to refund.",
+"ru": "Возвращать нечего.",
+"de": "Es gibt nichts zu erstatten.",
+"it": "Non c'è nulla da rimborsare."
+},
+"Поточний пароль невірний.": {
+"en": "The current password is wrong.",
+"ru": "Текущий пароль неверный.",
+"de": "Das aktuelle Passwort ist falsch.",
+"it": "La password attuale è errata."
+},
+"Потрібна авторизація.": {
+"en": "Sign-in required.",
+"ru": "Требуется авторизация.",
+"de": "Anmeldung erforderlich.",
+"it": "Accesso richiesto."
+},
+"Потрібно вказати назву та рахунок отримувача.": {
+"en": "Enter a name and the recipient's account.",
+"ru": "Нужно указать название и счёт получателя.",
+"de": "Geben Sie einen Namen und das Konto des Empfängers an.",
+"it": "Indica un nome e il conto del destinatario."
+},
+"Потрібно вказати назву фонду або напрям донату.": {
+"en": "Enter the fund name or donation cause.",
+"ru": "Нужно указать название фонда или направление доната.",
+"de": "Geben Sie den Namen des Fonds oder den Spendenzweck an.",
+"it": "Indica il nome del fondo o la causa della donazione."
+},
+"Потрібно вказати назву цілі.": {
+"en": "Enter a goal name.",
+"ru": "Нужно указать название цели.",
+"de": "Geben Sie einen Zielnamen an.",
+"it": "Indica il nome dell'obiettivo."
+},
+"Потрібно вказати поточний та новий пароль.": {
+"en": "Enter the current and the new password.",
+"ru": "Нужно указать текущий и новый пароль.",
+"de": "Geben Sie das aktuelle und das neue Passwort an.",
+"it": "Inserisci la password attuale e quella nuova."
+},
+"Потрібно вказати імʼя контакту та тип звʼязку.": {
+"en": "Enter the contact name and contact type.",
+"ru": "Нужно указать имя контакта и тип связи.",
+"de": "Geben Sie den Kontaktnamen und die Kontaktart an.",
+"it": "Indica il nome del contatto e il tipo di contatto."
+},
+"Підпис недійсний.": {
+"en": "The signature is invalid.",
+"ru": "Подпись недействительна.",
+"de": "Die Signatur ist ungültig.",
+"it": "La firma non è valida."
+},
+"Рахунок відправника не знайдено.": {
+"en": "Sender account not found.",
+"ru": "Счёт отправителя не найден.",
+"de": "Konto des Absenders nicht gefunden.",
+"it": "Conto del mittente non trovato."
+},
+"Рахунок клієнта не знайдено.": {
+"en": "Customer account not found.",
+"ru": "Счёт клиента не найден.",
+"de": "Kundenkonto nicht gefunden.",
+"it": "Conto del cliente non trovato."
+},
+"Рахунок користувача не знайдено.": {
+"en": "User account not found.",
+"ru": "Счёт пользователя не найден.",
+"de": "Nutzerkonto nicht gefunden.",
+"it": "Conto dell'utente non trovato."
+},
+"Рахунок не знайдено.": {
+"en": "Account not found.",
+"ru": "Счёт не найден.",
+"de": "Konto nicht gefunden.",
+"it": "Conto non trovato."
+},
+"Рахунок отримувача не знайдено.": {
+"en": "Recipient account not found.",
+"ru": "Счёт получателя не найден.",
+"de": "Konto des Empfängers nicht gefunden.",
+"it": "Conto del destinatario non trovato."
+},
+"Сесію не знайдено.": {
+"en": "Session not found.",
+"ru": "Сессия не найдена.",
+"de": "Sitzung nicht gefunden.",
+"it": "Sessione non trovata."
+},
+"Сесія 3DS вже використана.": {
+"en": "The 3-D Secure session was already used.",
+"ru": "Сессия 3DS уже использована.",
+"de": "Die 3-D-Secure-Sitzung wurde bereits verwendet.",
+"it": "La sessione 3-D Secure è già stata usata."
+},
+"Сесія 3DS не знайдена. Пройдіть підтвердження ще раз.": {
+"en": "3-D Secure session not found. Confirm again.",
+"ru": "Сессия 3DS не найдена. Пройдите подтверждение ещё раз.",
+"de": "3-D-Secure-Sitzung nicht gefunden. Bestätigen Sie erneut.",
+"it": "Sessione 3-D Secure non trovata. Conferma di nuovo."
+},
+"Сесія 3DS не підтверджена (%@).": {
+"en": "The 3-D Secure session isn't confirmed (%@).",
+"ru": "Сессия 3DS не подтверждена (%@).",
+"de": "Die 3-D-Secure-Sitzung ist nicht bestätigt (%@).",
+"it": "La sessione 3-D Secure non è confermata (%@)."
+},
+"Сесія 3DS прострочена. Пройдіть підтвердження ще раз.": {
+"en": "The 3-D Secure session expired. Confirm again.",
+"ru": "Сессия 3DS просрочена. Пройдите подтверждение ещё раз.",
+"de": "Die 3-D-Secure-Sitzung ist abgelaufen. Bestätigen Sie erneut.",
+"it": "La sessione 3-D Secure è scaduta. Conferma di nuovo."
+},
+"Сума hold має бути > 0.": {
+"en": "The hold amount must be greater than 0.",
+"ru": "Сумма hold должна быть больше 0.",
+"de": "Der Reservierungsbetrag muss größer als 0 sein.",
+"it": "L'importo dell'hold deve essere maggiore di 0."
+},
+"Сума захоплення від 0.01 до утриманої плюс 20%.": {
+"en": "The capture amount is from 0.01 up to the held amount plus 20%.",
+"ru": "Сумма списания от 0.01 до удержанной плюс 20%.",
+"de": "Der Einzugsbetrag liegt zwischen 0,01 und dem reservierten Betrag plus 20 %.",
+"it": "L'importo da addebitare va da 0,01 all'importo trattenuto più il 20%."
+},
+"Сума кредиту: від %@ TAX до %@ TAX.": {
+"en": "The loan amount is from %@ TAX to %@ TAX.",
+"ru": "Сумма кредита: от %@ TAX до %@ TAX.",
+"de": "Der Kreditbetrag liegt zwischen %@ TAX und %@ TAX.",
+"it": "L'importo del prestito va da %@ TAX a %@ TAX."
+},
+"Сума має бути більшою за нуль.": {
+"en": "The amount must be greater than zero.",
+"ru": "Сумма должна быть больше нуля.",
+"de": "Der Betrag muss größer als null sein.",
+"it": "L'importo deve essere maggiore di zero."
+},
+"Сума не повинна перевищувати %@.": {
+"en": "The amount must not exceed %@.",
+"ru": "Сумма не должна превышать %@.",
+"de": "Der Betrag darf %@ nicht überschreiten.",
+"it": "L'importo non deve superare %@."
+},
+"Сума повернення від 0.01 до %@.": {
+"en": "The refund amount is from 0.01 to %@.",
+"ru": "Сумма возврата от 0.01 до %@.",
+"de": "Der Erstattungsbetrag liegt zwischen 0,01 und %@.",
+"it": "L'importo del rimborso va da 0,01 a %@."
+},
+"Сума повинна бути більше 0.": {
+"en": "The amount must be greater than 0.",
+"ru": "Сумма должна быть больше 0.",
+"de": "Der Betrag muss größer als 0 sein.",
+"it": "L'importo deve essere maggiore di 0."
+},
+"Сума повинна бути більшою за нуль.": {
+"en": "The amount must be greater than zero.",
+"ru": "Сумма должна быть больше нуля.",
+"de": "Der Betrag muss größer als null sein.",
+"it": "L'importo deve essere maggiore di zero."
+},
+"Товар «%@» закінчився на складі.": {
+"en": "\"%@\" is out of stock.",
+"ru": "Товар «%@» закончился на складе.",
+"de": "„%@“ ist nicht mehr vorrätig.",
+"it": "«%@» è esaurito."
+},
+"Товар не знайдено.": {
+"en": "Product not found.",
+"ru": "Товар не найден.",
+"de": "Produkt nicht gefunden.",
+"it": "Prodotto non trovato."
+},
+"Токен Apple не пройшов перевірку.": {
+"en": "The Apple token failed verification.",
+"ru": "Токен Apple не прошёл проверку.",
+"de": "Das Apple-Token hat die Prüfung nicht bestanden.",
+"it": "Il token Apple non ha superato la verifica."
+},
+"Транзакцію не знайдено або немає доступу.": {
+"en": "The transaction was not found or you have no access.",
+"ru": "Транзакция не найдена или нет доступа.",
+"de": "Die Transaktion wurde nicht gefunden oder Sie haben keinen Zugriff.",
+"it": "Transazione non trovata o accesso non consentito."
+},
+"Транзакцію не знайдено.": {
+"en": "Transaction not found.",
+"ru": "Транзакция не найдена.",
+"de": "Transaktion nicht gefunden.",
+"it": "Transazione non trovata."
+},
+"Утримання вже закрите.": {
+"en": "The hold is already closed.",
+"ru": "Удержание уже закрыто.",
+"de": "Die Reservierung ist bereits geschlossen.",
+"it": "L'hold è già chiuso."
+},
+"Цей акаунт входить через Apple: пароля в нього немає.": {
+"en": "This account signs in with Apple: it has no password.",
+"ru": "Этот аккаунт входит через Apple: пароля у него нет.",
+"de": "Dieses Konto meldet sich mit Apple an: Es hat kein Passwort.",
+"it": "Questo account accede con Apple: non ha una password."
+},
+"Цей платіж не можна оскаржити.": {
+"en": "This payment can't be disputed.",
+"ru": "Этот платёж нельзя оспорить.",
+"de": "Diese Zahlung kann nicht angefochten werden.",
+"it": "Questo pagamento non può essere contestato."
+},
+"Цей рахунок уже оплачено.": {
+"en": "This invoice is already paid.",
+"ru": "Этот счёт уже оплачен.",
+"de": "Diese Rechnung ist bereits bezahlt.",
+"it": "Questa fattura è già stata pagata."
+},
+"Ціль накопичення не знайдено.": {
+"en": "Savings goal not found.",
+"ru": "Цель накопления не найдена.",
+"de": "Sparziel nicht gefunden.",
+"it": "Obiettivo di risparmio non trovato."
+},
+"Ціль не знайдено або немає прав для видалення.": {
+"en": "The goal was not found or you can't delete it.",
+"ru": "Цель не найдена или нет прав на удаление.",
+"de": "Das Ziel wurde nicht gefunden oder Sie dürfen es nicht löschen.",
+"it": "Obiettivo non trovato o non hai i permessi per eliminarlo."
+},
+"Шаблон не знайдено або немає прав для видалення.": {
+"en": "The template was not found or you can't delete it.",
+"ru": "Шаблон не найден или нет прав на удаление.",
+"de": "Die Vorlage wurde nicht gefunden oder Sie dürfen sie nicht löschen.",
+"it": "Modello non trovato o non hai i permessi per eliminarlo."
+},
+"Шаблон не знайдено.": {
+"en": "Template not found.",
+"ru": "Шаблон не найден.",
+"de": "Vorlage nicht gefunden.",
+"it": "Modello non trovato."
+},
+"Видалено контакт #%@.": {
+"en": "Contact #%@ deleted.",
+"ru": "Контакт #%@ удалён.",
+"de": "Kontakt #%@ gelöscht.",
+"it": "Contatto #%@ eliminato."
+},
+"Видалено ціль #%@.": {
+"en": "Goal #%@ deleted.",
+"ru": "Цель #%@ удалена.",
+"de": "Ziel #%@ gelöscht.",
+"it": "Obiettivo #%@ eliminato."
+},
+"Видалено шаблон #%@.": {
+"en": "Template #%@ deleted.",
+"ru": "Шаблон #%@ удалён.",
+"de": "Vorlage #%@ gelöscht.",
+"it": "Modello #%@ eliminato."
+},
+"Внесок у накопичення: %@": {
+"en": "Savings contribution: %@",
+"ru": "Взнос в накопления: %@",
+"de": "Sparbeitrag: %@",
+"it": "Versamento nel risparmio: %@"
+},
+"Додано контакт %@.": {
+"en": "Contact %@ added.",
+"ru": "Контакт %@ добавлен.",
+"de": "Kontakt %@ hinzugefügt.",
+"it": "Contatto %@ aggiunto."
+},
+"Донат %@ TAX у напрямі %@.": {
+"en": "Donation of %@ TAX to %@.",
+"ru": "Донат %@ TAX на направление %@.",
+"de": "Spende von %@ TAX für %@.",
+"it": "Donazione di %@ TAX per %@."
+},
+"Донат: %@": {
+"en": "Donation: %@",
+"ru": "Донат: %@",
+"de": "Spende: %@",
+"it": "Donazione: %@"
+},
+"Нараховано виплату %@ TAX.": {
+"en": "Payout of %@ TAX credited.",
+"ru": "Начислена выплата %@ TAX.",
+"de": "Auszahlung von %@ TAX gutgeschrieben.",
+"it": "Accreditato un pagamento di %@ TAX."
+},
+"Поповнення цілі '%@' на %@ TAX.": {
+"en": "Goal '%@' topped up by %@ TAX.",
+"ru": "Пополнение цели '%@' на %@ TAX.",
+"de": "Ziel '%@' um %@ TAX aufgestockt.",
+"it": "Obiettivo '%@' ricaricato di %@ TAX."
+},
+"Створено ціль: %@.": {
+"en": "Goal created: %@.",
+"ru": "Создана цель: %@.",
+"de": "Ziel angelegt: %@.",
+"it": "Obiettivo creato: %@."
+},
+"Банк тимчасово недоступний. Гроші не списано, спробуйте ще раз.": {
+"en": "The bank is temporarily unavailable. Nothing was charged, try again.",
+"ru": "Банк временно недоступен. Деньги не списаны, попробуйте ещё раз.",
+"de": "Die Bank ist vorübergehend nicht erreichbar. Es wurde nichts abgebucht, versuchen Sie es erneut.",
+"it": "La banca è temporaneamente non disponibile. Nessun addebito, riprova."
+},
+"Платіж відхилено.": {
+"en": "The payment was declined.",
+"ru": "Платёж отклонён.",
+"de": "Die Zahlung wurde abgelehnt.",
+"it": "Il pagamento è stato rifiutato."
+},
+"Платіж скасовано.": {
+"en": "The payment was cancelled.",
+"ru": "Платёж отменён.",
+"de": "Die Zahlung wurde storniert.",
+"it": "Il pagamento è stato annullato."
+},
+"Товар": {
+"en": "Product",
+"ru": "Товар",
+"de": "Produkt",
+"it": "Prodotto"
+},
+"Час на оплату минув. Поверніться в магазин і оформіть замовлення ще раз.": {
+"en": "The time to pay has run out. Go back to the shop and place the order again.",
+"ru": "Время на оплату истекло. Вернитесь в магазин и оформите заказ ещё раз.",
+"de": "Die Zahlungsfrist ist abgelaufen. Gehen Sie zurück zum Shop und bestellen Sie erneut.",
+"it": "Il tempo per pagare è scaduto. Torna al negozio e ripeti l'ordine."
+},
+"Випущено картку %@ тип=%@.": {
+"en": "Card %@ issued, type=%@.",
+"ru": "Выпущена карта %@, тип=%@.",
+"de": "Karte %@ ausgestellt, Typ=%@.",
+"it": "Carta %@ emessa, tipo=%@."
+},
+"Картку %@ встановлено головною.": {
+"en": "Card %@ set as the main one.",
+"ru": "Карта %@ назначена главной.",
+"de": "Karte %@ als Hauptkarte festgelegt.",
+"it": "La carta %@ è stata impostata come principale."
+},
+"Картку %@ закрито.": {
+"en": "Card %@ closed.",
+"ru": "Карта %@ закрыта.",
+"de": "Karte %@ geschlossen.",
+"it": "Carta %@ chiusa."
+},
+"Оновлено вигляд картки %@.": {
+"en": "Look of card %@ updated.",
+"ru": "Обновлён вид карты %@.",
+"de": "Design der Karte %@ aktualisiert.",
+"it": "Aspetto della carta %@ aggiornato."
+},
+"Оновлено дизайн картки %@ на %@.": {
+"en": "Design of card %@ changed to %@.",
+"ru": "Дизайн карты %@ изменён на %@.",
+"de": "Design der Karte %@ auf %@ geändert.",
+"it": "Design della carta %@ cambiato in %@."
+},
+"Поповнено картку %@ на %@ TAX.": {
+"en": "Card %@ topped up by %@ TAX.",
+"ru": "Карта %@ пополнена на %@ TAX.",
+"de": "Karte %@ um %@ TAX aufgeladen.",
+"it": "Carta %@ ricaricata di %@ TAX."
+},
+"Внутрішня помилка сервера.": {
+"en": "Internal server error.",
+"ru": "Внутренняя ошибка сервера.",
+"de": "Interner Serverfehler.",
+"it": "Errore interno del server."
+},
+"Метод не підтримується.": {
+"en": "Method not supported.",
+"ru": "Метод не поддерживается.",
+"de": "Methode nicht unterstützt.",
+"it": "Metodo non supportato."
+},
+"Навчальна пісочниця: усі суми — %@, не справжні гроші.": {
+"en": "Educational sandbox: all amounts are %@, not real money.",
+"ru": "Учебная песочница: все суммы — %@, не настоящие деньги.",
+"de": "Lernsandbox: Alle Beträge sind %@, kein echtes Geld.",
+"it": "Sandbox didattica: tutti gli importi sono %@, non denaro reale."
+},
+"Невірний запит.": {
+"en": "Bad request.",
+"ru": "Неверный запрос.",
+"de": "Ungültige Anfrage.",
+"it": "Richiesta non valida."
+},
+"Тіло запиту завелике (максимум %@ МБ).": {
+"en": "The request body is too large (max %@ MB).",
+"ru": "Тело запроса слишком большое (максимум %@ МБ).",
+"de": "Die Anfrage ist zu groß (maximal %@ MB).",
+"it": "Il corpo della richiesta è troppo grande (massimo %@ MB)."
+},
+"Face ID відключено": {
+"en": "Face ID turned off",
+"ru": "Face ID отключён",
+"de": "Face ID deaktiviert",
+"it": "Face ID disattivato"
+},
+"Face ID зареєстровано": {
+"en": "Face ID registered",
+"ru": "Face ID зарегистрирован",
+"de": "Face ID registriert",
+"it": "Face ID registrato"
+},
+"Банківський рахунок створено автоматично.": {
+"en": "The bank account was created automatically.",
+"ru": "Банковский счёт создан автоматически.",
+"de": "Das Bankkonto wurde automatisch angelegt.",
+"it": "Il conto bancario è stato creato automaticamente."
+},
+"Помилка верифікації: %@": {
+"en": "Verification error: %@",
+"ru": "Ошибка верификации: %@",
+"de": "Verifizierungsfehler: %@",
+"it": "Errore di verifica: %@"
+},
+"Порожнє тіло запиту": {
+"en": "The request body is empty",
+"ru": "Пустое тело запроса",
+"de": "Die Anfrage ist leer",
+"it": "Il corpo della richiesta è vuoto"
+},
+"Обліковий запис видалено.": {
+"en": "The account was deleted.",
+"ru": "Учётная запись удалена.",
+"de": "Das Konto wurde gelöscht.",
+"it": "L'account è stato eliminato."
+},
+"Пароль успішно змінено.": {
+"en": "Password changed.",
+"ru": "Пароль успешно изменён.",
+"de": "Passwort erfolgreich geändert.",
+"it": "Password cambiata con successo."
+},
+"Рахунок у пісочниці створено автоматично (токени TAX).": {
+"en": "A sandbox account was created automatically (TAX tokens).",
+"ru": "Счёт в песочнице создан автоматически (токены TAX).",
+"de": "Ein Sandbox-Konto wurde automatisch angelegt (TAX-Token).",
+"it": "Un conto sandbox è stato creato automaticamente (token TAX)."
+},
+"Сесію завершено.": {
+"en": "The session has ended.",
+"ru": "Сессия завершена.",
+"de": "Die Sitzung wurde beendet.",
+"it": "La sessione è terminata."
+},
+"Забагато запитів. Спробуйте трохи пізніше.": {
+"en": "Too many requests. Try again a bit later.",
+"ru": "Слишком много запросов. Попробуйте чуть позже.",
+"de": "Zu viele Anfragen. Versuchen Sie es etwas später erneut.",
+"it": "Troppe richieste. Riprova tra poco."
+},
+"Причина спору: ": {
+"en": "Dispute reason: ",
+"ru": "Причина спора: ",
+"de": "Grund des Streitfalls: ",
+"it": "Motivo della contestazione: "
+},
+"Видача кредиту: %@": {
+"en": "Loan issued: %@",
+"ru": "Выдача кредита: %@",
+"de": "Kreditauszahlung: %@",
+"it": "Erogazione del prestito: %@"
+},
+"Кредит %@ міс.": {
+"en": "Loan, %@ mo.",
+"ru": "Кредит, %@ мес.",
+"de": "Kredit, %@ Mon.",
+"it": "Prestito, %@ mesi"
+},
+"Погашення кредиту #%@": {
+"en": "Loan repayment #%@",
+"ru": "Погашение кредита #%@",
+"de": "Kreditrückzahlung #%@",
+"it": "Rimborso del prestito #%@"
+},
+"Заблоковано антифрод-системою.": {
+"en": "Blocked by the anti-fraud system.",
+"ru": "Заблокировано антифрод-системой.",
+"de": "Vom Betrugsschutz blockiert.",
+"it": "Bloccato dal sistema antifrode."
+},
+"Переказ %@ TAX заблоковано (score=%@).": {
+"en": "Transfer of %@ TAX blocked (score=%@).",
+"ru": "Перевод %@ TAX заблокирован (score=%@).",
+"de": "Überweisung von %@ TAX blockiert (Score=%@).",
+"it": "Bonifico di %@ TAX bloccato (score=%@)."
+},
+"Переказ %@ TAX на %@ (order=%@, risk=%@).": {
+"en": "Transfer of %@ TAX to %@ (order=%@, risk=%@).",
+"ru": "Перевод %@ TAX на %@ (order=%@, risk=%@).",
+"de": "Überweisung von %@ TAX an %@ (order=%@, risk=%@).",
+"it": "Bonifico di %@ TAX a %@ (order=%@, risk=%@)."
+},
+"Переказ по картці": {
+"en": "Card transfer",
+"ru": "Перевод по карте",
+"de": "Kartenüberweisung",
+"it": "Bonifico su carta"
+},
+"Записів за дату не знайдено": {
+"en": "No records found for the date",
+"ru": "Записей за дату не найдено",
+"de": "Keine Einträge für das Datum gefunden",
+"it": "Nessuna voce trovata per la data"
+},
+"Поповнення на %@ TAX.": {
+"en": "Top-up of %@ TAX.",
+"ru": "Пополнение на %@ TAX.",
+"de": "Aufladung von %@ TAX.",
+"it": "Ricarica di %@ TAX."
+},
+"Депозит %@м.": {
+"en": "Deposit, %@ mo.",
+"ru": "Депозит, %@ мес.",
+"de": "Einlage, %@ Mon.",
+"it": "Deposito, %@ mesi"
+},
+"Автоматично створено основний рахунок у пісочниці (%@).": {
+"en": "The main sandbox account was created automatically (%@).",
+"ru": "Основной счёт в песочнице создан автоматически (%@).",
+"de": "Das Sandbox-Hauptkonto wurde automatisch angelegt (%@).",
+"it": "Il conto sandbox principale è stato creato automaticamente (%@)."
+},
+"Вхід після відновлення пароля.": {
+"en": "Sign-in after password recovery.",
+"ru": "Вход после восстановления пароля.",
+"de": "Anmeldung nach der Passwortwiederherstellung.",
+"it": "Accesso dopo il recupero della password."
+},
+"Вхід через Apple.": {
+"en": "Sign-in with Apple.",
+"ru": "Вход через Apple.",
+"de": "Anmeldung mit Apple.",
+"it": "Accesso con Apple."
+},
+"Забагато невірних спроб. Запросіть новий код.": {
+"en": "Too many wrong attempts. Request a new code.",
+"ru": "Слишком много неверных попыток. Запросите новый код.",
+"de": "Zu viele Fehlversuche. Fordern Sie einen neuen Code an.",
+"it": "Troppi tentativi errati. Richiedi un nuovo codice."
+},
+"Запит на відновлення пароля.": {
+"en": "Password recovery requested.",
+"ru": "Запрос на восстановление пароля.",
+"de": "Passwortwiederherstellung angefordert.",
+"it": "Recupero della password richiesto."
+},
+"Користувач Apple": {
+"en": "Apple user",
+"ru": "Пользователь Apple",
+"de": "Apple-Nutzer",
+"it": "Utente Apple"
+},
+"Невірний код. Лишилось спроб: %@.": {
+"en": "Wrong code. Attempts left: %@.",
+"ru": "Неверный код. Осталось попыток: %@.",
+"de": "Falscher Code. Verbleibende Versuche: %@.",
+"it": "Codice errato. Tentativi rimasti: %@."
+},
+"Пароль відновлено кодом; інші сесії завершено.": {
+"en": "Password reset with a code; other sessions ended.",
+"ru": "Пароль восстановлен кодом; остальные сессии завершены.",
+"de": "Passwort per Code zurückgesetzt; andere Sitzungen beendet.",
+"it": "Password reimpostata con un codice; le altre sessioni sono terminate."
+},
+"Пароль змінено.": {
+"en": "Password changed.",
+"ru": "Пароль изменён.",
+"de": "Passwort geändert.",
+"it": "Password cambiata."
+},
+"Рахунок у пісочниці створено автоматично (%@).": {
+"en": "A sandbox account was created automatically (%@).",
+"ru": "Счёт в песочнице создан автоматически (%@).",
+"de": "Ein Sandbox-Konto wurde automatisch angelegt (%@).",
+"it": "Un conto sandbox è stato creato automaticamente (%@)."
+},
+"Створено обліковий запис та рахунок у пісочниці (токени TAX).": {
+"en": "Account and sandbox account created (TAX tokens).",
+"ru": "Создана учётная запись и счёт в песочнице (токены TAX).",
+"de": "Konto und Sandbox-Konto angelegt (TAX-Token).",
+"it": "Creati l'account e il conto sandbox (token TAX)."
+},
+"Створено обліковий запис через Apple та рахунок у пісочниці.": {
+"en": "Account created with Apple, plus a sandbox account.",
+"ru": "Создана учётная запись через Apple и счёт в песочнице.",
+"de": "Konto über Apple und Sandbox-Konto angelegt.",
+"it": "Creati l'account con Apple e il conto sandbox."
+},
+"Успішний вхід у систему.": {
+"en": "Signed in successfully.",
+"ru": "Успешный вход в систему.",
+"de": "Erfolgreich angemeldet.",
+"it": "Accesso effettuato."
+},
+"Час дії коду вийшов. Запросіть новий.": {
+"en": "The code has expired. Request a new one.",
+"ru": "Время действия кода истекло. Запросите новый.",
+"de": "Der Code ist abgelaufen. Fordern Sie einen neuen an.",
+"it": "Il codice è scaduto. Richiedine uno nuovo."
+},
+"ваш контакт": {
+"en": "your contact",
+"ru": "ваш контакт",
+"de": "Ihr Kontakt",
+"it": "il tuo contatto"
+},
+"токени TAX": {
+"en": "TAX tokens",
+"ru": "токены TAX",
+"de": "TAX-Token",
+"it": "token TAX"
 }
 }

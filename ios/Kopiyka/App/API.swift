@@ -8,7 +8,7 @@ struct API: Sendable {
 
     struct Failure: LocalizedError {
         let message: String
-        var errorDescription: String? { message }
+        var errorDescription: String? { Translator.server(message) }
     }
 
     // MARK: Дослідницькі виклики
@@ -208,6 +208,8 @@ struct API: Sendable {
         r.httpMethod = method
         r.timeoutInterval = 15
         if let token { r.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        // PDF, квитанції й тексти сервера - мовою застосунку, а не системи
+        r.setValue(Lang.current.rawValue, forHTTPHeaderField: "Accept-Language")
         return r
     }
 

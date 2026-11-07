@@ -20,6 +20,7 @@ struct OverviewView: View {
     @State private var shown: Double = 0
     @State private var drawn: CGFloat = 0
     @State private var ringIn = false
+    @State private var edge: CGFloat = 0
     let open: (RootView.AppTab) -> Void
 
     enum Sheet: String, Identifiable {
@@ -42,7 +43,7 @@ struct OverviewView: View {
                             taxesCard
                             if Build.shop, let hit = hits.first { shopCard(hit) }
                         }
-                        .frame(height: 176)
+                        .frame(height: Build.shop && !hits.isEmpty ? 176 : 124)
                         .rise(5)
                     }
                     .padding(.horizontal, Theme.gutter)
@@ -51,7 +52,11 @@ struct OverviewView: View {
                 }
             }
             .scrollIndicators(.hidden)
+            .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
+                edge = min(max(y / 70, 0), 1)
+            }
             .screenBackground()
+            .statusScrim(edge)
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
             #if DEBUG
@@ -133,9 +138,9 @@ struct OverviewView: View {
                     withAnimation(.smooth(duration: 1.1)) { shown = v }
                 }
                 .sensoryFeedback(.success, trigger: shown > 0)
-                if let m = summary?.currentMonth, !hidden {
+                if let m = summary?.currentMonth, !hidden, m.totalIn > 0 || m.totalOut > 0 {
                     HStack(spacing: 8) {
-                        monthPill("arrow.down.left", "+" + Self.compact(m.totalIn), tint: Theme.accent)
+                        if m.totalIn > 0 { monthPill("arrow.down.left", "+" + Self.compact(m.totalIn), tint: Theme.accent) }
                         if m.totalOut > 0 { monthPill("arrow.up.right", "−" + Self.compact(m.totalOut), tint: .secondary) }
                     }
                     .transition(.opacity.combined(with: .scale(scale: 0.9)))
@@ -168,9 +173,18 @@ struct OverviewView: View {
             ZStack {
                 if deck.isEmpty {
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .strokeBorder(Theme.ink.opacity(0.22), style: StrokeStyle(lineWidth: 1.2, dash: [7, 6]))
+                        .fill(LinearGradient(colors: [Theme.ink.opacity(0.07), Theme.ink.opacity(0.02)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(Theme.ink.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [6, 6])))
                         .aspectRatio(1.586, contentMode: .fit)
-                        .overlay(Label(L("Випустити картку").s, systemImage: "plus").font(.headline))
+                        .overlay {
+                            VStack(spacing: 12) {
+                                Image(systemName: "plus").font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.onAccent)
+                                    .frame(width: 52, height: 52)
+                                    .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .circle)
+                                Text(L("Випустити картку").s).font(.system(size: 17, weight: .semibold))
+                            }
+                        }
                 }
                 ForEach(Array(deck.enumerated().reversed()), id: \.element.id) { i, c in
                     VirtualCardView(number: c.maskedNumber, expiry: c.expiryDisplay, holder: nil, look: c.look, frozen: c.isBlocked)
@@ -361,6 +375,9 @@ struct OverviewView: View {
         let out = summary?.currentMonth.totalOut ?? 0, prev = summary?.prevMonth.totalOut ?? 0
         let days = dailySpend
         let top = max(days.max() ?? 1, 1)
+        // без витрат стовпчики лише позначають дні: нижчі, щоб порожня картка не займала пів екрана
+        let quiet = out == 0 && (days.max() ?? 0) == 0
+        let barHeight: CGFloat = quiet ? 18 : 70
         return Button { open(.operations) } label: {
             Card {
                 VStack(alignment: .leading, spacing: 4) {
@@ -377,12 +394,12 @@ struct OverviewView: View {
                         ForEach(Array(days.enumerated()), id: \.offset) { i, v in
                             Capsule()
                                 .fill(i == days.count - 1 ? Theme.accent : Theme.ink.opacity(v > 0 ? 0.85 : 0.1))
-                                .frame(height: max(4, 70 * CGFloat(ringIn ? v / top : 0.05)))
+                                .frame(height: max(4, barHeight * CGFloat(ringIn ? v / top : 0.05)))
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .frame(height: 72, alignment: .bottom)
-                    .padding(.top, 14)
+                    .frame(height: barHeight + 2, alignment: .bottom)
+                    .padding(.top, quiet ? 10 : 14)
                     .onAppear { withAnimation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.2)) { ringIn = true } }
                 }
                 .padding(18)
@@ -501,7 +518,7 @@ struct ActivityRow: View {
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
-                Text((tx.isIncome ? "+" : "−") + tx.amount.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)))
+                Text((tx.isIncome ? "+" : "−") + Format.amount(tx.amount))
                     .font(.system(size: 20, weight: .semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
                     .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
@@ -517,7 +534,7 @@ struct ActivityRow: View {
 extension OverviewView {
     /// Сума з копійками лише коли вони є.
     static func compactCents(_ v: Double) -> String {
-        v.formatted(.number.precision(.fractionLength(0...2)).locale(Lang.current.locale)) + " TAX"
+        Format.short(v)
     }
 }
 

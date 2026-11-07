@@ -392,7 +392,7 @@ struct StatementsView: View {
                         .minimumScaleFactor(0.5).lineLimit(1).frame(maxWidth: .infinity)
                     Rule().padding(.horizontal, -16).padding(.top, 14)
                     HStack(alignment: .top, spacing: 12) {
-                        summary(L("Надійшло").s, Format.short(income), tint: .green)
+                        summary(L("Надійшло").s, Format.short(income), tint: Theme.accent)
                         summary(L("Операцій").s, "\(rows.count)")
                         summary(L("Різниця").s, (income - spent >= 0 ? "+" : "−") + Format.short(abs(income - spent)))
                     }

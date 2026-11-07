@@ -25,7 +25,7 @@ struct TransactionDetailView: View {
                             Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
                                 .font(.system(size: 44, weight: .semibold)).monospacedDigit()
                                 .minimumScaleFactor(0.5).lineLimit(1)
-                                .foregroundStyle(tx.isIncome ? Color.green : Theme.ink)
+                                .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
                             Label(L("Виконано").s, systemImage: "checkmark.seal.fill")
                                 .font(.caption.weight(.semibold)).foregroundStyle(.green)
                                 .padding(.horizontal, 12).padding(.vertical, 6)
