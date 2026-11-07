@@ -2,7 +2,7 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
-    "Coming soon to the App Store.": "Presto sull’App Store.",
+    "Now on the App Store.": "Ora sull’App Store.",
     "About the project": "Il progetto",
     "TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.": "TaxTech è una banca da laboratorio con struttura aperta. Carta, bonifici, antifrode, partita doppia e catena di hash funzionano davvero, sul token TAX.",
     "Digital heritage researcher. Architecture, urban culture, collective memory.": "Ricercatore di patrimonio digitale. Architettura, cultura urbana, memoria collettiva.",
@@ -118,7 +118,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
-    "Coming soon to the App Store.": "Bald im App Store.",
+    "Now on the App Store.": "Jetzt im App Store.",
     "About the project": "Über das Projekt",
     "TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.": "TaxTech ist eine Labor-Bank mit offenem Aufbau. Karte, Überweisungen, Betrugsabwehr, doppelte Buchführung und Hash-Kette funktionieren wirklich, auf dem TAX-Token.",
     "Digital heritage researcher. Architecture, urban culture, collective memory.": "Forscher für digitales Erbe. Architektur, urbane Kultur, kollektives Gedächtnis.",
@@ -234,7 +234,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
-    "Coming soon to the App Store.": "Скоро в App Store.",
+    "Now on the App Store.": "Теперь в App Store.",
     "Viacheslav Munister": "Вячеслав Мунистер",
     "About the project": "О проекте",
     "TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.": "TaxTech — лабораторный банк с открытым устройством. Карта, переводы, антифрод, двойная запись и хеш-цепочка работают по-настоящему, на токене TAX.",

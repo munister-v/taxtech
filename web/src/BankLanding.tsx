@@ -638,13 +638,14 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             ))}
           </ol>
           <div className="bl-wrap">
-            <div className="bl-agnes bl-agnes-soon bl-rv">
-              <div className="bl-agnes-text">
+            <a className="bl-app bl-rv" href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer">
+              <div className="bl-app-text">
                 <h4>{t('Тепер в App Store.', 'Now on the App Store.')}</h4>
-                <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer" aria-label="App Store"><img className="bl-appbadge" src="/app-store-black.svg" alt="App Store" width="180" height="60" loading="lazy" decoding="async" /></a>
+                <p className="bl-app-name">Tax Tech: Digital Finance Lab</p>
+                <img className="bl-appbadge" src="/app-store-black.svg" alt="App Store" width="180" height="60" loading="lazy" decoding="async" />
               </div>
-              <div className="bl-agnes-img"><img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" /></div>
-            </div>
+              <div className="bl-app-phone"><img src="/landing/app-home.webp" alt="" width="603" height="1100" loading="lazy" decoding="async" /></div>
+            </a>
           </div>
         </section>
 
