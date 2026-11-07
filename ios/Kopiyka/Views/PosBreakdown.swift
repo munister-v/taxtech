@@ -173,6 +173,15 @@ struct PosMerchantView: View {
                 stat(L("Відмов").s, "\(t.declined)")
             }
             .padding(18)
+            if (t.holds ?? 0) > 0 || (t.disputes ?? 0) > 0 || (t.chargebacks ?? 0) > 0 {
+                Rule().padding(.leading, 18)
+                HStack {
+                    stat(L("Утримання").s, Format.short(t.holds ?? 0))
+                    stat(L("Спорів").s, "\(t.disputes ?? 0)")
+                    stat(L("Чарджбеків").s, "\(t.chargebacks ?? 0)")
+                }
+                .padding(18)
+            }
         }
     }
 

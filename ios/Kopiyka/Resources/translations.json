@@ -8608,5 +8608,185 @@
 "it": "Ferma",
 "de": "Stopp",
 "ru": "Остановить"
+},
+"Продаж": {
+"en": "Sale",
+"it": "Vendita",
+"de": "Verkauf",
+"ru": "Продажа"
+},
+"Утримання": {
+"en": "Hold",
+"it": "Blocco",
+"de": "Reservierung",
+"ru": "Удержание"
+},
+"Утримати %@": {
+"en": "Hold %@",
+"it": "Blocca %@",
+"de": "%@ reservieren",
+"ru": "Удержать %@"
+},
+"Утримано": {
+"en": "Held",
+"it": "Bloccato",
+"de": "Reserviert",
+"ru": "Удержано"
+},
+"Захопити": {
+"en": "Capture",
+"it": "Incassa",
+"de": "Einziehen",
+"ru": "Захватить"
+},
+"Скасувати утримання": {
+"en": "Release hold",
+"it": "Rilascia il blocco",
+"de": "Reservierung aufheben",
+"ru": "Снять удержание"
+},
+"Чайові": {
+"en": "Tip",
+"it": "Mancia",
+"de": "Trinkgeld",
+"ru": "Чаевые"
+},
+"Сума захоплення": {
+"en": "Capture amount",
+"it": "Importo da incassare",
+"de": "Einzugsbetrag",
+"ru": "Сумма захвата"
+},
+"Максимум %@": {
+"en": "Maximum %@",
+"it": "Massimo %@",
+"de": "Maximum %@",
+"ru": "Максимум %@"
+},
+"Часткове повернення": {
+"en": "Partial refund",
+"it": "Rimborso parziale",
+"de": "Teilerstattung",
+"ru": "Частичный возврат"
+},
+"Частково повернено": {
+"en": "Partly refunded",
+"it": "Rimborsato in parte",
+"de": "Teilweise erstattet",
+"ru": "Частично возвращено"
+},
+"Сума повернення": {
+"en": "Refund amount",
+"it": "Importo del rimborso",
+"de": "Erstattungsbetrag",
+"ru": "Сумма возврата"
+},
+"Повернути": {
+"en": "Refund",
+"it": "Rimborsa",
+"de": "Erstatten",
+"ru": "Вернуть"
+},
+"Повернути залишок": {
+"en": "Refund the rest",
+"it": "Rimborsa il resto",
+"de": "Rest erstatten",
+"ru": "Вернуть остаток"
+},
+"Залишилось %@. Комісія еквайра не повертається.": {
+"en": "%@ left. The acquirer keeps its fee.",
+"it": "Restano %@. L'acquirer trattiene la commissione.",
+"de": "%@ übrig. Die Acquirer-Gebühr bleibt.",
+"ru": "Осталось %@. Комиссия эквайера не возвращается."
+},
+"Оскаржити платіж": {
+"en": "Dispute payment",
+"it": "Contesta il pagamento",
+"de": "Zahlung anfechten",
+"ru": "Оспорить платёж"
+},
+"Не впізнаю платіж": {
+"en": "I don't recognise it",
+"it": "Non lo riconosco",
+"de": "Ich erkenne sie nicht",
+"ru": "Не узнаю платёж"
+},
+"Товар не отримано": {
+"en": "Not received",
+"it": "Non ricevuto",
+"de": "Nicht erhalten",
+"ru": "Товар не получен"
+},
+"Подвійне списання": {
+"en": "Charged twice",
+"it": "Addebitato due volte",
+"de": "Doppelt abgebucht",
+"ru": "Двойное списание"
+},
+"Не та сума": {
+"en": "Wrong amount",
+"it": "Importo errato",
+"de": "Falscher Betrag",
+"ru": "Не та сумма"
+},
+"Спір": {
+"en": "Dispute",
+"it": "Contestazione",
+"de": "Anfechtung",
+"ru": "Спор"
+},
+"Спорів": {
+"en": "Disputes",
+"it": "Contestazioni",
+"de": "Anfechtungen",
+"ru": "Споров"
+},
+"Чарджбек": {
+"en": "Chargeback",
+"it": "Chargeback",
+"de": "Chargeback",
+"ru": "Чарджбэк"
+},
+"Чарджбеків": {
+"en": "Chargebacks",
+"it": "Chargeback",
+"de": "Chargebacks",
+"ru": "Чарджбэков"
+},
+"Перенесення відповідальності: 3-D Secure": {
+"en": "Liability shift: 3-D Secure",
+"it": "Trasferimento di responsabilità: 3-D Secure",
+"de": "Haftungsverschiebung: 3-D Secure",
+"ru": "Перенос ответственности: 3-D Secure"
+},
+"Доказів немає": {
+"en": "No evidence",
+"it": "Nessuna prova",
+"de": "Keine Belege",
+"ru": "Доказательств нет"
+},
+"Спір прийнято": {
+"en": "Dispute accepted",
+"it": "Contestazione accettata",
+"de": "Anfechtung akzeptiert",
+"ru": "Спор принят"
+},
+"Прийняти спір": {
+"en": "Accept dispute",
+"it": "Accetta la contestazione",
+"de": "Anfechtung akzeptieren",
+"ru": "Принять спор"
+},
+"Заперечити": {
+"en": "Contest",
+"it": "Contesta",
+"de": "Widersprechen",
+"ru": "Оспорить"
+},
+"Кардхолдер уже отримав тимчасовий кредит. Магазин приймає спір або заперечує.": {
+"en": "The cardholder has a provisional credit. The merchant accepts the dispute or contests it.",
+"it": "Il titolare ha un credito provvisorio. L'esercente accetta o contesta.",
+"de": "Der Karteninhaber hat eine vorläufige Gutschrift. Der Händler akzeptiert oder widerspricht.",
+"ru": "Держатель уже получил временный кредит. Магазин принимает спор или оспаривает."
 }
 }

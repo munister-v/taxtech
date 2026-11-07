@@ -4,8 +4,11 @@
   терміналу -> еквайр -> мережа -> емітент (TaxTech) -> відповідь з кодом.
   Суми від SCA_THRESHOLD вимагають 3-D Secure: клієнт отримує код 65, проходить
   /api/3ds/challenge + /verify і повторює платіж із tds_session.
-Затверджений платіж одразу списується (capture); еквайр утримує комісію MDR.
-Повернення (refund) зараховує повну суму назад.
+Продаж одразу списується (capture); еквайр утримує комісію MDR.
+Передавторизація (preauth) лише утримує суму: далі capture (можна з чайовими до +20%) або void.
+Повернення (refund) повне або часткове; повне скасовує комісію, часткове комісію не повертає.
+Спір (dispute): кардхолдер отримує тимчасовий кредит, магазин приймає чи оскаржує. Платіж із 3-D Secure
+для спору «не впізнаю» дає перенесення відповідальності (liability shift), і магазин виграє.
 """
 from __future__ import annotations
 
@@ -28,6 +31,8 @@ _tds = ThreeDSService()
 SCA_THRESHOLD = 1000.0
 MDR = 0.015
 MAX_AMOUNT = 100000.0
+TIP_LIMIT = 0.20
+DISPUTE_REASONS = ('not_recognized', 'not_received', 'duplicate', 'wrong_amount')
 _schema_ready = False
 
 MCC = {'cafe': '5814', 'transport': '4121', 'books': '5942', 'fashion': '5651', 'travel': '7011'}
@@ -67,11 +72,26 @@ def _ensure_schema() -> None:
                 three_ds INTEGER NOT NULL DEFAULT 0,
                 latency_ms INTEGER NOT NULL DEFAULT 0,
                 tx_id INTEGER,
+                refunded REAL NOT NULL DEFAULT 0,
+                auth_amount REAL,
+                dispute_reason VARCHAR(20),
+                dispute_status VARCHAR(12),
+                dispute_verdict VARCHAR(24),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """
         )
         conn.execute('CREATE INDEX IF NOT EXISTS idx_pos_payments_user ON pos_payments(user_id)')
+    # таблиця могла бути створена ранішою версією без нових колонок
+    for ddl in (
+        'refunded REAL NOT NULL DEFAULT 0', 'auth_amount REAL', 'dispute_reason VARCHAR(20)',
+        'dispute_status VARCHAR(12)', 'dispute_verdict VARCHAR(24)',
+    ):
+        try:
+            with get_connection() as conn:
+                conn.execute(f'ALTER TABLE pos_payments ADD COLUMN {"IF NOT EXISTS " if USE_PG else ""}{ddl}')
+        except Exception:
+            pass
     _schema_ready = True
 
 
@@ -128,30 +148,52 @@ def _settlement(p: dict[str, Any]) -> dict[str, Any]:
     ts = _created(p)
     amount = round(float(p['amount']), 2)
     fee = round(float(p['fee'] or 0), 2)
+    refunded = round(float(p.get('refunded') or 0), 2)
     pay = _payout_date(ts.date())
     return {
         'clearing_date': ts.date().isoformat(), 'payout_date': pay.isoformat(),
-        'paid_out': pay <= date.today(), 'gross': amount, 'mdr': MDR, 'fee': fee, 'net': round(amount - fee, 2),
+        'paid_out': pay <= date.today(), 'gross': amount, 'mdr': MDR, 'fee': fee, 'refunded': refunded,
+        'net': round(amount - fee - refunded, 2),
     }
 
 
 def _row(p: dict[str, Any]) -> dict[str, Any]:
     fee = round(float(p['fee'] or 0), 2)
     amount = round(float(p['amount']), 2)
+    refunded = round(float(p.get('refunded') or 0), 2)
+    dispute = None
+    if p.get('dispute_reason'):
+        dispute = {'reason': p['dispute_reason'], 'status': p.get('dispute_status') or 'open', 'verdict': p.get('dispute_verdict')}
     return {
         'id': int(p['id']), 'merchant': p['merchant'], 'category': p['category'], 'amount': amount, 'fee': fee,
-        'net': round(amount - fee, 2), 'status': p['status'], 'response_code': p['response_code'],
+        'net': round(amount - fee - refunded, 2), 'refunded': refunded, 'status': p['status'],
+        'auth_amount': round(float(p['auth_amount']), 2) if p.get('auth_amount') is not None else None,
+        'response_code': p['response_code'],
         'message': CODES.get(p['response_code'], ''), 'auth_code': p['auth_code'], 'rrn': p['rrn'],
         'card_last4': p['card_last4'], 'three_ds': bool(p['three_ds']), 'latency_ms': int(p['latency_ms'] or 0),
-        'created_at': str(p['created_at'] or ''),
+        'created_at': str(p['created_at'] or ''), 'dispute': dispute,
         'iso': _iso(p), 'settlement': _settlement(p) if p['status'] in ('captured', 'refunded') else None,
     }
 
 
-@pos_bp.post('/pos/pay')
-@auth_required
-@rate_limit(30, 600, key_func=lambda: f"pos-pay:{g.current_user['id']}")
-def pos_pay():
+def _load(conn, payment_id: int, user_id: int):
+    return conn.execute('SELECT * FROM pos_payments WHERE id = %s AND user_id = %s', (payment_id, user_id)).fetchone()
+
+
+def _tx(conn, account_id: int, tx_type: str, direction: str, amount: float, description: str, related: str) -> int:
+    cur = conn.execute(
+        'INSERT INTO transactions(account_id, tx_type, direction, amount, description, related_account) VALUES (%s, %s, %s, %s, %s, %s)'
+        + get_returning_id_suffix(),
+        (account_id, tx_type, direction, amount, description, related),
+    )
+    return int(insert_last_id(cur) or 0)
+
+
+def _slug(merchant: str) -> str:
+    return re.sub(r'[^A-Z0-9]+', '-', merchant.upper()).strip('-')[:24] or 'MERCHANT'
+
+
+def _authorize(preauth: bool):
     _ensure_schema()
     data = request.get_json(silent=True) or {}
     user_id = int(g.current_user['id'])
@@ -193,7 +235,6 @@ def pos_pay():
             return decline('05')
         if card:
             exp = str(card.get('expires_at') or '')[:10]
-            from datetime import date
             if exp and exp < date.today().isoformat():
                 return decline('54')
         needs_3ds = amount >= SCA_THRESHOLD
@@ -216,26 +257,39 @@ def pos_pay():
         )
         if getattr(debit, 'rowcount', 0) == 0:
             return decline('51', needs_3ds)
-        slug = re.sub(r'[^A-Z0-9]+', '-', merchant.upper()).strip('-')[:24] or 'MERCHANT'
-        tx = conn.execute(
-            'INSERT INTO transactions(account_id, tx_type, direction, amount, description, related_account) VALUES (%s, %s, %s, %s, %s, %s)'
-            + get_returning_id_suffix(),
-            (int(acc['id']), 'payment', 'out', amount, f'POS · {merchant}', f'POS-{slug}'),
-        )
-        tx_id = int(insert_last_id(tx) or 0)
-        fee = round(amount * MDR, 2)
+        slug = _slug(merchant)
+        if preauth:
+            tx_id = _tx(conn, int(acc['id']), 'hold', 'out', amount, f'POS hold · {merchant}', f'POS-{slug}')
+            status, fee, auth_amount = 'authorized', 0.0, amount
+        else:
+            tx_id = _tx(conn, int(acc['id']), 'payment', 'out', amount, f'POS · {merchant}', f'POS-{slug}')
+            status, fee, auth_amount = 'captured', round(amount * MDR, 2), None
         auth_code = ''.join(secrets.choice('0123456789') for _ in range(6))
         rrn = ''.join(secrets.choice('0123456789') for _ in range(12))
         cur = conn.execute(
-            'INSERT INTO pos_payments(user_id, account_id, merchant, category, amount, fee, status, response_code, auth_code, rrn, card_last4, three_ds, latency_ms, tx_id) '
-            "VALUES (%s, %s, %s, %s, %s, %s, 'captured', '00', %s, %s, %s, %s, %s, %s)" + get_returning_id_suffix(),
-            (user_id, int(acc['id']), merchant, category, amount, fee, auth_code, rrn, last4, 1 if needs_3ds else 0, latency, tx_id),
+            'INSERT INTO pos_payments(user_id, account_id, merchant, category, amount, fee, status, response_code, auth_code, rrn, card_last4, three_ds, latency_ms, tx_id, auth_amount) '
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, '00', %s, %s, %s, %s, %s, %s, %s)" + get_returning_id_suffix(),
+            (user_id, int(acc['id']), merchant, category, amount, fee, status, auth_code, rrn, last4, 1 if needs_3ds else 0, latency, tx_id, auth_amount),
         )
         pid = int(insert_last_id(cur) or 0)
         p = conn.execute('SELECT * FROM pos_payments WHERE id = %s', (pid,)).fetchone()
         bal = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(acc['id']),)).fetchone()
     return jsonify({'ok': True, 'data': {**_row(p), 'outcome': 'approved', 'approved': True, 'needs_3ds': False, 'stages': stages,
                                          'new_balance': round(float(bal['balance']), 2)}})
+
+
+@pos_bp.post('/pos/pay')
+@auth_required
+@rate_limit(30, 600, key_func=lambda: f"pos-pay:{g.current_user['id']}")
+def pos_pay():
+    return _authorize(False)
+
+
+@pos_bp.post('/pos/preauth')
+@auth_required
+@rate_limit(30, 600, key_func=lambda: f"pos-pay:{g.current_user['id']}")
+def pos_preauth():
+    return _authorize(True)
 
 
 @pos_bp.get('/pos/payments')
@@ -247,28 +301,169 @@ def pos_list():
     return jsonify({'ok': True, 'data': [_row(r) for r in rows]})
 
 
-@pos_bp.post('/pos/payments/<int:payment_id>/refund')
+def _amount_from(data: dict[str, Any]) -> float | None:
+    raw = data.get('amount')
+    if raw in (None, ''):
+        return None
+    try:
+        return round(float(raw), 2)
+    except (TypeError, ValueError):
+        return -1
+
+
+@pos_bp.post('/pos/payments/<int:payment_id>/capture')
 @auth_required
-def pos_refund(payment_id: int):
+def pos_capture(payment_id: int):
+    """Захоплення утриманої суми: можна менше (різниця розморожується) або з чайовими до +20%."""
+    _ensure_schema()
+    user_id = int(g.current_user['id'])
+    amount = _amount_from(request.get_json(silent=True) or {})
+    with get_connection() as conn:
+        p = _load(conn, payment_id, user_id)
+        if not p:
+            return api_error('Платіж не знайдено.', 404)
+        if p['status'] != 'authorized':
+            return api_error('Утримання вже закрите.', 409)
+        held = round(float(p['auth_amount'] if p['auth_amount'] is not None else p['amount']), 2)
+        amount = held if amount is None else amount
+        if amount <= 0 or amount > round(held * (1 + TIP_LIMIT), 2):
+            return api_error('Сума захоплення від 0.01 до утриманої плюс 20%.')
+        diff = round(held - amount, 2)
+        acc = conn.execute('SELECT id, balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
+        if diff < 0 and float(acc['balance'] or 0) < -diff:
+            return api_error('Недостатньо коштів для чайових.', 409)
+        fee = round(amount * MDR, 2)
+        claim = conn.execute(
+            "UPDATE pos_payments SET status = 'captured', amount = %s, fee = %s WHERE id = %s AND status = 'authorized'",
+            (amount, fee, payment_id),
+        )
+        if getattr(claim, 'rowcount', 0) == 0:
+            return api_error('Утримання вже закрите.', 409)
+        slug = _slug(p['merchant'])
+        conn.execute('UPDATE accounts SET balance = balance + %s WHERE id = %s', (diff, int(p['account_id'])))
+        _tx(conn, int(p['account_id']), 'hold_release', 'in', held, f"POS hold released · {p['merchant']}", f'POS-{slug}')
+        _tx(conn, int(p['account_id']), 'payment', 'out', amount, f"POS · {p['merchant']}", f'POS-{slug}')
+        bal = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
+        p = _load(conn, payment_id, user_id)
+    return jsonify({'ok': True, 'data': {**_row(p), 'new_balance': round(float(bal['balance']), 2)}})
+
+
+@pos_bp.post('/pos/payments/<int:payment_id>/void')
+@auth_required
+def pos_void(payment_id: int):
+    """Скасування утримання: сума повертається на рахунок, комісії немає."""
     _ensure_schema()
     user_id = int(g.current_user['id'])
     with get_connection() as conn:
-        p = conn.execute('SELECT * FROM pos_payments WHERE id = %s AND user_id = %s', (payment_id, user_id)).fetchone()
+        p = _load(conn, payment_id, user_id)
+        if not p:
+            return api_error('Платіж не знайдено.', 404)
+        claim = conn.execute("UPDATE pos_payments SET status = 'voided' WHERE id = %s AND status = 'authorized'", (payment_id,))
+        if p['status'] != 'authorized' or getattr(claim, 'rowcount', 0) == 0:
+            return api_error('Утримання вже закрите.', 409)
+        held = round(float(p['auth_amount'] if p['auth_amount'] is not None else p['amount']), 2)
+        conn.execute('UPDATE accounts SET balance = balance + %s WHERE id = %s', (held, int(p['account_id'])))
+        _tx(conn, int(p['account_id']), 'hold_release', 'in', held, f"POS hold released · {p['merchant']}", f"POS-{_slug(p['merchant'])}")
+        bal = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
+        p = _load(conn, payment_id, user_id)
+    return jsonify({'ok': True, 'data': {**_row(p), 'new_balance': round(float(bal['balance']), 2)}})
+
+
+@pos_bp.post('/pos/payments/<int:payment_id>/refund')
+@auth_required
+def pos_refund(payment_id: int):
+    """Повернення: без суми повне (комісія скасовується), із сумою часткове (комісія лишається в еквайра)."""
+    _ensure_schema()
+    user_id = int(g.current_user['id'])
+    requested = _amount_from(request.get_json(silent=True) or {})
+    with get_connection() as conn:
+        p = _load(conn, payment_id, user_id)
         if not p:
             return api_error('Платіж не знайдено.', 404)
         if p['status'] != 'captured':
             return api_error('Повертати нічого.', 409)
-        claim = conn.execute("UPDATE pos_payments SET status = 'refunded' WHERE id = %s AND status = 'captured'", (payment_id,))
+        total = round(float(p['amount']), 2)
+        done = round(float(p.get('refunded') or 0), 2)
+        left = round(total - done, 2)
+        amount = left if requested is None else requested
+        if amount <= 0 or amount > left:
+            return api_error(f'Сума повернення від 0.01 до {left}.')
+        full = amount == left
+        # часткове повернення не закриває платіж, повне закриває; запит не пройде, якщо платіж змінився
+        claim = conn.execute(
+            'UPDATE pos_payments SET refunded = refunded + %s, status = %s WHERE id = %s AND status = %s AND refunded = %s',
+            (amount, 'refunded' if full else 'captured', payment_id, 'captured', done),
+        )
         if getattr(claim, 'rowcount', 0) == 0:
             return api_error('Повертати нічого.', 409)
+        conn.execute('UPDATE accounts SET balance = balance + %s WHERE id = %s', (amount, int(p['account_id'])))
+        label = 'POS refund' if full and done == 0 else 'POS partial refund'
+        _tx(conn, int(p['account_id']), 'refund', 'in', amount, f"{label} · {p['merchant']}", 'POS-REFUND')
+        bal = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
+        p = _load(conn, payment_id, user_id)
+    return jsonify({'ok': True, 'data': {**_row(p), 'new_balance': round(float(bal['balance']), 2)}})
+
+
+@pos_bp.post('/pos/payments/<int:payment_id>/dispute')
+@auth_required
+def pos_dispute(payment_id: int):
+    """Спір кардхолдера: тимчасовий кредит одразу, далі магазин відповідає (respond)."""
+    _ensure_schema()
+    user_id = int(g.current_user['id'])
+    reason = str((request.get_json(silent=True) or {}).get('reason') or '')
+    if reason not in DISPUTE_REASONS:
+        return api_error('Причина спору: ' + ', '.join(DISPUTE_REASONS) + '.')
+    with get_connection() as conn:
+        p = _load(conn, payment_id, user_id)
+        if not p:
+            return api_error('Платіж не знайдено.', 404)
+        if p['status'] != 'captured' or float(p.get('refunded') or 0) > 0 or p.get('dispute_reason'):
+            return api_error('Цей платіж не можна оскаржити.', 409)
+        claim = conn.execute(
+            "UPDATE pos_payments SET status = 'disputed', dispute_reason = %s, dispute_status = 'open' WHERE id = %s AND status = 'captured'",
+            (reason, payment_id),
+        )
+        if getattr(claim, 'rowcount', 0) == 0:
+            return api_error('Цей платіж не можна оскаржити.', 409)
         amount = round(float(p['amount']), 2)
         conn.execute('UPDATE accounts SET balance = balance + %s WHERE id = %s', (amount, int(p['account_id'])))
-        conn.execute(
-            'INSERT INTO transactions(account_id, tx_type, direction, amount, description, related_account) VALUES (%s, %s, %s, %s, %s, %s)',
-            (int(p['account_id']), 'refund', 'in', amount, f"POS refund · {p['merchant']}", 'POS-REFUND'),
-        )
+        _tx(conn, int(p['account_id']), 'chargeback', 'in', amount, f"Dispute credit · {p['merchant']}", 'POS-DISPUTE')
         bal = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
-        p = conn.execute('SELECT * FROM pos_payments WHERE id = %s', (payment_id,)).fetchone()
+        p = _load(conn, payment_id, user_id)
+    return jsonify({'ok': True, 'data': {**_row(p), 'new_balance': round(float(bal['balance']), 2)}})
+
+
+@pos_bp.post('/pos/payments/<int:payment_id>/dispute/respond')
+@auth_required
+def pos_dispute_respond(payment_id: int):
+    """Відповідь магазину: accept віддає спір, contest виграє лише за перенесення відповідальності (3-D Secure, «не впізнаю»)."""
+    _ensure_schema()
+    user_id = int(g.current_user['id'])
+    action = str((request.get_json(silent=True) or {}).get('action') or '')
+    if action not in ('accept', 'contest'):
+        return api_error('action: accept або contest.')
+    with get_connection() as conn:
+        p = _load(conn, payment_id, user_id)
+        if not p:
+            return api_error('Платіж не знайдено.', 404)
+        if p['status'] != 'disputed':
+            return api_error('Відкритого спору немає.', 409)
+        win = action == 'contest' and p['dispute_reason'] == 'not_recognized' and bool(p['three_ds'])
+        verdict = 'liability_shift' if win else ('no_evidence' if action == 'contest' else 'accepted')
+        claim = conn.execute(
+            'UPDATE pos_payments SET status = %s, dispute_status = %s, dispute_verdict = %s WHERE id = %s AND status = %s',
+            ('captured' if win else 'chargeback', 'won' if win else 'lost', verdict, payment_id, 'disputed'),
+        )
+        if getattr(claim, 'rowcount', 0) == 0:
+            return api_error('Відкритого спору немає.', 409)
+        if win:
+            # тимчасовий кредит знімається, наскільки вистачає коштів
+            acc = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
+            back = round(min(float(p['amount']), float(acc['balance'] or 0)), 2)
+            conn.execute('UPDATE accounts SET balance = balance - %s WHERE id = %s', (back, int(p['account_id'])))
+            _tx(conn, int(p['account_id']), 'chargeback_reversal', 'out', back, f"Dispute reversed · {p['merchant']}", 'POS-DISPUTE')
+        bal = conn.execute('SELECT balance FROM accounts WHERE id = %s', (int(p['account_id']),)).fetchone()
+        p = _load(conn, payment_id, user_id)
     return jsonify({'ok': True, 'data': {**_row(p), 'new_balance': round(float(bal['balance']), 2)}})
 
 
@@ -279,44 +474,67 @@ def pos_merchant():
     _ensure_schema()
     with get_connection() as conn:
         rows = conn.execute('SELECT * FROM pos_payments WHERE user_id = %s ORDER BY id DESC LIMIT 500', (int(g.current_user['id']),)).fetchall()
-    gross = fee = refunded = 0.0
-    approved = declined = 0
+    gross = fee = refunded = holds = 0.0
+    approved = declined = disputes = chargebacks = authorized = 0
     shops: dict[str, dict[str, Any]] = {}
     days: dict[str, dict[str, Any]] = {}
     for p in rows:
         amount = float(p['amount'])
-        if p['status'] == 'declined':
+        status = p['status']
+        if status == 'declined':
             declined += 1
             continue
+        if status == 'voided':
+            continue
+        if status == 'authorized':
+            authorized += 1
+            holds += float(p['auth_amount'] if p['auth_amount'] is not None else amount)
+            continue
         approved += 1
-        if p['status'] == 'refunded':
+        if status == 'refunded':
             refunded += amount
             continue
+        if status == 'disputed':
+            disputes += 1
+            continue
+        if status == 'chargeback':
+            chargebacks += 1
+            continue
         f = float(p['fee'] or 0)
+        part = float(p.get('refunded') or 0)
+        refunded += part
         gross += amount
         fee += f
-        shop = shops.setdefault(p['merchant'], {'merchant': p['merchant'], 'gross': 0.0, 'fee': 0.0, 'count': 0})
+        shop = shops.setdefault(p['merchant'], {'merchant': p['merchant'], 'gross': 0.0, 'fee': 0.0, 'refunded': 0.0, 'count': 0})
         shop['gross'] += amount
         shop['fee'] += f
+        shop['refunded'] += part
         shop['count'] += 1
         pay = _payout_date(_created(p).date())
-        day = days.setdefault(pay.isoformat(), {'date': pay.isoformat(), 'gross': 0.0, 'fee': 0.0, 'count': 0, 'paid_out': pay <= date.today()})
+        day = days.setdefault(pay.isoformat(), {'date': pay.isoformat(), 'gross': 0.0, 'fee': 0.0, 'refunded': 0.0, 'count': 0, 'paid_out': pay <= date.today()})
         day['gross'] += amount
         day['fee'] += f
+        day['refunded'] += part
         day['count'] += 1
 
     def fin(d: dict[str, Any]) -> dict[str, Any]:
         d['gross'] = round(d['gross'], 2)
         d['fee'] = round(d['fee'], 2)
-        d['net'] = round(d['gross'] - d['fee'], 2)
+        d['net'] = round(d['gross'] - d['fee'] - d.get('partial', d.get('refunded', 0.0)), 2)
+        d.pop('partial', None)
+        d['refunded'] = round(d.get('refunded', 0.0), 2)
         return d
 
+    partial = sum(s['refunded'] for s in shops.values())
     total = approved + declined
+    totals = fin({'gross': gross, 'fee': fee, 'count': sum(s['count'] for s in shops.values()), 'partial': partial})
+    totals.update({
+        'refunded': round(refunded, 2), 'declined': declined, 'disputes': disputes, 'chargebacks': chargebacks,
+        'holds': round(holds, 2), 'holds_count': authorized,
+        'approval_rate': round(approved / total, 3) if total else 0.0, 'mdr': MDR,
+    })
     return jsonify({'ok': True, 'data': {
-        'totals': fin({'gross': gross, 'fee': fee, 'count': sum(s['count'] for s in shops.values())}) | {
-            'refunded': round(refunded, 2), 'declined': declined,
-            'approval_rate': round(approved / total, 3) if total else 0.0, 'mdr': MDR,
-        },
+        'totals': totals,
         'merchants': sorted((fin(s) for s in shops.values()), key=lambda x: -x['gross']),
         'payouts': sorted((fin(d) for d in days.values()), key=lambda x: x['date'], reverse=True),
     }})

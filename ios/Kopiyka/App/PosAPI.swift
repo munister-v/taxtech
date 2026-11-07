@@ -12,10 +12,13 @@ extension API {
         let gross: Double, mdr: Double, fee: Double, net: Double
     }
 
+    struct PosDispute: Decodable, Sendable, Hashable { let reason: String; let status: String; let verdict: String? }
+
     struct PosMerchantSummary: Decodable, Sendable {
         struct Totals: Decodable, Sendable {
             let gross: Double, fee: Double, net: Double, refunded: Double, approvalRate: Double, mdr: Double
             let count: Int, declined: Int
+            let disputes: Int?, chargebacks: Int?, holds: Double?, holdsCount: Int?
         }
         struct Shop: Decodable, Sendable, Identifiable { let merchant: String; let gross: Double, fee: Double, net: Double; let count: Int; var id: String { merchant } }
         struct Payout: Decodable, Sendable, Identifiable { let date: String; let gross: Double, fee: Double, net: Double; let count: Int; let paidOut: Bool; var id: String { date } }
@@ -45,18 +48,51 @@ extension API {
         let newBalance: Double?
         let stages: [PosStage]?
         let outcome: String?
+        let refunded: Double?
+        let authAmount: Double?
+        let dispute: PosDispute?
         let iso: [PosIso]?
         let settlement: PosSettlement?
 
         var isApproved: Bool { approved ?? (status == "captured") }
         var isRefunded: Bool { status == "refunded" }
+        var isHeld: Bool { status == "authorized" }
+        var isDisputed: Bool { status == "disputed" }
+        /// Усе, що ще лишилося повернути з captured-платежу.
+        var refundable: Double { max(0, (amount ?? 0) - (refunded ?? 0)) }
     }
 
-    func posPay(merchant: String, category: String, amount: Double, cardId: Int?, tds: String?) async throws -> PosPayment {
+    func posPay(merchant: String, category: String, amount: Double, cardId: Int?, tds: String?, preauth: Bool = false) async throws -> PosPayment {
         var j: [String: Any] = ["merchant": merchant, "category": category, "amount": amount]
         if let cardId { j["card_id"] = cardId }
         if let tds { j["tds_session"] = tds }
-        let w: Wrapped<PosPayment> = try await post("pos/pay", json: j)
+        let w: Wrapped<PosPayment> = try await post(preauth ? "pos/preauth" : "pos/pay", json: j)
+        return w.data
+    }
+
+    func posCapture(_ id: Int, amount: Double?) async throws -> PosPayment {
+        let w: Wrapped<PosPayment> = try await post("pos/payments/\(id)/capture", json: Self.amountBody(amount))
+        return w.data
+    }
+
+    private static func amountBody(_ amount: Double?) -> [String: Any] {
+        var j: [String: Any] = [:]
+        if let amount { j["amount"] = amount }
+        return j
+    }
+
+    func posVoid(_ id: Int) async throws -> PosPayment {
+        let w: Wrapped<PosPayment> = try await post("pos/payments/\(id)/void", json: [:])
+        return w.data
+    }
+
+    func posDispute(_ id: Int, reason: String) async throws -> PosPayment {
+        let w: Wrapped<PosPayment> = try await post("pos/payments/\(id)/dispute", json: ["reason": reason])
+        return w.data
+    }
+
+    func posDisputeRespond(_ id: Int, contest: Bool) async throws -> PosPayment {
+        let w: Wrapped<PosPayment> = try await post("pos/payments/\(id)/dispute/respond", json: ["action": contest ? "contest" : "accept"])
         return w.data
     }
 
@@ -70,8 +106,8 @@ extension API {
         return w.data
     }
 
-    func posRefund(_ id: Int) async throws -> PosPayment {
-        let w: Wrapped<PosPayment> = try await post("pos/payments/\(id)/refund", json: [:])
+    func posRefund(_ id: Int, amount: Double? = nil) async throws -> PosPayment {
+        let w: Wrapped<PosPayment> = try await post("pos/payments/\(id)/refund", json: Self.amountBody(amount))
         return w.data
     }
 

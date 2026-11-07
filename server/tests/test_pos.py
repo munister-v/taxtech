@@ -198,3 +198,217 @@ def test_merchant_summary(client):
     assert round(sum(p['net'] for p in m['payouts']), 2) == 295.5
     m2 = client.get('/api/pos/merchant', headers=h2).get_json()['data']
     assert m2['totals']['declined'] == 1 and m2['totals']['approval_rate'] == 0.0
+
+
+# ── Передавторизація, захоплення, скасування ─────────────────────────────────
+
+def _preauth(client, h, amount, **extra):
+    body = {'merchant': 'Hotel Forum', 'category': 'travel', 'amount': amount, **extra}
+    return client.post('/api/pos/preauth', json=body, headers=h)
+
+
+def test_preauth_holds_funds_without_fee(client):
+    h = _setup(client)
+    d = _preauth(client, h, 400).get_json()['data']
+    assert d['outcome'] == 'approved' and d['status'] == 'authorized'
+    assert d['fee'] == 0 and d['auth_amount'] == 400 and d['settlement'] is None
+    assert _balance(client, h) == 4600.0
+
+
+def test_capture_less_releases_difference(client):
+    h = _setup(client)
+    pid = _preauth(client, h, 400).get_json()['data']['id']
+    r = client.post(f'/api/pos/payments/{pid}/capture', json={'amount': 300}, headers=h)
+    d = r.get_json()['data']
+    assert r.status_code == 200 and d['status'] == 'captured' and d['amount'] == 300
+    assert d['fee'] == 4.5 and d['net'] == 295.5
+    assert _balance(client, h) == 4700.0
+
+
+def test_capture_default_is_full_hold(client):
+    h = _setup(client)
+    pid = _preauth(client, h, 100).get_json()['data']['id']
+    d = client.post(f'/api/pos/payments/{pid}/capture', json={}, headers=h).get_json()['data']
+    assert d['amount'] == 100 and _balance(client, h) == 4900.0
+
+
+def test_capture_with_tip_up_to_twenty_percent(client):
+    h = _setup(client)
+    pid = _preauth(client, h, 100, merchant='Café Roma').get_json()['data']['id']
+    over = client.post(f'/api/pos/payments/{pid}/capture', json={'amount': 120.01}, headers=h)
+    assert over.status_code == 400
+    ok = client.post(f'/api/pos/payments/{pid}/capture', json={'amount': 120}, headers=h)
+    assert ok.status_code == 200 and ok.get_json()['data']['amount'] == 120
+    assert _balance(client, h) == 4880.0
+
+
+def test_tip_needs_funds(client):
+    h = _setup(client, topup=100)
+    pid = _preauth(client, h, 100).get_json()['data']['id']
+    r = client.post(f'/api/pos/payments/{pid}/capture', json={'amount': 110}, headers=h)
+    assert r.status_code == 409
+    assert _balance(client, h) == 0.0
+    assert client.post(f'/api/pos/payments/{pid}/capture', json={}, headers=h).status_code == 200
+
+
+def test_capture_twice_and_void_after_capture_conflict(client):
+    h = _setup(client)
+    pid = _preauth(client, h, 50).get_json()['data']['id']
+    assert client.post(f'/api/pos/payments/{pid}/capture', json={}, headers=h).status_code == 200
+    assert client.post(f'/api/pos/payments/{pid}/capture', json={}, headers=h).status_code == 409
+    assert client.post(f'/api/pos/payments/{pid}/void', headers=h).status_code == 409
+
+
+def test_void_releases_hold(client):
+    h = _setup(client)
+    pid = _preauth(client, h, 250).get_json()['data']['id']
+    d = client.post(f'/api/pos/payments/{pid}/void', headers=h).get_json()['data']
+    assert d['status'] == 'voided' and d['new_balance'] == 5000.0
+    assert client.post(f'/api/pos/payments/{pid}/void', headers=h).status_code == 409
+    assert client.post(f'/api/pos/payments/{pid}/capture', json={}, headers=h).status_code == 409
+
+
+def test_preauth_follows_the_same_declines_and_sca(client):
+    h = _setup(client, topup=100)
+    assert _preauth(client, h, 500).get_json()['data']['response_code'] == '51'
+    assert _preauth(client, h, 1500).get_json()['data']['outcome'] == 'sca_required'
+
+
+def test_cannot_capture_foreign_hold(client):
+    h = _setup(client)
+    pid = _preauth(client, h, 50).get_json()['data']['id']
+    other = _setup(client)
+    assert client.post(f'/api/pos/payments/{pid}/capture', json={}, headers=other).status_code == 404
+
+
+# ── Часткове повернення ──────────────────────────────────────────────────────
+
+def test_partial_refunds_keep_the_fee_and_close_at_zero(client):
+    h = _setup(client)
+    pid = _pay(client, h, 200).get_json()['data']['id']
+    r1 = client.post(f'/api/pos/payments/{pid}/refund', json={'amount': 50}, headers=h).get_json()['data']
+    assert r1['status'] == 'captured' and r1['refunded'] == 50 and r1['fee'] == 3.0 and r1['net'] == 147.0
+    assert r1['new_balance'] == 4850.0
+    assert client.post(f'/api/pos/payments/{pid}/refund', json={'amount': 150.01}, headers=h).status_code == 400
+    r2 = client.post(f'/api/pos/payments/{pid}/refund', json={}, headers=h).get_json()['data']
+    assert r2['status'] == 'refunded' and r2['refunded'] == 200 and r2['new_balance'] == 5000.0
+    assert client.post(f'/api/pos/payments/{pid}/refund', json={'amount': 1}, headers=h).status_code == 409
+
+
+def test_partial_refund_input_is_validated(client):
+    h = _setup(client)
+    pid = _pay(client, h, 100).get_json()['data']['id']
+    for bad in (0, -5, 'abc'):
+        assert client.post(f'/api/pos/payments/{pid}/refund', json={'amount': bad}, headers=h).status_code == 400
+
+
+def test_merchant_summary_counts_partial_refund_and_holds(client):
+    h = _setup(client)
+    pid = _pay(client, h, 200).get_json()['data']['id']
+    client.post(f'/api/pos/payments/{pid}/refund', json={'amount': 50}, headers=h)
+    _preauth(client, h, 80)
+    t = client.get('/api/pos/merchant', headers=h).get_json()['data']['totals']
+    assert t['gross'] == 200.0 and t['fee'] == 3.0 and t['refunded'] == 50.0 and t['net'] == 147.0
+    assert t['holds'] == 80.0 and t['holds_count'] == 1
+
+
+# ── Спори ────────────────────────────────────────────────────────────────────
+
+def test_dispute_gives_provisional_credit(client):
+    h = _setup(client)
+    pid = _pay(client, h, 100).get_json()['data']['id']
+    r = client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_received'}, headers=h)
+    d = r.get_json()['data']
+    assert r.status_code == 200 and d['status'] == 'disputed' and d['dispute'] == {'reason': 'not_received', 'status': 'open', 'verdict': None}
+    assert d['new_balance'] == 5000.0
+    assert client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'duplicate'}, headers=h).status_code == 409
+    assert client.post(f'/api/pos/payments/{pid}/refund', json={}, headers=h).status_code == 409
+
+
+def test_dispute_validates_reason_and_state(client):
+    h = _setup(client, topup=10)
+    pid = _pay(client, h, 100).get_json()['data']['id']  # відмова
+    assert client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_received'}, headers=h).status_code == 409
+    ok = _setup(client)
+    p2 = _pay(client, ok, 10).get_json()['data']['id']
+    assert client.post(f'/api/pos/payments/{p2}/dispute', json={'reason': 'because'}, headers=ok).status_code == 400
+
+
+def test_accepted_dispute_is_a_chargeback(client):
+    h = _setup(client)
+    pid = _pay(client, h, 100).get_json()['data']['id']
+    client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_recognized'}, headers=h)
+    d = client.post(f'/api/pos/payments/{pid}/dispute/respond', json={'action': 'accept'}, headers=h).get_json()['data']
+    assert d['status'] == 'chargeback' and d['dispute']['status'] == 'lost' and d['dispute']['verdict'] == 'accepted'
+    assert _balance(client, h) == 5000.0
+    assert client.post(f'/api/pos/payments/{pid}/dispute/respond', json={'action': 'accept'}, headers=h).status_code == 409
+
+
+def test_contest_without_liability_shift_loses(client):
+    h = _setup(client)
+    pid = _pay(client, h, 100).get_json()['data']['id']  # без 3-D Secure
+    client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_recognized'}, headers=h)
+    d = client.post(f'/api/pos/payments/{pid}/dispute/respond', json={'action': 'contest'}, headers=h).get_json()['data']
+    assert d['status'] == 'chargeback' and d['dispute']['verdict'] == 'no_evidence'
+
+
+def test_contest_other_reason_loses_even_with_3ds(client):
+    h = _setup(client)
+    token = _tds_token(client, h, 1500)
+    pid = _pay(client, h, 1500, tds_session=token).get_json()['data']['id']
+    client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_received'}, headers=h)
+    d = client.post(f'/api/pos/payments/{pid}/dispute/respond', json={'action': 'contest'}, headers=h).get_json()['data']
+    assert d['status'] == 'chargeback' and d['dispute']['verdict'] == 'no_evidence'
+
+
+def test_liability_shift_wins_and_reverses_credit(client):
+    h = _setup(client)
+    token = _tds_token(client, h, 1500)
+    pid = _pay(client, h, 1500, tds_session=token).get_json()['data']['id']
+    client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_recognized'}, headers=h)
+    assert _balance(client, h) == 5000.0
+    d = client.post(f'/api/pos/payments/{pid}/dispute/respond', json={'action': 'contest'}, headers=h).get_json()['data']
+    assert d['status'] == 'captured' and d['dispute']['verdict'] == 'liability_shift' and d['dispute']['status'] == 'won'
+    assert d['new_balance'] == 3500.0
+
+
+def test_liability_shift_reversal_never_goes_negative(client):
+    h = _setup(client, topup=1500)
+    token = _tds_token(client, h, 1500)
+    pid = _pay(client, h, 1500, tds_session=token).get_json()['data']['id']
+    client.post(f'/api/pos/payments/{pid}/dispute', json={'reason': 'not_recognized'}, headers=h)
+    from backend.database import get_connection
+    acc_id = client.get('/api/accounts/main', headers=h).get_json()['data']['id']
+    with get_connection() as conn:  # гроші з тимчасового кредиту вже витрачено
+        conn.execute('UPDATE accounts SET balance = 100 WHERE id = %s', (acc_id,))
+    d = client.post(f'/api/pos/payments/{pid}/dispute/respond', json={'action': 'contest'}, headers=h).get_json()['data']
+    assert d['status'] == 'captured' and d['new_balance'] == 0.0
+
+
+def test_merchant_summary_counts_disputes(client):
+    h = _setup(client)
+    a = _pay(client, h, 100).get_json()['data']['id']
+    b = _pay(client, h, 200).get_json()['data']['id']
+    _pay(client, h, 50)
+    client.post(f'/api/pos/payments/{a}/dispute', json={'reason': 'duplicate'}, headers=h)
+    client.post(f'/api/pos/payments/{b}/dispute', json={'reason': 'duplicate'}, headers=h)
+    client.post(f'/api/pos/payments/{b}/dispute/respond', json={'action': 'accept'}, headers=h)
+    t = client.get('/api/pos/merchant', headers=h).get_json()['data']['totals']
+    assert t['disputes'] == 1 and t['chargebacks'] == 1 and t['gross'] == 50.0 and t['count'] == 1
+
+
+def test_old_table_without_new_columns_is_migrated(client, monkeypatch):
+    # сервер, розгорнутий раніше, має таблицю без refunded, auth_amount і полів спору
+    from backend.database import get_connection
+    with get_connection() as conn:
+        conn.execute('DROP TABLE IF EXISTS pos_payments')
+        conn.execute(
+            'CREATE TABLE pos_payments (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, account_id INTEGER NOT NULL, '
+            "merchant VARCHAR(80) NOT NULL, category VARCHAR(40) NOT NULL DEFAULT '', amount REAL NOT NULL, fee REAL NOT NULL DEFAULT 0, "
+            'status VARCHAR(20) NOT NULL, response_code VARCHAR(4) NOT NULL, auth_code VARCHAR(12), rrn VARCHAR(16), card_last4 VARCHAR(4), '
+            'three_ds INTEGER NOT NULL DEFAULT 0, latency_ms INTEGER NOT NULL DEFAULT 0, tx_id INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)'
+        )
+    monkeypatch.setattr(pos_routes, '_schema_ready', False)
+    h = _setup(client)
+    d = _pay(client, h, 20).get_json()['data']
+    assert d['outcome'] == 'approved' and d['refunded'] == 0

@@ -32,6 +32,8 @@ struct PosTerminalView: View {
     @State private var error: String?
     @State private var detail: API.PosPayment?
     @State private var showMerchant = false
+    @State private var preauth = false
+    @State private var capturing: API.PosPayment?
 
     private var amount: Double { Double(digits) ?? 0 }
     private var card: API.Card? { cards.indices.contains(cardIndex) ? cards[cardIndex] : nil }
@@ -54,6 +56,10 @@ struct PosTerminalView: View {
         .task { await load() }
         .sheet(item: $challenge) { c in otpSheet(c) }
         .fullScreenCover(isPresented: $showMerchant) { PosMerchantView() }
+        .sheet(item: $capturing) { p in
+            PosCaptureSheet(payment: p) { result = $0; digits = ""; withAnimation(.smooth) { phase = .entry }; Task { await load() } }
+                .presentationDetents([.large])
+        }
         .sheet(item: $detail) { p in PosReceipt(payment: p) { Task { await load() } }.presentationDetents(model.expert ? [.large] : [.medium, .large]) }
     }
 
@@ -100,6 +106,7 @@ struct PosTerminalView: View {
                     }
                 }
                 .padding(.top, 14)
+                modeSwitch
                 VStack(spacing: 6) {
                     Text(merchant.name).font(.subheadline).foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
@@ -117,7 +124,7 @@ struct PosTerminalView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
                 keypad
-                Button(amount > 0 ? L("Списати \(OverviewView.compact(amount))").s : L("Введіть суму").s) {
+                Button(amount > 0 ? (preauth ? L("Утримати \(OverviewView.compact(amount))").s : L("Списати \(OverviewView.compact(amount))").s) : L("Введіть суму").s) {
                     withAnimation(.smooth) { phase = .waiting }
                 }
                 .buttonStyle(InkButton()).disabled(amount <= 0)
@@ -126,6 +133,20 @@ struct PosTerminalView: View {
             .padding(.bottom, 24)
         }
         .scrollIndicators(.hidden)
+    }
+
+    private var modeSwitch: some View {
+        HStack(spacing: 0) {
+            ForEach([(false, L("Продаж").s), (true, L("Утримання").s)], id: \.0) { item in
+                Button { withAnimation(.snappy) { preauth = item.0 } } label: {
+                    Text(item.1).font(.subheadline.weight(.medium)).frame(maxWidth: .infinity).frame(height: 34)
+                        .foregroundStyle(preauth == item.0 ? Theme.onAccent : Theme.ink)
+                        .background(preauth == item.0 ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Color.clear), in: .capsule)
+                }
+                .buttonStyle(PressScale())
+            }
+        }
+        .padding(3).background(.ultraThinMaterial, in: .capsule)
     }
 
     private var keypad: some View {
@@ -190,27 +211,19 @@ struct PosTerminalView: View {
 
     private func posRow(_ p: API.PosPayment) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: p.isApproved ? "checkmark" : (p.isRefunded ? "arrow.uturn.backward" : "xmark"))
+            Image(systemName: PosStatus.symbol(p))
                 .font(.system(size: 14, weight: .bold)).frame(width: 34, height: 34)
-                .foregroundStyle(p.status == "declined" ? Theme.alert : Theme.accent)
-                .background((p.status == "declined" ? Theme.alert : Theme.accent).opacity(0.14), in: .circle)
+                .foregroundStyle(PosStatus.isBad(p) ? Theme.alert : Theme.accent)
+                .background((PosStatus.isBad(p) ? Theme.alert : Theme.accent).opacity(0.14), in: .circle)
             VStack(alignment: .leading, spacing: 2) {
                 Text(p.merchant ?? "").font(.body.weight(.medium)).lineLimit(1)
-                Text(statusText(p)).font(.footnote).foregroundStyle(.secondary)
+                Text(PosStatus.text(p)).font(.footnote).foregroundStyle(.secondary)
             }
             Spacer()
             Text(Format.short(p.amount ?? 0)).font(.system(size: 16, weight: .semibold)).monospacedDigit()
-                .strikethrough(p.isRefunded).foregroundStyle(p.status == "declined" ? Color.secondary : Theme.ink)
+                .strikethrough(p.isRefunded || p.status == "chargeback" || p.status == "voided").foregroundStyle(p.status == "declined" ? Color.secondary : Theme.ink)
         }
         .padding(.horizontal, 18).padding(.vertical, 10).contentShape(.rect)
-    }
-
-    private func statusText(_ p: API.PosPayment) -> String {
-        switch p.status {
-        case "captured": L("Оплачено").s
-        case "refunded": L("Повернено").s
-        default: L("Відхилено").s
-        }
     }
 
     // MARK: Очікування картки
@@ -280,7 +293,7 @@ struct PosTerminalView: View {
         error = nil; result = nil; stagesShown = 0
         withAnimation(.smooth) { phase = .processing }
         do {
-            let r = try await model.api.posPay(merchant: merchant.name, category: merchant.category, amount: amount, cardId: card?.id, tds: tds)
+            let r = try await model.api.posPay(merchant: merchant.name, category: merchant.category, amount: amount, cardId: card?.id, tds: tds, preauth: preauth)
             result = r
             for i in 1...(r.needs3Ds == true ? 3 : 4) {
                 try? await Task.sleep(for: .milliseconds(380))
@@ -336,9 +349,10 @@ struct PosTerminalView: View {
     private var resultView: some View {
         let r = result
         let ok = r?.isApproved == true
+        let held = r?.isHeld == true
         return VStack(spacing: 22) {
             Spacer(minLength: 0)
-            Image(systemName: ok ? "checkmark" : "xmark")
+            Image(systemName: ok ? (held ? "lock.fill" : "checkmark") : "xmark")
                 .font(.system(size: 44, weight: .bold)).foregroundStyle(ok ? Theme.onAccent : Theme.ink)
                 .frame(width: 112, height: 112)
                 .background(ok ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.alert), in: .circle)
@@ -346,11 +360,16 @@ struct PosTerminalView: View {
                 .symbolEffect(.bounce, value: r?.id)
                 .sensoryFeedback(ok ? .success : .error, trigger: r?.id)
             VStack(spacing: 6) {
-                Text(ok ? L("Оплачено").s : L("Відхилено").s).font(.display(34, .medium)).tracking(-0.8)
+                Text(ok ? (held ? L("Утримано").s : L("Оплачено").s) : L("Відхилено").s).font(.display(34, .medium)).tracking(-0.8)
                 Text(OverviewView.compact(r?.amount ?? amount)).font(.title2.monospacedDigit()).foregroundStyle(Theme.accent)
                 Text(ok ? merchant.name : (r?.message ?? "")).foregroundStyle(.secondary)
             }
-            if ok, let r {
+            if held, model.expert, let r {
+                Card {
+                    line(L("Код авторизації").s, r.authCode ?? "")
+                    Rule().padding(.leading, 18); line("RRN", r.rrn ?? "")
+                }
+            } else if ok, !held, let r {
                 Card {
                     line(L("Комісія еквайра").s, Format.short(r.fee ?? 0))
                     Rule().padding(.leading, 18)
@@ -366,12 +385,17 @@ struct PosTerminalView: View {
             }
             Spacer(minLength: 0)
             VStack(spacing: 10) {
-                Button(L("Готово").s) { digits = ""; withAnimation(.smooth) { phase = .entry } }.buttonStyle(InkButton())
-                if model.expert, let r, r.id != nil {
-                    Button(L("Розбір платежу").s) { detail = r }.buttonStyle(LineButton())
-                }
-                if ok, let r, r.id != nil {
-                    Button(L("Повернути платіж").s) { Task { await refund(r) } }.buttonStyle(LineButton())
+                if held, let r, r.id != nil {
+                    Button(L("Захопити").s) { capturing = r }.buttonStyle(InkButton())
+                    Button(L("Скасувати утримання").s) { Task { await release(r) } }.buttonStyle(LineButton())
+                } else {
+                    Button(L("Готово").s) { digits = ""; withAnimation(.smooth) { phase = .entry } }.buttonStyle(InkButton())
+                    if model.expert, let r, r.id != nil {
+                        Button(L("Розбір платежу").s) { detail = r }.buttonStyle(LineButton())
+                    }
+                    if ok, let r, r.id != nil {
+                        Button(L("Повернути платіж").s) { Task { await refund(r) } }.buttonStyle(LineButton())
+                    }
                 }
             }
             .padding(.bottom, 8)
@@ -381,6 +405,12 @@ struct PosTerminalView: View {
     private func line(_ t: String, _ v: String) -> some View {
         HStack { Text(t).foregroundStyle(.secondary); Spacer(); Text(v).monospacedDigit().lineLimit(1) }
             .font(.subheadline).padding(.horizontal, 18).padding(.vertical, 13)
+    }
+
+    private func release(_ p: API.PosPayment) async {
+        guard let id = p.id, let r = try? await model.api.posVoid(id) else { return }
+        withAnimation(.smooth) { result = r; digits = ""; phase = .entry }
+        await load()
     }
 
     private func refund(_ p: API.PosPayment) async {
@@ -411,44 +441,5 @@ private struct NfcRings: View {
                 .frame(width: 70, height: 70).glassCircle()
         }
         .onAppear { on = true }
-    }
-}
-
-/// Квитанція платежу з терміналу і повернення.
-struct PosReceipt: View {
-    @Environment(AppModel.self) private var model
-    @Environment(\.dismiss) private var dismiss
-    @State var payment: API.PosPayment
-    let changed: () -> Void
-
-    var body: some View {
-        ScrollView {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(payment.merchant ?? "").font(.display(30, .medium)).tracking(-0.8).padding(.top, 28)
-            Text(OverviewView.compact(payment.amount ?? 0)).font(.title2.monospacedDigit()).foregroundStyle(Theme.accent)
-            Card {
-                row(L("Статус").s, payment.isRefunded ? L("Повернено").s : (payment.isApproved ? L("Оплачено").s : L("Відхилено").s))
-                Rule().padding(.leading, 18); row(L("Комісія еквайра").s, Format.short(payment.fee ?? 0))
-                if model.expert {
-                    Rule().padding(.leading, 18); row(L("Код відповіді").s, "\(payment.responseCode) · \(payment.message)")
-                }
-            }
-            if model.expert { PosBreakdown(payment: payment) }
-            if payment.status == "captured", let id = payment.id {
-                Button(L("Повернути платіж").s) {
-                    Task { if let r = try? await model.api.posRefund(id) { payment = r; changed() } }
-                }
-                .buttonStyle(LineButton())
-            }
-        }
-        .padding(.horizontal, 20).padding(.bottom, 12)
-        }
-        .scrollIndicators(.hidden)
-        .screenBackground()
-    }
-
-    private func row(_ t: String, _ v: String) -> some View {
-        HStack { Text(t).foregroundStyle(.secondary); Spacer(); Text(v).monospacedDigit().lineLimit(1) }
-            .font(.subheadline).padding(.horizontal, 18).padding(.vertical, 13)
     }
 }
