@@ -10,6 +10,7 @@ import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import { autoplay } from './autoplay';
 import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
+import ShopWindow from './ShopWindow';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
@@ -642,31 +643,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-shopx-head bl-rv">
               <div>
                 <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
-                <p className="bl-shopx-sub">{t('Ціни в TAX. Оплата через TaxPay одним дотиком.', 'Priced in TAX. Paid through TaxPay in one tap.')}</p>
               </div>
               <a className="bl-shopx-go" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
             </div>
-            <div className="bl-shopx-grid">
-              <a className="bl-shopx-look bl-rv" href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="Saint Agnes">
-                <img src="/shop/hero-autumn.webp" alt="" loading="lazy" decoding="async" />
-                <span className="bl-shopx-tag">{t('Осінь · лукбук', 'Autumn · lookbook')}</span>
-                <div className="bl-toast bl-push bl-shopx-paid">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
-              </a>
-              <div className="bl-shopx-list bl-rv">
-                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map((p, k) => {
-                  const name = p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : '';
-                  const brand = name.match(/\s([A-Z0-9][A-Z0-9 .&'-]+)$/)?.[1] || '';
-                  return (
-                    <a key={p.id} className="bl-shopx-item" href={SHOP_URL} target="_blank" rel="noreferrer">
-                      <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}<i className="bl-shopx-n" aria-hidden>{String(k + 1).padStart(2, '0')}</i></div>
-                      <small>{brand || '\u00a0'}</small>
-                      <span>{(brand ? name.slice(0, -brand.length) : name).trim() || '\u00a0'}</span>
-                      <b>{p.price ? <>{fmt(Number(p.price))} <em>TAX</em></> : '\u00a0'}</b>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
+            <ShopWindow items={shop} wall="/shop/hero-autumn.webp" t={t} fmt={fmt} push={push} />
           </div>
         </Lazy>
 
