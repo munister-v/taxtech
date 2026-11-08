@@ -1187,3 +1187,7 @@
 .bl .bl-foot-logo img { width: 26px; height: 30px; }
 .bl .bl-foot-logo b { font-weight: 300; color: #d8d1c2; }
 .bl-foot-badge { display: block; width: 136px; height: auto; border-radius: 8px; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
+
+/* About without the three numbered aims: the lead, the author and the App Store band carry it */
+.bl-app { margin-top: 96px; }
+@media (max-width: 860px) { .bl-app { margin-top: 64px; } }

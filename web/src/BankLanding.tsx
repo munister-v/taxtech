@@ -624,19 +624,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               </div>
             </aside>
           </div>
-          <ol className="bl-wrap bl-aims">
-            {([
-              ['Проведи платіж', 'Make a payment', 'Картка, переказ і подвійний запис на токені TAX.', 'Card, transfer and double entry on the TAX token.'],
-              ['Обійди антифрод', 'Get past the fraud engine', 'Три шари правил вирішують, пропустити переказ чи зупинити.', 'Three layers of rules decide whether a transfer goes through.'],
-              ['Підміни запис', 'Tamper with a record', 'Хеш-ланцюг покаже, на якому саме блоці він порвався.', 'The hash chain shows the exact block where it broke.'],
-            ] as const).map(([tu, te, du, de], i) => (
-              <li key={i} className="bl-aim bl-rv" style={{ ['--d' as string]: `${i * 0.08}s` }}>
-                <span className="bl-aim-n">{String(i + 1).padStart(2, '0')}</span>
-                <h4>{t(tu, te)}</h4>
-                <p>{t(du, de)}</p>
-              </li>
-            ))}
-          </ol>
           <div className="bl-wrap">
             <a className="bl-app bl-rv" href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer">
               <div className="bl-app-text">
