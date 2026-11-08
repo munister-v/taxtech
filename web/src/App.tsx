@@ -6345,7 +6345,7 @@ function DocSeal({ doc, lang }: { doc: DocRecord; lang: AppLang }) {
         {tr('Скануйте QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.', 'Scan the QR or enter the code on the verification page: it checks the document against the ledger and shows no personal data.')}
       </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-        <a href={doc.verify_url} target="_blank" rel="noopener noreferrer" style={{ ...docPill, textDecoration: 'none', color: '#161616', background: gold, border: 'none' }}>
+        <a href={`${doc.verify_url}${doc.verify_url.includes('?') ? '&' : '?'}lang=${trLang()}`} target="_blank" rel="noopener noreferrer" style={{ ...docPill, textDecoration: 'none', color: '#161616', background: gold, border: 'none' }}>
           {tr('Перевірити онлайн', 'Verify online')}
         </a>
         <button onClick={copy} style={docPill}>{copied ? tr('Скопійовано', 'Copied') : tr('Код', 'Code')}</button>
