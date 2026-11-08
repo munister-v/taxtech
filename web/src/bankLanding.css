@@ -1204,3 +1204,8 @@
 .bl-vt-slide.on .bl-vt-txt > :nth-child(3) { transition-delay: .16s; }
 .bl-vt-slide.on .bl-vt-txt > :nth-child(4) { transition-delay: .24s; }
 @media (prefers-reduced-motion: reduce) { .bl-vt-txt > *, .bl-vt-ph img { opacity: 1 !important; transform: none !important; } }
+
+.bl-vt-rail { cursor: grab; }
+.bl-vt-rail.drag { cursor: grabbing; user-select: none; }
+.bl-vt-rail.drag img { pointer-events: none; }
+.bl-vt-look img { will-change: transform; transform: scale(1.12); }

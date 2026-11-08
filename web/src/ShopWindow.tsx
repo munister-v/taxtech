@@ -43,6 +43,55 @@ export default function ShopWindow({ items, wall, t, fmt, push }: Props) {
     return () => { el.removeEventListener('scroll', on); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
+  // Mouse drag on the rail (touch already swipes natively): follow the pointer, then settle on the nearest piece.
+  useEffect(() => {
+    const el = rail.current;
+    if (!el) return;
+    let x0 = 0, s0 = 0, down = false, moved = false;
+    const dn = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0 || (e.target as HTMLElement).closest('button')) return;
+      down = true; moved = false; x0 = e.clientX; s0 = el.scrollLeft;
+    };
+    const mv = (e: PointerEvent) => {
+      if (!down) return;
+      const d = e.clientX - x0;
+      if (!moved && Math.abs(d) > 6) { moved = true; el.style.scrollSnapType = 'none'; el.classList.add('drag'); }
+      if (moved) el.scrollLeft = s0 - d;
+    };
+    const up = () => {
+      if (!down) return;
+      down = false;
+      if (!moved) return;
+      el.classList.remove('drag');
+      const k = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+      el.scrollTo({ left: k * el.clientWidth, behavior: still.current ? 'auto' : 'smooth' });
+      window.setTimeout(() => { el.style.scrollSnapType = ''; }, 600);
+    };
+    el.addEventListener('pointerdown', dn);
+    window.addEventListener('pointermove', mv);
+    window.addEventListener('pointerup', up);
+    return () => { el.removeEventListener('pointerdown', dn); window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); };
+  }, []);
+
+  // The lookbook drifts a little against the page scroll.
+  const look = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    const img = look.current;
+    if (!img || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const r = img.parentElement!.getBoundingClientRect();
+      const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - innerHeight / 2) / innerHeight));
+      img.style.transform = `translate3d(0, ${(p * -5).toFixed(2)}%, 0) scale(1.12)`;
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    on();
+    window.addEventListener('scroll', on, { passive: true });
+    document.querySelector('.bl')?.addEventListener('scroll', on, { passive: true });
+    return () => { window.removeEventListener('scroll', on); document.querySelector('.bl')?.removeEventListener('scroll', on); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+
   const go = useCallback((k: number) => {
     const el = rail.current;
     if (!el) return;
@@ -60,7 +109,7 @@ export default function ShopWindow({ items, wall, t, fmt, push }: Props) {
 
   return (
     <div className="bl-vt">
-      <div className="bl-vt-look bl-rv"><img src={wall} alt="" loading="lazy" decoding="async" /></div>
+      <div className="bl-vt-look bl-rv"><img ref={look} src={wall} alt="" loading="lazy" decoding="async" /></div>
 
       <div className="bl-vt-bar">
         <span className="bl-vt-count" aria-live="polite"><b>{String(Math.min(cur, Math.max(0, n - 1)) + 1).padStart(2, '0')}</b> / {String(n || 4).padStart(2, '0')}</span>
