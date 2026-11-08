@@ -1144,3 +1144,46 @@
 .bl-lt .hm { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(180deg, transparent 0, #000 18%, #000 100%);
   mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(180deg, transparent 0, #000 18%, #000 100%); }
 @media (max-width: 860px) { .bl-lt-stage { margin-bottom: -40px; } }
+
+/* Full landing audit 2026-11-08 */
+/* Saint Agnes: header with the shop link at the right, numbered pieces, a quiet label on the lookbook, a smaller receipt */
+.bl-shopx-head { grid-template-columns: 1fr auto; align-items: end; gap: 24px 48px; }
+.bl .bl-shopx-go { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 6px; padding-bottom: 6px; font-size: 15px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); border-bottom: 1px solid rgba(26,22,16,.35); transition: gap .3s, border-color .3s; }
+.bl .bl-shopx-go i { font-style: normal; color: #8a6d2b; }
+.bl .bl-shopx-go:hover { gap: 18px; border-color: var(--ink); }
+.bl-shopx-img { position: relative; }
+.bl .bl-shopx-n { position: absolute; left: 12px; top: 10px; font: 500 11px/1 ui-monospace, "SF Mono", Menlo, monospace; font-style: normal; letter-spacing: .08em; color: rgba(26,22,16,.55); }
+.bl .bl-shopx-tag { padding: 0 0 0 30px; border-radius: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; font-size: 11px; letter-spacing: .22em; color: rgba(255,255,255,.92); text-shadow: 0 1px 12px rgba(0,0,0,.4); }
+.bl .bl-shopx-tag::before { content: ""; position: absolute; left: 0; top: 50%; width: 20px; height: 1px; background: rgba(255,255,255,.8); }
+.bl .bl-toast.bl-push.bl-shopx-paid { left: 16px; bottom: 16px; max-width: 330px; }
+.bl-shopx-grid + .bl-shopx-foot { display: none; }
+@media (max-width: 860px) { .bl-shopx-head { grid-template-columns: 1fr; } .bl .bl-shopx-go { justify-self: start; } }
+
+/* Tap: the stock photo graded to the night palette, so the white word reads and the scene belongs to the page */
+.bl-tap-cam img { filter: brightness(.6) contrast(1.1) saturate(.8) sepia(.22); }
+.bl-tap-shade { background: linear-gradient(180deg, #000 0%, transparent 16%, transparent 80%, #000 100%), linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.25) 48%, rgba(0,0,0,0) 70%); }
+
+/* Six faces: a darker room, thumbnails as small cards with a gold ring when chosen */
+.bl-faces-bg i.on { opacity: .34; }
+.bl-faces-bg i { filter: blur(54px) saturate(1.05) brightness(.8); }
+.bl .bl-thumb { width: 58px; height: 37px; border-radius: 6px; box-shadow: 0 6px 16px -8px rgba(0,0,0,.8); opacity: .55; transition: opacity .25s, transform .25s; }
+.bl .bl-thumb.on, .bl .bl-thumb:hover { opacity: 1; }
+.bl .bl-thumb::after { inset: -4px; border-radius: 9px; }
+.bl .bl-thumb.on::after { box-shadow: inset 0 0 0 1px var(--gold-l); }
+.bl .bl-dot-name { font-size: 12px; letter-spacing: .22em; color: #c9b88f; }
+.bl .bl-flow-btn { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); font-size: 22px; }
+.bl .bl-flow-btn:hover:not(:disabled) { background: transparent; color: var(--gold-l); box-shadow: inset 0 0 0 1px var(--gold-l); }
+
+/* Final: the photo fades into the questions instead of ending on a hard line */
+.bl-final > .bl-wrap { position: relative; z-index: 2; }
+.bl-final::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 34%; z-index: 1; pointer-events: none; background: linear-gradient(180deg, transparent, #000); }
+
+/* FAQ: section labels in the page's gold, not the button yellow */
+.bl-faq-group h3 { color: var(--gold-l); letter-spacing: .2em; }
+
+/* Footer: the mark and the App Store badge on top */
+.bl-foot-brand { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 28px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.bl .bl-foot-logo { display: inline-flex; align-items: center; gap: 12px; color: #f3ecdc; font-size: 20px; font-weight: 500; letter-spacing: -.02em; }
+.bl .bl-foot-logo img { width: 26px; height: 30px; }
+.bl .bl-foot-logo b { font-weight: 300; color: #d8d1c2; }
+.bl-foot-badge { display: block; width: 136px; height: auto; border-radius: 8px; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }

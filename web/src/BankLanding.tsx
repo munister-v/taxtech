@@ -653,8 +653,11 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         <Lazy id="shop" className="bl-shopx" h={[1400, 1225]}>
           <div className="bl-wrap">
             <div className="bl-shopx-head bl-rv">
-              <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
-              <p className="bl-shopx-sub">{t('Ціни в TAX. Оплата через TaxPay одним дотиком.', 'Priced in TAX. Paid through TaxPay in one tap.')}</p>
+              <div>
+                <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
+                <p className="bl-shopx-sub">{t('Ціни в TAX. Оплата через TaxPay одним дотиком.', 'Priced in TAX. Paid through TaxPay in one tap.')}</p>
+              </div>
+              <a className="bl-shopx-go" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
             </div>
             <div className="bl-shopx-grid">
               <a className="bl-shopx-look bl-rv" href={SHOP_URL} target="_blank" rel="noreferrer" aria-label="Saint Agnes">
@@ -663,12 +666,12 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                 <div className="bl-toast bl-push bl-shopx-paid">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
               </a>
               <div className="bl-shopx-list bl-rv">
-                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map(p => {
+                {(shop.length ? shop : Array.from({ length: 4 }, (_, i) => ({ id: -i } as ShopItem))).map((p, k) => {
                   const name = p.title ? p.title.replace(/\s*\([^)]*\)\s*$/, '') : '';
                   const brand = name.match(/\s([A-Z0-9][A-Z0-9 .&'-]+)$/)?.[1] || '';
                   return (
                     <a key={p.id} className="bl-shopx-item" href={SHOP_URL} target="_blank" rel="noreferrer">
-                      <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}</div>
+                      <div className="bl-shopx-img">{p.image_url && <img src={p.image_url} alt="" loading="lazy" decoding="async" />}<i className="bl-shopx-n" aria-hidden>{String(k + 1).padStart(2, '0')}</i></div>
                       <small>{brand || '\u00a0'}</small>
                       <span>{(brand ? name.slice(0, -brand.length) : name).trim() || '\u00a0'}</span>
                       <b>{p.price ? <>{fmt(Number(p.price))} <em>TAX</em></> : '\u00a0'}</b>
@@ -677,7 +680,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                 })}
               </div>
             </div>
-            <div className="bl-shopx-foot bl-rv"><a className="bl-pill bl-pill-dark" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')} ›</a></div>
           </div>
         </Lazy>
 
@@ -746,7 +748,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
         {/* ── Final CTA: the Colosseum at blue hour ── */}
         <Lazy className="bl-scene bl-final" h={[900, 726]}>
-          <FireScene className="bl-photo bl-photo-final" src="/landing/colosseum-sun.webp" ratio={1.504} focusX={0.12} focusY={0.5} spots={SUN_SPOTS} embers={50} />
+          <FireScene className="bl-photo bl-photo-final" src="/landing/colosseum-sun.webp" ratio={1.504} focusX={0.12} focusY={0.5} spots={SUN_SPOTS} embers={16} />
           <div className="bl-wrap bl-center">
             <h2 className="bl-h bl-h-xl bl-rv">{t('Ваша картка чекає.', 'Your card is waiting.')}</h2>
             <div className="bl-final-card bl-rv"
@@ -786,6 +788,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
         <footer className="bl-foot">
           <div className="bl-wrap">
+            <div className="bl-foot-brand">
+              <a href="#top" className="bl-foot-logo" aria-label="TaxTech"><img src="/icons/mark-white.svg" alt="" /><span>Tax<b>Tech</b></span></a>
+              <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer" aria-label="App Store"><img className="bl-foot-badge" src="/app-store-black.svg" alt="App Store" width="150" height="50" loading="lazy" decoding="async" /></a>
+            </div>
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
             <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
             <div className="bl-foot-row">
