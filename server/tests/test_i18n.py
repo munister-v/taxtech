@@ -75,3 +75,34 @@ def test_server_messages_file_is_in_sync_with_the_app_table():
     subprocess.run([sys.executable, 'scripts/sync_i18n.py'], check=True, capture_output=True)
     after = path.read_text()
     assert json.loads(before) == json.loads(after), 'run python scripts/sync_i18n.py and commit i18n_messages.json'
+
+
+def test_api_payload_is_translated_but_keys_codes_and_user_text_are_not():
+    from flask import Flask
+    from backend.i18n import translate_payload
+    app = Flask(__name__)
+    with app.test_request_context('/', headers={'Accept-Language': 'en'}):
+        out = translate_payload({'data': [
+            {'description': 'Донат: Повернись живим', 'tx_type': 'donation', 'hash': 'Донат', 'related_account': 'KP-1'},
+            {'description': 'Книжки', 'title': 'Аптека (віртуальна покупка)'},
+            {'text': 'Найактивніший день — вівторок: 12 операцій за 30 днів'},
+            {'title': 'Детальна виписка · весь час', 'meta': {'tx_type': 'Оплата'}},
+        ]})['data']
+        assert out[0] == {'description': 'Donation: Повернись живим', 'tx_type': 'donation', 'hash': 'Донат', 'related_account': 'KP-1'}
+        assert out[1] == {'description': 'Книжки', 'title': 'Pharmacy (virtual purchase)'}
+        assert 'Tuesday' in out[2]['text'] and '12 transactions' in out[2]['text']
+        assert out[3] == {'title': 'Detailed statement · all time', 'meta': {'tx_type': 'Payment'}}
+    with app.test_request_context('/?lang=ru'):
+        assert '1 операция' in translate_payload({'text': 'Середня операція цього місяця: 5,00 TAX, усього 1 операція'})['text']
+    with app.test_request_context('/'):
+        assert translate_payload({'description': 'Донат: Фонд'}) == {'description': 'Донат: Фонд'}
+
+
+def test_api_responses_follow_the_request_language_and_errors_stay_ukrainian(client):
+    h = _login(client)
+    uk = client.get('/api/transactions/history?limit=50', headers=h).get_json()['data']
+    en = client.get('/api/transactions/history?limit=50', headers={**h, 'Accept-Language': 'en'}).get_json()['data']
+    assert [t['id'] for t in uk] == [t['id'] for t in en]
+    assert [t.get('tx_type') for t in uk] == [t.get('tx_type') for t in en]
+    bad = client.post('/api/auth/login', json={}, headers={'Accept-Language': 'en'}).get_json()
+    assert re.search('[А-Яа-яІі]', bad['error'])

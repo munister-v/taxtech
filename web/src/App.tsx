@@ -4177,13 +4177,15 @@ const BUDGET_CATEGORIES = [
 ];
 
 function txToCategory(tx: TxItem): string {
+  // The server translates descriptions into the app language, so the words come in every language we ship.
   const desc = (tx.description || '').toLowerCase();
-  if (desc.includes('їж') || desc.includes('продукт') || desc.includes('food') || desc.includes('supermarket') || desc.includes('кафе') || desc.includes('ресторан')) return 'food';
-  if (desc.includes('таксі') || desc.includes('uber') || desc.includes('bolt') || desc.includes('metro') || desc.includes('автобус')) return 'transport';
-  if (desc.includes('кіно') || desc.includes('netflix') || desc.includes('гра') || desc.includes('gaming')) return 'entertainment';
-  if (desc.includes('аптек') || desc.includes('лікар') || desc.includes('клінік') || desc.includes('health')) return 'health';
-  if (desc.includes('шопінг') || desc.includes('магаз') || desc.includes('amazon') || desc.includes('rozetka')) return 'shopping';
-  if (desc.includes('комунал') || desc.includes('електрик') || desc.includes('газ') || desc.includes('вода')) return 'utilities';
+  const has = (...ws: string[]) => ws.some(w => desc.includes(w));
+  if (has('їж', 'продукт', 'супермаркет', 'кафе', 'кав', 'ресторан', 'кофейн', 'food', 'supermarket', 'grocer', 'café', 'cafe', 'supermercato', 'alimentari', 'caffè', 'supermarkt', 'lebensmittel')) return 'food';
+  if (has('таксі', 'такси', 'транспорт', 'азс', 'uber', 'bolt', 'metro', 'автобус', 'transport', 'trasport', 'verkehr', 'petrol', 'distributore', 'tankstelle')) return 'transport';
+  if (has('кіно', 'кино', 'netflix', 'гра', 'gaming', 'cinema', 'kino')) return 'entertainment';
+  if (has('аптек', 'лікар', 'клінік', 'health', 'pharmacy', 'farmacia', 'apotheke')) return 'health';
+  if (has('шопінг', 'магаз', 'amazon', 'rozetka', 'store', 'shop', 'negozio')) return 'shopping';
+  if (has('комунал', 'коммунал', 'електрик', 'газ', 'вода', 'utilit', 'utenze', 'nebenkosten')) return 'utilities';
   return 'other';
 }
 
@@ -7453,7 +7455,7 @@ function ProfileScreen() {
             return (
               <div key={lim.tx_type} style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                  <div style={{ fontSize: 13, color: text.secondary, fontWeight: 500, textTransform: 'capitalize' }}>{lim.tx_type}</div>
+                  <div style={{ fontSize: 13, color: text.secondary, fontWeight: 500 }}>{t(`spend_${lim.tx_type}` as Parameters<typeof t>[0]) || lim.tx_type}</div>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <span style={{ fontSize: 11, color: over ? '#989898' : text.muted }}>
                       {Number(lim.spent).toLocaleString('uk-UA')}{'\u00a0TAX'} {t('settings_limit_of')} {Number(lim.monthly_limit).toLocaleString('uk-UA')}{'\u00a0TAX'}
@@ -7470,7 +7472,7 @@ function ProfileScreen() {
           <form onSubmit={addLimit} style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <select value={newLimitType} onChange={e => setNewLimitType(e.target.value)}
               style={{ flex: 1, padding: '9px 10px', background: 'rgba(255,255,255, 0.1)', border: `1px solid transparent`, borderRadius: 10, color: text.secondary, fontSize: 13, outline: 'none', fontFamily: 'inherit' }}>
-              {['transfer','food','transport','utility','shopping','subscription'].map(v => <option key={v} value={v}>{v}</option>)}
+              {['transfer','food','transport','utility','shopping','subscription'].map(v => <option key={v} value={v}>{t(`spend_${v}` as Parameters<typeof t>[0])}</option>)}
             </select>
             <input value={newLimitAmt} onChange={e => setNewLimitAmt(e.target.value)}
               placeholder="5000" type="text" inputMode="decimal"

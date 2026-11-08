@@ -6,6 +6,7 @@ iOS-клієнт вирішує, де виконувати AI-задачу — �
 """
 from __future__ import annotations
 
+import json
 import mimetypes
 import os
 import re
@@ -26,6 +27,7 @@ from .config import (
     RESEARCH_ECHO_MAX_BYTES,
 )
 from .database import init_db
+from .i18n import current_lang, translate_payload
 from .routes.account_routes import account_bp
 from .routes.auth_routes import auth_bp
 from .routes.card_routes import card_bp
@@ -127,7 +129,19 @@ def create_app() -> Flask:
         _cors(resp)
         if request.path.startswith(prefix + '/api/') and '/marketplace/images/' not in request.path:
             resp.headers['Cache-Control'] = 'no-store'
+            _translate_json(resp)
         return resp
+
+    def _translate_json(resp):
+        # описи операцій, сповіщення й підказки - мовою застосунку (див. i18n.translate_payload)
+        # Відповіді з помилкою лишаються українською: застосунок iOS розпізнає деякі з них за текстом.
+        if resp.status_code >= 400 or resp.mimetype != 'application/json' or resp.direct_passthrough or current_lang() == 'uk':
+            return
+        try:
+            data = json.loads(resp.get_data(as_text=True))
+        except ValueError:
+            return
+        resp.set_data(json.dumps(translate_payload(data), ensure_ascii=False))
 
     @app.before_request
     def cors_preflight():

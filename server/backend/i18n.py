@@ -58,6 +58,29 @@ def _messages() -> tuple[dict[str, list[str]], list[tuple[re.Pattern, str]]]:
     return table, templates
 
 
+_OPS = re.compile(r'^(\d+) операці[яїй]$')
+
+
+def _ops(n: int, lang: str) -> str:
+    one = n % 10 == 1 and n % 100 != 11
+    few = 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14
+    return {
+        'en': f"{n} transaction{'' if n == 1 else 's'}",
+        'ru': f"{n} операци{'я' if one else 'и' if few else 'й'}",
+        'de': f"{n} Transaktion{'' if n == 1 else 'en'}",
+        'it': f"{n} operazion{'e' if n == 1 else 'i'}",
+    }[lang]
+
+
+def _piece(text: str, lang: str) -> str:
+    """Переклад підставленого фрагмента шаблону: день тижня, «12 операцій», назва з таблиці документів."""
+    m = _OPS.match(text)
+    if m:
+        return _ops(int(m.group(1)), lang)
+    row = _T.get(text)
+    return row[LANGS.index(lang) - 1] if row else text
+
+
 def tr_text(text: str) -> str:
     """Переклад збереженого українського тексту (опис операції, повідомлення), у т. ч. за шаблоном із %@."""
     lang = _lang_from_request()
@@ -72,7 +95,7 @@ def tr_text(text: str) -> str:
         if m:
             out = table[key][i]
             for g in m.groups():
-                out = out.replace('%@', g, 1)
+                out = out.replace('%@', _piece(g, lang), 1)
             return out
     return text
 
@@ -232,4 +255,54 @@ _T: dict[str, tuple[str, str, str, str]] = {
     'Прихід': ('In', 'Приход', 'Eingang', 'Entrata'),
     'Відхід': ('Out', 'Расход', 'Ausgang', 'Uscita'),
     'Видача кредиту': ('Loan disbursement', 'Выдача кредита', 'Kreditauszahlung', 'Erogazione del prestito'),
+    # дні тижня (підказки «Найактивніший день»)
+    'понеділок': ('Monday', 'понедельник', 'Montag', 'lunedì'),
+    'вівторок': ('Tuesday', 'вторник', 'Dienstag', 'martedì'),
+    'середа': ('Wednesday', 'среда', 'Mittwoch', 'mercoledì'),
+    'четвер': ('Thursday', 'четверг', 'Donnerstag', 'giovedì'),
+    'пʼятниця': ('Friday', 'пятница', 'Freitag', 'venerdì'),
+    'субота': ('Saturday', 'суббота', 'Samstag', 'sabato'),
+    'неділя': ('Sunday', 'воскресенье', 'Sonntag', 'domenica'),
+    # періоди виписок
+    'весь час': ('all time', 'всё время', 'gesamter Zeitraum', 'tutto il periodo'),
+    # описи операцій пісочниці (scripts/seed_sandbox.py)
+    'Супермаркет (віртуальна покупка)': ('Supermarket (virtual purchase)', 'Супермаркет (виртуальная покупка)', 'Supermarkt (virtueller Einkauf)', 'Supermercato (acquisto virtuale)'),
+    'Продукти біля дому (віртуальна покупка)': ('Corner grocery (virtual purchase)', 'Продукты у дома (виртуальная покупка)', 'Lebensmittel um die Ecke (virtueller Einkauf)', 'Alimentari sotto casa (acquisto virtuale)'),
+    "Кав'ярня (віртуальна покупка)": ('Café (virtual purchase)', 'Кофейня (виртуальная покупка)', 'Café (virtueller Einkauf)', 'Caffè (acquisto virtuale)'),
+    'Аптека (віртуальна покупка)': ('Pharmacy (virtual purchase)', 'Аптека (виртуальная покупка)', 'Apotheke (virtueller Einkauf)', 'Farmacia (acquisto virtuale)'),
+    'Транспорт (віртуальна покупка)': ('Transport (virtual purchase)', 'Транспорт (виртуальная покупка)', 'Verkehr (virtueller Einkauf)', 'Trasporti (acquisto virtuale)'),
+    'АЗС (віртуальна покупка)': ('Petrol station (virtual purchase)', 'АЗС (виртуальная покупка)', 'Tankstelle (virtueller Einkauf)', 'Distributore (acquisto virtuale)'),
+    'Інтернет-магазин (віртуальна покупка)': ('Online store (virtual purchase)', 'Интернет-магазин (виртуальная покупка)', 'Onlineshop (virtueller Einkauf)', 'Negozio online (acquisto virtuale)'),
+    'Комунальні послуги (віртуальна оплата)': ('Utilities (virtual payment)', 'Коммунальные услуги (виртуальная оплата)', 'Nebenkosten (virtuelle Zahlung)', 'Utenze (pagamento virtuale)'),
+    "Мобільний зв'язок (віртуальна оплата)": ('Mobile plan (virtual payment)', 'Мобильная связь (виртуальная оплата)', 'Mobilfunk (virtuelle Zahlung)', 'Telefonia mobile (pagamento virtuale)'),
+    'Кіно (віртуальна покупка)': ('Cinema (virtual purchase)', 'Кино (виртуальная покупка)', 'Kino (virtueller Einkauf)', 'Cinema (acquisto virtuale)'),
+    'Стартове поповнення': ('Opening top-up', 'Стартовое пополнение', 'Startaufladung', 'Ricarica iniziale'),
+    'Переказ знайомому': ('Transfer to a friend', 'Перевод знакомому', 'Überweisung an einen Bekannten', 'Bonifico a un amico'),
 }
+
+
+# ── Тексти в JSON-відповідях API ─────────────────────────────────────────────
+# Сервер зберігає описи операцій, сповіщення й підказки українською. Застосунок iOS перекладає їх у себе,
+# веб - ні, тому відповідь /api/* перекладається тут, мовою запиту (?lang або Accept-Language).
+# Лише текстові поля з кирилицею; ключі, коди, хеші й номери не чіпаємо, невідоме лишається як є.
+_CYR = re.compile('[А-Яа-яІіЇїЄєҐґ]')
+JSON_TEXT_KEYS = frozenset({'description', 'title', 'body', 'text', 'message', 'desc', 'tx_type', 'label', 'subtitle', 'hint', 'period'})
+
+
+def tr_any(text: str) -> str:
+    """Переклад за таблицею серверних текстів, а якщо там немає - за таблицею документів."""
+    if ' · ' in text:
+        return ' · '.join(tr_any(part) for part in text.split(' · '))
+    out = tr_text(text)
+    return tr(text) if out == text else out
+
+
+def translate_payload(obj):
+    """Перекладає текстові поля JSON-відповіді на мову поточного запиту (на місці повертає нову структуру)."""
+    if isinstance(obj, dict):
+        return {k: (tr_any(v) if k in JSON_TEXT_KEYS and isinstance(v, str) and _CYR.search(v) else translate_payload(v))
+                for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [translate_payload(v) for v in obj]
+    return obj
+
