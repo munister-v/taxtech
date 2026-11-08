@@ -64,20 +64,23 @@ export default function ShopWindow({ items, wall, t, fmt, push }: Props) {
 
       <div className="bl-vt-bar">
         <span className="bl-vt-count" aria-live="polite"><b>{String(Math.min(cur, Math.max(0, n - 1)) + 1).padStart(2, '0')}</b> / {String(n || 4).padStart(2, '0')}</span>
-        <span className="bl-vt-line" aria-hidden><i style={{ width: `${((cur + 1) / (n || 4)) * 100}%` }} /></span>
+        <span className="bl-vt-line">{(n ? items : [{ id: 0 } as WindowItem]).map((p, k) => (
+          <button key={p.id} type="button" className={k === cur ? 'on' : ''} aria-label={String(k + 1)} onClick={() => go(k)} />
+        ))}</span>
         <span className="bl-vt-arrows">
           <button type="button" aria-label="←" disabled={cur <= 0} onClick={() => go(cur - 1)}>←</button>
           <button type="button" aria-label="→" disabled={cur >= n - 1} onClick={() => go(cur + 1)}>→</button>
         </span>
       </div>
 
-      <div className="bl-vt-rail" ref={rail}>
+      <div className="bl-vt-rail" ref={rail} tabIndex={0}
+        onKeyDown={e => { if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); } }}>
         {(n ? items : Array.from({ length: 1 }, () => ({ id: 0 } as WindowItem))).map((p, k) => {
           const s = p.title ? split(p.title) : null;
           const price = Number(p.price) || 0;
           const st = pay[p.id];
           return (
-            <article key={p.id} className="bl-vt-slide" aria-label={s?.name}>
+            <article key={p.id} className={`bl-vt-slide${k === cur ? ' on' : ''}`} aria-label={s?.name}>
               <div className="bl-vt-ph">{p.image_url && <img src={p.image_url} alt="" loading={k ? 'lazy' : 'eager'} decoding="async" />}</div>
               <div className="bl-vt-txt">
                 <small>{s?.brand || 'Saint Agnes'}</small>

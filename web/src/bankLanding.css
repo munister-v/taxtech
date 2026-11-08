@@ -1157,8 +1157,11 @@
 .bl-vt-bar { display: flex; align-items: center; gap: 24px; margin: 72px 0 40px; }
 .bl-vt-count { font-size: 14px; letter-spacing: .06em; color: #8a6d2b; font-variant-numeric: tabular-nums; }
 .bl-vt-count b { font-weight: 600; color: var(--ink); }
-.bl-vt-line { position: relative; flex: 1; height: 1px; background: rgba(26,22,16,.18); }
-.bl-vt-line i { position: absolute; left: 0; top: -.5px; height: 2px; background: var(--ink); transition: width .6s cubic-bezier(.2,.7,.2,1); }
+.bl-vt-line { flex: 1; display: flex; gap: 6px; }
+.bl .bl-vt-line button { flex: 1; height: 18px; padding: 0; border: 0; background: none; cursor: pointer; position: relative; }
+.bl .bl-vt-line button::after { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: rgba(26,22,16,.16); transition: background .4s; }
+.bl .bl-vt-line button.on::after { background: var(--ink); }
+.bl .bl-vt-line button:hover::after { background: rgba(26,22,16,.5); }
 .bl-vt-arrows { display: flex; gap: 10px; }
 .bl-vt-arrows button { width: 44px; height: 44px; border: 1px solid rgba(26,22,16,.3); border-radius: 50%; font: inherit; font-size: 16px; color: var(--ink); background: none; cursor: pointer; transition: background .25s, color .25s, border-color .25s; }
 .bl-vt-arrows button:hover:not(:disabled) { color: var(--cream); background: var(--ink); border-color: var(--ink); }
@@ -1191,3 +1194,13 @@
   .bl-vt-pay { margin-top: 28px; width: 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { .bl-vt * { transition-duration: .01s !important; } }
+
+.bl-vt-rail:focus-visible { outline: 2px solid var(--ink); outline-offset: 8px; }
+.bl-vt-ph img { transform: scale(1.06); transition: transform 1.8s cubic-bezier(.2,.7,.2,1); }
+.bl-vt-slide.on .bl-vt-ph img { transform: none; }
+.bl-vt-txt > * { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
+.bl-vt-slide.on .bl-vt-txt > * { opacity: 1; transform: none; }
+.bl-vt-slide.on .bl-vt-txt > :nth-child(2) { transition-delay: .08s; }
+.bl-vt-slide.on .bl-vt-txt > :nth-child(3) { transition-delay: .16s; }
+.bl-vt-slide.on .bl-vt-txt > :nth-child(4) { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) { .bl-vt-txt > *, .bl-vt-ph img { opacity: 1 !important; transform: none !important; } }
