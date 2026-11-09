@@ -28,6 +28,7 @@ extension API {
         }
 
         var isReceipt: Bool { kind == "receipt" }
+        var isCertificate: Bool { kind == "certificate" }
         var url: URL? { URL(string: verifyUrl) }
         /// Сторінка перевірки мовою застосунку; поширюється й друкується звичайне посилання без мови.
         var openUrl: URL? { URL(string: verifyUrl + (verifyUrl.contains("?") ? "&" : "?") + "lang=\(Lang.current.rawValue)") }
@@ -43,13 +44,14 @@ extension API {
         /// Шлях, з якого сервер збирає PDF цього документа.
         var pdfPath: String {
             if isReceipt { return "transactions/\(ref)/receipt" }
+            if isCertificate { return "fx/certificates/\(code).pdf" }
             var q = ["report_type=\(meta.reportType ?? "detailed")"]
             if let f = meta.fromDate, !f.isEmpty { q.append("from_date=\(f)") }
             if let t = meta.toDate, !t.isEmpty { q.append("to_date=\(t)") }
             return "transactions/statement?" + q.joined(separator: "&")
         }
 
-        var fileName: String { isReceipt ? L("Квитанція \(code).pdf").s : L("Виписка \(code).pdf").s }
+        var fileName: String { isCertificate ? "\(code).pdf" : isReceipt ? L("Квитанція \(code).pdf").s : L("Виписка \(code).pdf").s }
     }
 
     func documents(kind: String? = nil) async throws -> [DocumentRecord] {
@@ -255,7 +257,7 @@ struct DocumentRow: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
+            GuillocheBadge(symbol: doc.isCertificate ? "building.columns.fill" : doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                            tint: doc.isReceipt ? .green : Theme.accent, size: 46)
             VStack(alignment: .leading, spacing: 3) {
                 Text(Translator.server(doc.title)).font(Theme.ui(style: .body, .medium)).lineLimit(2).minimumScaleFactor(0.85)

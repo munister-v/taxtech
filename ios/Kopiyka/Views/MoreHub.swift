@@ -25,6 +25,8 @@ struct MoreHub: View {
                     profileCard
                     heroes
                     section(Tx("Гроші", "Money", "Деньги"), [
+                        tile(Tx("Рахунки й обмін", "Accounts & FX", "Счета и обмен"), "globe.europe.africa") { AccountsView() },
+                        tile(Tx("Довідки", "Certificates", "Справки"), "doc.badge.gearshape") { CertificatesLauncher() },
                         tile(L("Депозити").s, "banknote") { DepositsView() },
                         tile(L("Кредити").s, "percent") { CreditsView() },
                         tile(L("Цілі").s, "target") { GoalsView() },
@@ -211,5 +213,19 @@ struct MoreHub: View {
 
     private func action(_ title: String, _ symbol: String, _ run: @escaping () -> Void) -> AnyView {
         AnyView(Button(action: run) { tileBody(title, symbol) }.buttonStyle(PressScale()))
+    }
+}
+
+/// Довідки без попереднього екрана рахунків: сама підтягує рахунки.
+struct CertificatesLauncher: View {
+    @Environment(AppModel.self) private var model
+    @State private var accounts: [API.FXAccount] = []
+
+    var body: some View {
+        Group {
+            if accounts.isEmpty { ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity).screenBackground() }
+            else { CertificatesView(accounts: accounts) }
+        }
+        .task { accounts = (try? await model.api.fxAccounts().accounts) ?? [] }
     }
 }

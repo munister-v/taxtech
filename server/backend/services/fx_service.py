@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import re
 import zlib
 from datetime import datetime, timezone
@@ -31,7 +32,8 @@ def iban_check_digits(country: str, bban: str) -> str:
 
 def make_iban(currency: str, ref: int, user_id: int) -> str:
     """UA + 2 контрольні + 6 код банку + 19 знаків рахунку: код валюти (3) і 16 цифр з номера рахунку."""
-    body = f'{NUMERIC.get(currency, "980")}{(int(user_id) * 1000 + int(ref)) % 10**16:016d}'
+    seed = hashlib.sha256(f'{currency}|{int(user_id)}|{int(ref)}'.encode()).hexdigest()
+    body = f'{NUMERIC.get(currency, "980")}{int(seed, 16) % 10**16:016d}'
     bban = BANK_CODE + body
     return f'{COUNTRY}{iban_check_digits(COUNTRY, bban)}{bban}'
 

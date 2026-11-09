@@ -15,6 +15,7 @@ struct OverviewView: View {
     @State private var prefill = ""
     @State private var showProfile = false
     @State private var showTerminal = false
+    @State private var showFX = false
     @State private var selected: API.Transaction?
     @State private var hits: [API.Product] = []
     @State private var shown: Double = 0
@@ -61,7 +62,11 @@ struct OverviewView: View {
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
             #if DEBUG
-            .onAppear { if ProcessInfo.processInfo.environment["KOPIYKA_POS"] == "1" { showTerminal = true } }
+            .onAppear {
+                let env = ProcessInfo.processInfo.environment
+                if env["KOPIYKA_POS"] == "1" { showTerminal = true }
+                if env["KOPIYKA_FX"] == "1" { showFX = true }
+            }
             #endif
             .refreshable { await load() }
             .sheet(item: $sheet) { s in
@@ -71,6 +76,7 @@ struct OverviewView: View {
                 case .byAccount: TransferView(balance: bank.account?.balance ?? 0, startRecipient: prefill) { await load() }
                 }
             }
+            .fullScreenCover(isPresented: $showFX) { NavigationStack { AccountsView() } }
             .fullScreenCover(isPresented: $showTerminal, onDismiss: { Task { await load() } }) { PosTerminalView() }
             .sheet(isPresented: $showProfile) { ProfileView().presentationDragIndicator(.visible) }
             .sheet(item: $selected) { tx in TransactionDetailView(tx: tx) }
