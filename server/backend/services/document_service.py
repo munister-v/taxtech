@@ -21,7 +21,8 @@ from ..i18n import current_lang, tr
 
 KIND_RECEIPT = 'receipt'
 KIND_STATEMENT = 'statement'
-KINDS = (KIND_RECEIPT, KIND_STATEMENT)
+KIND_CERT = 'certificate'
+KINDS = (KIND_RECEIPT, KIND_STATEMENT, KIND_CERT)
 
 
 def make_code(kind: str, ref: str, user_id: int) -> str:
@@ -185,6 +186,11 @@ class DocumentService:
                 intact = IntegrityService().hashes_for([tx]).get(int(tx['id'])) == doc['digest']
         elif account and doc['kind'] == KIND_STATEMENT:
             intact = self.statement_digest(accounts, account, meta) == doc['digest']
+        if doc['kind'] == KIND_CERT:
+            import json as _json, hashlib as _hl
+            intact = _hl.sha256(_json.dumps(meta, sort_keys=True, ensure_ascii=False).encode()).hexdigest() == doc['digest']
+            meta = {k: v for k, v in meta.items() if k not in ('holder', 'iban')}
+            meta['iban'] = '••••' + str((doc.get('meta') or {}).get('iban', ''))[-4:]
         acct_no = str((account or {}).get('account_number') or '')
         return {
             'code': doc['code'], 'kind': doc['kind'], 'title': doc['title'], 'amount': doc.get('amount'),
