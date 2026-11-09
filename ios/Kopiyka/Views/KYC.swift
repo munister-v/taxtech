@@ -1,4 +1,4 @@
-import PhotosUI
+import LocalAuthentication
 import SwiftUI
 
 /// Стан перевірки особи. Лежить лише на телефоні: сервер його не бачить, фото документа не зберігаються.
@@ -10,6 +10,7 @@ struct KYCState: Codable, Equatable {
     var country = "UA"
     var docType = "passport"
     var docLast4 = ""
+    var biometry = ""
     var verifiedAt: Date?
 
     private static let key = "kyc.v1"
@@ -49,24 +50,23 @@ struct KYCBadge: View {
     }
 }
 
-/// Перевірка особи (KYC) у три кроки: дані, документ, обличчя. Навчальна: нічого не надсилається,
-/// фото відкидаються одразу після «перевірки», зберігається лише результат і останні 4 цифри номера.
+/// Перевірка особи (KYC) у три кроки: дані, документ, біометрія (Face ID / Touch ID). Навчальна: без камери й фото,
+/// нічого не надсилається, зберігається лише результат, тип біометрії і останні 4 цифри номера.
 struct KYCView: View {
     @Environment(\.dismiss) private var dismiss
     var prefill = ""
     @State private var state = KYCState.load()
     @State private var step = 0
-    @State private var docPick: PhotosPickerItem?
-    @State private var facePick: PhotosPickerItem?
-    @State private var docImage: UIImage?
-    @State private var faceImage: UIImage?
+    @State private var bioOK = false
+    @State private var bioError: String?
+    @State private var bioKind = ""
     @State private var checking = false
     @State private var progress = 0
     @State private var docNumber = ""
 
     private var checks: [String] {
-        [Tx("Читаємо документ", "Reading the document", "Читаем документ"),
-         Tx("Звіряємо обличчя", "Matching the face", "Сверяем лицо"),
+        [Tx("Перевіряємо формат документа", "Checking the document format", "Проверяем формат документа"),
+         Tx("Привʼязуємо до біометрії пристрою", "Binding to device biometrics", "Привязываем к биометрии устройства"),
          Tx("Перевірка за списками санкцій (імітація)", "Sanctions screening (simulated)", "Проверка по санкционным спискам (имитация)")]
     }
 
@@ -97,8 +97,6 @@ struct KYCView: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
             .animation(.smooth, value: step)
             .onAppear { if state.fullName.isEmpty { state.fullName = prefill } }
-            .onChange(of: docPick) { _, item in load(item) { docImage = $0; docPick = nil } }
-            .onChange(of: facePick) { _, item in load(item) { faceImage = $0; facePick = nil } }
             .sensoryFeedback(.success, trigger: state.level)
         }
     }
@@ -150,10 +148,29 @@ struct KYCView: View {
 
     private var age: Int { Calendar.current.dateComponents([.year], from: state.birth, to: .now).year ?? 0 }
 
+    private var docNumberOK: Bool {
+        let n = docNumber.filter { !$0.isWhitespace }.uppercased()
+        guard state.country == "UA" else { return (6...12).contains(n.count) && n.contains(where: \.isNumber) }
+        switch state.docType {
+        case "id": return n.count == 9 && n.allSatisfy(\.isNumber)
+        case "passport": return n.range(of: "^[A-ZА-Я]{2}[0-9]{6}$", options: .regularExpression) != nil
+        default: return (6...12).contains(n.count) && n.contains(where: \.isNumber)
+        }
+    }
+
+    private var numberHint: String {
+        guard state.country == "UA" else { return Tx("6-12 символів", "6-12 characters", "6-12 символов") }
+        switch state.docType {
+        case "id": return Tx("9 цифр, напр. 123456789", "9 digits, e.g. 123456789", "9 цифр, напр. 123456789")
+        case "passport": return Tx("2 літери і 6 цифр, напр. AB123456", "2 letters and 6 digits, e.g. AB123456", "2 буквы и 6 цифр, напр. AB123456")
+        default: return Tx("6-12 символів", "6-12 characters", "6-12 символов")
+        }
+    }
+
     private var document: some View {
         VStack(alignment: .leading, spacing: 18) {
             heading(Tx("Документ", "Document", "Документ"),
-                    Tx("Фото розвороту з даними. Воно не зберігається.", "A photo of the data page. It is not stored.", "Фото разворота с данными. Оно не сохраняется."))
+                    Tx("Лише тип і номер. Фото не потрібне.", "Just the type and number. No photo needed.", "Только тип и номер. Фото не нужно."))
             Picker("", selection: $state.docType) {
                 Text(Tx("Паспорт", "Passport", "Паспорт")).tag("passport")
                 Text(Tx("ID-картка", "ID card", "ID-карта")).tag("id")
@@ -163,21 +180,21 @@ struct KYCView: View {
             field(Tx("Номер документа", "Document number", "Номер документа")) {
                 TextField("", text: $docNumber).textInputAutocapitalization(.characters).autocorrectionDisabled()
             }
-            capture(image: docImage, symbol: "doc.text.viewfinder", title: Tx("Додати фото документа", "Add a document photo", "Добавить фото документа"),
-                    pick: $docPick)
+            Text(numberHint).font(.footnote).foregroundStyle(docNumber.isEmpty || docNumberOK ? Color.secondary : Theme.ink)
             HStack(spacing: 10) {
                 Button(L("Назад").s) { step = 0 }.buttonStyle(LineButton()).frame(width: 110)
                 Button(Tx("Далі", "Continue", "Далее")) { step = 2 }
-                    .buttonStyle(InkButton())
-                    .disabled(docImage == nil || docNumber.trimmingCharacters(in: .whitespaces).count < 5)
+                    .buttonStyle(InkButton()).disabled(!docNumberOK)
             }
         }
     }
 
     private var face: some View {
         VStack(alignment: .leading, spacing: 18) {
-            heading(Tx("Обличчя", "Your face", "Лицо"),
-                    Tx("Селфі при хорошому світлі, без окулярів і капюшона.", "A selfie in good light, without glasses or a hood.", "Селфи при хорошем свете, без очков и капюшона."))
+            heading(Tx("Біометрія", "Biometrics", "Биометрия"),
+                    Tx("Підтвердьте себе Face ID або відбитком пальця. Дані біометрії лишаються в iPhone.",
+                       "Confirm with Face ID or your fingerprint. Biometric data never leaves the iPhone.",
+                       "Подтвердите себя Face ID или отпечатком пальца. Данные биометрии остаются в iPhone."))
             if checking {
                 VStack(alignment: .leading, spacing: 14) {
                     ForEach(Array(checks.enumerated()), id: \.offset) { i, t in
@@ -194,11 +211,24 @@ struct KYCView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
             } else {
-                capture(image: faceImage, symbol: "person.crop.circle.badge.checkmark", title: Tx("Додати селфі", "Add a selfie", "Добавить селфи"), pick: $facePick)
+                VStack(spacing: 12) {
+                    Image(systemName: bioOK ? "checkmark.circle.fill" : "touchid").font(.system(size: 56, weight: .light))
+                        .foregroundStyle(Theme.accent).contentTransition(.symbolEffect(.replace))
+                    Text(bioOK ? Tx("Біометрію підтверджено", "Biometrics confirmed", "Биометрия подтверждена")
+                               : Tx("Торкніться, щоб підтвердити", "Tap to confirm", "Нажмите, чтобы подтвердить"))
+                        .font(.subheadline.weight(.semibold))
+                    if let bioError { Text(bioError).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center) }
+                }
+                .frame(maxWidth: .infinity, minHeight: 190)
+                .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
+                .onTapGesture { if !bioOK { Task { await authenticate() } } }
                 HStack(spacing: 10) {
                     Button(L("Назад").s) { step = 1 }.buttonStyle(LineButton()).frame(width: 110)
-                    Button(Tx("Підтвердити", "Verify", "Подтвердить")) { Task { await run() } }
-                        .buttonStyle(InkButton()).disabled(faceImage == nil)
+                    if bioOK {
+                        Button(Tx("Підтвердити", "Verify", "Подтвердить")) { Task { await run() } }.buttonStyle(InkButton())
+                    } else {
+                        Button(Tx("Face ID / відбиток", "Face ID / fingerprint", "Face ID / отпечаток")) { Task { await authenticate() } }.buttonStyle(InkButton())
+                    }
                 }
             }
         }
@@ -214,12 +244,16 @@ struct KYCView: View {
                 Rule()
                 Line2(Tx("Документ", "Document", "Документ"), "•••• " + state.docLast4)
                 Rule()
+                Line2(Tx("Біометрія", "Biometrics", "Биометрия"), state.biometry.isEmpty ? "—" : state.biometry)
+                Rule()
+                Line2(Tx("Ліміт на переказ", "Transfer limit", "Лимит на перевод"), Format.money(KYCLimits.verified))
+                Rule()
                 Line2(Tx("Перевірено", "Verified on", "Проверено"),
                       (state.verifiedAt ?? .now).formatted(.dateTime.day().month(.abbreviated).year().locale(Lang.current.locale)))
             }
             .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
             Button(Tx("Скинути підтвердження", "Reset verification", "Сбросить подтверждение")) {
-                KYCState.erase(); state = KYCState(); step = 0; docNumber = ""; docImage = nil; faceImage = nil
+                KYCState.erase(); state = KYCState(); step = 0; docNumber = ""; bioOK = false; bioError = nil
             }
             .font(.subheadline).foregroundStyle(.secondary)
             notice
@@ -227,9 +261,9 @@ struct KYCView: View {
     }
 
     private var notice: some View {
-        Label(Tx("Навчальна імітація KYC: нічого не надсилається на сервер, фото відкидаються одразу після перевірки.",
-                 "A training simulation of KYC: nothing is sent to a server and photos are discarded right after the check.",
-                 "Учебная имитация KYC: ничего не отправляется на сервер, фото отбрасываются сразу после проверки."),
+        Label(Tx("Навчальна імітація KYC: без камери й фото, нічого не надсилається на сервер. Біометрія підтверджує, що телефон у ваших руках, а не особу.",
+                 "A training simulation of KYC: no camera or photos, nothing is sent to a server. Biometrics show the phone is in your hands, not who you are.",
+                 "Учебная имитация KYC: без камеры и фото, ничего не отправляется на сервер. Биометрия подтверждает, что телефон у вас в руках, а не личность."),
               systemImage: "lock.shield")
             .font(.footnote).foregroundStyle(.secondary)
     }
@@ -245,55 +279,48 @@ struct KYCView: View {
         }
     }
 
-    private func capture(image: UIImage?, symbol: String, title: String, pick: Binding<PhotosPickerItem?>) -> some View {
-        PhotosPicker(selection: pick, matching: .images) {
-            ZStack {
-                if let image {
-                    Image(uiImage: image).resizable().scaledToFill().frame(height: 190).clipped()
-                        .overlay(alignment: .bottomTrailing) {
-                            Image(systemName: "checkmark.circle.fill").font(.title2).foregroundStyle(Theme.accent).padding(10)
-                        }
-                } else {
-                    VStack(spacing: 10) {
-                        Image(systemName: symbol).font(.system(size: 34, weight: .light)).foregroundStyle(Theme.accent)
-                        Text(title).font(.subheadline.weight(.semibold))
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 190)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
-            .clipShape(.rect(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(Theme.line, style: StrokeStyle(lineWidth: 1, dash: image == nil ? [6, 6] : [])))
-            .foregroundStyle(Theme.ink)
+    private func authenticate() async {
+        let ctx = LAContext()
+        var err: NSError?
+        guard ctx.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err) else {
+            bioError = Tx("На цьому пристрої немає Face ID чи Touch ID, або вони не налаштовані.",
+                          "Face ID or Touch ID is not available or not set up on this device.",
+                          "На этом устройстве нет Face ID или Touch ID, либо они не настроены.")
+            return
+        }
+        bioKind = ctx.biometryType == .faceID ? "Face ID" : "Touch ID"
+        do {
+            bioOK = try await ctx.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics,
+                                                 localizedReason: Tx("Підтвердження особи в TaxTech", "Identity check in TaxTech", "Подтверждение личности в TaxTech"))
+            bioError = nil
+        } catch {
+            bioOK = false
+            bioError = Tx("Не вдалося підтвердити. Спробуйте ще раз.", "Could not confirm. Try again.", "Не удалось подтвердить. Попробуйте ещё раз.")
         }
     }
 
-    private func load(_ item: PhotosPickerItem?, _ set: @escaping (UIImage?) -> Void) {
-        guard let item else { return }
-        Task {
-            let data = try? await item.loadTransferable(type: Data.self)
-            set(data.flatMap { UIImage(data: $0) })
-        }
-    }
-
-    /// «Перевірка»: три етапи з паузами. Фото відкидаються, лишається результат і 4 цифри номера.
+    /// «Перевірка»: етапи з паузами. Лишається результат, тип біометрії і 4 цифри номера.
     private func run() async {
         checking = true
         progress = 0
         for i in 0..<3 {
-            try? await Task.sleep(for: .milliseconds(900))
+            try? await Task.sleep(for: .milliseconds(700))
             progress = i + 1
         }
-        try? await Task.sleep(for: .milliseconds(350))
+        try? await Task.sleep(for: .milliseconds(300))
         state.docLast4 = String(docNumber.filter { !$0.isWhitespace }.suffix(4))
+        state.biometry = bioKind
         state.level = .verified
         state.verifiedAt = .now
         state.save()
-        docImage = nil
-        faceImage = nil
         docNumber = ""
         checking = false
     }
+}
+
+/// Ліміти за рівнем перевірки: без підтвердження менший ліміт на один переказ. Застосовує застосунок, сервер їх не знає.
+enum KYCLimits {
+    static let basic = 10_000.0
+    static let verified = 100_000.0
+    static var transfer: Double { KYCState.load().level == .verified ? verified : basic }
 }

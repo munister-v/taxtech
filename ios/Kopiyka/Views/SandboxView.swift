@@ -117,6 +117,14 @@ struct TransferView: View {
                 .onChange(of: amount) { reset() }
                 .onChange(of: note) { reset() }
 
+                if overLimit {
+                    Section {
+                        Text(Tx("Ліміт на один переказ — \(Format.money(KYCLimits.transfer)). Підтвердьте особу в профілі, щоб підняти до \(Format.money(KYCLimits.verified)).",
+                                "The limit per transfer is \(Format.money(KYCLimits.transfer)). Verify your identity in Profile to raise it to \(Format.money(KYCLimits.verified)).",
+                                "Лимит на один перевод — \(Format.money(KYCLimits.transfer)). Подтвердите личность в профиле, чтобы поднять до \(Format.money(KYCLimits.verified))."))
+                            .font(.footnote).foregroundStyle(.secondary)
+                    }
+                }
                 if verdict == nil {
                     Section {
                         Button(L("Перевірити переказ").s) { Task { await check() } }
@@ -173,7 +181,8 @@ struct TransferView: View {
         }
     }
 
-    private var valid: Bool { (amount ?? 0) > 0 && recipient.count >= 4 }
+    private var overLimit: Bool { (amount ?? 0) > KYCLimits.transfer }
+    private var valid: Bool { (amount ?? 0) > 0 && recipient.count >= 4 && !overLimit }
 
     private func loadSaved() async {
         contacts = (try? await model.api.contacts()) ?? []
