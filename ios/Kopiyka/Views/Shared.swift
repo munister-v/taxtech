@@ -135,10 +135,10 @@ struct RoutedNote: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(summary)
-                .font(.subheadline)
+                .font(Theme.ui(style: .subheadline))
                 .monospacedDigit()
             Text(record.reason)
-                .font(.footnote)
+                .font(Theme.ui(style: .footnote))
                 .foregroundStyle(.secondary)
             LearnLink(.router).padding(.top, 4).expertOnly()
         }
@@ -165,7 +165,7 @@ struct FeedbackButtons: View {
             Button { send(false) } label: { Image(systemName: sent == false ? "hand.thumbsdown.fill" : "hand.thumbsdown") }
                 .accessibilityLabel(L("Неправильно").s)
         }
-        .font(.footnote)
+        .font(Theme.ui(style: .footnote))
         .foregroundStyle(.secondary)
         .buttonStyle(.borderless)
         .disabled(sent != nil)

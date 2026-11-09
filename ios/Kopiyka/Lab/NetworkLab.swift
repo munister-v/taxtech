@@ -82,7 +82,7 @@ struct NetworkLab: View {
                 Image(systemName: intact ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                     .foregroundStyle(intact ? Theme.accent : Theme.alert)
                 Text(intact ? L("Сума мережі не змінилась: \(Format.short(sim.money))").s : L("Сума мережі розійшлась").s)
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             .padding(.top, 12)
         }
@@ -135,7 +135,7 @@ struct NetworkLab: View {
                      (Theme.alert, L("Шахрайство").s)], id: \.1) { c, t in
                 HStack(spacing: 5) {
                     Circle().fill(c).frame(width: 6, height: 6)
-                    Text(t).font(.caption2).foregroundStyle(.secondary)
+                    Text(t).font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
                 }
             }
             Spacer(minLength: 0)
@@ -178,10 +178,10 @@ struct NetworkLab: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 10) {
                             Image(systemName: on ? "checkmark.circle.fill" : "circle").foregroundStyle(on ? Theme.accent : Color.secondary)
-                            Text(s.title).font(.subheadline.weight(.medium)).foregroundStyle(on ? Color.primary : Color.secondary)
+                            Text(s.title).font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(on ? Color.primary : Color.secondary)
                             Spacer(minLength: 8)
                             Text(r.total == 0 ? "-" : L("зупинено \(r.caught) з \(r.total)").s)
-                                .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
                         }
                         GeometryReader { g in
                             Rectangle().fill(Theme.ink.opacity(0.1))
@@ -197,7 +197,7 @@ struct NetworkLab: View {
                 .buttonStyle(.plain)
             }
             Text(L("Кожна схема лишає свій слід в історії: одні видно одразу, інші лише за кілька кроків або зовсім не видно. Вимкніть шар історії й порівняйте.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -209,9 +209,9 @@ struct NetworkLab: View {
                 let list = sim.accounts.enumerated().filter { $0.element.bank == b }
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Banca \(NetSim.banks[b])").font(.subheadline.weight(.semibold))
+                        Text("Banca \(NetSim.banks[b])").font(Theme.ui(style: .subheadline, .semibold))
                         Spacer()
-                        Text(Format.short(list.reduce(0) { $0 + $1.element.balance })).font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                        Text(Format.short(list.reduce(0) { $0 + $1.element.balance })).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
                     }
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                         ForEach(list, id: \.offset) { i, a in cell(i, a) }
@@ -219,7 +219,7 @@ struct NetworkLab: View {
                 }
                 if b < NetSim.banks.count - 1 { Rule() }
             }
-            Text(L("Бан діє двадцять кроків, але його можна зняти вручну торкнувшись рахунку.").s).font(.footnote).foregroundStyle(.secondary)
+            Text(L("Бан діє двадцять кроків, але його можна зняти вручну торкнувшись рахунку.").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -227,16 +227,16 @@ struct NetworkLab: View {
         Button { if a.banned { sim.unban(i) } } label: {
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
-                    Text(a.id).font(.system(.caption, design: .monospaced).weight(.semibold))
+                    Text(a.id).font(Theme.mono(style: .caption1).weight(.semibold))
                     if a.banned {
-                        Image(systemName: "nosign").font(.caption2).foregroundStyle(Theme.alert)
+                        Image(systemName: "nosign").font(Theme.ui(style: .caption2)).foregroundStyle(Theme.alert)
                     } else if a.strikes > 0 {
-                        Text(String(repeating: "•", count: a.strikes)).font(.caption2).foregroundStyle(Theme.alert)
+                        Text(String(repeating: "•", count: a.strikes)).font(Theme.ui(style: .caption2)).foregroundStyle(Theme.alert)
                     }
                     Spacer()
-                    if a.pending > 0 { Text("+" + Format.short(a.pending)).font(.caption2).foregroundStyle(Theme.accent) }
+                    if a.pending > 0 { Text("+" + Format.short(a.pending)).font(Theme.ui(style: .caption2)).foregroundStyle(Theme.accent) }
                 }
-                Text(Format.short(a.balance)).font(.subheadline.weight(.medium)).monospacedDigit()
+                Text(Format.short(a.balance)).font(Theme.ui(style: .subheadline, .medium)).monospacedDigit()
                     .foregroundStyle(a.banned ? Theme.alert : Color.primary)
             }
             .padding(.horizontal, 10).padding(.vertical, 8)
@@ -258,15 +258,15 @@ struct NetworkLab: View {
                 row(L("Обсяг").s, "\(Format.short(s.grossVolume)) → \(Format.short(s.netVolume))")
             }
             Text(L("Банки не шлють кожен платіж окремо: зустрічні потоки зараховуються, між парою банків іде лише різниця.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
     private func row(_ title: String, _ value: String) -> some View {
         HStack {
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             Spacer(minLength: 12)
-            Text(value).font(.subheadline.weight(.medium)).monospacedDigit()
+            Text(value).font(Theme.ui(style: .subheadline, .medium)).monospacedDigit()
         }
     }
 
@@ -286,7 +286,7 @@ struct NetworkLab: View {
             row(L("Бани: вірні й помилкові").s, "\(sim.bansRight) / \(sim.bansWrong)")
             row(L("Автоплатежі: пройшли й зупинені").s, "\(sim.autoDone) / \(sim.autoFailed)")
             Text(L("Нижчий поріг зупиняє більше шахрайства, але частіше б'є по чесних. Шар історії бачить розсилки, дроблення й транзит.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -299,13 +299,13 @@ struct NetworkLab: View {
             if sim.events.isEmpty { Text(L("Ще немає").s).foregroundStyle(.secondary) }
             ForEach(sim.events.prefix(14)) { e in
                 HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: symbol(e.kind)).font(.caption).foregroundStyle(tint(e.kind)).frame(width: 16).padding(.top, 3)
+                    Image(systemName: symbol(e.kind)).font(Theme.ui(style: .caption1)).foregroundStyle(tint(e.kind)).frame(width: 16).padding(.top, 3)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(e.text).font(.system(.footnote, design: .monospaced)).foregroundStyle(e.kind == .ok ? Color.primary : tint(e.kind))
-                        if let d = e.detail { Text(d).font(.caption).foregroundStyle(.secondary) }
+                        Text(e.text).font(Theme.mono(style: .footnote)).foregroundStyle(e.kind == .ok ? Color.primary : tint(e.kind))
+                        if let d = e.detail { Text(d).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary) }
                     }
                     Spacer(minLength: 4)
-                    Text("\(e.tick)").font(.caption2).foregroundStyle(.tertiary).monospacedDigit()
+                    Text("\(e.tick)").font(Theme.ui(style: .caption2)).foregroundStyle(.tertiary).monospacedDigit()
                 }
             }
         }
@@ -340,12 +340,12 @@ private extension Array {
 @MainActor @ViewBuilder
 func attackChips(_ schemes: [NetSim.Scheme], _ run: @escaping @MainActor (NetSim.Scheme) -> Void) -> some View {
     VStack(alignment: .leading, spacing: 6) {
-        Text(L("Атака").s).font(.caption.weight(.semibold)).foregroundStyle(.secondary).textCase(.uppercase).tracking(1.2)
+        Text(L("Атака").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary).textCase(.uppercase).tracking(1.2)
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(schemes, id: \.self) { s in
                     Button { run(s) } label: {
-                        Text(s.title).font(.footnote.weight(.medium)).lineLimit(1)
+                        Text(s.title).font(Theme.ui(style: .footnote, .medium)).lineLimit(1)
                             .padding(.horizontal, 14).padding(.vertical, 9)
                             .background(Theme.alert.opacity(0.16), in: .capsule)
                             .overlay(Capsule().strokeBorder(Theme.alert.opacity(0.4), lineWidth: 1))

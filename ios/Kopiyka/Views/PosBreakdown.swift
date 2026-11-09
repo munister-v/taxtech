@@ -46,12 +46,12 @@ struct PosBreakdown: View {
                 ForEach(Array(steps.enumerated()), id: \.offset) { i, step in
                     HStack(spacing: 14) {
                         Image(systemName: step.2 ? "checkmark" : "clock")
-                            .font(.system(size: 12, weight: .bold)).frame(width: 28, height: 28)
+                            .font(Theme.ui(12, .bold)).frame(width: 28, height: 28)
                             .foregroundStyle(step.2 ? Theme.accent : Color.secondary)
                             .background((step.2 ? Theme.accent : Color.secondary).opacity(0.14), in: .circle)
-                        Text(step.0).font(.subheadline.weight(.medium))
+                        Text(step.0).font(Theme.ui(style: .subheadline, .medium))
                         Spacer()
-                        Text(step.1).font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
+                        Text(step.1).font(Theme.ui(style: .subheadline).monospacedDigit()).foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, 18).padding(.vertical, 11)
                     if i < steps.count - 1 { Rule().padding(.leading, 60) }
@@ -73,11 +73,11 @@ struct PosBreakdown: View {
             Card {
                 ForEach(Array(fields.enumerated()), id: \.element.id) { i, f in
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        Text(f.field).font(.system(size: 13, weight: .semibold, design: .monospaced)).foregroundStyle(Theme.accent)
+                        Text(f.field).font(Theme.mono(13, .semibold)).foregroundStyle(Theme.accent)
                             .frame(width: 46, alignment: .leading)
-                        Text(f.name).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
+                        Text(f.name).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(1)
                         Spacer(minLength: 8)
-                        Text(f.value).font(.system(size: 13, weight: .medium, design: .monospaced)).lineLimit(1).minimumScaleFactor(0.7)
+                        Text(f.value).font(Theme.mono(13, .medium)).lineLimit(1).minimumScaleFactor(0.7)
                     }
                     .padding(.horizontal, 18).padding(.vertical, 10)
                     if i < fields.count - 1 { Rule().padding(.leading, 18) }
@@ -88,7 +88,7 @@ struct PosBreakdown: View {
 
     private func row(_ t: String, _ v: String) -> some View {
         HStack { Text(t).foregroundStyle(.secondary); Spacer(); Text(v).monospacedDigit().lineLimit(1) }
-            .font(.subheadline).padding(.horizontal, 18).padding(.vertical, 13)
+            .font(Theme.ui(style: .subheadline)).padding(.horizontal, 18).padding(.vertical, 13)
     }
 }
 
@@ -106,11 +106,11 @@ struct PosMerchantView: View {
             VStack(spacing: 0) {
                 HStack {
                     Button { dismiss() } label: {
-                        Image(systemName: "xmark").font(.system(size: 15, weight: .semibold)).frame(width: 40, height: 40).glassCircle()
+                        Image(systemName: "xmark").font(Theme.ui(15, .semibold)).frame(width: 40, height: 40).glassCircle()
                     }
                     .buttonStyle(PressScale())
                     Spacer()
-                    Text(L("Магазин").s).font(.headline)
+                    Text(L("Магазин").s).font(Theme.ui(style: .headline))
                     Spacer()
                     Color.clear.frame(width: 40, height: 40)
                 }
@@ -150,10 +150,10 @@ struct PosMerchantView: View {
     private func hero(_ t: API.PosMerchantSummary.Totals) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(L("Чистий оборот").s).caption()
-            Text(Format.short(t.net)).font(.system(size: 52, weight: .semibold)).tracking(-1.5).monospacedDigit()
+            Text(Format.short(t.net)).font(Theme.ui(52, .semibold)).tracking(-1.5).monospacedDigit()
                 .lineLimit(1).minimumScaleFactor(0.5).contentTransition(.numericText())
             if model.expert {
-                Text("MDR \(PosFormat.percent(t.mdr)) · T+1").font(.footnote.monospaced()).foregroundStyle(Theme.accent)
+                Text("MDR \(PosFormat.percent(t.mdr)) · T+1").font(Theme.mono(style: .footnote)).foregroundStyle(Theme.accent)
             }
         }
     }
@@ -187,8 +187,8 @@ struct PosMerchantView: View {
 
     private func stat(_ t: String, _ v: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(v).font(.system(size: 18, weight: .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-            Text(t).font(.footnote).foregroundStyle(.secondary)
+            Text(v).font(Theme.ui(18, .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+            Text(t).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -200,15 +200,15 @@ struct PosMerchantView: View {
                 ForEach(Array(list.prefix(8).enumerated()), id: \.element.id) { i, p in
                     HStack(spacing: 14) {
                         Image(systemName: p.paidOut ? "checkmark" : "clock")
-                            .font(.system(size: 12, weight: .bold)).frame(width: 28, height: 28)
+                            .font(Theme.ui(12, .bold)).frame(width: 28, height: 28)
                             .foregroundStyle(p.paidOut ? Theme.accent : Color.secondary)
                             .background((p.paidOut ? Theme.accent : Color.secondary).opacity(0.14), in: .circle)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(PosFormat.day(p.date)).font(.body.weight(.medium))
-                            Text(p.paidOut ? L("Виплачено").s : L("Заплановано").s).font(.footnote).foregroundStyle(.secondary)
+                            Text(PosFormat.day(p.date)).font(Theme.ui(style: .body, .medium))
+                            Text(p.paidOut ? L("Виплачено").s : L("Заплановано").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                         }
                         Spacer()
-                        Text(Format.short(p.net)).font(.system(size: 16, weight: .semibold)).monospacedDigit()
+                        Text(Format.short(p.net)).font(Theme.ui(16, .semibold)).monospacedDigit()
                     }
                     .padding(.horizontal, 18).padding(.vertical, 11)
                     if i < min(list.count, 8) - 1 { Rule().padding(.leading, 60) }
@@ -225,9 +225,9 @@ struct PosMerchantView: View {
                 ForEach(Array(list.enumerated()), id: \.element.id) { i, m in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text(m.merchant).font(.body.weight(.medium)).lineLimit(1)
+                            Text(m.merchant).font(Theme.ui(style: .body, .medium)).lineLimit(1)
                             Spacer()
-                            Text(Format.short(m.gross)).font(.system(size: 16, weight: .semibold)).monospacedDigit()
+                            Text(Format.short(m.gross)).font(Theme.ui(16, .semibold)).monospacedDigit()
                         }
                         GeometryReader { g in
                             Capsule().fill(Theme.accent.opacity(0.85)).frame(width: max(6, g.size.width * m.gross / max(top, 1)))

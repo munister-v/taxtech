@@ -132,7 +132,7 @@ struct PosPrintedReceipt: View {
             if let shareImage {
                 ShareLink(item: shareImage, preview: SharePreview(Tx("Чек", "Receipt", "Чек"), image: shareImage)) {
                     Label(Tx("Поділитися чеком", "Share receipt", "Поделиться чеком"), systemImage: "square.and.arrow.up")
-                        .font(.footnote.weight(.semibold)).foregroundStyle(Theme.accent)
+                        .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.accent)
                 }
                 .transition(.opacity)
             }
@@ -183,20 +183,20 @@ struct PosPrintedReceipt: View {
         let name = (payment.merchant ?? "").uppercased()
         let vat = amount / 6
         return VStack(spacing: 3) {
-            Text(name).font(.system(size: 13, weight: .bold, design: .monospaced)).multilineTextAlignment(.center)
+            Text(name).font(Theme.mono(13, .bold)).multilineTextAlignment(.center)
             center("Via del Corso 12, Roma, IT")
             center(Tx("ІПН ", "TIN ", "ИНН ") + digits(payment.merchant ?? "", 10))
             center(Tx("ПРРО ", "POS ", "ПРРО ") + digits("tid" + (payment.merchant ?? ""), 10))
             rule
-            Text(Tx("ФІСКАЛЬНИЙ ЧЕК", "FISCAL RECEIPT", "ФИСКАЛЬНЫЙ ЧЕК")).font(.system(size: 12, weight: .bold, design: .monospaced)).tracking(1)
+            Text(Tx("ФІСКАЛЬНИЙ ЧЕК", "FISCAL RECEIPT", "ФИСКАЛЬНЫЙ ЧЕК")).font(Theme.mono(12, .bold)).tracking(1)
             rule
             row("1 x " + Format.amount(amount), Format.amount(amount))
             center(Tx("Оплата покупки", "Purchase", "Оплата покупки"), left: true)
             rule
             HStack {
-                Text(Tx("СУМА", "TOTAL", "СУММА")).font(.system(size: 13, weight: .bold, design: .monospaced))
+                Text(Tx("СУМА", "TOTAL", "СУММА")).font(Theme.mono(13, .bold))
                 Spacer()
-                Text(Format.amount(amount) + " TAX").font(.system(size: 13, weight: .bold, design: .monospaced)).monospacedDigit()
+                Text(Format.amount(amount) + " TAX").font(Theme.mono(13, .bold)).monospacedDigit()
             }
             row(Tx("в т.ч. ПДВ 20%", "incl. VAT 20%", "в т.ч. НДС 20%"), Format.amount(vat))
             rule
@@ -218,7 +218,7 @@ struct PosPrintedReceipt: View {
             Code128(message: fiscalNo + checkNo).padding(.top, 2)
             center(Tx("ФІСКАЛЬНИЙ НОМЕР ", "FISCAL NO ", "ФИСКАЛЬНЫЙ НОМЕР ") + fiscalNo)
             center(Tx("ДЯКУЄМО ЗА ПОКУПКУ", "THANK YOU", "СПАСИБО ЗА ПОКУПКУ")).padding(.top, 4)
-            Text(Tx("навчальний чек · TaxTech", "training receipt · TaxTech", "учебный чек · TaxTech")).font(.system(size: 8, design: .monospaced)).opacity(0.45)
+            Text(Tx("навчальний чек · TaxTech", "training receipt · TaxTech", "учебный чек · TaxTech")).font(Theme.mono(8)).opacity(0.45)
         }
         .foregroundStyle(ink)
         .padding(.horizontal, 16).padding(.top, 14).padding(.bottom, 22)
@@ -233,22 +233,22 @@ struct PosPrintedReceipt: View {
     }
 
     private func center(_ t: String, left: Bool = false) -> some View {
-        Text(t).font(.system(size: 11, design: .monospaced)).frame(maxWidth: .infinity, alignment: left ? .leading : .center).multilineTextAlignment(.center)
+        Text(t).font(Theme.mono(11)).frame(maxWidth: .infinity, alignment: left ? .leading : .center).multilineTextAlignment(.center)
     }
 
     private func row(_ t: String, _ v: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Text(t).font(.system(size: 11, design: .monospaced))
+            Text(t).font(Theme.mono(11))
             Spacer(minLength: 4)
-            Text(v).font(.system(size: 11, design: .monospaced)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
+            Text(v).font(Theme.mono(11)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
         }
     }
 
     private func line(_ t: String, _ v: String) -> some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(t).font(.system(size: 10, design: .monospaced)).opacity(0.75)
+            Text(t).font(Theme.mono(10)).opacity(0.75)
             Spacer(minLength: 8)
-            Text(v).font(.system(size: 11, weight: .medium, design: .monospaced)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
+            Text(v).font(Theme.mono(11, .medium)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
         }
     }
 

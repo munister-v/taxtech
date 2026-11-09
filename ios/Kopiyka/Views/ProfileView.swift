@@ -98,12 +98,12 @@ struct ProfileView: View {
                     VStack(spacing: 10) {
                         Button(L("Вийти").s) { model.signOut() }.buttonStyle(LineButton())
                         Button(L("Видалити акаунт").s) { confirmDelete = true }
-                            .font(.subheadline)
+                            .font(Theme.ui(style: .subheadline))
                             .foregroundStyle(.secondary)
                     }
                     HStack(spacing: 8) {
                         MarkView(height: 18, color: .secondary)
-                        Text(Brand.lab).font(.caption).foregroundStyle(.secondary).expertOnly()
+                        Text(Brand.lab).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary).expertOnly()
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -154,7 +154,7 @@ struct ProfileView: View {
                 Button { choosingAvatar = true } label: {
                     AvatarView(initials: initials, size: 76)
                         .overlay(alignment: .bottomTrailing) {
-                            Image(systemName: "pencil").font(.system(size: 11, weight: .bold))
+                            Image(systemName: "pencil").font(Theme.ui(11, .bold))
                                 .foregroundStyle(Theme.onAccent)
                                 .frame(width: 26, height: 26)
                                 .background(Theme.accent, in: .circle)
@@ -165,9 +165,9 @@ struct ProfileView: View {
                 .buttonStyle(PressScale())
                 .accessibilityLabel(L("Змінити фото").s)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(me?.fullName ?? " ").font(.system(size: 24, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(me?.fullName ?? " ").font(Theme.ui(24, .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                     if let e = me?.email, !e.isEmpty {
-                        Text(e).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
+                        Text(e).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).lineLimit(1)
                     }
                     Button { showKYC = true } label: { KYCBadge(verified: kycVerified) }
                         .buttonStyle(.plain).padding(.top, 4)
@@ -193,11 +193,11 @@ struct ProfileView: View {
     private func fact(_ value: String, _ label: String, _ symbol: String) -> some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 1) {
-                Text(value).font(.subheadline.weight(.bold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
-                Text(label).font(.caption.weight(.medium)).foregroundStyle(.secondary)
+                Text(value).font(Theme.ui(style: .subheadline, .bold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
+                Text(label).font(Theme.ui(style: .caption1, .medium)).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
-            Image(systemName: symbol).font(.caption.weight(.bold))
+            Image(systemName: symbol).font(Theme.ui(style: .caption1, .bold))
         }
         .padding(10)
         .frame(maxWidth: .infinity)
@@ -209,14 +209,14 @@ struct ProfileView: View {
     private var invite: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
-                Text(L("Запросити друга").s).font(.headline)
-                Text(inviteCode).font(.title3.monospaced().weight(.bold))
+                Text(L("Запросити друга").s).font(Theme.ui(style: .headline))
+                Text(inviteCode).font(Theme.mono(style: .title3, .bold))
             }
             Spacer()
             ShareLink(item: URL(string: "https://bank.munister.com.ua/?ref=\(inviteCode)")!,
                       message: Text(L("TaxTech: картки, депозити й перекази на токенах TAX").s)) {
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(Theme.ui(17, .semibold))
                     .frame(width: 48, height: 48)
                     .background(Theme.ink, in: .circle)
                     .foregroundStyle(Theme.onInk)

@@ -145,13 +145,13 @@ struct OperationsView: View {
         Surface {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
-                    Image(systemName: symbol).font(.caption.weight(.bold)).foregroundStyle(tint)
-                    Text(title).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
+                    Image(systemName: symbol).font(Theme.ui(style: .caption1, .bold)).foregroundStyle(tint)
+                    Text(title).font(Theme.ui(style: .footnote, .medium)).foregroundStyle(.secondary)
                     Spacer(minLength: 0)
-                    Text(period.title).font(.caption2.weight(.semibold)).foregroundStyle(.tertiary)
+                    Text(period.title).font(Theme.ui(style: .caption2, .semibold)).foregroundStyle(.tertiary)
                 }
                 Text(OverviewView.compactCents(value))
-                    .font(.system(size: 22, weight: .semibold)).monospacedDigit()
+                    .font(Theme.ui(22, .semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.6)
                     .contentTransition(.numericText(value: value))
             }
@@ -174,7 +174,7 @@ struct OperationsView: View {
                     HStack(spacing: 4) {
                         ForEach(Period.allCases, id: \.self) { p in
                             Button(p.label) { period = p }
-                                .font(.caption.weight(.semibold))
+                                .font(Theme.ui(style: .caption1, .semibold))
                                 .frame(width: 42, height: 26)
                                 .background(period == p ? Theme.ink : .clear, in: .rect(cornerRadius: 7, style: .continuous))
                                 .foregroundStyle(period == p ? AnyShapeStyle(Theme.onInk) : AnyShapeStyle(.secondary))
@@ -184,7 +184,7 @@ struct OperationsView: View {
                 }
                 BigAmount(value: spent.reduce(0) { $0 + $1.amount }, size: 38)
                 if byBucket.isEmpty {
-                    Text(L("Витрат за цей час немає").s).font(.footnote).foregroundStyle(.secondary)
+                    Text(L("Витрат за цей час немає").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 } else {
                     Chart(byBucket, id: \.day) { b in
                         BarMark(x: .value(L("Коли").s, b.day, unit: period.unit), y: .value(L("Сума").s, b.sum))
@@ -225,8 +225,8 @@ struct OperationsView: View {
                     }
                     .chartBackground { _ in
                         VStack(spacing: 0) {
-                            Text("\(out.count)").font(.title2.weight(.bold)).monospacedDigit()
-                            Text(L("видів").s).font(.caption2).foregroundStyle(.secondary)
+                            Text("\(out.count)").font(Theme.ui(style: .title2, .bold)).monospacedDigit()
+                            Text(L("видів").s).font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
                         }
                     }
                     .frame(width: 128, height: 128)
@@ -234,10 +234,10 @@ struct OperationsView: View {
                         ForEach(Array(out.prefix(6).enumerated()), id: \.element.id) { i, t in
                             HStack(spacing: 8) {
                                 Circle().fill(Self.palette[i % Self.palette.count]).frame(width: 9, height: 9)
-                                Text(BankText.type(t.txType)).font(.subheadline).lineLimit(1)
+                                Text(BankText.type(t.txType)).font(Theme.ui(style: .subheadline)).lineLimit(1)
                                 Spacer(minLength: 4)
                                 Text("\(Int((t.total / total * 100).rounded()))%")
-                                    .font(.subheadline.weight(.semibold)).monospacedDigit()
+                                    .font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                             }
                         }
                     }
@@ -257,7 +257,7 @@ struct OperationsView: View {
                         let marks = ["flame", "calendar", "sum", "leaf", "sparkles"]
                         let tints: [Color] = [.orange, .blue, .purple, .green, Theme.accent]
                         GuillocheBadge(symbol: marks[i % marks.count], tint: tints[i % tints.count], size: 36)
-                        Text(Translator.server(ins.text)).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
+                        Text(Translator.server(ins.text)).font(Theme.ui(style: .subheadline)).frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .padding(16)
                 }
@@ -272,7 +272,7 @@ struct OperationsView: View {
             BrandEmpty(title: filter.search.isEmpty ? L("Операцій ще немає").s : L("Нічого не знайдено").s)
         } else {
             HStack(alignment: .firstTextBaseline) {
-                Text(L("Історія").s).font(.title3.weight(.bold))
+                Text(L("Історія").s).font(Theme.ui(style: .title3, .bold))
                 Text("\(items.count)").foregroundStyle(.secondary).monospacedDigit()
                 Spacer()
                 Menu {
@@ -281,7 +281,7 @@ struct OperationsView: View {
                     }
                 } label: {
                     Label(sort.label, systemImage: "arrow.up.arrow.down")
-                        .font(.subheadline.weight(.medium)).foregroundStyle(Theme.ink)
+                        .font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(Theme.ink)
                 }
             }
             .padding(.top, 4)

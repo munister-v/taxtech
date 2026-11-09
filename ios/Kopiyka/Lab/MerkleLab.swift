@@ -88,9 +88,9 @@ struct MerkleLab: View {
         let same = tree.root == anchor.root
         return LabHero(ok: same) {
             HeroCaption(L("Корінь дерева").s)
-            Text(Self.short(tree.root)).font(.system(size: 34, weight: .medium, design: .monospaced)).padding(.top, 4)
+            Text(Self.short(tree.root)).font(Theme.mono(34, .medium)).padding(.top, 4)
             Text(same ? L("Збігається із записаним").s : L("Змінився: записаний був \(Self.short(anchor.root))").s)
-                .font(.subheadline).foregroundStyle(.secondary).padding(.top, 6)
+                .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).padding(.top, 6)
             TreeCanvas(now: tree.leaves + tree.pair + [tree.root], saved: anchor.leaves + anchor.pair + [anchor.root],
                        labels: texts, selected: selected, wave: wave) { i in
                 selected = i
@@ -112,7 +112,7 @@ struct MerkleLab: View {
                      (Theme.alert, L("Змінено").s)], id: \.1) { c, t in
                 HStack(spacing: 5) {
                     Circle().fill(c).frame(width: 6, height: 6)
-                    Text(t).font(.caption2).foregroundStyle(.secondary)
+                    Text(t).font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
                 }
             }
             Spacer(minLength: 0)
@@ -136,10 +136,10 @@ struct MerkleLab: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 12) {
                         Text("№\(i + 1)").caption()
-                        TextField(L("Запис").s, text: $texts[i]).font(.subheadline.weight(.medium))
+                        TextField(L("Запис").s, text: $texts[i]).font(Theme.ui(style: .subheadline, .medium))
                     }
                     Text(Self.short(tree.leaves[i]))
-                        .font(.system(.caption, design: .monospaced))
+                        .font(Theme.mono(style: .caption1))
                         .foregroundStyle(tree.leaves[i] == anchor.leaves[i] ? Color.secondary : Theme.alert)
                 }
                 if i < 3 { Rule() }
@@ -163,17 +163,17 @@ struct MerkleLab: View {
             HStack {
                 Image(systemName: proofOK ? "checkmark.seal.fill" : "xmark.seal.fill").foregroundStyle(proofOK ? Theme.accent : Theme.alert)
                 Text(proofOK ? L("Доказ вірний: корінь збігається").s : L("Доказ не проходить: запис змінено").s)
-                    .font(.subheadline.weight(.medium))
+                    .font(Theme.ui(style: .subheadline, .medium))
             }
-            Text(L("Для доказу потрібні лише два відбитки, а не весь набір.").s).font(.footnote).foregroundStyle(.secondary)
+            Text(L("Для доказу потрібні лише два відбитки, а не весь набір.").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
     private func row(_ title: String, _ value: String) -> some View {
         HStack {
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             Spacer()
-            Text(value).font(.system(.subheadline, design: .monospaced))
+            Text(value).font(Theme.mono(style: .subheadline))
         }
     }
 
@@ -259,10 +259,10 @@ struct MerkleLab: View {
                 let rr = Path(roundedRect: r, cornerRadius: 9, style: .continuous)
                 ctx.fill(rr, with: .color(bad ? Theme.alert.opacity(0.22) : Theme.ink.opacity(path.contains(n) ? 0.12 : 0.06)))
                 ctx.stroke(rr, with: .color(stroke), lineWidth: path.contains(n) || proof.contains(n) || bad ? 1.8 : 1)
-                ctx.draw(Text(String(now[n].prefix(6))).font(.system(size: n == 6 ? 13 : 11, weight: .medium, design: .monospaced))
+                ctx.draw(Text(String(now[n].prefix(6))).font(Theme.mono(n == 6 ? 13 : 11, .medium))
                     .foregroundStyle(bad ? Theme.alert : Theme.ink), at: CGPoint(x: r.midX, y: r.midY))
                 if n < 4 {
-                    ctx.draw(Text(String(labels[n].prefix(15))).font(.system(size: 9.5, weight: .medium))
+                    ctx.draw(Text(String(labels[n].prefix(15))).font(Theme.ui(9.5, .medium))
                         .foregroundStyle(lit(n) ? Theme.alert : Theme.ink.opacity(0.5)), at: CGPoint(x: r.midX, y: r.maxY + 12))
                 }
             }
@@ -298,7 +298,7 @@ struct MerkleLab: View {
                             ctx.stroke(sp, with: .color(Theme.alert.opacity(1 - k)), style: StrokeStyle(lineWidth: 2, lineCap: .round))
                         }
                     }
-                    ctx.draw(Text(ok ? "✓" : "✕").font(.system(size: 22, weight: .bold)).foregroundStyle(tint.opacity(1 - max(0, k - 0.5) * 2)),
+                    ctx.draw(Text(ok ? "✓" : "✕").font(Theme.ui(22, .bold)).foregroundStyle(tint.opacity(1 - max(0, k - 0.5) * 2)),
                              at: CGPoint(x: c.x, y: c.y - 32))
                 }
             }

@@ -73,7 +73,7 @@ struct PosCaptureSheet: View {
                     Text(L("Сума захоплення").s).foregroundStyle(.secondary)
                     Spacer()
                     TextField("0", text: $text).keyboardType(.decimalPad).multilineTextAlignment(.trailing)
-                        .font(.system(size: 22, weight: .semibold)).monospacedDigit()
+                        .font(Theme.ui(22, .semibold)).monospacedDigit()
                 }
                 .padding(.horizontal, 18).padding(.vertical, 14)
                 Rule().padding(.leading, 18)
@@ -82,7 +82,7 @@ struct PosCaptureSheet: View {
                     Spacer()
                     Text(Format.short((amount * 0.015 * 100).rounded() / 100)).monospacedDigit()
                 }
-                .font(.subheadline).padding(.horizontal, 18).padding(.vertical, 13)
+                .font(Theme.ui(style: .subheadline)).padding(.horizontal, 18).padding(.vertical, 13)
             }
             HStack(spacing: 8) {
                 chip(L("Усе").s, held)
@@ -90,8 +90,8 @@ struct PosCaptureSheet: View {
                     chip("+\(pct)%", ((held * (1 + Double(pct) / 100)) * 100).rounded() / 100, tip: true)
                 }
             }
-            Text(L("Максимум \(Format.short(limit))").s).font(.footnote).foregroundStyle(.secondary)
-            if let error { Text(error).font(.footnote).foregroundStyle(Theme.alert) }
+            Text(L("Максимум \(Format.short(limit))").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+            if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Spacer()
             Button(L("Захопити").s) { Task { await capture() } }.buttonStyle(InkButton()).disabled(!valid || busy)
         }
@@ -102,7 +102,7 @@ struct PosCaptureSheet: View {
 
     private func chip(_ title: String, _ value: Double, tip: Bool = false) -> some View {
         Button { text = value.formatted(.number.precision(.fractionLength(0...2)).grouping(.never).locale(Locale(identifier: "en_US_POSIX"))) } label: {
-            Text(tip ? "\(L("Чайові").s) \(title)" : title).font(.footnote.weight(.medium))
+            Text(tip ? "\(L("Чайові").s) \(title)" : title).font(Theme.ui(style: .footnote, .medium))
                 .padding(.horizontal, 12).frame(height: 34)
                 .background(abs(amount - value) < 0.005 ? AnyShapeStyle(Theme.accent.opacity(0.22)) : AnyShapeStyle(.ultraThinMaterial), in: .capsule)
         }
@@ -141,7 +141,7 @@ struct PosReceipt: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text(payment.merchant ?? "").font(.display(30, .medium)).tracking(-0.8).padding(.top, 28)
-                Text(Format.short(payment.amount ?? 0)).font(.title2.monospacedDigit()).foregroundStyle(Theme.accent)
+                Text(Format.short(payment.amount ?? 0)).font(Theme.ui(style: .title2).monospacedDigit()).foregroundStyle(Theme.accent)
                 Card {
                     row(L("Статус").s, PosStatus.text(payment))
                     if payment.isHeld {
@@ -162,10 +162,10 @@ struct PosReceipt: View {
                 }
                 if payment.isDisputed {
                     Text(L("Кардхолдер уже отримав тимчасовий кредит. Магазин приймає спір або заперечує.").s)
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 }
                 if model.expert { PosBreakdown(payment: payment) }
-                if let error { Text(error).font(.footnote).foregroundStyle(Theme.alert) }
+                if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
                 actions
             }
             .padding(.horizontal, 20).padding(.bottom, 12)
@@ -236,6 +236,6 @@ struct PosReceipt: View {
             Spacer(minLength: 12)
             Text(v).monospacedDigit().multilineTextAlignment(.trailing)
         }
-        .font(.subheadline).padding(.horizontal, 18).padding(.vertical, 13)
+        .font(Theme.ui(style: .subheadline)).padding(.horizontal, 18).padding(.vertical, 13)
     }
 }

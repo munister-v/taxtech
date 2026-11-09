@@ -55,7 +55,7 @@ struct ReceiptView: View {
                         RoutedNote(record: record)
                         if let ocrTime {
                             Text(L("Розпізнавання фото на телефоні: \(Format.ms(ocrTime))").s)
-                                .font(.footnote)
+                                .font(Theme.ui(style: .footnote))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -127,15 +127,15 @@ enum DemoReceipt {
     @MainActor
     static func image() -> UIImage {
         let view = VStack(alignment: .leading, spacing: 6) {
-            Text("СІЛЬПО").font(.title2.bold())
+            Text("СІЛЬПО").font(Theme.mono(style: .title2, .bold))
             Text("м. Ірпінь, вул. Соборна 1")
             Text("Хліб житній          32,50")
             Text("Молоко 2,5%          41,90")
             Text("Сир кисломолочний    89,00")
             Text("Картка 0000 1144 2233 5566")
-            Text("СУМА                163,40").font(.headline)
+            Text("СУМА                163,40").font(Theme.ui(style: .headline))
         }
-        .font(.system(size: 18, design: .monospaced))
+        .font(Theme.mono(18))
         .foregroundStyle(.black)
         .padding(24)
         .background(.white)

@@ -9,7 +9,7 @@ enum ShopStyle {
 
     /// Широкий гротеск, як геометричний шрифт на сайті.
     static func caps(_ size: CGFloat, _ weight: Font.Weight = .medium) -> Font {
-        .system(size: size, weight: .semibold)
+        Theme.ui(size, .semibold)
     }
 }
 
@@ -50,7 +50,7 @@ struct ShopWordmark: View {
 
     var body: some View {
         Text("SAINT AGNES")
-            .font(.system(size: size, weight: .semibold))
+            .font(Theme.ui(size, .semibold))
             .tracking(size * 0.3)
             .foregroundStyle(Theme.ink)
             .lineLimit(1)
@@ -66,7 +66,7 @@ struct ShopHeading: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(ShopStyle.caps(19)).tracking(1.6).textCase(.uppercase).foregroundStyle(Theme.ink)
-            if let sub { Text(sub).font(.footnote).foregroundStyle(.secondary) }
+            if let sub { Text(sub).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -80,7 +80,7 @@ struct TaxPayMark: View {
         RoundedRectangle(cornerRadius: size * 0.3, style: .continuous).fill(Theme.accent)
             .frame(width: size, height: size)
             .overlay {
-                Text("T").font(.system(size: size * 0.62, weight: .heavy)).foregroundStyle(Theme.onAccent)
+                Text("T").font(Theme.ui(size * 0.62, .heavy)).foregroundStyle(Theme.onAccent)
             }
     }
 }
@@ -105,14 +105,14 @@ struct ShopHero: View {
                     Text(L("Осінь").s).foregroundStyle(ShopStyle.cream)
                     Text(L("вже тут").s).foregroundStyle(ShopStyle.tan)
                 }
-                .font(.system(size: 40, weight: .semibold))
+                .font(Theme.ui(40, .semibold))
                 .textCase(.uppercase)
                 .tracking(0.8)
                 HStack(spacing: 16) {
                     Button(action: onShop) {
                         HStack(spacing: 10) {
                             Text(L("До каталогу").s).textCase(.uppercase).tracking(1.2).lineLimit(1).fixedSize()
-                            Image(systemName: "arrow.right").font(.footnote.weight(.semibold))
+                            Image(systemName: "arrow.right").font(Theme.ui(style: .footnote, .semibold))
                         }
                         .font(ShopStyle.caps(12, .semibold))
                         .foregroundStyle(ShopStyle.ink)
@@ -143,7 +143,7 @@ struct ShopTrust: View {
                 ForEach(items, id: \.text) { item in
                     HStack(spacing: 11) {
                         if let icon = item.icon {
-                            Image(systemName: icon).font(.system(size: 19, weight: .light)).frame(width: 22)
+                            Image(systemName: icon).font(Theme.ui(19, .light)).frame(width: 22)
                         } else {
                             TaxPayMark(size: 22)
                         }
@@ -184,9 +184,9 @@ struct ShopCollections: View {
                         HStack(spacing: 6) {
                             Text(title).font(ShopStyle.caps(14)).tracking(1).textCase(.uppercase).lineLimit(1).minimumScaleFactor(0.7)
                             Spacer(minLength: 0)
-                            Image(systemName: "arrow.right").font(.caption.weight(.semibold))
+                            Image(systemName: "arrow.right").font(Theme.ui(style: .caption1, .semibold))
                         }
-                        Text(sub).font(.caption).foregroundStyle(ShopStyle.cream.opacity(0.72))
+                        Text(sub).font(Theme.ui(style: .caption1)).foregroundStyle(ShopStyle.cream.opacity(0.72))
                             .lineLimit(2).multilineTextAlignment(.leading)
                     }
                     .foregroundStyle(ShopStyle.cream)
@@ -222,13 +222,13 @@ struct ShopPhoto: View {
                             if let image = phase.image {
                                 image.resizable().scaledToFill()
                             } else if phase.error != nil {
-                                Text(product.imageEmoji ?? "🛍️").font(.system(size: 44)).grayscale(1)
+                                Text(product.imageEmoji ?? "🛍️").font(Theme.ui(44)).grayscale(1)
                             } else {
                                 ProgressView().controlSize(.small)
                             }
                         }
                     } else {
-                        Text(product.imageEmoji ?? "🛍️").font(.system(size: 44)).grayscale(1)
+                        Text(product.imageEmoji ?? "🛍️").font(Theme.ui(44)).grayscale(1)
                     }
                 }
             }
@@ -270,10 +270,10 @@ struct ShopCard: View {
                 .buttonStyle(.plain)
                 Button(action: add) {
                     ZStack {
-                        Image(systemName: "bag.badge.plus").font(.system(size: 16, weight: .regular))
+                        Image(systemName: "bag.badge.plus").font(Theme.ui(16, .regular))
                             .opacity(inCart > 0 ? 0 : 1)
                         if inCart > 0 {
-                            Text("\(inCart)").font(.subheadline.weight(.bold)).monospacedDigit()
+                            Text("\(inCart)").font(Theme.ui(style: .subheadline, .bold)).monospacedDigit()
                                 .contentTransition(.numericText(value: Double(inCart)))
                         }
                     }
@@ -294,11 +294,11 @@ struct ShopCard: View {
                         Text(product.brand).font(ShopStyle.caps(10.5, .semibold)).tracking(1.3).textCase(.uppercase)
                             .foregroundStyle(Theme.ink).lineLimit(1)
                     }
-                    Text(product.shortName).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
+                    Text(product.shortName).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text(Format.amount(product.price))
-                            .font(.system(size: 16, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
-                        Text("TAX").font(.system(size: 10, weight: .medium)).tracking(0.6).foregroundStyle(.tertiary)
+                            .font(Theme.ui(16, .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
+                        Text("TAX").font(Theme.ui(10, .medium)).tracking(0.6).foregroundStyle(.tertiary)
                     }
                     .padding(.top, 3)
                 }

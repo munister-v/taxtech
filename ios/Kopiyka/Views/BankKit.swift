@@ -28,7 +28,7 @@ struct ErrorSection: View {
 
     var body: some View {
         if let error {
-            Section { Text(error).font(.footnote).foregroundStyle(.secondary) }
+            Section { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
         }
     }
 }

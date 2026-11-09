@@ -124,24 +124,24 @@ struct VerifySeal: View {
         VStack(spacing: 14) {
             QRPlate(text: doc.verifyUrl)
             VStack(spacing: 4) {
-                Text(L("Код документа").s).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                Text(L("Код документа").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary)
                 Text(doc.code)
-                    .font(.system(.title3, design: .monospaced).weight(.bold)).tracking(1.2)
+                    .font(Theme.mono(style: .title3).weight(.bold)).tracking(1.2)
                     .textSelection(.enabled).minimumScaleFactor(0.7).lineLimit(1)
             }
             Text(L("Наведіть камеру на QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.").s)
-                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
             HStack(spacing: 10) {
                 if let url = doc.url {
                     Link(destination: doc.openUrl ?? url) {
                         Label(L("Перевірити онлайн").s, systemImage: "checkmark.shield")
-                            .font(.subheadline.weight(.semibold))
+                            .font(Theme.ui(style: .subheadline, .semibold))
                             .frame(maxWidth: .infinity).padding(.vertical, 12)
                             .foregroundStyle(Theme.onAccent)
                             .background(Theme.accent, in: .rect(cornerRadius: 14, style: .continuous))
                     }
                     ShareLink(item: url, subject: Text(Translator.server(doc.title)), message: Text(L("Код \(doc.code)").s)) {
-                        Image(systemName: "square.and.arrow.up").font(.subheadline.weight(.semibold))
+                        Image(systemName: "square.and.arrow.up").font(Theme.ui(style: .subheadline, .semibold))
                             .frame(width: 48).padding(.vertical, 12)
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .strokeBorder(Theme.accent.opacity(0.7), lineWidth: 1))
@@ -154,7 +154,7 @@ struct VerifySeal: View {
                 UIPasteboard.general.string = doc.code
                 copied = true
             }
-            .font(.footnote.weight(.semibold)).foregroundStyle(Theme.ink)
+            .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.ink)
         }
         .frame(maxWidth: .infinity)
     }
@@ -198,7 +198,7 @@ struct DocumentsView: View {
                     }
                     Rule().padding(.horizontal, -16).padding(.top, 14)
                     Text(L("Кожен документ має власний код і QR. Перевірити його можна в інтернеті: сторінка звіряє запис із реєстром операцій.").s)
-                        .font(.footnote).foregroundStyle(.secondary).padding(.top, 6).expertOnly()
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).padding(.top, 6).expertOnly()
                 }
 
                 SegmentBar(items: [(Kind.all, L("Усі").s), (.receipt, L("Квитанції").s), (.statement, L("Виписки").s)], selection: $kind)
@@ -206,11 +206,11 @@ struct DocumentsView: View {
                 if loaded && rows.isEmpty {
                     Surface {
                         VStack(spacing: 8) {
-                            Image(systemName: "doc.viewfinder").font(.system(size: 34)).foregroundStyle(Theme.tint)
+                            Image(systemName: "doc.viewfinder").font(Theme.ui(34)).foregroundStyle(Theme.tint)
                             Text(failed ? L("Не вдалося завантажити документи").s : L("Документів поки немає").s)
-                                .font(.headline)
+                                .font(Theme.ui(style: .headline))
                             Text(L("Відкрийте операцію й натисніть «Переглянути квитанцію», або сформуйте виписку: вони з'являться тут.").s)
-                                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
+                                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
                         }
                         .frame(maxWidth: .infinity).padding(24)
                     }
@@ -243,8 +243,8 @@ struct DocumentsView: View {
 
     private func count(_ title: String, _ n: Int) -> some View {
         VStack(spacing: 2) {
-            Text("\(n)").font(.system(size: 30, weight: .semibold)).monospacedDigit()
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text("\(n)").font(Theme.ui(30, .semibold)).monospacedDigit()
+            Text(title).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -258,19 +258,19 @@ struct DocumentRow: View {
             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                            tint: doc.isReceipt ? .green : Theme.accent, size: 46)
             VStack(alignment: .leading, spacing: 3) {
-                Text(Translator.server(doc.title)).font(.body.weight(.medium)).lineLimit(2).minimumScaleFactor(0.85)
-                Text(doc.code).font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary)
+                Text(Translator.server(doc.title)).font(Theme.ui(style: .body, .medium)).lineLimit(2).minimumScaleFactor(0.85)
+                Text(doc.code).font(Theme.mono(12)).foregroundStyle(.secondary)
                     .lineLimit(1).minimumScaleFactor(0.7)
             }
             Spacer(minLength: 6)
             VStack(alignment: .trailing, spacing: 3) {
                 if let a = doc.amount {
                     Text((doc.direction == "in" ? "+" : doc.direction == "out" ? "−" : "") + Format.money(a))
-                        .font(.callout.weight(.semibold)).monospacedDigit()
+                        .font(Theme.ui(style: .callout, .semibold)).monospacedDigit()
                         .lineLimit(1).fixedSize()
                         .foregroundStyle(doc.direction == "in" ? Theme.accent : Theme.ink)
                 }
-                Image(systemName: "qrcode").font(.footnote).foregroundStyle(Theme.tint)
+                Image(systemName: "qrcode").font(Theme.ui(style: .footnote)).foregroundStyle(Theme.tint)
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 12)
@@ -295,10 +295,10 @@ struct DocumentDetailView: View {
                         VStack(spacing: 8) {
                             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
                                            tint: doc.isReceipt ? .green : Theme.accent, size: 72)
-                            Text(Translator.server(doc.title)).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Text(Translator.server(doc.title)).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             if let a = doc.amount {
                                 Text((doc.direction == "in" ? "+" : "−") + Format.money(a))
-                                    .font(.system(size: 38, weight: .bold)).monospacedDigit()
+                                    .font(Theme.ui(38, .bold)).monospacedDigit()
                                     .minimumScaleFactor(0.5).lineLimit(1)
                                     .foregroundStyle(doc.direction == "in" ? Theme.accent : Theme.ink)
                             }
@@ -336,7 +336,7 @@ struct DocumentDetailView: View {
                     .buttonStyle(InkButton())
                     .disabled(screen.busy)
                     if screen.busy { ProgressView() }
-                    if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                    if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                 }
                 .padding(Theme.gutter)
             }

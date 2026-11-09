@@ -23,7 +23,7 @@ struct ExpertNote: View {
 
     var body: some View {
         if model.expert {
-            Text(text).font(.footnote).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(text).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
         }
     }
 }
@@ -35,7 +35,7 @@ struct GearButton: View {
     var body: some View {
         Button { open = true } label: {
             Image(systemName: "gearshape")
-                .font(.system(size: 16, weight: .semibold))
+                .font(Theme.ui(16, .semibold))
                 .foregroundStyle(Theme.ink)
                 .frame(width: 40, height: 40)
                 .glassCircle()
@@ -57,10 +57,10 @@ struct SettingsSheet: View {
                     Text(L("Налаштування").s).font(.display(38, .medium)).tracking(-1).padding(.top, 8)
                     Button { withAnimation(.smooth) { model.expert.toggle() } } label: {
                         HStack(spacing: 14) {
-                            Image(systemName: "flask").font(.title3).foregroundStyle(Theme.accent).frame(width: 28)
+                            Image(systemName: "flask").font(Theme.ui(style: .title3)).foregroundStyle(Theme.accent).frame(width: 28)
                             VStack(alignment: .leading, spacing: 3) {
-                                Text(L("Експертний режим").s).font(.body.weight(.semibold))
-                                Text(L("Лабораторія, пояснення, журнал рішень").s).font(.footnote).foregroundStyle(.secondary)
+                                Text(L("Експертний режим").s).font(Theme.ui(style: .body, .semibold))
+                                Text(L("Лабораторія, пояснення, журнал рішень").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             }
                             Spacer(minLength: 8)
                             Toggle("", isOn: .constant(model.expert)).labelsHidden().tint(Theme.accent).allowsHitTesting(false)
@@ -80,7 +80,7 @@ struct SettingsSheet: View {
                                 if i > 0 { Rectangle().fill(Theme.line).frame(height: Theme.hairline).padding(.leading, 18) }
                                 Button { Lang.set(l) } label: {
                                     HStack {
-                                        Text(l.title).font(.body)
+                                        Text(l.title).font(Theme.ui(style: .body))
                                         Spacer()
                                         if Lang.current == l { Image(systemName: "checkmark").foregroundStyle(Theme.accent) }
                                     }

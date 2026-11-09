@@ -107,7 +107,7 @@ struct CardsTab: View {
         ScreenTitle(title: RootView.AppTab.cards.title) {
             Button { issuing = true } label: {
                 Label(L("Випустити").s, systemImage: "plus")
-                    .font(.subheadline.weight(.semibold))
+                    .font(Theme.ui(style: .subheadline, .semibold))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(Theme.surface, in: .capsule)
@@ -123,9 +123,9 @@ struct CardsTab: View {
             VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil,
                             look: CardLook(material: .glass, color: .graphite, pattern: .waves))
                 .opacity(0.6)
-            Text(L("Карток ще немає").s).font(.title3.weight(.semibold))
+            Text(L("Карток ще немає").s).font(Theme.ui(style: .title3, .semibold))
             Text(L("Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.").s)
-                .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
             Button(L("Випустити картку").s) { issuing = true }.buttonStyle(InkButton())
         }
         .frame(maxWidth: .infinity)
@@ -166,17 +166,17 @@ struct CardsTab: View {
             if let card {
                 VStack(spacing: 8) {
                     Text(card.look.name.isEmpty ? L("Картка •• \(card.maskedNumber.suffix(4))").s : card.look.name)
-                        .font(.headline)
+                        .font(Theme.ui(style: .headline))
                         .contentTransition(.opacity)
                     if card.isBlocked {
                         Label(L("Заморожена").s, systemImage: "snowflake")
-                            .font(.caption.weight(.semibold))
+                            .font(Theme.ui(style: .caption1, .semibold))
                             .padding(.horizontal, 12).frame(height: 28)
                             .background(Color.cyan.opacity(0.22), in: .capsule)
                             .foregroundStyle(Color.cyan)
                     } else if let e = card.expiryDisplay {
                         Text((card.isPrimary ? L("Головна").s + " · " : "") + L("до \(e)").s)
-                            .font(.footnote).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                 }
                 .animation(.smooth, value: index)
@@ -220,7 +220,7 @@ struct CardsTab: View {
                         Spacer()
                         if c.isPrimary {
                             Text(L("Головна").s)
-                                .font(.caption.weight(.semibold))
+                                .font(Theme.ui(style: .caption1, .semibold))
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
                                 .background(Theme.ink.opacity(0.1), in: .capsule)
@@ -229,18 +229,18 @@ struct CardsTab: View {
                     BigAmount(value: c.displayBalance ?? 0, size: 38)
                     if c.isPrimary {
                         // головна картка не має окремих грошей - вона платить з рахунку
-                        Text(L("Головна картка списує з основного рахунку.").s).font(.footnote).foregroundStyle(.secondary)
+                        Text(L("Головна картка списує з основного рахунку.").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     if let monthOut {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(L("За місяць витрачено").s).font(.footnote).foregroundStyle(.secondary)
+                            Text(L("За місяць витрачено").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             Spacer()
                             BigAmount(value: monthOut, size: 17)
                         }
                     }
                     Button { topping = c } label: {
                         Label(L("Поповнити картку").s, systemImage: "plus")
-                            .font(.body.weight(.semibold))
+                            .font(Theme.ui(style: .body, .semibold))
                             .frame(maxWidth: .infinity, minHeight: 50)
                             .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .capsule)
                             .foregroundStyle(Theme.onAccent)
@@ -282,7 +282,7 @@ struct CardsTab: View {
                 Image(systemName: symbol).frame(width: 22).contentTransition(.symbolEffect(.replace))
                 Text(title).contentTransition(.opacity)
                 Spacer()
-                if !destructive { Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary) }
+                if !destructive { Image(systemName: "chevron.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.tertiary) }
             }
             .foregroundStyle(destructive ? Color.red : Theme.ink)
             .padding(16)
@@ -314,12 +314,12 @@ struct RoundActionLabel: View {
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: symbol)
-                .font(.system(size: 21, weight: .semibold))
+                .font(Theme.ui(21, .semibold))
                 .frame(width: 58, height: 58)
                 .foregroundStyle(on ? Theme.onAccent : Theme.ink)
                 .background(on ? Theme.accent : Theme.surface, in: .circle)
                 .overlay(Circle().strokeBorder(Theme.line, lineWidth: on ? 0 : Theme.hairline))
-            Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
+            Text(title).font(Theme.ui(style: .caption1, .semibold)).lineLimit(1).minimumScaleFactor(0.75)
                 .contentTransition(.opacity)
         }
         .frame(maxWidth: .infinity)
@@ -355,12 +355,12 @@ struct TileLabel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Image(systemName: symbol)
-                .font(.system(size: 17, weight: .medium))
+                .font(Theme.ui(17, .medium))
                 .frame(width: 42, height: 42)
                 .background(Theme.ink, in: .rect(cornerRadius: 12, style: .continuous))
                 .foregroundStyle(Theme.onInk)
             Spacer(minLength: 18)
-            Text(title).font(.subheadline.weight(.semibold))
+            Text(title).font(Theme.ui(style: .subheadline, .semibold))
         }
         .frame(maxWidth: .infinity, minHeight: 104, alignment: .leading)
         .padding(14)

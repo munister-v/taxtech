@@ -52,11 +52,11 @@ struct LearnLink: View {
             HStack(spacing: 12) {
                 Image(systemName: experiment.symbol).foregroundStyle(Theme.accent).frame(width: 22)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(L("Як це працює").s).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                    Text(experiment.title).font(.subheadline.weight(.medium)).foregroundStyle(.primary)
+                    Text(L("Як це працює").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary)
+                    Text(experiment.title).font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(.primary)
                 }
                 Spacer(minLength: 8)
-                Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                Image(systemName: "arrow.up.right").font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
             }
             .padding(.vertical, 6)
             .contentShape(.rect)
@@ -97,11 +97,11 @@ struct BankBridge: View {
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(model.signedIn ? L("Відкрити в \(tab.title)").s : L("Увійти, щоб побачити на своєму рахунку").s)
-                            .font(.subheadline.weight(.semibold))
-                        Text(L("Той самий механізм у банку").s).font(.footnote).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .subheadline, .semibold))
+                        Text(L("Той самий механізм у банку").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     Spacer(minLength: 8)
-                    Image(systemName: "arrow.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.accent)
+                    Image(systemName: "arrow.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(Theme.accent)
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)

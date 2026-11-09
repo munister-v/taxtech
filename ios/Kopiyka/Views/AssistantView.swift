@@ -59,7 +59,7 @@ struct AssistantView: View {
                         .onSubmit(ask)
                     Button(action: ask) {
                         Image(systemName: "arrow.up")
-                            .font(.headline)
+                            .font(Theme.ui(style: .headline))
                             .foregroundStyle(Theme.onInk)
                             .frame(width: 34, height: 34)
                             .background(Theme.ink, in: .circle)

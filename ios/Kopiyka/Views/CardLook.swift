@@ -281,7 +281,7 @@ struct CardPatternLayer: View {
                 var y: CGFloat = 4
                 var row = 0
                 while y < size.height {
-                    let text = Text(line).font(.system(size: 5, weight: .medium, design: .monospaced))
+                    let text = Text(line).font(Theme.mono(5, .medium))
                         .foregroundStyle(ink.opacity(0.13))
                     ctx.draw(text, at: CGPoint(x: row.isMultiple(of: 2) ? 0 : -18, y: y), anchor: .topLeading)
                     y += 7
@@ -482,7 +482,7 @@ struct CardBack: View {
                     }
                     .frame(height: 34)
                     Text(cvv)
-                        .font(.system(.body, design: .monospaced, weight: .bold))
+                        .font(Theme.mono(style: .body, .bold))
                         .padding(.horizontal, 10)
                         .frame(height: 34)
                         .background(.white, in: .rect(cornerRadius: 4))
@@ -491,7 +491,7 @@ struct CardBack: View {
                 .padding(.horizontal, 20)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(number)
-                        .font(.system(.title3, design: .monospaced, weight: .medium))
+                        .font(Theme.mono(style: .title3, .medium))
                         .minimumScaleFactor(0.6).lineLimit(1)
                         .textSelection(.enabled)
                     HStack {
@@ -499,7 +499,7 @@ struct CardBack: View {
                         Spacer()
                         Text(L("Тільки для навчання").s).opacity(0.7)
                     }
-                    .font(.caption2.weight(.semibold))
+                    .font(Theme.ui(style: .caption2, .semibold))
                 }
                 .padding(.horizontal, 20)
                 .foregroundStyle(look.text)

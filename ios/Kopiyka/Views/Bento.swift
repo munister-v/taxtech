@@ -5,7 +5,7 @@ import SwiftUI
 extension Font {
     /// Заголовки й великі цифри: системний шрифт без засічок, жирний для сум, напівжирний для решти.
     static func display(_ size: CGFloat, _ weight: Font.Weight = .heavy) -> Font {
-        .system(size: size, weight: weight == .heavy ? .bold : .semibold)
+        Theme.mono(size, weight == .heavy ? .bold : .semibold)
     }
 }
 
@@ -65,10 +65,10 @@ struct BentoCaption: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+            Text(text).font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
             Spacer(minLength: 4)
             if let trailing {
-                Text(trailing).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                Text(trailing).font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
             }
         }
     }
@@ -77,7 +77,7 @@ struct BentoCaption: View {
 /// Стрілка в куті плитки, що веде далі: гліф без підкладки.
 struct BentoArrow: View {
     var body: some View {
-        Image(systemName: "arrow.up.right").font(.system(size: 15, weight: .bold)).foregroundStyle(.secondary)
+        Image(systemName: "arrow.up.right").font(Theme.ui(15, .bold)).foregroundStyle(.secondary)
     }
 }
 
@@ -116,7 +116,7 @@ struct TaxCoin: View {
             Circle().fill(Theme.onAccent)
             Circle().strokeBorder(Theme.accent.opacity(0.9), lineWidth: size * 0.035).padding(size * 0.07)
             if back {
-                Text("TAX").font(.system(size: size * 0.24, weight: .bold)).foregroundStyle(Theme.accent)
+                Text("TAX").font(Theme.ui(size * 0.24, .bold)).foregroundStyle(Theme.accent)
             } else {
                 BrandSeal(size: size * 0.66, color: Theme.accent)
             }

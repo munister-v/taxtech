@@ -40,9 +40,9 @@ struct SealLab: View {
     private var issued: some View {
         LabHero {
             HeroCaption(L("Код документа").s)
-            Text(code).font(.system(size: 26, weight: .semibold, design: .monospaced)).minimumScaleFactor(0.6).lineLimit(1).padding(.top, 4)
+            Text(code).font(Theme.mono(26, .semibold)).minimumScaleFactor(0.6).lineLimit(1).padding(.top, 4)
             Text(L("З одним символом більше в посиланні: \(neighbour)").s)
-                .font(.footnote).foregroundStyle(.secondary).padding(.top, 6)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).padding(.top, 6)
         }
     }
 
@@ -63,19 +63,19 @@ struct SealLab: View {
 
     private func row<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
         HStack {
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             Spacer(minLength: 12)
-            content().multilineTextAlignment(.trailing).font(.system(.subheadline, design: .monospaced)).frame(maxWidth: 190)
+            content().multilineTextAlignment(.trailing).font(Theme.mono(style: .subheadline)).frame(maxWidth: 190)
         }
     }
 
     private var check: some View {
         LabPanel(title: L("Перевірка коду").s) {
             TextField(L("Код з документа").s, text: $claimed)
-                .font(.system(.body, design: .monospaced)).textInputAutocapitalization(.characters).autocorrectionDisabled()
+                .font(Theme.mono(style: .body)).textInputAutocapitalization(.characters).autocorrectionDisabled()
             HStack {
                 Image(systemName: valid ? "checkmark.seal.fill" : "xmark.seal.fill").foregroundStyle(valid ? Theme.accent : Theme.alert)
-                Text(valid ? L("Код справжній").s : L("Код не збігається").s).font(.subheadline.weight(.medium))
+                Text(valid ? L("Код справжній").s : L("Код не збігається").s).font(Theme.ui(style: .subheadline, .medium))
             }
             HStack(spacing: 10) {
                 Button(L("Підробити символ").s) { forge() }.buttonStyle(LineButton())

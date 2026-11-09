@@ -80,7 +80,7 @@ struct MoneyView: View {
                 .lineLimit(1)
             if let avg = dailyAverage {
                 Text(L("у середньому \(Format.money(avg)) на день").s)
-                    .font(.footnote)
+                    .font(Theme.ui(style: .footnote))
                     .foregroundStyle(.secondary)
             }
         }
@@ -148,10 +148,10 @@ struct MoneyView: View {
                 .chartBackground { _ in
                     VStack(spacing: 2) {
                         Text(L("\(byCategory.count) категорій").s)
-                            .font(.footnote)
+                            .font(Theme.ui(style: .footnote))
                             .foregroundStyle(.secondary)
                         Text(Format.money(total))
-                            .font(.system(.title3, weight: .semibold))
+                            .font(Theme.ui(style: .title3, .semibold))
                             .monospacedDigit()
                     }
                 }
@@ -165,11 +165,11 @@ struct MoneyView: View {
                             Text(c.name)
                             Spacer()
                             Text("\(Int((c.sum / max(total, 1) * 100).rounded()))%")
-                                .font(.footnote)
+                                .font(Theme.ui(style: .footnote))
                                 .foregroundStyle(.secondary)
                                 .monospacedDigit()
                             Text(Format.money(c.sum))
-                                .font(.body.weight(.semibold))
+                                .font(Theme.ui(style: .body, .semibold))
                                 .monospacedDigit()
                         }
                         GeometryReader { g in

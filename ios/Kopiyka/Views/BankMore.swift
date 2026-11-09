@@ -31,7 +31,7 @@ struct DonationsView: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(d.fundName)
                                 Text([BankText.date(d.createdAt), d.comment].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: ", "))
-                                    .font(.footnote).foregroundStyle(.secondary)
+                                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             }
                             Spacer()
                             Text(Format.money(d.amount)).fontWeight(.semibold).monospacedDigit()
@@ -112,7 +112,7 @@ struct PayoutsView: View {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(p.title)
-                        Text(BankText.date(p.createdAt)).font(.footnote).foregroundStyle(.secondary)
+                        Text(BankText.date(p.createdAt)).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Text("+" + Format.money(p.amount)).fontWeight(.semibold).monospacedDigit()
@@ -220,7 +220,7 @@ struct DebtsView: View {
     private func figure(_ title: String, _ value: Double) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).caption()
-            Text(Format.money(value)).font(.title3.weight(.semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(Format.money(value)).font(Theme.ui(style: .title3, .semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -234,7 +234,7 @@ struct DebtsView: View {
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(d.contactName)
-                                if let n = d.description, !n.isEmpty { Text(n).font(.footnote).foregroundStyle(.secondary) }
+                                if let n = d.description, !n.isEmpty { Text(n).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                             }
                             Spacer()
                             Text(Format.money(d.amount)).fontWeight(.semibold).monospacedDigit()
@@ -245,7 +245,7 @@ struct DebtsView: View {
                                 await load()
                             }
                         }
-                        .font(.footnote.weight(.medium))
+                        .font(Theme.ui(style: .footnote, .medium))
                         .buttonStyle(.borderless)
                     }
                 }
@@ -328,8 +328,8 @@ struct NoticesView: View {
             ForEach(items) { n in
                 VStack(alignment: .leading, spacing: 3) {
                     Text(Translator.server(n.title)).fontWeight(n.isRead ? .regular : .semibold)
-                    if let b = n.body, !b.isEmpty { Text(Translator.server(b)).font(.footnote).foregroundStyle(.secondary) }
-                    Text(BankText.date(n.createdAt)).font(.caption).foregroundStyle(.tertiary)
+                    if let b = n.body, !b.isEmpty { Text(Translator.server(b)).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
+                    Text(BankText.date(n.createdAt)).font(Theme.ui(style: .caption1)).foregroundStyle(.tertiary)
                 }
             }
         }
@@ -384,11 +384,11 @@ struct StatementsView: View {
                 let income = rows.filter(\.isIncome).reduce(0) { $0 + $1.amount }
                 let spent = rows.filter { !$0.isIncome }.reduce(0) { $0 + $1.amount }
                 HeroPanel {
-                    Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                    Text(title).font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
-                    Text(L("Витрачено").s).font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 14)
+                    Text(L("Витрачено").s).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.top, 14)
                     Text(Format.short(spent))
-                        .font(.system(size: 44, weight: .semibold)).monospacedDigit()
+                        .font(Theme.ui(44, .semibold)).monospacedDigit()
                         .minimumScaleFactor(0.5).lineLimit(1).frame(maxWidth: .infinity)
                     Rule().padding(.horizontal, -16).padding(.top, 14)
                     HStack(alignment: .top, spacing: 12) {
@@ -408,7 +408,7 @@ struct StatementsView: View {
                     }
                     if rows.count > 8 {
                         Text(L("і ще \(rows.count - 8) у виписці").s)
-                            .font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity)
+                            .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                     }
                 }
                 VStack(spacing: 10) {
@@ -427,7 +427,7 @@ struct StatementsView: View {
                 }
                 .disabled(screen.busy)
                 if screen.busy { ProgressView().frame(maxWidth: .infinity) }
-                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
@@ -441,9 +441,9 @@ struct StatementsView: View {
 
     private func summary(_ title: String, _ value: String, tint: Color = Theme.ink) -> some View {
         VStack(spacing: 3) {
-            Text(value).font(.headline).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(value).font(Theme.ui(style: .headline)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
                 .foregroundStyle(tint)
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -504,7 +504,7 @@ struct SecurityView: View {
                         Toggle(isOn: Binding(get: { model.biometricsEnabled && hasPin }, set: { on in Task { await setBiometrics(on) } })) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(Biometrics.title)
-                                Text(hasPin ? L("Замість PIN на замку").s : L("Спершу встановіть PIN").s).font(.footnote).foregroundStyle(.secondary)
+                                Text(hasPin ? L("Замість PIN на замку").s : L("Спершу встановіть PIN").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             }
                         }
                         .tint(Theme.ink)
@@ -530,7 +530,7 @@ struct SecurityView: View {
                         HStack {
                             Text(L("Змінити пароль").s)
                             Spacer()
-                            Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
+                            Image(systemName: "chevron.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.tertiary)
                         }
                         .padding(16).contentShape(.rect)
                     }
@@ -545,13 +545,13 @@ struct SecurityView: View {
                                 HStack(spacing: 6) {
                                     Text(device(s)).fontWeight(.semibold)
                                     if s.isCurrent {
-                                        Text(L("цей").s).font(.caption.weight(.semibold))
+                                        Text(L("цей").s).font(Theme.ui(style: .caption1, .semibold))
                                             .padding(.horizontal, 8).padding(.vertical, 2)
                                             .background(Theme.ink.opacity(0.1), in: .capsule)
                                     }
                                 }
                                 Text([s.lastSeenAt.map(BankText.date), s.ipAddress].compactMap { $0 }.joined(separator: " · "))
-                                    .font(.footnote).foregroundStyle(.secondary)
+                                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             }
                             Spacer()
                             if !s.isCurrent {
@@ -561,7 +561,7 @@ struct SecurityView: View {
                                         await load()
                                     }
                                 }
-                                .font(.footnote.weight(.semibold))
+                                .font(Theme.ui(style: .footnote, .semibold))
                                 .padding(.horizontal, 12).frame(height: 32)
                                 .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
                                 .foregroundStyle(Theme.ink)
@@ -578,13 +578,13 @@ struct SecurityView: View {
                             await load()
                         }
                     }
-                    .font(.body.weight(.semibold))
+                    .font(Theme.ui(style: .body, .semibold))
                     .frame(maxWidth: .infinity, minHeight: 50)
                     .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
                     .foregroundStyle(Theme.ink)
                     .buttonStyle(PressScale())
                 }
-                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 32)
@@ -600,9 +600,9 @@ struct SecurityView: View {
 
     private func section<C: View>(_ title: String, footer: String?, @ViewBuilder _ content: () -> C) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(.title3.weight(.bold))
+            Text(title).font(Theme.ui(style: .title3, .bold))
             Surface { VStack(spacing: 0) { content() } }
-            if let footer { Text(footer).font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 4) }
+            if let footer { Text(footer).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).padding(.horizontal, 4) }
         }
     }
 
@@ -610,11 +610,11 @@ struct SecurityView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                Text(value).font(.footnote).foregroundStyle(.secondary)
+                Text(value).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             Spacer()
             Button(action, action: perform)
-                .font(.footnote.weight(.semibold))
+                .font(Theme.ui(style: .footnote, .semibold))
                 .padding(.horizontal, 14).frame(height: 32)
                 .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
                 .foregroundStyle(Theme.ink)
@@ -698,10 +698,10 @@ struct PasswordView: View {
                                       secure: true, content: .newPassword, submit: .done)
                             if !new.isEmpty { PasswordStrength(password: new) }
                             if !new.isEmpty && new == old {
-                                Text(L("Новий пароль збігається з поточним").s).font(.footnote).foregroundStyle(Theme.ink.opacity(0.75))
+                                Text(L("Новий пароль збігається з поточним").s).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.ink.opacity(0.75))
                             }
                         }
-                        if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                        if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                         Button(L("Змінити пароль").s) {
                             Task { if await screen.run({ try await model.api.changePassword(old: old, new: new) }) { done = true } }
                         }
@@ -776,7 +776,7 @@ struct PinPad: View {
             Spacer(minLength: 24)
             MarkView(height: 40)
             Text(title)
-                .font(.system(size: 28, weight: .semibold))
+                .font(Theme.ui(28, .semibold))
                 .tracking(-0.4)
                 .padding(.top, 20)
             HStack(spacing: 14) {
@@ -792,7 +792,7 @@ struct PinPad: View {
             .modifier(Shake(animatableData: CGFloat(shakeAmount)))
             .padding(.top, 28)
             Text(error ?? " ")
-                .font(.footnote)
+                .font(Theme.ui(style: .footnote))
                 .foregroundStyle(.secondary)
                 .padding(.top, 14)
             Spacer(minLength: 24)
@@ -807,7 +807,7 @@ struct PinPad: View {
                                     else if key.isEmpty && biometric != nil { Image(systemName: Biometrics.symbol) }
                                     else { Text(key) }
                                 }
-                                .font(.system(size: 30, weight: .regular))
+                                .font(Theme.ui(30, .regular))
                                 .frame(maxWidth: .infinity, minHeight: 68)
                                 .foregroundStyle(Theme.ink)
                                 .background(key.isEmpty ? Color.clear : Theme.surface,
@@ -824,7 +824,7 @@ struct PinPad: View {
             .padding(.horizontal, 24)
             if let footer, let onFooter {
                 Button(footer, action: onFooter)
-                    .font(.footnote.weight(.medium))
+                    .font(Theme.ui(style: .footnote, .medium))
                     .foregroundStyle(.secondary)
                     .padding(.top, 18)
             }

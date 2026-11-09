@@ -45,8 +45,8 @@ struct LabView: View {
         Section {
             VStack(alignment: .leading, spacing: 10) {
                 MarkView(height: 34)
-                Text(Brand.name).font(.system(size: 30, weight: .semibold)).tracking(-0.5)
-                Text(Brand.lab).font(.footnote).foregroundStyle(.secondary)
+                Text(Brand.name).font(Theme.ui(30, .semibold)).tracking(-0.5)
+                Text(Brand.lab).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 8)
@@ -146,7 +146,7 @@ struct LabView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(row.title)
                     Text(row.detail)
-                        .font(.footnote)
+                        .font(Theme.ui(style: .footnote))
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
                 }
@@ -180,7 +180,7 @@ struct LabView: View {
                     Text("\(Self.taskTitles[r.task] ?? r.task): \(r.plan.title.lowercased())")
                     RoutedNote(record: r)
                     Text("\(r.strategy.title), \(r.date.formatted(Date.FormatStyle(date: .omitted, time: .standard).locale(Lang.current.locale)))")
-                        .font(.caption)
+                        .font(Theme.ui(style: .caption1))
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -200,12 +200,12 @@ struct StatTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(value)
-                .font(.system(.title, weight: .semibold))
+                .font(Theme.ui(style: .title1, .semibold))
                 .monospacedDigit()
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
             Text(title)
-                .font(.footnote)
+                .font(Theme.ui(style: .footnote))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

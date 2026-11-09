@@ -25,14 +25,14 @@ struct IssueCardView: View {
                                                 .strokeBorder(Theme.ink, lineWidth: design == d ? 2 : 0)
                                                 .padding(-5)
                                         }
-                                    Text(d.title).font(.footnote.weight(design == d ? .semibold : .regular))
+                                    Text(d.title).font(Theme.ui(style: .footnote, design == d ? .semibold : .regular))
                                 }
                             }
                             .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal, Theme.gutter)
-                    if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                    if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                     Button(L("Випустити віртуальну картку").s) {
                         Task {
                             if await screen.run({ try await model.api.issueCard(design: design.rawValue) }) {
@@ -85,7 +85,7 @@ struct DepositsView: View {
                     ForEach(items) { d in card(d) }
                     Button(L("Відкрити депозит").s) { opening = true }.buttonStyle(InkButton())
                 }
-                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
@@ -112,24 +112,24 @@ struct DepositsView: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(d.description?.isEmpty == false ? d.description! : L("Депозит на \(d.termMonths) міс.").s).font(.headline)
-                        Text(L("\(d.interestRate.formatted())% річних").s).font(.subheadline).foregroundStyle(.secondary)
+                        Text(d.description?.isEmpty == false ? d.description! : L("Депозит на \(d.termMonths) міс.").s).font(Theme.ui(style: .headline))
+                        Text(L("\(d.interestRate.formatted())% річних").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(Format.money(d.amount)).font(.title3.weight(.bold)).monospacedDigit()
+                    Text(Format.money(d.amount)).font(Theme.ui(style: .title3, .bold)).monospacedDigit()
                 }
                 if d.isActive {
                     Meter(value: d.progress ?? 0)
                     HStack {
-                        Text("+\(Format.money(d.interestEarned))").font(.subheadline.weight(.semibold)).monospacedDigit()
+                        Text("+\(Format.money(d.interestEarned))").font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                         Spacer()
-                        Text(L("до \(BankText.date(d.maturityDate))").s).font(.subheadline).foregroundStyle(.secondary)
+                        Text(L("до \(BankText.date(d.maturityDate))").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     Button(d.matured == true ? L("Забрати з відсотками").s : L("Закрити достроково").s) { closing = d }
-                        .font(.subheadline.weight(.semibold))
+                        .font(Theme.ui(style: .subheadline, .semibold))
                         .foregroundStyle(Theme.ink)
                 } else {
-                    Text(L("Закрито").s).font(.subheadline).foregroundStyle(.secondary)
+                    Text(L("Закрито").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                 }
             }
             .padding(16)
@@ -220,7 +220,7 @@ struct CreditsView: View {
                     ForEach(items) { c in card(c) }
                     Button(L("Оформити кредит").s) { applying = true }.buttonStyle(LineButton())
                 }
-                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
@@ -245,23 +245,23 @@ struct CreditsView: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(c.description?.isEmpty == false ? c.description! : L("Кредит на \(c.termMonths) міс.").s).font(.headline)
-                        Text(L("\(Format.money(c.principal)) під \(c.interestRate.formatted())%").s).font(.subheadline).foregroundStyle(.secondary)
+                        Text(c.description?.isEmpty == false ? c.description! : L("Кредит на \(c.termMonths) міс.").s).font(Theme.ui(style: .headline))
+                        Text(L("\(Format.money(c.principal)) під \(c.interestRate.formatted())%").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(Format.money(c.balanceRemaining)).font(.title3.weight(.bold)).monospacedDigit()
+                    Text(Format.money(c.balanceRemaining)).font(Theme.ui(style: .title3, .bold)).monospacedDigit()
                 }
                 if c.isActive {
                     Meter(value: c.progress ?? 0)
                     HStack {
-                        Text(L("сплачено \(Format.money(c.totalPaid))").s).font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
+                        Text(L("сплачено \(Format.money(c.totalPaid))").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).monospacedDigit()
                         Spacer()
-                        Text(BankText.date(c.nextPaymentDate)).font(.subheadline).foregroundStyle(.secondary)
+                        Text(BankText.date(c.nextPaymentDate)).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     Button(L("Сплатити \(Format.money(min(c.monthlyPayment, c.balanceRemaining)))").s) { repaying = c }
                         .buttonStyle(InkButton())
                 } else {
-                    Text(L("Погашено").s).font(.subheadline.weight(.semibold))
+                    Text(L("Погашено").s).font(Theme.ui(style: .subheadline, .semibold))
                 }
             }
             .padding(16)

@@ -69,7 +69,7 @@ struct HeroCaption: View {
 
     var body: some View {
         Text(text)
-            .font(.subheadline.weight(.semibold))
+            .font(Theme.ui(style: .subheadline, .semibold))
             .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.75)) : AnyShapeStyle(.secondary))
     }
 }
@@ -84,12 +84,12 @@ struct Stat: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(value)
-                .font(.system(size: 19, weight: .semibold))
+                .font(Theme.ui(19, .semibold))
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Text(label)
-                .font(.footnote.weight(.medium))
+                .font(Theme.ui(style: .footnote, .medium))
                 .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.7)) : AnyShapeStyle(.secondary))
                 .lineLimit(2)
         }
@@ -112,7 +112,7 @@ struct SegmentBar<Value: Hashable>: View {
                         withAnimation(.snappy(duration: 0.25)) { selection = value }
                     } label: {
                         Text(title)
-                            .font(.subheadline.weight(on ? .semibold : .medium))
+                            .font(Theme.ui(style: .subheadline, on ? .semibold : .medium))
                             .padding(.horizontal, 15)
                             .padding(.vertical, 9)
                             .foregroundStyle(on ? Theme.onInk : Theme.ink)
@@ -146,7 +146,7 @@ struct CircleAction: View {
         Button(action: action) {
             VStack(spacing: 9) {
                 Image(systemName: symbol)
-                    .font(.system(size: 21, weight: .semibold))
+                    .font(Theme.ui(21, .semibold))
                     .frame(width: 62, height: 62)
                     .background {
                         if primary {
@@ -159,7 +159,7 @@ struct CircleAction: View {
                     .shadow(color: primary ? Theme.accent.opacity(0.45) : .clear, radius: 14, y: 6)
                     .foregroundStyle(primary ? Theme.onAccent : Theme.ink)
                 Text(title)
-                    .font(.caption.weight(.medium))
+                    .font(Theme.ui(style: .caption1, .medium))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -206,7 +206,7 @@ struct SplitBar: View {
                     HStack(spacing: 5) {
                         Rectangle().fill(ink.opacity(1 - Double(i) * 0.28)).frame(width: 10, height: 10)
                         Text("\(p.label) \(Int((p.value / total * 100).rounded()))%")
-                            .font(.caption)
+                            .font(Theme.ui(style: .caption1))
                             .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.7)) : AnyShapeStyle(.secondary))
                     }
                 }
@@ -226,9 +226,9 @@ struct MoneyField: View {
             HStack {
                 TextField("0", value: $value, format: .number.precision(.fractionLength(0...2)))
                     .keyboardType(.decimalPad)
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(Theme.ui(28, .semibold))
                     .monospacedDigit()
-                Text("TAX").font(.title3.weight(.semibold)).foregroundStyle(.secondary)
+                Text("TAX").font(Theme.ui(style: .title3, .semibold)).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -248,7 +248,7 @@ struct BrandEmpty: View {
             MarkView(height: 84, color: Theme.accent)
                 .padding(22)
                 .background(Theme.surface, in: .circle)
-            Text(title).font(.title3.weight(.bold)).multilineTextAlignment(.center)
+            Text(title).font(Theme.ui(style: .title3, .bold)).multilineTextAlignment(.center)
             if let action, let perform {
                 Button(action, action: perform).buttonStyle(InkButton()).frame(maxWidth: 260)
             }
@@ -266,10 +266,10 @@ struct IconRow: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Text(title).font(.body.weight(.medium))
+            Text(title).font(Theme.ui(style: .body, .medium))
             Spacer()
             if let detail { Text(detail).foregroundStyle(.secondary).monospacedDigit() }
-            Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.tertiary)
+            Image(systemName: "chevron.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.tertiary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 15)
@@ -311,7 +311,7 @@ struct TextTabs<T: Hashable>: View {
                 let on = selection == items[i].0
                 Button { withAnimation(.snappy(duration: 0.25)) { selection = items[i].0 } } label: {
                     VStack(spacing: 6) {
-                        Text(items[i].1).font(.system(size: 17, weight: on ? .bold : .medium))
+                        Text(items[i].1).font(Theme.ui(17, on ? .bold : .medium))
                             .foregroundStyle(on ? Theme.ink : Color.secondary)
                         ZStack {
                             Capsule().fill(Color.clear).frame(height: 3)
@@ -386,7 +386,7 @@ struct GuillocheBadge: View {
         ZStack {
             Circle().fill(tint.opacity(onDark ? 0.24 : 0.14))
             Image(systemName: symbol)
-                .font(.system(size: size * 0.4, weight: .semibold))
+                .font(Theme.ui(size * 0.4, .semibold))
                 .foregroundStyle(onDark ? .white : tint)
         }
         .frame(width: size, height: size)
@@ -404,9 +404,9 @@ struct DayRibbon: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
             Rectangle().fill(Theme.line).frame(height: Theme.hairline)
-            Text(trailing).font(.footnote.weight(.semibold)).monospacedDigit()
+            Text(trailing).font(Theme.ui(style: .footnote, .semibold)).monospacedDigit()
                 .foregroundStyle(positive ? Theme.accent : Color.secondary)
         }
         .padding(.horizontal, 4)
@@ -424,7 +424,7 @@ struct LeaderRow: View {
             Spacer(minLength: 8)
             Text(value).fontWeight(.medium).multilineTextAlignment(.trailing).monospacedDigit()
         }
-        .font(.subheadline)
+        .font(Theme.ui(style: .subheadline))
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
         .overlay(alignment: .bottom) {

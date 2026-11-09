@@ -50,7 +50,7 @@ struct FraudLab: View {
                     Button(s.title) {
                         withAnimation(.snappy) { amount = s.amount; balance = s.balance; note = s.note }
                     }
-                    .font(.subheadline.weight(.medium))
+                    .font(Theme.ui(style: .subheadline, .medium))
                     .foregroundStyle(Theme.ink)
                     .padding(.horizontal, 14).padding(.vertical, 9)
                     .overlay(Capsule().stroke(Theme.ink.opacity(0.18), lineWidth: 1))
@@ -73,7 +73,7 @@ struct FraudLab: View {
 
     private func field<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
         HStack {
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             Spacer(minLength: 12)
             content().multilineTextAlignment(.trailing).monospacedDigit().frame(maxWidth: 180)
         }
@@ -112,7 +112,7 @@ struct FraudLab: View {
             }
             ForEach(r.flags, id: \.self) { f in
                 Label(FraudFlags.titles[f] ?? f, systemImage: "flag.fill")
-                    .font(.subheadline)
+                    .font(Theme.ui(style: .subheadline))
                     .labelStyle(FlagLabel())
             }
         }
@@ -125,18 +125,18 @@ struct FraudLab: View {
         let escalate = u > lambda
         return LabPanel(title: L("Каскад").s) {
             HStack {
-                Text(L("Невпевненість телефона").s).font(.subheadline)
+                Text(L("Невпевненість телефона").s).font(Theme.ui(style: .subheadline))
                 Spacer()
-                Text("\(Int((u * 100).rounded()))%").font(.subheadline.weight(.semibold)).monospacedDigit()
+                Text("\(Int((u * 100).rounded()))%").font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
             }
             HStack {
-                Text(L("Поріг каскаду").s).font(.subheadline)
+                Text(L("Поріг каскаду").s).font(Theme.ui(style: .subheadline))
                 Spacer()
-                Text("\(Int((lambda * 100).rounded()))%").font(.subheadline.weight(.semibold)).monospacedDigit()
+                Text("\(Int((lambda * 100).rounded()))%").font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
             }
             Text(escalate ? L("Телефон засумнівався: переказ пішов би на сервер, де є історія й граф.").s
                           : L("Телефон упевнений: відповідь лишається на ньому.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
         .animation(.snappy, value: escalate)
     }
@@ -145,7 +145,7 @@ struct FraudLab: View {
 private struct FlagLabel: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 10) {
-            configuration.icon.font(.footnote).foregroundStyle(Theme.accent)
+            configuration.icon.font(Theme.ui(style: .footnote)).foregroundStyle(Theme.accent)
             configuration.title
         }
     }

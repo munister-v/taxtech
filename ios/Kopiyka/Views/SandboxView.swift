@@ -76,7 +76,7 @@ struct TransferView: View {
                             .multilineTextAlignment(.center)
                             .monospacedDigit()
                         Text(L("Доступно \(Format.money(balance))").s)
-                            .font(.footnote)
+                            .font(Theme.ui(style: .footnote))
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -122,7 +122,7 @@ struct TransferView: View {
                         Text(Tx("Ліміт на один переказ — \(Format.money(KYCLimits.transfer)). Підтвердьте особу в профілі, щоб підняти до \(Format.money(KYCLimits.verified)).",
                                 "The limit per transfer is \(Format.money(KYCLimits.transfer)). Verify your identity in Profile to raise it to \(Format.money(KYCLimits.verified)).",
                                 "Лимит на один перевод — \(Format.money(KYCLimits.transfer)). Подтвердите личность в профиле, чтобы поднять до \(Format.money(KYCLimits.verified))."))
-                            .font(.footnote).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                 }
                 if verdict == nil {
@@ -144,7 +144,7 @@ struct TransferView: View {
                         LabeledContent(L("Шарів правил").s, value: L("\(verdict.layers) з 3").s)
                         if !verdict.flags.isEmpty {
                             Text(verdict.flags.map { Self.flags[$0] ?? $0 }.joined(separator: "\n"))
-                                .font(.footnote)
+                                .font(Theme.ui(style: .footnote))
                         }
                         RoutedNote(record: record)
                     }

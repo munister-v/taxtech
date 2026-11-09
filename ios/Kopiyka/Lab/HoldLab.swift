@@ -73,8 +73,8 @@ struct HoldLab: View {
             .tint(Theme.accent)
             LabSlider(title: L("Сума").s, value: Format.short(amount),
                       x: Binding(get: { amount }, set: { amount = ($0 / 50).rounded() * 50 }), range: 50...800)
-            Text(L("Спливе за \(reason.hours) год").s).font(.footnote).foregroundStyle(.secondary)
-            if let message { Text(message).font(.footnote).foregroundStyle(Theme.alert) }
+            Text(L("Спливе за \(reason.hours) год").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+            if let message { Text(message).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Button(L("Заморозити").s) { placeHold() }.buttonStyle(InkButton())
             HStack(spacing: 10) {
                 Button(L("Минуло +12 год").s) { advance() }.buttonStyle(LineButton())
@@ -90,8 +90,8 @@ struct HoldLab: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(Format.short(h.amount)).font(.headline).monospacedDigit()
-                            Text(L("\(h.reason.title), ще \(h.expires - clock) год").s).font(.footnote).foregroundStyle(.secondary)
+                            Text(Format.short(h.amount)).font(Theme.ui(style: .headline)).monospacedDigit()
+                            Text(L("\(h.reason.title), ще \(h.expires - clock) год").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                         }
                         Spacer()
                     }

@@ -21,13 +21,13 @@ struct TransactionDetailView: View {
                         VStack(spacing: 10) {
                             TxGlyph(tx: tx, size: 76)
                             Text(TransactionRow(tx: tx).title)
-                                .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                                .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
-                                .font(.system(size: 44, weight: .semibold)).monospacedDigit()
+                                .font(Theme.ui(44, .semibold)).monospacedDigit()
                                 .minimumScaleFactor(0.5).lineLimit(1)
                                 .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
                             Label(L("Виконано").s, systemImage: "checkmark.seal.fill")
-                                .font(.caption.weight(.semibold)).foregroundStyle(.green)
+                                .font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.green)
                                 .padding(.horizontal, 12).padding(.vertical, 6)
                                 .background(Color.green.opacity(0.14), in: .capsule)
                                 .overlay(Capsule().strokeBorder(Color.green.opacity(0.4), lineWidth: 0.6))
@@ -64,14 +64,14 @@ struct TransactionDetailView: View {
                     if let h = tx.hash {
                         Surface {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(L("Хеш запису").s).font(.footnote).foregroundStyle(.secondary)
+                                Text(L("Хеш запису").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                                 Text(h.prefix(32) + "\n" + h.suffix(32))
-                                    .font(.footnote.monospaced()).textSelection(.enabled)
+                                    .font(Theme.mono(style: .footnote)).textSelection(.enabled)
                                 Button(copied ? L("Скопійовано").s : L("Скопіювати хеш").s) {
                                     UIPasteboard.general.string = h
                                     copied = true
                                 }
-                                .font(.footnote.weight(.semibold)).foregroundStyle(Theme.ink)
+                                .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.ink)
                                 Group { Rule(); LearnLink(.chain) }.expertOnly()
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -85,7 +85,7 @@ struct TransactionDetailView: View {
                             .padding(16)
                     }
 
-                    if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                    if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
 
                     if note != (tx.note ?? "") {
                         Button(L("Зберегти нотатку").s) {
@@ -139,7 +139,7 @@ struct AnalyticsView: View {
                     HStack {
                         Text(L("Досягнення").s)
                         Spacer()
-                        Image(systemName: "chevron.right").font(.footnote).foregroundStyle(.secondary)
+                        Image(systemName: "chevron.right").font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     .padding(16)
                     .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
@@ -177,10 +177,10 @@ struct AnalyticsView: View {
             Text(Format.money(out)).font(Theme.balance()).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
             if let delta {
                 Text(L("\(delta >= 0 ? "+" : "−")\(Int(abs(delta)))% до минулого місяця").s)
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             Text(L("Надійшло \(Format.money(s.currentMonth.totalIn)), операцій: \(s.currentMonth.txCount)").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
@@ -263,8 +263,8 @@ struct AnalyticsView: View {
                         HStack {
                             Text(BankText.type(t.txType))
                             Spacer()
-                            Text(L("\(t.cnt) оп.").s).font(.footnote).foregroundStyle(.secondary)
-                            Text(Format.money(t.total)).font(.body.weight(.semibold)).monospacedDigit()
+                            Text(L("\(t.cnt) оп.").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+                            Text(Format.money(t.total)).font(Theme.ui(style: .body, .semibold)).monospacedDigit()
                         }
                         Meter(value: t.total / total)
                     }
@@ -287,8 +287,8 @@ struct AnalyticsView: View {
 
     private func tile(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(value).font(.title3.weight(.semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
-            Text(title).font(.footnote).foregroundStyle(.secondary)
+            Text(value).font(Theme.ui(style: .title3, .semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(title).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -332,7 +332,7 @@ struct AchievementsView: View {
                         HStack(alignment: .firstTextBaseline) {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(Translator.server(a.title)).fontWeight(a.done ? .semibold : .regular)
-                                Text(Translator.server(a.desc)).font(.footnote).foregroundStyle(.secondary)
+                                Text(Translator.server(a.desc)).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             }
                             Spacer()
                             if a.done { Image(systemName: "checkmark") }

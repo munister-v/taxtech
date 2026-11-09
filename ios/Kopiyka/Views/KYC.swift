@@ -44,10 +44,10 @@ struct KYCBadge: View {
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: verified ? "checkmark.seal.fill" : "exclamationmark.shield")
-                .font(.caption.weight(.bold))
+                .font(Theme.ui(style: .caption1, .bold))
             Text(verified ? Tx("Особу підтверджено", "Identity verified", "Личность подтверждена")
                           : Tx("Особу не підтверджено", "Not verified", "Личность не подтверждена"))
-                .font(.caption.weight(.semibold))
+                .font(Theme.ui(style: .caption1, .semibold))
         }
         .padding(.horizontal, 10).frame(height: 26)
         .foregroundStyle(verified ? Theme.onAccent : Theme.ink)
@@ -121,9 +121,9 @@ struct KYCView: View {
                         Circle().fill(i <= step ? AnyShapeStyle(Theme.goldFill) : AnyShapeStyle(Theme.surface))
                         Circle().strokeBorder(i <= step ? Color.clear : Theme.line, lineWidth: 2)
                         if i < step {
-                            Image(systemName: "checkmark").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.onAccent)
+                            Image(systemName: "checkmark").font(Theme.ui(13, .bold)).foregroundStyle(Theme.onAccent)
                         } else {
-                            Text(roman[i]).font(.system(size: 13, weight: .bold, design: .serif))
+                            Text(roman[i]).font(Theme.ui(13, .bold))
                                 .foregroundStyle(i == step ? Theme.onAccent : Color.secondary)
                         }
                     }
@@ -135,7 +135,7 @@ struct KYCView: View {
             }
             HStack {
                 ForEach(0..<4, id: \.self) { i in
-                    Text(names[i].uppercased()).font(.system(size: 10, weight: .semibold)).tracking(1.2)
+                    Text(names[i].uppercased()).font(Theme.ui(10, .semibold)).tracking(1.2)
                         .foregroundStyle(i == step ? Theme.ink : .secondary)
                         .frame(maxWidth: .infinity, alignment: i == 0 ? .leading : i == 3 ? .trailing : .center)
                 }
@@ -148,7 +148,7 @@ struct KYCView: View {
     private func heading(_ title: String, _ sub: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.display(30, .medium)).tracking(-0.6)
-            Text(sub).font(.subheadline).foregroundStyle(.secondary)
+            Text(sub).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
         }
     }
 
@@ -174,7 +174,7 @@ struct KYCView: View {
                 .disabled(state.fullName.trimmingCharacters(in: .whitespaces).count < 3 || age < 18)
             if age < 18 {
                 Text(Tx("Підтвердження доступне з 18 років.", "Verification is available from age 18.", "Подтверждение доступно с 18 лет."))
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
         }
     }
@@ -213,7 +213,7 @@ struct KYCView: View {
             field(Tx("Номер документа", "Document number", "Номер документа")) {
                 TextField("", text: $docNumber).textInputAutocapitalization(.characters).autocorrectionDisabled()
             }
-            Text(numberHint).font(.footnote).foregroundStyle(docNumber.isEmpty || docNumberOK ? Color.secondary : Theme.ink)
+            Text(numberHint).font(Theme.ui(style: .footnote)).foregroundStyle(docNumber.isEmpty || docNumberOK ? Color.secondary : Theme.ink)
             HStack(spacing: 10) {
                 Button(L("Назад").s) { step = 0 }.buttonStyle(LineButton()).frame(width: 110)
                 Button(Tx("Далі", "Continue", "Далее")) { step = 2 }
@@ -245,9 +245,9 @@ struct KYCView: View {
             }
             Toggle(isOn: $state.pep) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(Tx("Публічний діяч (PEP)", "Politically exposed person (PEP)", "Публичное лицо (PEP)")).font(.body.weight(.medium))
+                    Text(Tx("Публічний діяч (PEP)", "Politically exposed person (PEP)", "Публичное лицо (PEP)")).font(Theme.ui(style: .body, .medium))
                     Text(Tx("Ви або близькі родичі обіймаєте чи обіймали публічну посаду.", "You or a close relative holds or held a public office.", "Вы или близкие родственники занимаете или занимали публичную должность."))
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 }
             }
             .tint(Theme.accent)
@@ -282,12 +282,12 @@ struct KYCView: View {
                 .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
             } else {
                 VStack(spacing: 12) {
-                    Image(systemName: bioOK ? "checkmark.circle.fill" : "touchid").font(.system(size: 56, weight: .light))
+                    Image(systemName: bioOK ? "checkmark.circle.fill" : "touchid").font(Theme.ui(56, .light))
                         .foregroundStyle(Theme.accent).contentTransition(.symbolEffect(.replace))
                     Text(bioOK ? Tx("Біометрію підтверджено", "Biometrics confirmed", "Биометрия подтверждена")
                                : Tx("Торкніться, щоб підтвердити", "Tap to confirm", "Нажмите, чтобы подтвердить"))
-                        .font(.subheadline.weight(.semibold))
-                    if let bioError { Text(bioError).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center) }
+                        .font(Theme.ui(style: .subheadline, .semibold))
+                    if let bioError { Text(bioError).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).multilineTextAlignment(.center) }
                 }
                 .frame(maxWidth: .infinity, minHeight: 190)
                 .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
@@ -306,7 +306,7 @@ struct KYCView: View {
 
     private var done: some View {
         VStack(spacing: 18) {
-            Image(systemName: "checkmark.seal.fill").font(.system(size: 64)).foregroundStyle(Theme.goldFill)
+            Image(systemName: "checkmark.seal.fill").font(Theme.ui(64)).foregroundStyle(Theme.goldFill)
                 .padding(.top, 36)
             Text(Tx("Особу підтверджено", "Identity verified", "Личность подтверждена")).font(.display(30, .medium))
             VStack(spacing: 0) {
@@ -326,14 +326,14 @@ struct KYCView: View {
             .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
             if !state.riskNotes.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    ForEach(state.riskNotes, id: \.self) { Label($0, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(.secondary) }
+                    ForEach(state.riskNotes, id: \.self) { Label($0, systemImage: "exclamationmark.triangle").font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             Button(Tx("Скинути підтвердження", "Reset verification", "Сбросить подтверждение")) {
                 KYCState.erase(); state = KYCState(); step = 0; docNumber = ""; bioOK = false; bioError = nil
             }
-            .font(.subheadline).foregroundStyle(.secondary)
+            .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             notice
         }
     }
@@ -343,7 +343,7 @@ struct KYCView: View {
                  "A training simulation of KYC: no camera or photos, nothing is sent to a server. Biometrics show the phone is in your hands, not who you are.",
                  "Учебная имитация KYC: без камеры и фото, ничего не отправляется на сервер. Биометрия подтверждает, что телефон у вас в руках, а не личность."),
               systemImage: "lock.shield")
-            .font(.footnote).foregroundStyle(.secondary)
+            .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
     }
 
     // MARK: Деталі

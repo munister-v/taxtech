@@ -6,6 +6,8 @@ struct KopiykaApp: App {
     @State private var model = AppModel()
     @AppStorage(Lang.key) private var langRaw = Lang.current.rawValue
 
+    init() { Appearance.apply() }
+
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -40,5 +42,36 @@ final class Expense {
         self.category = category
         self.date = date
         self.source = source
+    }
+}
+
+/// Заголовки навігації й таб-бар шрифтами EPRIS.
+@MainActor
+enum Appearance {
+    static func apply() {
+        let bar = UINavigationBarAppearance()
+        bar.configureWithTransparentBackground()
+        if let large = UIFont(name: "Cousine-Bold", size: 30) {
+            bar.largeTitleTextAttributes = [.font: UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: large), .foregroundColor: UIColor(Theme.ink)]
+        }
+        if let inline = UIFont(name: "Cousine-Bold", size: 16) {
+            bar.titleTextAttributes = [.font: UIFontMetrics(forTextStyle: .headline).scaledFont(for: inline), .foregroundColor: UIColor(Theme.ink)]
+        }
+        UINavigationBar.appearance().standardAppearance = bar
+        UINavigationBar.appearance().scrollEdgeAppearance = bar
+        UINavigationBar.appearance().compactAppearance = bar
+
+        let item = UITabBarItemAppearance()
+        if let f = UIFont(name: "Nunito-Regular", size: 10) {
+            item.normal.titleTextAttributes = [.font: f]
+            item.selected.titleTextAttributes = [.font: f]
+        }
+        let tab = UITabBarAppearance()
+        tab.configureWithDefaultBackground()
+        tab.stackedLayoutAppearance = item
+        tab.inlineLayoutAppearance = item
+        tab.compactInlineLayoutAppearance = item
+        UITabBar.appearance().standardAppearance = tab
+        UITabBar.appearance().scrollEdgeAppearance = tab
     }
 }

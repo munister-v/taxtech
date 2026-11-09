@@ -110,7 +110,7 @@ struct RouterLab: View {
                 .font(.display(30, .medium)).tracking(-0.6)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 4)
-            Text(Self.reasonText(d.reason)).font(.subheadline).foregroundStyle(.secondary).padding(.top, 6)
+            Text(Self.reasonText(d.reason)).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).padding(.top, 6)
         }
         .animation(.snappy, value: d.plan)
     }
@@ -122,14 +122,14 @@ struct RouterLab: View {
                 let chosen = c.plan == d.plan
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
-                        Text(Translator.text(c.plan.title, [])).font(.subheadline.weight(chosen ? .semibold : .regular))
+                        Text(Translator.text(c.plan.title, [])).font(Theme.ui(style: .subheadline, chosen ? .semibold : .regular))
                         Spacer()
-                        if chosen { Image(systemName: "checkmark").font(.footnote.weight(.bold)).foregroundStyle(Theme.accent) }
+                        if chosen { Image(systemName: "checkmark").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(Theme.accent) }
                     }
                     Text("\(Format.ms(c.latencyMs)) · \(Format.joules(c.energyJ)) · \(Int((c.quality * 100).rounded()))%")
-                        .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
                     Text(L("ціль \(String(format: "%.2f", c.objective)), +\(String(format: "%.2f", c.objective - best)) до найкращого").s)
-                        .font(.caption).foregroundStyle(.tertiary).monospacedDigit()
+                        .font(Theme.ui(style: .caption1)).foregroundStyle(.tertiary).monospacedDigit()
                 }
             }
         }
@@ -204,13 +204,13 @@ struct RouterLab: View {
                 Spacer()
                 Text(L("↑ відключення \(Int(Self.maxOutage * 100))%").s)
             }
-            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+            .font(Theme.ui(style: .caption1)).foregroundStyle(.secondary).monospacedDigit()
             HStack(spacing: 14) {
                 legend(.device, L("Телефон").s)
                 legend(.cloud, L("Сервер").s)
                 legend(.cascade, L("Каскад").s)
             }
-            .font(.footnote)
+            .font(Theme.ui(style: .footnote))
         }
     }
 

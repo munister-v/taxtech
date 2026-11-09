@@ -118,7 +118,7 @@ struct WorkLab: View {
         let lockAge: Double = { if case .locked(let d) = stage { return now.timeIntervalSince(d) } else { return 9 } }()
         VStack(alignment: .leading, spacing: 10) {
             Text(idleEmpty ? L("Nonce ще не знайдено").s : "nonce \(nonce.formatted(.number.grouping(.never)))")
-                .font(idleEmpty ? .display(26, .medium) : .system(size: 30, weight: .medium)).tracking(-0.4)
+                .font(idleEmpty ? .display(26, .medium) : Theme.ui(30, .medium)).tracking(-0.4)
                 .monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
             pips(target: target, lit: idleEmpty ? 0 : z, flash: lockAge < 0.6)
             hashRows(digest, target: target, lit: !idleEmpty, glow: lockAge < 1.0)
@@ -159,7 +159,7 @@ struct WorkLab: View {
             row(0..<32)
             row(32..<64)
         }
-        .font(.system(size: 12.5, weight: .medium, design: .monospaced))
+        .font(Theme.mono(12.5, .medium))
         .shadow(color: Theme.accent.opacity(glow ? 0.6 : 0), radius: 8)
     }
 
@@ -168,9 +168,9 @@ struct WorkLab: View {
     private var controls: some View {
         LabPanel(title: L("Блок").s) {
             HStack {
-                Text(L("Дані").s).font(.subheadline).foregroundStyle(.secondary)
+                Text(L("Дані").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                 Spacer(minLength: 12)
-                TextField(L("Дані блока").s, text: $data).multilineTextAlignment(.trailing).font(.subheadline.weight(.medium))
+                TextField(L("Дані блока").s, text: $data).multilineTextAlignment(.trailing).font(Theme.ui(style: .subheadline, .medium))
                     .disabled(searching)
             }
             LabSlider(title: L("Нулів на початку").s, value: "\(Int(zeros))",
@@ -188,15 +188,15 @@ struct WorkLab: View {
         LabPanel(title: L("Ціна пошуку").s) {
             ForEach(1...6, id: \.self) { d in
                 HStack {
-                    Text(L("Нулів: \(d)").s).font(.subheadline).foregroundStyle(Int(zeros) == d ? Color.primary : Color.secondary)
+                    Text(L("Нулів: \(d)").s).font(Theme.ui(style: .subheadline)).foregroundStyle(Int(zeros) == d ? Color.primary : Color.secondary)
                     Spacer()
                     Text(L("у середньому \(Int(pow(16.0, Double(d))).formatted()) спроб").s)
-                        .font(.subheadline.weight(.semibold)).monospacedDigit()
+                        .font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                         .foregroundStyle(Int(zeros) == d ? Theme.accent : Color.secondary)
                 }
             }
             Text(L("Кожен новий нуль робить пошук у 16 разів довшим, а перевірка лишається одним хешем.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 

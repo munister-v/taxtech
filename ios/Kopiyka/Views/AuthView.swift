@@ -20,7 +20,7 @@ struct AuthView: View {
             HStack(spacing: 10) {
                 MarkView(height: 26, color: .white)
                 (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
-                    .font(.system(size: 22, weight: .semibold)).tracking(0.6).foregroundStyle(.white)
+                    .font(Theme.ui(22, .semibold)).tracking(0.6).foregroundStyle(.white)
                 Spacer()
                 Menu {
                     ForEach(Lang.allCases) { l in
@@ -28,21 +28,21 @@ struct AuthView: View {
                     }
                 } label: {
                     Text(Lang.current.rawValue.uppercased())
-                        .font(.system(size: 13, weight: .semibold)).tracking(1.2)
+                        .font(Theme.ui(13, .semibold)).tracking(1.2)
                         .foregroundStyle(.white.opacity(0.75))
                         .padding(.horizontal, 12).frame(height: 32)
                         .overlay(Capsule().strokeBorder(.white.opacity(0.25), lineWidth: 1))
                 }
                 .accessibilityLabel(L("Мова").s)
                 Button { server = true } label: {
-                    Image(systemName: "network").font(.system(size: 16, weight: .medium)).foregroundStyle(.white.opacity(0.55))
+                    Image(systemName: "network").font(Theme.ui(16, .medium)).foregroundStyle(.white.opacity(0.55))
                         .frame(width: 40, height: 40)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(L("Адреса сервера").s)
                 if let onClose {
                     Button(action: onClose) {
-                        Image(systemName: "xmark").font(.system(size: 14, weight: .semibold)).foregroundStyle(.white.opacity(0.75))
+                        Image(systemName: "xmark").font(Theme.ui(14, .semibold)).foregroundStyle(.white.opacity(0.75))
                             .frame(width: 40, height: 40)
                     }
                     .buttonStyle(.plain)
@@ -64,14 +64,14 @@ struct AuthView: View {
                 Text("ma verifica.")
                     .foregroundStyle(Theme.goldFill)
             }
-            .font(.system(size: 44, weight: .medium)).tracking(-1)
+            .font(Theme.ui(44, .medium)).tracking(-1)
             .lineLimit(1).minimumScaleFactor(0.7)
             .padding(.top, 30)
             .rise(2)
 
             if let status {
                 Label(status, systemImage: "exclamationmark.circle")
-                    .font(.subheadline)
+                    .font(Theme.ui(style: .subheadline))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
                     .background(.white.opacity(0.08), in: .rect(cornerRadius: 14, style: .continuous))
@@ -97,7 +97,7 @@ struct AuthView: View {
 
                 Button { signingUp = true } label: {
                     (Text(L("Немає акаунта? ").s).foregroundStyle(.white.opacity(0.6)) + Text(L("Створити").s).fontWeight(.semibold).foregroundStyle(Theme.goldLight))
-                        .font(.subheadline)
+                        .font(Theme.ui(style: .subheadline))
                         .frame(maxWidth: .infinity, minHeight: 40)
                 }
                 .buttonStyle(.plain)
@@ -283,10 +283,10 @@ struct SignInSheet: View {
                     HStack(spacing: 10) {
                         MarkView(height: 24, color: Theme.accent)
                         (Text("Tax").fontWeight(.medium) + Text("Tech").fontWeight(.light))
-                            .font(.system(size: 20, weight: .semibold)).tracking(0.6).foregroundStyle(.white)
+                            .font(Theme.ui(20, .semibold)).tracking(0.6).foregroundStyle(.white)
                         Spacer()
                         Button { dismiss() } label: {
-                            Image(systemName: "xmark").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white.opacity(0.8))
+                            Image(systemName: "xmark").font(Theme.ui(13, .semibold)).foregroundStyle(.white.opacity(0.8))
                                 .frame(width: 36, height: 36)
                                 .background(.white.opacity(0.08), in: .circle)
                                 .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.8))
@@ -300,7 +300,7 @@ struct SignInSheet: View {
                         Text(L("З поверненням").s).foregroundStyle(.white)
                         Text(L("у Рим.").s).foregroundStyle(Theme.goldFill)
                     }
-                    .font(.system(size: 42, weight: .medium)).tracking(-1)
+                    .font(Theme.ui(42, .medium)).tracking(-1)
                     .lineLimit(1).minimumScaleFactor(0.7)
                     .padding(.top, 18).padding(.bottom, 6)
                     .rise(1)
@@ -312,7 +312,7 @@ struct SignInSheet: View {
                             AuthField(title: L("Пароль").s, placeholder: L("Пароль").s, text: $password, secure: true,
                                       content: .password, submit: .go) { Task { await submit() } }
                             Button(L("Забули пароль?").s) { forgot = true }
-                                .font(.subheadline.weight(.semibold))
+                                .font(Theme.ui(style: .subheadline, .semibold))
                                 .foregroundStyle(Theme.accent)
                         }
                     }
@@ -320,7 +320,7 @@ struct SignInSheet: View {
 
                     if let status {
                         Label(status, systemImage: "exclamationmark.circle")
-                            .font(.subheadline)
+                            .font(Theme.ui(style: .subheadline))
                             .foregroundStyle(Color(red: 1, green: 0.62, blue: 0.5))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(14)
@@ -401,12 +401,12 @@ struct SignUpFlow: View {
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: step)
                 .padding(.top, 4)
 
-                Text(question).font(.system(size: 32, weight: .bold)).tracking(-1)
+                Text(question).font(Theme.ui(32, .bold)).tracking(-1)
                     .padding(.top, 28)
                     .id("q\(step)")
                     .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity),
                                             removal: .move(edge: .leading).combined(with: .opacity)))
-                Text(hint).font(.subheadline).foregroundStyle(.secondary).padding(.top, 6)
+                Text(hint).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).padding(.top, 6)
 
                 Group {
                     switch step {
@@ -417,7 +417,7 @@ struct SignUpFlow: View {
                         VStack(alignment: .leading, spacing: 14) {
                             SecureField(L("Щонайменше 8 символів").s, text: $password)
                                 .textContentType(.newPassword)
-                                .font(.system(size: 24, weight: .semibold))
+                                .font(Theme.ui(24, .semibold))
                                 .focused($focused)
                                 .padding(.vertical, 10)
                                 .overlay(alignment: .bottom) { Rectangle().fill(focused ? Theme.ink : Theme.line).frame(height: 2) }
@@ -428,7 +428,7 @@ struct SignUpFlow: View {
                 .padding(.top, 26)
 
                 if let status {
-                    Label(status, systemImage: "exclamationmark.circle").font(.subheadline)
+                    Label(status, systemImage: "exclamationmark.circle").font(Theme.ui(style: .subheadline))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(12)
                         .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))
@@ -439,7 +439,7 @@ struct SignUpFlow: View {
 
                 if step == steps - 1 {
                     Text(L("Створюючи акаунт, ви погоджуєтеся, що це навчальний банк: токени TAX не мають грошової цінності.").s)
-                        .font(.footnote).foregroundStyle(.secondary).padding(.bottom, 12)
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).padding(.bottom, 12)
                 }
                 Button { Task { await next() } } label: {
                     HStack(spacing: 8) {
@@ -497,7 +497,7 @@ struct SignUpFlow: View {
             .keyboardType(keyboard)
             .textInputAutocapitalization(plain ? .never : .words)
             .autocorrectionDisabled(plain)
-            .font(.system(size: 24, weight: .semibold))
+            .font(Theme.ui(24, .semibold))
             .focused($focused)
             .submitLabel(.next)
             .onSubmit { Task { await next() } }
@@ -528,21 +528,21 @@ struct ServerSheet: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
-                Text(L("Сервер").s).font(.system(size: 30, weight: .bold)).tracking(-0.8)
+                Text(L("Сервер").s).font(Theme.ui(30, .bold)).tracking(-0.8)
                 Text(L("Застосунок працює з навчальним банком. За замовчуванням - публічний сервер; для занять у класі вкажіть адресу локального.").s)
-                    .font(.subheadline).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                 TextField("https://…", text: $server)
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                    .font(.body.monospaced())
+                    .font(Theme.mono(style: .body))
                     .padding(.horizontal, 16)
                     .frame(minHeight: 54)
                     .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
                     .onSubmit(save)
                 Button(L("Зберегти").s, action: save).buttonStyle(InkButton())
                 Button(L("Повернути стандартний").s) { server = AppModel.defaultServer.absoluteString; save() }
-                    .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                    .font(Theme.ui(style: .subheadline, .semibold)).foregroundStyle(Theme.ink)
                     .frame(maxWidth: .infinity)
                 Spacer()
             }
@@ -619,7 +619,7 @@ struct AuthField: View {
             .shadow(color: focused ? Theme.accent.opacity(0.25) : .clear, radius: 12)
             .animation(.snappy(duration: 0.15), value: focused)
             if let hint {
-                Text(hint).font(.footnote).foregroundStyle(Theme.ink.opacity(0.75))
+                Text(hint).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.ink.opacity(0.75))
                     .transition(.opacity)
             }
         }
@@ -654,13 +654,13 @@ struct PasswordStrength: View {
                 ForEach(0..<4, id: \.self) { i in
                     Capsule().fill(i < score ? Theme.ink : Theme.line).frame(height: 4)
                 }
-                Text(label).font(.footnote.weight(.semibold)).frame(width: 104, alignment: .trailing)
+                Text(label).font(Theme.ui(style: .footnote, .semibold)).frame(width: 104, alignment: .trailing)
             }
             .animation(.snappy(duration: 0.2), value: score)
             LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], spacing: 6) {
                 ForEach(rules, id: \.0) { rule in
                     Label(rule.0, systemImage: rule.1 ? "checkmark.circle.fill" : "circle")
-                        .font(.footnote)
+                        .font(Theme.ui(style: .footnote))
                         .foregroundStyle(rule.1 ? Theme.ink : Color.secondary)
                 }
             }
@@ -692,12 +692,12 @@ struct ForgotPasswordView: View {
                         if let demo = ticket.demoCode {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(L("Навчальний банк: SMS не надсилаємо").s).font(.footnote).foregroundStyle(.secondary)
-                                    Text(demo).font(.system(size: 24, weight: .bold).monospaced()).tracking(4)
+                                    Text(L("Навчальний банк: SMS не надсилаємо").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+                                    Text(demo).font(Theme.mono(24, .bold)).tracking(4)
                                 }
                                 Spacer()
                                 Button(L("Вставити").s) { code = demo }
-                                    .font(.subheadline.weight(.semibold))
+                                    .font(Theme.ui(style: .subheadline, .semibold))
                                     .padding(.horizontal, 14).frame(height: 36)
                                     .overlay(Capsule().stroke(Theme.ink.opacity(0.16), lineWidth: 1))
                                     .foregroundStyle(Theme.ink)
@@ -707,11 +707,11 @@ struct ForgotPasswordView: View {
                             .background(Theme.surface, in: .rect(cornerRadius: 16, style: .continuous))
                         }
                         VStack(alignment: .leading, spacing: 7) {
-                            Text(L("Код із 6 цифр").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                            Text(L("Код із 6 цифр").s).font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(.secondary)
                             TextField("000000", text: $code)
                                 .keyboardType(.numberPad)
                                 .textContentType(.oneTimeCode)
-                                .font(.system(size: 28, weight: .semibold).monospaced())
+                                .font(Theme.mono(28, .semibold))
                                 .tracking(6)
                                 .padding(.horizontal, 16)
                                 .frame(minHeight: 60)
@@ -728,10 +728,10 @@ struct ForgotPasswordView: View {
                             .disabled(code.count != 6 || newPassword.count < 8 || screen.busy)
                         HStack {
                             Text(left > 0 ? String(format: L("Повторно через %d:%02d").s, left / 60, left % 60) : L("Код не прийшов?").s)
-                                .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
                             Spacer()
                             Button(L("Надіслати ще раз").s) { Task { await request() } }
-                                .font(.footnote.weight(.semibold))
+                                .font(Theme.ui(style: .footnote, .semibold))
                                 .foregroundStyle(Theme.ink)
                                 .disabled(left > 0 || screen.busy)
                         }
@@ -745,7 +745,7 @@ struct ForgotPasswordView: View {
                             .disabled(identity.trimmingCharacters(in: .whitespaces).isEmpty || screen.busy)
                     }
                     if let e = screen.error {
-                        Label(e, systemImage: "exclamationmark.circle").font(.subheadline)
+                        Label(e, systemImage: "exclamationmark.circle").font(Theme.ui(style: .subheadline))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(14)
                             .background(Theme.ink.opacity(0.07), in: .rect(cornerRadius: 14, style: .continuous))

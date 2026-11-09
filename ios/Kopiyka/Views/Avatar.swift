@@ -82,7 +82,7 @@ struct AvatarView: View {
             LinearGradient(colors: [p.a, p.b], startPoint: .topLeading, endPoint: .bottomTrailing)
             Circle().fill(.white.opacity(0.22)).frame(width: size * 0.9).offset(x: size * 0.28, y: -size * 0.3).blur(radius: size * 0.04)
             Circle().fill(.black.opacity(0.16)).frame(width: size * 1.0).offset(x: -size * 0.3, y: size * 0.42)
-            Text(initials).font(.system(size: size * 0.38, weight: .semibold, design: .rounded)).tracking(size * 0.01)
+            Text(initials).font(Theme.ui(size * 0.38, .semibold)).tracking(size * 0.01)
                 .foregroundStyle(p.ink)
         }
     }
@@ -120,7 +120,7 @@ struct AvatarPicker: View {
                     VStack(spacing: 10) {
                         PhotosPicker(selection: $pick, matching: .images) {
                             Label(Tx("Фото з галереї", "Photo from library", "Фото из галереи"), systemImage: "photo")
-                                .font(.body.weight(.semibold))
+                                .font(Theme.ui(style: .body, .semibold))
                                 .frame(maxWidth: .infinity, minHeight: 50)
                                 .background(Theme.surface, in: .capsule)
                                 .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
@@ -130,7 +130,7 @@ struct AvatarPicker: View {
                             ProfilePhoto.remove()
                             saved = -1
                         }
-                        .font(.subheadline).foregroundStyle(.secondary)
+                        .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                 }
                 .padding(.horizontal, Theme.gutter)

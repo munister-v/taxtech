@@ -41,7 +41,7 @@ struct TaxesView: View {
                     case .calendar: CalendarPart(group: tax.group)
                     }
                     Text(L("Ставки \(String(r.year)) року, 1 TAX = 1 гривня. Розрахунок орієнтовний.").s)
-                        .font(.footnote)
+                        .font(Theme.ui(style: .footnote))
                         .foregroundStyle(.secondary).expertOnly()
                 }
                 .padding(.horizontal, Theme.gutter)
@@ -74,14 +74,14 @@ struct TaxesView: View {
                 HStack(alignment: .center, spacing: 12) {
                     GuillocheBadge(symbol: "calendar.badge.clock", tint: Theme.accent, size: 40)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L("Найближчий строк").s).font(.caption.weight(.medium)).foregroundStyle(.secondary)
-                        Text(next.title).font(.subheadline.weight(.semibold)).lineLimit(2)
+                        Text(L("Найближчий строк").s).font(Theme.ui(style: .caption1, .medium)).foregroundStyle(.secondary)
+                        Text(next.title).font(Theme.ui(style: .subheadline, .semibold)).lineLimit(2)
                     }
                     Spacer(minLength: 8)
                     VStack(alignment: .trailing, spacing: 3) {
                         Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Lang.current.locale)))
-                            .font(.subheadline.weight(.semibold))
-                        Text(CalendarPart.left(next.date)).font(.caption).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .subheadline, .semibold))
+                        Text(CalendarPart.left(next.date)).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
                     }
                 }
                 .padding(14)
@@ -156,7 +156,7 @@ private struct OverviewPart: View {
                         }
                     }
                     Text(L("Податок з процентів банк утримує сам.").s)
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 }
             }
         }
@@ -164,9 +164,9 @@ private struct OverviewPart: View {
 
     private func rateTile(_ value: String, _ title: String, _ symbol: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(Theme.accent)
-            Text(value).font(.system(size: 32, weight: .semibold)).tracking(-1).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-            Text(title).font(.footnote).foregroundStyle(.secondary).lineLimit(2).multilineTextAlignment(.leading)
+            Image(systemName: symbol).font(Theme.ui(15, .semibold)).foregroundStyle(Theme.accent)
+            Text(value).font(Theme.ui(32, .semibold)).tracking(-1).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+            Text(title).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(2).multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, minHeight: 116, alignment: .topLeading)
         .padding(16)
@@ -225,7 +225,7 @@ private struct SalaryPart: View {
             }
             if gross < rates.minWage {
                 Text(L("Менше за мінімальну зарплату (\(Format.money(rates.minWage))) за повну ставку платити не можна.").s)
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
         }
     }
@@ -244,7 +244,7 @@ private struct FopPart: View {
         let salary = TaxMath.salary(gross: income / 12, r)
         VStack(alignment: .leading, spacing: 18) {
             SegmentBar(items: FopGroup.allCases.map { ($0, $0.title) }, selection: $selected)
-            Text(selected.who).font(.footnote).foregroundStyle(.secondary)
+            Text(selected.who).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             MoneyField(title: L("Дохід за рік").s, value: $income)
             HeroPanel {
                 HeroCaption(L("Податки ФОП за рік").s)
@@ -270,13 +270,13 @@ private struct FopPart: View {
                 HStack {
                     Text(L("Ліміт доходу").s).caption()
                     Spacer()
-                    Text(Format.money(f.limit)).font(.footnote).monospacedDigit().foregroundStyle(.secondary)
+                    Text(Format.money(f.limit)).font(Theme.ui(style: .footnote)).monospacedDigit().foregroundStyle(.secondary)
                 }
                 Meter(value: f.limit > 0 ? income / f.limit : 0)
                 Text(f.overLimit
                      ? L("Дохід більший за ліміт групи: з наступного кварталу доведеться перейти на іншу групу або загальну систему.").s
                      : L("Використано \(percent(income / max(f.limit, 1))) ліміту.").s)
-                    .font(.footnote)
+                    .font(Theme.ui(style: .footnote))
                     .foregroundStyle(f.overLimit ? Theme.ink : .secondary)
                     .fontWeight(f.overLimit ? .semibold : .regular)
             }
@@ -332,11 +332,11 @@ private struct DeductionPart: View {
                 BlockTitle(L("Витрати").s)
                 Spacer()
                 Button { adding = true } label: { Label(L("Додати").s, systemImage: "plus") }
-                    .font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                    .font(Theme.ui(style: .subheadline, .semibold)).foregroundStyle(Theme.ink)
             }
             if tax.deductions.isEmpty {
                 Text(L("Витрат ще немає.").s)
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             } else {
                 Surface {
                     ForEach(Array(tax.deductions.enumerated()), id: \.element.id) { i, d in
@@ -345,7 +345,7 @@ private struct DeductionPart: View {
                             AmountRow(title: d.kind.title, subtitle: d.note.isEmpty ? L("18% повернуть: \(Format.money(d.amount * r.pdfo))").s : d.note,
                                       amount: Format.money(d.amount))
                             Button { tax.deductions.removeAll { $0.id == d.id } } label: {
-                                Image(systemName: "xmark").font(.footnote).foregroundStyle(.secondary)
+                                Image(systemName: "xmark").font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                             }
                             .buttonStyle(.plain)
                             .padding(.trailing, 14)
@@ -355,7 +355,7 @@ private struct DeductionPart: View {
                 }
             }
             Text(L("Декларація - до 31 грудня наступного року. Навчання - до \(Format.money(TaxMath.educationLimitPerMonth(r))) на місяць.").s)
-                .font(.footnote).foregroundStyle(.secondary).expertOnly()
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).expertOnly()
         }
         .sheet(isPresented: $adding) { NewDeductionView { tax.deductions.append($0) } }
     }
@@ -408,7 +408,7 @@ private struct CalendarPart: View {
             .sorted { $0.key < $1.key }
         VStack(alignment: .leading, spacing: 18) {
             Text(group.map { L("Строки для фізособи і ФОП, \($0.title.lowercased()).").s } ?? L("Строки для фізособи. Оберіть групу у вкладці ФОП, щоб додати строки підприємця.").s)
-                .font(.footnote).foregroundStyle(.secondary).expertOnly()
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).expertOnly()
             ForEach(byMonth, id: \.key) { month, items in
                 VStack(alignment: .leading, spacing: 10) {
                     BlockTitle(BankText.monthYear(month))
@@ -417,17 +417,17 @@ private struct CalendarPart: View {
                             if i > 0 { Rule() }
                             HStack(alignment: .top, spacing: 14) {
                                 VStack(spacing: 0) {
-                                    Text(d.date.formatted(.dateTime.day())).font(.title3.weight(.bold)).monospacedDigit()
+                                    Text(d.date.formatted(.dateTime.day())).font(Theme.ui(style: .title3, .bold)).monospacedDigit()
                                     Text(d.date.formatted(.dateTime.weekday(.abbreviated).locale(Lang.current.locale)))
-                                        .font(.caption2).foregroundStyle(.secondary)
+                                        .font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
                                 }
                                 .frame(width: 40)
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(d.title).font(.subheadline.weight(.semibold))
-                                    Text(d.detail).font(.footnote).foregroundStyle(.secondary)
+                                    Text(d.title).font(Theme.ui(style: .subheadline, .semibold))
+                                    Text(d.detail).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                                 }
                                 Spacer(minLength: 0)
-                                Text(Self.left(d.date)).font(.caption).foregroundStyle(.secondary)
+                                Text(Self.left(d.date)).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
                             }
                             .padding(14)
                         }

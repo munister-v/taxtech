@@ -76,11 +76,11 @@ struct PrivacyPolicyView: View {
                     Text(Tx("Версія \(PrivacyPolicy.version), оновлено \(PrivacyPolicy.updated)",
                             "Version \(PrivacyPolicy.version), updated \(PrivacyPolicy.updated)",
                             "Версия \(PrivacyPolicy.version), обновлено \(PrivacyPolicy.updated)"))
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     ForEach(PrivacyPolicy.sections) { s in
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(s.title).font(.headline)
-                            Text(s.body).font(.subheadline).foregroundStyle(.secondary)
+                            Text(s.title).font(Theme.ui(style: .headline))
+                            Text(s.body).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -113,9 +113,9 @@ struct DataControlsView: View {
                 RowGroup(title: Tx("Згода", "Consent", "Согласие")) {
                     Toggle(isOn: $m.cloudAIAllowed) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(Tx("Мовна модель на сервері", "Language model on the server", "Языковая модель на сервере")).font(.body.weight(.medium))
+                            Text(Tx("Мовна модель на сервері", "Language model on the server", "Языковая модель на сервере")).font(Theme.ui(style: .body, .medium))
                             Text(Tx("Текст чека й питання помічнику, без номерів і паспорта.", "Receipt text and assistant questions, with numbers and passport removed.", "Текст чека и вопросы помощнику, без номеров и паспорта."))
-                                .font(.footnote).foregroundStyle(.secondary)
+                                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                         }
                     }
                     .tint(Theme.accent)
@@ -145,13 +145,13 @@ struct DataControlsView: View {
                 if let exportURL {
                     ShareLink(item: exportURL) {
                         Label(Tx("Поділитися файлом", "Share the file", "Поделиться файлом"), systemImage: "doc.badge.arrow.up")
-                            .font(.body.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 50)
+                            .font(Theme.ui(style: .body, .semibold)).frame(maxWidth: .infinity, minHeight: 50)
                             .background(Theme.goldFill, in: .capsule).foregroundStyle(Theme.onAccent)
                     }
                 }
-                if let note { Text(note).font(.footnote).foregroundStyle(.secondary) }
+                if let note { Text(note).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                 Text(Tx("Видалення акаунта з усіма даними на сервері - у профілі, внизу.", "Deleting the account and all server data is at the bottom of the profile.", "Удаление аккаунта со всеми данными на сервере - в профиле, внизу."))
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             .padding(.horizontal, Theme.gutter)
             .padding(.bottom, 32)

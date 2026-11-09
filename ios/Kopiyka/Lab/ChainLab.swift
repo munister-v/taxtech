@@ -75,15 +75,15 @@ struct ChainLab: View {
             }
             LabPanel(title: L("Записаний окремо").s) {
                 HStack {
-                    Text(L("Останній відбиток при записі").s).font(.subheadline)
+                    Text(L("Останній відбиток при записі").s).font(Theme.ui(style: .subheadline))
                     Spacer()
-                    Text(short(anchor)).font(.system(.subheadline, design: .monospaced))
+                    Text(short(anchor)).font(Theme.mono(style: .subheadline))
                 }
                 HStack {
                     Image(systemName: anchorMatches ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(anchorMatches ? Theme.accent : Theme.alert)
                     Text(anchorMatches ? L("Дані дають той самий відбиток").s : L("Інший відбиток: дані змінено").s)
-                        .font(.footnote).foregroundStyle(.secondary)
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 }
             }
         }
@@ -132,18 +132,18 @@ struct ChainLab: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
                 Text("№\(blocks[i].id)").caption()
-                TextField(L("Запис").s, text: $blocks[i].note).font(.subheadline.weight(.medium))
+                TextField(L("Запис").s, text: $blocks[i].note).font(Theme.ui(style: .subheadline, .medium))
                 TextField("0", value: $blocks[i].amount, format: .number)
                     .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
-                    .font(.subheadline.weight(.semibold)).monospacedDigit().frame(width: 84)
+                    .font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit().frame(width: 84)
             }
             HStack(spacing: 6) {
                 Image(systemName: bad ? "link.badge.plus" : "link")
-                    .foregroundStyle(bad ? Theme.alert : Theme.accent).font(.caption)
-                Text(short(blocks[i].hash)).font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(bad ? Theme.alert : Theme.accent).font(Theme.ui(style: .caption1))
+                Text(short(blocks[i].hash)).font(Theme.mono(style: .caption1))
                     .foregroundStyle(bad ? Theme.alert : Color.secondary)
-                Text("←").foregroundStyle(.tertiary).font(.caption)
-                Text(short(i == 0 ? Self.zero : blocks[i - 1].hash)).font(.system(.caption, design: .monospaced))
+                Text("←").foregroundStyle(.tertiary).font(Theme.ui(style: .caption1))
+                Text(short(i == 0 ? Self.zero : blocks[i - 1].hash)).font(Theme.mono(style: .caption1))
                     .foregroundStyle(.tertiary)
             }
         }
@@ -174,7 +174,7 @@ struct ChainLab: View {
                     blocks = Self.build(rows)
                     anchor = blocks.last?.hash ?? Self.zero
                 } label: {
-                    Image(systemName: "arrow.counterclockwise").font(.body.weight(.semibold))
+                    Image(systemName: "arrow.counterclockwise").font(Theme.ui(style: .body, .semibold))
                 }
                 .buttonStyle(LineButton())
                 .frame(width: 64)
@@ -306,10 +306,10 @@ private struct ChainCanvas: View {
         let tint = anchorBad ? Theme.alert : Theme.accent
         ctx.fill(shape, with: .color(anchorBad ? Theme.alert.opacity(0.12) : Theme.ink.opacity(0.04)))
         ctx.stroke(shape, with: .color(tint.opacity(anchorBad ? 0.9 : 0.5)), style: StrokeStyle(lineWidth: 1.2, dash: [5, 4]))
-        ctx.draw(Text(L("Записано окремо").s).font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.6)),
+        ctx.draw(Text(L("Записано окремо").s).font(Theme.ui(12, .medium)).foregroundStyle(Theme.ink.opacity(0.6)),
                  at: CGPoint(x: ar.minX + 14, y: ar.midY), anchor: .leading)
-        ctx.draw(Text(anchorBad ? "✕" : "✓").font(.system(size: 15, weight: .bold)).foregroundStyle(tint), at: CGPoint(x: ar.maxX - 16, y: ar.midY))
-        ctx.draw(Text("# " + short(anchor)).font(.system(size: 11, weight: .semibold, design: .monospaced)).foregroundStyle(tint),
+        ctx.draw(Text(anchorBad ? "✕" : "✓").font(Theme.ui(15, .bold)).foregroundStyle(tint), at: CGPoint(x: ar.maxX - 16, y: ar.midY))
+        ctx.draw(Text("# " + short(anchor)).font(Theme.mono(11, .semibold)).foregroundStyle(tint),
                  at: CGPoint(x: ar.maxX - 34, y: ar.midY), anchor: .trailing)
 
         // хвилі
@@ -368,13 +368,13 @@ private struct ChainCanvas: View {
         ctx.fill(shape, with: .color(bad ? Theme.alert.opacity(0.12) : Theme.ink.opacity(sel ? 0.09 : 0.05)))
         ctx.stroke(shape, with: .color(bad ? Theme.alert.opacity(0.9) : sel ? Theme.accent : Theme.ink.opacity(0.12)), lineWidth: sel || bad ? 1.4 : 1)
         let x = r.minX + 14
-        ctx.draw(Text("№\(b.id)").font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.ink.opacity(0.4)), at: CGPoint(x: x, y: r.minY + 22), anchor: .leading)
-        ctx.draw(Text(String(b.note.prefix(20))).font(.system(size: 14, weight: .medium)).foregroundStyle(Theme.ink), at: CGPoint(x: x + 30, y: r.minY + 22), anchor: .leading)
-        ctx.draw(Text(Format.short(b.amount)).font(.system(size: 15, weight: .semibold).monospacedDigit()).foregroundStyle(bad ? Theme.alert : Theme.ink),
+        ctx.draw(Text("№\(b.id)").font(Theme.ui(11, .semibold)).foregroundStyle(Theme.ink.opacity(0.4)), at: CGPoint(x: x, y: r.minY + 22), anchor: .leading)
+        ctx.draw(Text(String(b.note.prefix(20))).font(Theme.ui(14, .medium)).foregroundStyle(Theme.ink), at: CGPoint(x: x + 30, y: r.minY + 22), anchor: .leading)
+        ctx.draw(Text(Format.short(b.amount)).font(Theme.ui(15, .semibold).monospacedDigit()).foregroundStyle(bad ? Theme.alert : Theme.ink),
                  at: CGPoint(x: r.maxX - 14, y: r.minY + 22), anchor: .trailing)
-        ctx.draw(Text("← " + short(k == 0 ? zero : blocks[k - 1].hash)).font(.system(size: 10.5, design: .monospaced)).foregroundStyle(Theme.ink.opacity(0.32)),
+        ctx.draw(Text("← " + short(k == 0 ? zero : blocks[k - 1].hash)).font(Theme.mono(10.5)).foregroundStyle(Theme.ink.opacity(0.32)),
                  at: CGPoint(x: x, y: r.minY + 47), anchor: .leading)
-        ctx.draw(Text("# " + short(b.hash)).font(.system(size: 11.5, weight: .semibold, design: .monospaced)).foregroundStyle(bad ? Theme.alert : Theme.accent),
+        ctx.draw(Text("# " + short(b.hash)).font(Theme.mono(11.5, .semibold)).foregroundStyle(bad ? Theme.alert : Theme.accent),
                  at: CGPoint(x: r.maxX - 14, y: r.minY + 47), anchor: .trailing)
     }
 }

@@ -80,7 +80,7 @@ struct LabHome: View {
         return VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("\(progress.passedCount)").font(.display(40, .medium)).monospacedDigit()
-                Text(L("з \(total) пройдено").s).font(.subheadline).foregroundStyle(.secondary)
+                Text(L("з \(total) пройдено").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             }
             HStack(spacing: 4) {
                 ForEach(Experiment.allCases) { e in
@@ -94,17 +94,17 @@ struct LabHome: View {
     private func row(_ e: Experiment) -> some View {
         HStack(alignment: .top, spacing: 16) {
             Text(String(format: "%02d", e.number))
-                .font(.system(size: 13, weight: .semibold)).tracking(1.5)
+                .font(Theme.ui(13, .semibold)).tracking(1.5)
                 .foregroundStyle(Theme.gold)
                 .frame(width: 24, alignment: .leading)
                 .padding(.top, 6)
             VStack(alignment: .leading, spacing: 4) {
                 Text(e.title).font(.display(22, .medium)).tracking(-0.4)
-                Text(e.line).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                Text(e.line).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).multilineTextAlignment(.leading)
             }
             Spacer(minLength: 8)
             Image(systemName: progress.passed(e) ? "checkmark" : "arrow.up.right")
-                .font(.footnote.weight(.semibold))
+                .font(Theme.ui(style: .footnote, .semibold))
                 .foregroundStyle(progress.passed(e) ? Theme.accent : Color.secondary)
                 .padding(.top, 8)
         }
@@ -150,9 +150,9 @@ struct SandboxGate: View {
                         .buttonStyle(InkButton())
                     VStack(spacing: 4) {
                         Text(L("Токен TAX - навчальна одиниця, а не гроші.").s)
-                            .font(.caption).foregroundStyle(.tertiary).multilineTextAlignment(.center)
+                            .font(Theme.ui(style: .caption1)).foregroundStyle(.tertiary).multilineTextAlignment(.center)
                         Button(PrivacyPolicy.heading) { policy = true }
-                            .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary)
                     }
                 }
                 .padding(.top, 30).padding(.bottom, model.expert ? 78 : 8) // у режимі Expert знизу плаваюча панель вкладок

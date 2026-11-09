@@ -78,7 +78,7 @@ struct ConsentView: View {
                     Text(Brand.lab).foregroundStyle(.secondary)
                     Text(L("Токен TAX - навчальна одиниця, а не гроші.").s).foregroundStyle(Theme.ink)
                 }
-                .font(.subheadline).multilineTextAlignment(.center)
+                .font(Theme.ui(style: .subheadline)).multilineTextAlignment(.center)
                 .padding(.horizontal, 32).padding(.top, 14)
                 Spacer(minLength: 0)
             }
@@ -88,7 +88,7 @@ struct ConsentView: View {
     private var privacy: some View {
         VStack(alignment: .leading, spacing: 24) {
             Text(L("Ваші дані").s)
-                .font(.system(size: 40, weight: .semibold)).tracking(-1.2)
+                .font(Theme.ui(40, .semibold)).tracking(-1.2)
                 .padding(.top, 56)
             VStack(spacing: 0) {
                 fact("iphone", L("Лише телефон").s,
@@ -111,13 +111,13 @@ struct ConsentView: View {
     private func fact(_ symbol: String, _ title: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: symbol)
-                .font(.system(size: 18, weight: .semibold))
+                .font(Theme.ui(18, .semibold))
                 .foregroundStyle(Theme.accent)
                 .frame(width: 40, height: 40)
                 .background(Theme.accent.opacity(0.14), in: .circle)
             VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.headline)
-                Text(text).font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Text(title).font(Theme.ui(style: .headline))
+                Text(text).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }
@@ -147,7 +147,7 @@ private struct Slide<Content: View>: View {
 private extension View {
     /// Великий заголовок сторінки.
     func headline1() -> some View {
-        font(.system(size: 46, weight: .semibold))
+        font(Theme.ui(46, .semibold))
             .tracking(-1.2)
             .minimumScaleFactor(0.7)
             .fixedSize(horizontal: false, vertical: true)

@@ -20,7 +20,7 @@ struct GoalsView: View {
                     HeroPanel {
                         HeroCaption(L("Відкладено").s)
                         BigAmount(value: saved, size: 40).padding(.top, 6)
-                        Text(L("з \(Format.money(target))").s).font(.subheadline.weight(.medium))
+                        Text(L("з \(Format.money(target))").s).font(Theme.ui(style: .subheadline, .medium))
                             .foregroundStyle(.secondary)
                     }
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
@@ -28,7 +28,7 @@ struct GoalsView: View {
                     }
                     Button(L("Нова ціль").s) { adding = true }.buttonStyle(LineButton())
                 }
-                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
             }
             .padding(Theme.gutter)
         }
@@ -54,18 +54,18 @@ struct GoalsView: View {
                 Circle().trim(from: 0, to: g.progress)
                     .stroke(Theme.accent, style: StrokeStyle(lineWidth: 7, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                Text("\(Int(g.progress * 100))%").font(.subheadline.weight(.bold)).monospacedDigit()
+                Text("\(Int(g.progress * 100))%").font(Theme.ui(style: .subheadline, .bold)).monospacedDigit()
             }
             .frame(width: 64, height: 64)
-            Text(g.title).font(.headline).lineLimit(2, reservesSpace: true)
+            Text(g.title).font(Theme.ui(style: .headline)).lineLimit(2, reservesSpace: true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(Format.money(g.currentAmount)).font(.subheadline.weight(.bold)).monospacedDigit()
-                Text(L("з \(Format.money(g.targetAmount))").s).font(.caption).foregroundStyle(.secondary).monospacedDigit()
-                if let d = g.deadline, !d.isEmpty { Text(L("до \(BankText.date(d))").s).font(.caption).foregroundStyle(.secondary) }
+                Text(Format.money(g.currentAmount)).font(Theme.ui(style: .subheadline, .bold)).monospacedDigit()
+                Text(L("з \(Format.money(g.targetAmount))").s).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary).monospacedDigit()
+                if let d = g.deadline, !d.isEmpty { Text(L("до \(BankText.date(d))").s).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary) }
             }
             HStack {
                 Button { funding = g } label: {
-                    Image(systemName: "plus").font(.subheadline.weight(.bold))
+                    Image(systemName: "plus").font(Theme.ui(style: .subheadline, .bold))
                         .frame(width: 36, height: 36)
                         .background(Theme.accent, in: .circle)
                         .foregroundStyle(Theme.onAccent)
@@ -81,7 +81,7 @@ struct GoalsView: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "ellipsis").font(.subheadline.weight(.bold)).frame(width: 36, height: 36)
+                    Image(systemName: "ellipsis").font(Theme.ui(style: .subheadline, .bold)).frame(width: 36, height: 36)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -156,7 +156,7 @@ struct ContactsView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(c.contactName)
                         Text([c.accountNumber, c.phone].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: ", "))
-                            .font(.footnote).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     .swipeActions {
                         Button(L("Видалити").s, role: .destructive) {
@@ -178,7 +178,7 @@ struct ContactsView: View {
                             Spacer()
                             if let a = t.amount { Text(Format.money(a)).monospacedDigit() }
                         }
-                        Text(t.recipientAccount ?? "").font(.footnote).foregroundStyle(.secondary)
+                        Text(t.recipientAccount ?? "").font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     .swipeActions {
                         Button(L("Видалити").s, role: .destructive) {
@@ -316,7 +316,7 @@ struct LimitsView: View {
                             Text(BankText.type(l.txType))
                             Spacer()
                             Text(L("\(Format.money(l.spent ?? 0)) з \(Format.money(l.monthlyLimit))").s)
-                                .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
                         }
                         Meter(value: (l.pct ?? 0) / 100)
                     }
@@ -342,7 +342,7 @@ struct LimitsView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(r.title)
                             Text(L("\(BankText.frequency(r.frequency)), далі \(BankText.date(r.nextRunDate))").s)
-                                .font(.footnote).foregroundStyle(.secondary)
+                                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                         }
                         Spacer()
                         Text(Format.money(r.amount)).monospacedDigit()

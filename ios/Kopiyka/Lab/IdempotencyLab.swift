@@ -31,7 +31,7 @@ struct IdempotencyLab: View {
         LabHero(ok: charges <= 1) {
             HeroCaption(L("Рахунок").s)
             Text(Format.short(balance)).font(Theme.balance(44)).monospacedDigit().padding(.top, 2)
-            Text(L("Списань за цією оплатою: \(charges)").s).font(.subheadline).padding(.top, 4)
+            Text(L("Списань за цією оплатою: \(charges)").s).font(Theme.ui(style: .subheadline)).padding(.top, 4)
         }
     }
 
@@ -46,9 +46,9 @@ struct IdempotencyLab: View {
             .pickerStyle(.segmented)
             if useKey {
                 HStack {
-                    Text(L("Ключ").s).font(.subheadline).foregroundStyle(.secondary)
+                    Text(L("Ключ").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     Spacer()
-                    Text(key).font(.system(.subheadline, design: .monospaced))
+                    Text(key).font(Theme.mono(style: .subheadline))
                 }
             }
         }
@@ -57,7 +57,7 @@ struct IdempotencyLab: View {
     private var client: some View {
         LabPanel(title: L("Клієнт").s) {
             if let clientSees {
-                Text(clientSees).font(.headline)
+                Text(clientSees).font(Theme.ui(style: .headline))
             } else {
                 Text(L("Ще нічого не надсилали").s).foregroundStyle(.secondary)
             }
@@ -70,7 +70,7 @@ struct IdempotencyLab: View {
         LabPanel(title: L("Журнал сервера").s) {
             if log.isEmpty { Text(L("Порожньо").s).foregroundStyle(.secondary) }
             ForEach(Array(log.enumerated().reversed()), id: \.offset) { i, line in
-                Text("\(i + 1). \(line)").font(.footnote).foregroundStyle(i == log.count - 1 ? .primary : .secondary)
+                Text("\(i + 1). \(line)").font(Theme.ui(style: .footnote)).foregroundStyle(i == log.count - 1 ? .primary : .secondary)
             }
         }
     }

@@ -50,12 +50,12 @@ struct ShopView: View {
                             Spacer()
                             Button { showCart = true } label: {
                                 ZStack(alignment: .topTrailing) {
-                                    Image(systemName: "bag").font(.system(size: 23, weight: .light))
+                                    Image(systemName: "bag").font(Theme.ui(23, .light))
                                         .foregroundStyle(Theme.ink)
                                         .frame(width: 44, height: 44)
                                         .symbolEffect(.bounce, value: cartCount)
                                     if cartCount > 0 {
-                                        Text("\(cartCount)").font(.system(size: 10, weight: .bold)).monospacedDigit()
+                                        Text("\(cartCount)").font(Theme.ui(10, .bold)).monospacedDigit()
                                             .contentTransition(.numericText(value: Double(cartCount)))
                                             .frame(minWidth: 17, minHeight: 17)
                                             .background(Theme.accent, in: .circle).foregroundStyle(Theme.onAccent)
@@ -169,7 +169,7 @@ struct ShopView: View {
             .map { ($0, $0.title) }, selection: $category, gap: 22)
 
         HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass").font(.system(size: 16, weight: .light)).foregroundStyle(.secondary)
+            Image(systemName: "magnifyingglass").font(Theme.ui(16, .light)).foregroundStyle(.secondary)
             TextField(L("Пошук товарів…").s, text: $search).autocorrectionDisabled()
             if !search.isEmpty {
                 Button { search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary) }
@@ -181,7 +181,7 @@ struct ShopView: View {
         .padding(.bottom, 4)
 
         HStack(alignment: .firstTextBaseline) {
-            Text(L("\(total) товарів").s).font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+            Text(L("\(total) товарів").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
             Spacer()
             Menu {
                 Picker(L("Сортування").s, selection: $sort) {
@@ -190,7 +190,7 @@ struct ShopView: View {
             } label: {
                 HStack(spacing: 6) {
                     Text(sort.title).textCase(.uppercase).tracking(1.2)
-                    Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
+                    Image(systemName: "chevron.down").font(Theme.ui(9, .semibold))
                 }
                 .font(ShopStyle.caps(10.5, .semibold))
                 .foregroundStyle(Theme.ink)
@@ -214,11 +214,11 @@ struct ShopView: View {
         Button { showCart = true } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(L("\(cartCount) у кошику").s).font(.caption).foregroundStyle(Theme.onAccent.opacity(0.7))
-                    Text(Format.money(cartTotal)).font(.headline).monospacedDigit()
+                    Text(L("\(cartCount) у кошику").s).font(Theme.ui(style: .caption1)).foregroundStyle(Theme.onAccent.opacity(0.7))
+                    Text(Format.money(cartTotal)).font(Theme.ui(style: .headline)).monospacedDigit()
                 }
                 Spacer()
-                Text(L("Оформити").s).font(.headline)
+                Text(L("Оформити").s).font(Theme.ui(style: .headline))
                 Image(systemName: "arrow.right")
             }
             .padding(.horizontal, 20)
@@ -380,7 +380,7 @@ struct ProductArt: View {
 
     private var emoji: some View {
         Text(product.imageEmoji ?? "🛍️")
-            .font(.system(size: size))
+            .font(Theme.ui(size))
             .grayscale(1)
             .frame(maxWidth: .infinity, minHeight: height)
             .background(Theme.bg, in: .rect(cornerRadius: 14, style: .continuous))
@@ -411,7 +411,7 @@ struct ProductArt: View {
             picture
             if showsLabel, let l = Self.label(product) {
                 Text(l)
-                    .font(.caption.weight(.semibold))
+                    .font(Theme.ui(style: .caption1, .semibold))
                     .foregroundStyle(Paper.ink.opacity(0.55))
                     .padding(10)
             }
@@ -435,8 +435,8 @@ struct PriceText: View {
 
     var body: some View {
         (Text(Format.amount(value))
-            .font(.system(size: size, weight: .bold)).monospacedDigit()
-         + Text(" TAX").font(.system(size: size * 0.62, weight: .semibold)).foregroundColor(color.opacity(0.5)))
+            .font(Theme.ui(size, .bold)).monospacedDigit()
+         + Text(" TAX").font(Theme.ui(size * 0.62, .semibold)).foregroundColor(color.opacity(0.5)))
             .foregroundStyle(color)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
@@ -484,8 +484,8 @@ struct ProductView: View {
 
     private func perk(_ icon: String, _ text: String) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Image(systemName: icon).font(.system(size: 18, weight: .light)).frame(width: 24)
-            Text(text).font(.subheadline).fixedSize(horizontal: false, vertical: true)
+            Image(systemName: icon).font(Theme.ui(18, .light)).frame(width: 24)
+            Text(text).font(Theme.ui(style: .subheadline)).fixedSize(horizontal: false, vertical: true)
         }
         .foregroundStyle(Theme.ink.opacity(0.85))
     }
@@ -501,7 +501,7 @@ struct ProductView: View {
         let out = s.available <= 0
         let picked = s.size == size
         return Button { size = s.size } label: {
-            Text(s.size).font(.subheadline.weight(.semibold)).monospacedDigit()
+            Text(s.size).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                 .strikethrough(out)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .foregroundStyle(picked ? Theme.onInk : Theme.ink.opacity(out ? 0.3 : 1))
@@ -534,27 +534,27 @@ struct ProductView: View {
                             Text(product.brand).font(ShopStyle.caps(12, .semibold)).tracking(2.2).textCase(.uppercase)
                                 .foregroundStyle(.secondary)
                         }
-                        Text(product.shortName).font(.system(size: 28, weight: .semibold)).tracking(0.3)
+                        Text(product.shortName).font(Theme.ui(28, .semibold)).tracking(0.3)
                             .foregroundStyle(Theme.ink)
-                        if let code = product.code { Text(code).font(.footnote).foregroundStyle(.tertiary) }
+                        if let code = product.code { Text(code).font(Theme.ui(style: .footnote)).foregroundStyle(.tertiary) }
                     }
                     HStack(alignment: .firstTextBaseline) {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Text(Format.amount(product.price))
-                                .font(.system(size: 34, weight: .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
-                            Text("TAX").font(.system(size: 14, weight: .medium)).tracking(0.8).foregroundStyle(.tertiary)
+                                .font(Theme.ui(34, .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
+                            Text("TAX").font(Theme.ui(14, .medium)).tracking(0.8).foregroundStyle(.tertiary)
                         }
                         Spacer()
                         Text(soldOut ? L("Немає в наявності").s : L("В наявності").s)
-                            .font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                            .font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(.secondary)
                     }
                     Rule()
                     if needsSize {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text(L("Розмір").s).font(.headline)
+                                Text(L("Розмір").s).font(Theme.ui(style: .headline))
                                 Spacer()
-                                if needsPick { Text(L("Оберіть розмір").s).font(.footnote).foregroundStyle(.secondary) }
+                                if needsPick { Text(L("Оберіть розмір").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                             }
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 56), spacing: 8)], spacing: 8) {
                                 ForEach(sizes, id: \.size) { chip($0) }
@@ -563,21 +563,21 @@ struct ProductView: View {
                                 HStack(spacing: 6) {
                                     Circle().fill(Color.orange).frame(width: 7, height: 7)
                                     Text(c.available == 1 ? L("Остання одиниця в розмірі \(c.size)").s : L("Лишилось \(c.available) шт. у розмірі \(c.size)").s)
-                                        .font(.footnote).foregroundStyle(.secondary)
+                                        .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                                 }
                             }
                         }
                     }
                     HStack {
-                        Text(L("Кількість").s).font(.headline)
+                        Text(L("Кількість").s).font(Theme.ui(style: .headline))
                         Spacer()
                         HStack(spacing: 0) {
                             Button { qty = max(1, qty - 1) } label: { Image(systemName: "minus").frame(width: 44, height: 40) }
-                            Text("\(qty)").font(.headline).monospacedDigit().frame(minWidth: 28)
+                            Text("\(qty)").font(Theme.ui(style: .headline)).monospacedDigit().frame(minWidth: 28)
                                 .contentTransition(.numericText())
                             Button { qty = min(maxQty, qty + 1) } label: { Image(systemName: "plus").frame(width: 44, height: 40) }
                         }
-                        .font(.subheadline.weight(.bold))
+                        .font(Theme.ui(style: .subheadline, .bold))
                         .foregroundStyle(Theme.ink)
                         .overlay(Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1))
                         .buttonStyle(.plain)
@@ -585,7 +585,7 @@ struct ProductView: View {
                     }
                     let already = inCart(size)
                     if already > 0 {
-                        Text(L("Уже в кошику: \(already)").s).font(.subheadline).foregroundStyle(.secondary)
+                        Text(L("Уже в кошику: \(already)").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     VStack(spacing: 10) {
                         Button(soldOut ? L("Немає в наявності").s : needsPick ? L("Оберіть розмір").s : L("Купити зараз · \(Format.money(subtotal))").s) {
@@ -635,21 +635,21 @@ struct OrderRow: View {
             VStack(alignment: .leading, spacing: 14) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L("Замовлення #\(order.id)").s).font(.headline)
-                        Text(L("\(order.itemsCount ?? 1) поз., \(BankText.date(order.createdAt))").s).font(.footnote).foregroundStyle(.secondary)
+                        Text(L("Замовлення #\(order.id)").s).font(Theme.ui(style: .headline))
+                        Text(L("\(order.itemsCount ?? 1) поз., \(BankText.date(order.createdAt))").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(Format.money(order.totalAmount)).font(.headline).monospacedDigit()
+                    Text(Format.money(order.totalAmount)).font(Theme.ui(style: .headline)).monospacedDigit()
                 }
                 if ["cancelled", "expired", "awaiting_payment"].contains(order.status) {
-                    Text(ShopText.status(order.status)).font(.subheadline.weight(.semibold))
+                    Text(ShopText.status(order.status)).font(Theme.ui(style: .subheadline, .semibold))
                 } else {
                     let current = ShopText.step(order.status)
                     HStack(spacing: 4) {
                         ForEach(Self.steps.indices, id: \.self) { i in
                             VStack(alignment: .leading, spacing: 6) {
                                 Rectangle().fill(i <= current ? Theme.ink : Theme.line).frame(height: 3)
-                                Text(Self.steps[i]).font(.caption2.weight(i == current ? .semibold : .regular))
+                                Text(Self.steps[i]).font(Theme.ui(style: .caption2, i == current ? .semibold : .regular))
                                     .foregroundStyle(i <= current ? Theme.ink : .secondary)
                             }
                         }
@@ -657,7 +657,7 @@ struct OrderRow: View {
                 }
                 HStack {
                     if let n = order.invoiceNumber {
-                        Text(n).font(.caption.monospaced()).foregroundStyle(.tertiary).lineLimit(1)
+                        Text(n).font(Theme.mono(style: .caption1)).foregroundStyle(.tertiary).lineLimit(1)
                     }
                     Spacer()
                     if receipt != nil {
@@ -677,7 +677,7 @@ struct OrderRow: View {
                         .disabled(busy)
                     }
                 }
-                .font(.footnote.weight(.semibold))
+                .font(Theme.ui(style: .footnote, .semibold))
                 .foregroundStyle(Theme.ink)
             }
             .padding(16)
@@ -756,13 +756,13 @@ struct CartView: View {
                             ForEach(lines, id: \.line) { cartLine($0.line, $0.qty) }
                         }
                         HStack(alignment: .firstTextBaseline) {
-                            Text(L("Разом").s).font(.headline).foregroundStyle(.secondary)
+                            Text(L("Разом").s).font(Theme.ui(style: .headline)).foregroundStyle(.secondary)
                             Spacer()
                             PriceText(value: total, size: 30, color: Theme.ink)
                         }
                         .padding(.top, 4)
 
-                        Text(L("Доставка").s).font(.title3.weight(.bold)).padding(.top, 6)
+                        Text(L("Доставка").s).font(Theme.ui(style: .title3, .bold)).padding(.top, 6)
                         Surface {
                             VStack(spacing: 0) {
                                 field(L("Ім'я та прізвище").s, text: $name, content: .name, error: nameError)
@@ -772,7 +772,7 @@ struct CartView: View {
                                 field(L("Адреса").s, text: $address, content: .fullStreetAddress, axis: .vertical, error: addressError)
                             }
                         }
-                        if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.red) }
+                        if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.red) }
                     }
                 }
                 .padding(.horizontal, Theme.gutter)
@@ -819,9 +819,9 @@ struct CartView: View {
                 if !p.brand.isEmpty {
                     Text(p.brand).font(ShopStyle.caps(10.5, .semibold)).tracking(1.3).textCase(.uppercase).lineLimit(1)
                 }
-                Text(p.shortName).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
+                Text(p.shortName).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(1)
                 if !line.size.isEmpty {
-                    Text(L("Розмір \(line.size)").s).font(.caption.weight(.semibold)).foregroundStyle(Theme.ink.opacity(0.7))
+                    Text(L("Розмір \(line.size)").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(Theme.ink.opacity(0.7))
                 }
                 PriceText(value: p.price * Double(qty), size: 16, color: Theme.accent)
             }
@@ -831,10 +831,10 @@ struct CartView: View {
                     let q = qty - 1
                     cart[line] = q > 0 ? q : nil
                 } label: { Image(systemName: qty == 1 ? "trash" : "minus").frame(width: 34, height: 36) }
-                Text("\(qty)").font(.subheadline.weight(.bold)).monospacedDigit().frame(minWidth: 18)
+                Text("\(qty)").font(Theme.ui(style: .subheadline, .bold)).monospacedDigit().frame(minWidth: 18)
                 Button { cart[line, default: 0] += 1 } label: { Image(systemName: "plus").frame(width: 34, height: 36) }
             }
-            .font(.footnote.weight(.bold))
+            .font(Theme.ui(style: .footnote, .bold))
             .foregroundStyle(Theme.ink)
             .buttonStyle(.plain)
         }
@@ -849,7 +849,7 @@ struct CartView: View {
                 .textContentType(content)
                 .keyboardType(keyboard)
             if tried, let error {
-                Text(error).font(.caption).foregroundStyle(.red)
+                Text(error).font(Theme.ui(style: .caption1)).foregroundStyle(.red)
             }
         }
         .padding(.horizontal, 16)
@@ -875,28 +875,28 @@ struct ThreeDSView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 18) {
                 MarkView(height: 32)
-                Text(L("Підтвердження оплати").s).font(.title2.weight(.semibold))
+                Text(L("Підтвердження оплати").s).font(Theme.ui(style: .title2, .semibold))
                 Surface {
                     Line2(L("Отримувач").s, merchant)
                     Rule()
                     Line2(L("Сума").s, Format.money(amount))
                 }
                 Text(L("Код надіслано на \(challenge.maskedPhone ?? L("ваш телефон").s).").s)
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 if let demo = challenge.demoOtp {
-                    Text(L("Навчальний банк: ваш код \(demo)").s).font(.footnote.monospaced())
+                    Text(L("Навчальний банк: ваш код \(demo)").s).font(Theme.mono(style: .footnote))
                 }
                 TextField("000000", text: $code)
                     .keyboardType(.numberPad)
                     .textContentType(.oneTimeCode)
-                    .font(.system(size: 34, weight: .semibold).monospaced())
+                    .font(Theme.mono(34, .semibold))
                     .multilineTextAlignment(.center)
                     .padding(.vertical, 12)
                     .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
                     .onChange(of: code) { code = String(code.filter(\.isNumber).prefix(6)) }
                 Text(left > 0 ? String(format: L("Код дійсний ще %d:%02d").s, left / 60, left % 60) : L("Час вийшов - почніть оплату знову").s)
-                    .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
-                if let e = screen.error { Text(e).font(.footnote).foregroundStyle(.secondary) }
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
+                if let e = screen.error { Text(e).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
                 Spacer()
                 Button(L("Підтвердити").s) {
                     Task {
@@ -908,7 +908,7 @@ struct ThreeDSView: View {
                 }
                 .buttonStyle(InkButton())
                 .disabled(code.count != 6 || left <= 0 || screen.busy)
-                Text(L("3-D Secure · навчальний банк TaxTech").s).font(.caption).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
+                Text(L("3-D Secure · навчальний банк TaxTech").s).font(Theme.ui(style: .caption1)).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
             }
             .padding(24)
             .screenBackground()

@@ -293,7 +293,7 @@ struct LiveNetworkLab: View {
     private var gate: some View {
         LabPanel(title: L("Живий режим").s) {
             Text(L("Потік іде з вашого рахунку в навчальному банку: справжні перекази, баланс, антифрод сервера. Для цього потрібен вхід.").s)
-                .font(.subheadline).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             Button(L("Увійти").s) { model.jumpTab = .overview }.buttonStyle(InkButton())
         }
     }
@@ -345,7 +345,7 @@ struct LiveNetworkLab: View {
             LabSlider(title: L("Частка шахрайства").s, value: "\(Int(live.fraudShare * 100))%",
                       x: Binding(get: { live.fraudShare }, set: { live.fraudShare = ($0 * 20).rounded() / 20 }), range: 0...0.6)
             Text(L("Це справжні перекази на рахунки пісочниці. Блокування банку лишаються в історії рахунку, і сервер суворіше дивиться на нього кілька днів.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -359,17 +359,17 @@ struct LiveNetworkLab: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: on ? "checkmark.circle.fill" : "circle").foregroundStyle(on ? Theme.accent : Color.secondary)
-                        Text(s.title).font(.subheadline.weight(.medium)).foregroundStyle(on ? Color.primary : Color.secondary)
+                        Text(s.title).font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(on ? Color.primary : Color.secondary)
                         Spacer(minLength: 8)
                         Text(r.total == 0 ? "-" : L("зупинено \(r.caught) з \(r.total)").s)
-                            .font(.footnote).foregroundStyle(.secondary).monospacedDigit()
+                            .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).monospacedDigit()
                     }
                     .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }
             Text(L("З одного рахунку можна зробити лише схеми, де всі кроки ваші.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -381,8 +381,8 @@ struct LiveNetworkLab: View {
             ForEach(live.orders) { o in
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(o.to) · \(Format.short(o.amount))").font(.subheadline.weight(.medium)).monospacedDigit()
-                        Text(L("кожні \(o.every) кроків").s + (o.note.isEmpty ? "" : " · " + o.note)).font(.footnote).foregroundStyle(.secondary)
+                        Text("\(o.to) · \(Format.short(o.amount))").font(Theme.ui(style: .subheadline, .medium)).monospacedDigit()
+                        Text(L("кожні \(o.every) кроків").s + (o.note.isEmpty ? "" : " · " + o.note)).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Button { live.removeOrder(o.id) } label: { Image(systemName: "trash").foregroundStyle(.secondary) }.buttonStyle(.plain)
@@ -393,9 +393,9 @@ struct LiveNetworkLab: View {
                 ForEach(live.recipients.prefix(12), id: \.self) { r in Button(r) { newTo = r } }
             } label: {
                 HStack {
-                    Text(L("Одержувач").s).font(.subheadline).foregroundStyle(.secondary)
+                    Text(L("Одержувач").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     Spacer()
-                    Text(newTo.isEmpty ? L("Обрати").s : newTo).font(.subheadline.weight(.medium))
+                    Text(newTo.isEmpty ? L("Обрати").s : newTo).font(Theme.ui(style: .subheadline, .medium))
                 }
             }
             LabSlider(title: L("Сума").s, value: Format.short(newAmount),
@@ -406,7 +406,7 @@ struct LiveNetworkLab: View {
             }
             .buttonStyle(LineButton()).disabled(newTo.isEmpty)
             Text(L("Автоплатежі виконує застосунок кожні кілька кроків: сервер банку регулярні платежі сам не запускає.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -422,15 +422,15 @@ struct LiveNetworkLab: View {
                 row(L("Перевірка: \(k)").s, "\(v.count) · " + Format.ms(v.reduce(0, +) / Double(max(v.count, 1))))
             }
             Text(L("Телефон зупиняє лише критичні перекази за Layer 1, повний антифрод банку бачить історію й граф.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
     private func row(_ title: String, _ value: String) -> some View {
         HStack {
-            Text(title).font(.subheadline).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
             Spacer(minLength: 12)
-            Text(value).font(.subheadline.weight(.medium)).monospacedDigit()
+            Text(value).font(Theme.ui(style: .subheadline, .medium)).monospacedDigit()
         }
     }
 
@@ -441,13 +441,13 @@ struct LiveNetworkLab: View {
             if live.feed.isEmpty { Text(L("Ще немає").s).foregroundStyle(.secondary) }
             ForEach(live.feed.prefix(14)) { e in
                 HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: symbol(e.kind)).font(.caption).foregroundStyle(tint(e.kind)).frame(width: 16).padding(.top, 3)
+                    Image(systemName: symbol(e.kind)).font(Theme.ui(style: .caption1)).foregroundStyle(tint(e.kind)).frame(width: 16).padding(.top, 3)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(e.text).font(.system(.footnote, design: .monospaced)).foregroundStyle(e.kind == .passed ? Color.primary : tint(e.kind))
-                        if let d = e.detail { Text(d).font(.caption).foregroundStyle(.secondary) }
+                        Text(e.text).font(Theme.mono(style: .footnote)).foregroundStyle(e.kind == .passed ? Color.primary : tint(e.kind))
+                        if let d = e.detail { Text(d).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary) }
                     }
                     Spacer(minLength: 4)
-                    Text("\(e.tick)").font(.caption2).foregroundStyle(.tertiary).monospacedDigit()
+                    Text("\(e.tick)").font(Theme.ui(style: .caption2)).foregroundStyle(.tertiary).monospacedDigit()
                 }
             }
         }

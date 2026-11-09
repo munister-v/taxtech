@@ -182,12 +182,12 @@ struct NetworkMap: View {
         case .hub:
             ctx.fill(Path(ellipseIn: rect), with: .color(Theme.accent.opacity(0.12)))
             ctx.stroke(Path(ellipseIn: rect), with: .color(Theme.accent.opacity(0.7)), lineWidth: 1.4)
-            ctx.draw(Text(n.label).font(.system(size: 13, weight: .semibold, design: .serif)).foregroundStyle(Theme.accent), at: p)
+            ctx.draw(Text(n.label).font(Theme.ui(13, .semibold)).foregroundStyle(Theme.accent), at: p)
         case .you:
             ctx.fill(Path(ellipseIn: rect), with: .color(Theme.accent))
-            ctx.draw(Text("TU").font(.system(size: 9, weight: .heavy)).foregroundStyle(Color.black.opacity(0.75)), at: p)
+            ctx.draw(Text("TU").font(Theme.ui(9, .heavy)).foregroundStyle(Color.black.opacity(0.75)), at: p)
             if !n.label.isEmpty {
-                ctx.draw(Text(n.label).font(.system(size: 10, weight: .medium).monospacedDigit()).foregroundStyle(Theme.ink.opacity(0.7)),
+                ctx.draw(Text(n.label).font(Theme.ui(10, .medium).monospacedDigit()).foregroundStyle(Theme.ink.opacity(0.7)),
                          at: CGPoint(x: p.x, y: p.y + r + 10))
             }
         case .account:
@@ -212,7 +212,7 @@ struct NetworkMap: View {
             if n.pending {
                 ctx.fill(Path(ellipseIn: CGRect(x: p.x + r - 2, y: p.y - r - 2, width: 5, height: 5)), with: .color(teal))
             }
-            ctx.draw(Text(n.label).font(.system(size: 8.5, weight: .medium, design: .monospaced)).foregroundStyle(Theme.ink.opacity(n.banned ? 0.8 : 0.45)),
+            ctx.draw(Text(n.label).font(Theme.mono(8.5, .medium)).foregroundStyle(Theme.ink.opacity(n.banned ? 0.8 : 0.45)),
                      at: CGPoint(x: p.x, y: p.y + r + (n.strikes > 0 ? 12 : 9)))
         }
     }
@@ -314,7 +314,7 @@ struct NetworkMap: View {
                 ring(&ctx, a, r: 16 + 22 * e, tint: Theme.accent, alpha: 0.8 * (1 - e))
             }
             let c = CGPoint(x: hubs.map { at($0).x }.reduce(0, +) / Double(hubs.count), y: hubs.map { at($0).y }.reduce(0, +) / Double(hubs.count))
-            ctx.draw(Text(L("Кліринг").s).font(.system(size: 11, weight: .semibold)).foregroundStyle(Theme.accent.opacity(bright)), at: c)
+            ctx.draw(Text(L("Кліринг").s).font(Theme.ui(11, .semibold)).foregroundStyle(Theme.accent.opacity(bright)), at: c)
         }
     }
 }

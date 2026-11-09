@@ -100,7 +100,7 @@ struct CardDesignPicker: View {
                                                 .padding(3)
                                                 .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous)
                                                     .strokeBorder(Theme.ink, lineWidth: on ? 2 : 0))
-                                            Text(p.title).font(.caption.weight(on ? .semibold : .regular))
+                                            Text(p.title).font(Theme.ui(style: .caption1, on ? .semibold : .regular))
                                                 .foregroundStyle(on ? .primary : .secondary)
                                         }
                                     }
@@ -148,7 +148,7 @@ struct CardDesignPicker: View {
                                                 .padding(3)
                                                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
                                                     .strokeBorder(Theme.ink, lineWidth: look.pattern == p ? 2 : 0))
-                                            Text(p.title).font(.caption.weight(look.pattern == p ? .semibold : .regular))
+                                            Text(p.title).font(Theme.ui(style: .caption1, look.pattern == p ? .semibold : .regular))
                                                 .foregroundStyle(look.pattern == p ? .primary : .secondary)
                                         }
                                     }
@@ -176,7 +176,7 @@ struct CardDesignPicker: View {
                             .buttonStyle(LineButton())
                     }
                     if let e = screen.error {
-                        Label(e, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(.red)
+                        Label(e, systemImage: "exclamationmark.triangle").font(Theme.ui(style: .footnote)).foregroundStyle(.red)
                     }
                 }
                 .padding(.horizontal, Theme.gutter)
@@ -217,7 +217,7 @@ struct CardDesignPicker: View {
                     .onChange(of: look.name) { _, v in
                         if v.count > CardLook.nameLimit { look.name = String(v.prefix(CardLook.nameLimit)) }
                     }
-                Text("\(look.name.count)/\(CardLook.nameLimit)").font(.caption.monospacedDigit()).foregroundStyle(.tertiary)
+                Text("\(look.name.count)/\(CardLook.nameLimit)").font(Theme.ui(style: .caption1).monospacedDigit()).foregroundStyle(.tertiary)
             }
             .padding(14)
             .background(Theme.surface, in: .rect(cornerRadius: 14, style: .continuous))
@@ -234,8 +234,8 @@ struct CardDesignPicker: View {
     private func chip(_ title: String, symbol: String?, on: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 4) {
-                if let symbol { Image(systemName: symbol).font(.caption) }
-                Text(title).font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.65)
+                if let symbol { Image(systemName: symbol).font(Theme.ui(style: .caption1)) }
+                Text(title).font(Theme.ui(style: .subheadline, .semibold)).lineLimit(1).minimumScaleFactor(0.65)
             }
             .frame(maxWidth: .infinity, minHeight: 40)
             .padding(.horizontal, 4)

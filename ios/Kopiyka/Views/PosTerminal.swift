@@ -81,15 +81,15 @@ struct PosTerminalView: View {
         HStack {
             Button { if phase == .entry || phase == .result { dismiss() } else { withAnimation(.smooth) { phase = .entry } } } label: {
                 Image(systemName: phase == .entry || phase == .result ? "xmark" : "chevron.left")
-                    .font(.system(size: 15, weight: .semibold)).frame(width: 40, height: 40).glassCircle()
+                    .font(Theme.ui(15, .semibold)).frame(width: 40, height: 40).glassCircle()
             }
             .buttonStyle(PressScale())
             Spacer()
-            Text(L("Термінал").s).font(.headline)
+            Text(L("Термінал").s).font(Theme.ui(style: .headline))
             Spacer()
             if phase == .entry {
                 Button { showMerchant = true } label: {
-                    Image(systemName: "storefront").font(.system(size: 15, weight: .semibold)).frame(width: 40, height: 40).glassCircle()
+                    Image(systemName: "storefront").font(Theme.ui(15, .semibold)).frame(width: 40, height: 40).glassCircle()
                 }
                 .buttonStyle(PressScale())
             } else {
@@ -108,7 +108,7 @@ struct PosTerminalView: View {
                     HStack(spacing: 10) {
                         ForEach(Merchant.all) { m in
                             Button { withAnimation(.snappy) { merchant = m } } label: {
-                                Label(m.name, systemImage: m.symbol).font(.subheadline.weight(.medium))
+                                Label(m.name, systemImage: m.symbol).font(Theme.ui(style: .subheadline, .medium))
                                     .padding(.horizontal, 14).frame(height: 38)
                                     .foregroundStyle(merchant == m ? Theme.onAccent : Theme.ink)
                                     .background(merchant == m ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(.ultraThinMaterial), in: .capsule)
@@ -120,16 +120,16 @@ struct PosTerminalView: View {
                 .padding(.top, 14)
                 modeSwitch
                 VStack(spacing: 6) {
-                    Text(merchant.name).font(.subheadline).foregroundStyle(.secondary)
+                    Text(merchant.name).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(digits.isEmpty ? "0" : digits).font(.system(size: 64, weight: .semibold)).tracking(-1.5).monospacedDigit()
+                        Text(digits.isEmpty ? "0" : digits).font(Theme.ui(64, .semibold)).tracking(-1.5).monospacedDigit()
                             .foregroundStyle(digits.isEmpty ? Color.secondary : Theme.ink)
                             .contentTransition(.numericText())
                             .lineLimit(1).minimumScaleFactor(0.5)
-                        Text("TAX").font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.accent)
+                        Text("TAX").font(Theme.ui(20, .semibold)).foregroundStyle(Theme.accent)
                     }
                     if amount >= 1000 {
-                        Label("3-D Secure", systemImage: "lock.shield").font(.footnote.weight(.medium)).foregroundStyle(Theme.accent)
+                        Label("3-D Secure", systemImage: "lock.shield").font(Theme.ui(style: .footnote, .medium)).foregroundStyle(Theme.accent)
                             .transition(.opacity)
                     }
                 }
@@ -151,7 +151,7 @@ struct PosTerminalView: View {
         HStack(spacing: 0) {
             ForEach([(false, L("Продаж").s), (true, L("Утримання").s)], id: \.0) { item in
                 Button { withAnimation(.snappy) { preauth = item.0 } } label: {
-                    Text(item.1).font(.subheadline.weight(.medium)).frame(maxWidth: .infinity).frame(height: 34)
+                    Text(item.1).font(Theme.ui(style: .subheadline, .medium)).frame(maxWidth: .infinity).frame(height: 34)
                         .foregroundStyle(preauth == item.0 ? Theme.onAccent : Theme.ink)
                         .background(preauth == item.0 ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Color.clear), in: .capsule)
                 }
@@ -169,7 +169,7 @@ struct PosTerminalView: View {
                     Group {
                         if k == "⌫" { Image(systemName: "delete.left") } else { Text(k) }
                     }
-                    .font(.system(size: 26, weight: .medium)).frame(maxWidth: .infinity).frame(height: 58)
+                    .font(Theme.ui(26, .medium)).frame(maxWidth: .infinity).frame(height: 58)
                     .background(.ultraThinMaterial, in: .rect(cornerRadius: 18, style: .continuous))
                 }
                 .buttonStyle(PressScale())
@@ -215,8 +215,8 @@ struct PosTerminalView: View {
 
     private func stat(_ t: String, _ v: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(v).font(.system(size: 18, weight: .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
-            Text(t).font(.footnote).foregroundStyle(.secondary)
+            Text(v).font(Theme.ui(18, .semibold)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+            Text(t).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -224,15 +224,15 @@ struct PosTerminalView: View {
     private func posRow(_ p: API.PosPayment) -> some View {
         HStack(spacing: 12) {
             Image(systemName: PosStatus.symbol(p))
-                .font(.system(size: 14, weight: .bold)).frame(width: 34, height: 34)
+                .font(Theme.ui(14, .bold)).frame(width: 34, height: 34)
                 .foregroundStyle(PosStatus.isBad(p) ? Theme.alert : Theme.accent)
                 .background((PosStatus.isBad(p) ? Theme.alert : Theme.accent).opacity(0.14), in: .circle)
             VStack(alignment: .leading, spacing: 2) {
-                Text(p.merchant ?? "").font(.body.weight(.medium)).lineLimit(1)
-                Text(PosStatus.text(p)).font(.footnote).foregroundStyle(.secondary)
+                Text(p.merchant ?? "").font(Theme.ui(style: .body, .medium)).lineLimit(1)
+                Text(PosStatus.text(p)).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             Spacer()
-            Text(Format.short(p.amount ?? 0)).font(.system(size: 16, weight: .semibold)).monospacedDigit()
+            Text(Format.short(p.amount ?? 0)).font(Theme.ui(16, .semibold)).monospacedDigit()
                 .strikethrough(p.isRefunded || p.status == "chargeback" || p.status == "voided").foregroundStyle(p.status == "declined" ? Color.secondary : Theme.ink)
         }
         .padding(.horizontal, 18).padding(.vertical, 10).contentShape(.rect)
@@ -244,8 +244,8 @@ struct PosTerminalView: View {
         VStack(spacing: 18) {
             Spacer(minLength: 0)
             VStack(spacing: 4) {
-                Text(merchant.name).font(.subheadline).foregroundStyle(.secondary)
-                Text(OverviewView.compact(amount)).font(.system(size: 44, weight: .semibold)).tracking(-1).monospacedDigit()
+                Text(merchant.name).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
+                Text(OverviewView.compact(amount)).font(Theme.ui(44, .semibold)).tracking(-1).monospacedDigit()
             }
             NfcRings().frame(height: 200)
             if cards.isEmpty {
@@ -279,16 +279,16 @@ struct PosTerminalView: View {
             VStack(spacing: 0) {
                 ForEach(Array(["terminal", "acquirer", "network", "issuer"].enumerated()), id: \.offset) { i, s in
                     HStack(spacing: 14) {
-                        Image(systemName: Self.stageSymbols[s] ?? "circle").font(.system(size: 17)).frame(width: 28)
+                        Image(systemName: Self.stageSymbols[s] ?? "circle").font(Theme.ui(17)).frame(width: 28)
                             .foregroundStyle(i < stagesShown ? Theme.accent : Color.secondary.opacity(0.5))
-                        Text(Self.stageNames[s] ?? s).font(.body.weight(.medium))
+                        Text(Self.stageNames[s] ?? s).font(Theme.ui(style: .body, .medium))
                             .foregroundStyle(i < stagesShown ? Theme.ink : Color.secondary)
                         Spacer()
                         if i < stagesShown {
                             if let ms = result?.stages?.first(where: { $0.stage == s })?.ms, model.expert {
-                                Text("\(ms) ms").font(.footnote.monospacedDigit()).foregroundStyle(.secondary)
+                                Text("\(ms) ms").font(Theme.ui(style: .footnote).monospacedDigit()).foregroundStyle(.secondary)
                             }
-                            Image(systemName: "checkmark").font(.footnote.weight(.bold)).foregroundStyle(Theme.accent)
+                            Image(systemName: "checkmark").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(Theme.accent)
                                 .transition(.scale.combined(with: .opacity))
                         }
                     }
@@ -330,14 +330,14 @@ struct PosTerminalView: View {
             Text(L("Код для підтвердження платежу").s).foregroundStyle(.secondary)
             if let demo = c.demoOtp {
                 Button { otp = demo } label: {
-                    HStack { Image(systemName: "message.fill"); Text(demo).font(.system(size: 22, weight: .semibold)).monospacedDigit(); Spacer(); Text(L("Підставити").s).font(.footnote) }
+                    HStack { Image(systemName: "message.fill"); Text(demo).font(Theme.ui(22, .semibold)).monospacedDigit(); Spacer(); Text(L("Підставити").s).font(Theme.ui(style: .footnote)) }
                         .padding(16).background(Theme.accent.opacity(0.14), in: .rect(cornerRadius: 16, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }
-            TextField("000000", text: $otp).keyboardType(.numberPad).font(.system(size: 32, weight: .semibold)).monospacedDigit()
+            TextField("000000", text: $otp).keyboardType(.numberPad).font(Theme.ui(32, .semibold)).monospacedDigit()
                 .padding(16).background(.ultraThinMaterial, in: .rect(cornerRadius: 16, style: .continuous))
-            if let error { Text(error).font(.footnote).foregroundStyle(Theme.alert) }
+            if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Button(L("Підтвердити").s) {
                 Task {
                     do {
@@ -368,7 +368,7 @@ struct PosTerminalView: View {
         return AnyView(VStack(spacing: 22) {
             Spacer(minLength: 0)
             Image(systemName: ok ? (held ? "lock.fill" : "checkmark") : "xmark")
-                .font(.system(size: 44, weight: .bold)).foregroundStyle(ok ? Theme.onAccent : Theme.ink)
+                .font(Theme.ui(44, .bold)).foregroundStyle(ok ? Theme.onAccent : Theme.ink)
                 .frame(width: 112, height: 112)
                 .background(ok ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.alert), in: .circle)
                 .shadow(color: (ok ? Theme.accent : Theme.alert).opacity(0.5), radius: 24, y: 8)
@@ -376,7 +376,7 @@ struct PosTerminalView: View {
                 .sensoryFeedback(ok ? .success : .error, trigger: r?.id)
             VStack(spacing: 6) {
                 Text(ok ? (held ? L("Утримано").s : L("Оплачено").s) : L("Відхилено").s).font(.display(34, .medium)).tracking(-0.8)
-                Text(OverviewView.compact(r?.amount ?? amount)).font(.title2.monospacedDigit()).foregroundStyle(Theme.accent)
+                Text(OverviewView.compact(r?.amount ?? amount)).font(Theme.ui(style: .title2).monospacedDigit()).foregroundStyle(Theme.accent)
                 Text(ok ? merchant.name : (r?.message ?? "")).foregroundStyle(.secondary)
             }
             if held, model.expert, let r {
@@ -428,7 +428,7 @@ struct PosTerminalView: View {
 
     private func line(_ t: String, _ v: String) -> some View {
         HStack { Text(t).foregroundStyle(.secondary); Spacer(); Text(v).monospacedDigit().lineLimit(1) }
-            .font(.subheadline).padding(.horizontal, 18).padding(.vertical, 13)
+            .font(Theme.ui(style: .subheadline)).padding(.horizontal, 18).padding(.vertical, 13)
     }
 
     private func release(_ p: API.PosPayment) async {
@@ -461,7 +461,7 @@ private struct NfcRings: View {
                     .scaleEffect(on ? 2.8 : 0.8).opacity(on ? 0 : 0.8)
                     .animation(.easeOut(duration: 2.4).repeatForever(autoreverses: false).delay(Double(i) * 0.8), value: on)
             }
-            Image(systemName: "wave.3.right").font(.system(size: 30, weight: .semibold)).foregroundStyle(Theme.accent)
+            Image(systemName: "wave.3.right").font(Theme.ui(30, .semibold)).foregroundStyle(Theme.accent)
                 .frame(width: 70, height: 70).glassCircle()
         }
         .onAppear { on = true }

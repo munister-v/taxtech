@@ -54,16 +54,16 @@ struct LedgerLab: View {
         LabPanel(title: L("Рахунки").s) {
             ForEach(0..<2, id: \.self) { a in
                 HStack {
-                    Text(L("Рахунок \(names[a])").s).font(.subheadline)
+                    Text(L("Рахунок \(names[a])").s).font(Theme.ui(style: .subheadline))
                     Spacer()
-                    Text(Format.short(balance(a))).font(.subheadline.weight(.semibold)).monospacedDigit()
+                    Text(Format.short(balance(a))).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                 }
             }
             Rule()
             HStack {
-                Text(L("Усього на рахунках").s).font(.subheadline).foregroundStyle(.secondary)
+                Text(L("Усього на рахунках").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                 Spacer()
-                Text(Format.short(total)).font(.subheadline.weight(.semibold)).monospacedDigit()
+                Text(Format.short(total)).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                     .foregroundStyle(total == Self.opening.reduce(0, +) ? Color.primary : Theme.alert)
             }
         }
@@ -91,12 +91,12 @@ struct LedgerLab: View {
             if entries.isEmpty { Text(L("Ще немає").s).foregroundStyle(.secondary) }
             ForEach(entries.reversed()) { e in
                 HStack {
-                    Text(e.side == .debit ? "DEBIT" : "CREDIT").font(.system(.caption, design: .monospaced))
+                    Text(e.side == .debit ? "DEBIT" : "CREDIT").font(Theme.mono(style: .caption1))
                         .foregroundStyle(e.side == .debit ? Color.secondary : Theme.accent)
                         .frame(width: 60, alignment: .leading)
-                    Text(L("Рахунок \(names[e.account])").s).font(.subheadline)
+                    Text(L("Рахунок \(names[e.account])").s).font(Theme.ui(style: .subheadline))
                     Spacer()
-                    Text((e.side == .debit ? "−" : "+") + Format.short(e.amount)).font(.subheadline.weight(.semibold)).monospacedDigit()
+                    Text((e.side == .debit ? "−" : "+") + Format.short(e.amount)).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                 }
             }
         }

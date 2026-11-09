@@ -40,7 +40,7 @@ enum Theme {
     static let edge = LinearGradient(colors: [.white.opacity(0.1), .white.opacity(0.1)], startPoint: .top, endPoint: .bottom)
 
     static func balance(_ size: CGFloat = 46) -> Font {
-        .system(size: size, weight: .semibold)
+        Theme.mono(size, .bold)
     }
 
     /// Відтінок за місцем у переліку: найбільша категорія найтемніша.
@@ -169,10 +169,10 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(.system(size: 21, weight: .semibold))
+            Text(text).font(Theme.ui(21, .semibold))
             Spacer()
             if let trailing {
-                Text(trailing).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary).monospacedDigit()
+                Text(trailing).font(Theme.ui(style: .subheadline, .semibold)).foregroundStyle(.secondary).monospacedDigit()
             }
         }
     }
@@ -193,7 +193,7 @@ struct InkButton: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.body.weight(.semibold))
+            .font(Theme.ui(style: .body, .semibold))
             .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
@@ -207,7 +207,7 @@ struct InkButton: ButtonStyle {
 struct LineButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.body.weight(.medium))
+            .font(Theme.ui(style: .body, .medium))
             .foregroundStyle(Theme.ink)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
@@ -236,9 +236,9 @@ struct ActionBar: View {
                 Button(action: item.action) {
                     VStack(spacing: 8) {
                         Image(systemName: item.symbol)
-                            .font(.system(size: 19, weight: .regular))
+                            .font(Theme.ui(19, .regular))
                             .frame(height: 24)
-                        Text(item.title).font(.footnote.weight(.medium)).lineLimit(1).minimumScaleFactor(0.8)
+                        Text(item.title).font(Theme.ui(style: .footnote, .medium)).lineLimit(1).minimumScaleFactor(0.8)
                     }
                     .foregroundStyle(Theme.ink)
                     .frame(maxWidth: .infinity)
@@ -267,13 +267,13 @@ struct AmountRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).lineLimit(2)
                 Text(subtitle)
-                    .font(.footnote)
+                    .font(Theme.ui(style: .footnote))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
             Spacer(minLength: 8)
             Text(amount)
-                .font(.body.weight(positive ? .bold : .regular))
+                .font(Theme.ui(style: .body, positive ? .bold : .regular))
                 .monospacedDigit()
                 .foregroundStyle(positive ? Theme.ink : Theme.ink.opacity(0.82))
                 .fixedSize()
@@ -374,11 +374,11 @@ struct VirtualCardView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(l.name.isEmpty ? Brand.name : l.name)
-                        .font(.system(.title3, weight: .semibold))
+                        .font(Theme.ui(style: .title3, .semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     if !l.name.isEmpty {
-                        Text(Brand.name.uppercased()).font(.caption2.weight(.semibold)).tracking(1.4).opacity(0.6)
+                        Text(Brand.name.uppercased()).font(Theme.ui(style: .caption2, .semibold)).tracking(1.4).opacity(0.6)
                     }
                 }
                 Spacer()
@@ -392,7 +392,7 @@ struct VirtualCardView: View {
             Spacer(minLength: 6)
             // тиснений номер: світла кромка зверху-ліворуч і тінь знизу-праворуч
             Text(number)
-                .font(.system(.title3, design: .monospaced, weight: .medium))
+                .font(Theme.mono(style: .title3, .medium))
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
                 .shadow(color: .white.opacity(l.color.isLight ? 0.55 : 0.28), radius: 0, x: -0.6, y: -0.6)
@@ -401,10 +401,10 @@ struct VirtualCardView: View {
                 Text(holder ?? "").lineLimit(1)
                 Spacer()
                 if let expiry { Text(expiry).monospacedDigit() }
-                Text(L("ВІРТУАЛЬНА").s).font(.system(size: 9, weight: .bold)).tracking(1.4).opacity(0.7)
+                Text(L("ВІРТУАЛЬНА").s).font(Theme.ui(9, .bold)).tracking(1.4).opacity(0.7)
                 NetworkMark().padding(.leading, 4)
             }
-            .font(.caption.weight(.medium))
+            .font(Theme.ui(style: .caption1, .medium))
             .opacity(0.85)
             .padding(.top, 10)
         }

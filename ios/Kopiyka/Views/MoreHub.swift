@@ -83,7 +83,7 @@ struct MoreHub: View {
         ZStack(alignment: .topLeading) {
             content()
             Button { shop = false; lab = false } label: {
-                Image(systemName: "xmark").font(.system(size: 15, weight: .semibold)).frame(width: 40, height: 40).glassCircle()
+                Image(systemName: "xmark").font(Theme.ui(15, .semibold)).frame(width: 40, height: 40).glassCircle()
             }
             .buttonStyle(PressScale())
             .padding(.leading, 16).padding(.top, 6)
@@ -97,11 +97,11 @@ struct MoreHub: View {
             HStack(spacing: 14) {
                 AvatarView(initials: initials, size: 58)
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(name.isEmpty ? "TaxTech" : name).font(.title3.weight(.semibold)).lineLimit(1)
+                    Text(name.isEmpty ? "TaxTech" : name).font(Theme.ui(style: .title3, .semibold)).lineLimit(1)
                     KYCBadge(verified: kyc.level == .verified)
                 }
                 Spacer()
-                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(.secondary)
+                Image(systemName: "chevron.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.secondary)
             }
             .padding(16)
             .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
@@ -141,13 +141,13 @@ struct MoreHub: View {
             ZStack(alignment: .bottomLeading) {
                 LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
                 Image(systemName: symbol)
-                    .font(.system(size: compact ? 54 : 84, weight: .ultraLight))
+                    .font(Theme.ui(compact ? 54 : 84, .ultraLight))
                     .foregroundStyle((dark ? Color.black : Color.white).opacity(0.22))
                     .padding(18)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(compact ? .headline : .system(size: 26, weight: .semibold)).tracking(compact ? 0 : 3)
-                    Text(sub).font(.footnote.weight(.medium)).opacity(0.75)
+                    Text(title).font(compact ? .headline : Theme.ui(26, .semibold)).tracking(compact ? 0 : 3)
+                    Text(sub).font(Theme.ui(style: .footnote, .medium)).opacity(0.75)
                 }
                 .foregroundStyle(dark ? Theme.onAccent : Color.white)
                 .padding(18)
@@ -165,7 +165,7 @@ struct MoreHub: View {
 
     private func section(_ title: String, _ tiles: [AnyView]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.title3.weight(.semibold)).tracking(-0.3)
+            Text(title).font(Theme.ui(style: .title3, .semibold)).tracking(-0.3)
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                 ForEach(Array(tiles.enumerated()), id: \.offset) { $1 }
             }
@@ -180,12 +180,12 @@ struct MoreHub: View {
     private func tileBody(_ title: String, _ symbol: String) -> some View {
         let hue = Self.hues[Int(symbol.unicodeScalars.reduce(0) { $0 + Int($1.value) } % Self.hues.count)]
         return VStack(alignment: .leading, spacing: 14) {
-            Image(systemName: symbol).font(.system(size: 17, weight: .semibold))
+            Image(systemName: symbol).font(Theme.ui(17, .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 40, height: 40)
                 .background(LinearGradient(colors: [hue.opacity(0.95), hue.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing), in: .circle)
                 .shadow(color: hue.opacity(0.5), radius: 8, y: 4)
-            Text(title).font(.subheadline.weight(.semibold)).lineLimit(2).multilineTextAlignment(.leading)
+            Text(title).font(Theme.ui(style: .subheadline, .semibold)).lineLimit(2).multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, minHeight: 92, alignment: .topLeading)
         .padding(16)

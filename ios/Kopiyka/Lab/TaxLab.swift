@@ -58,7 +58,7 @@ struct TaxLab: View {
                     .buttonStyle(LineButton())
             }
             Text(L("База ЄСВ не більша за 20 мінімальних зарплат: \(Format.short(rates.minWage * 20)).").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 
@@ -77,13 +77,13 @@ struct TaxLab: View {
             ForEach(parts) { p in
                 HStack(spacing: 10) {
                     RoundedRectangle(cornerRadius: 3).fill(p.color).frame(width: 12, height: 12)
-                    Text(p.title).font(.subheadline)
+                    Text(p.title).font(Theme.ui(style: .subheadline))
                     Spacer()
-                    Text(Format.short(p.value)).font(.subheadline.weight(.semibold)).monospacedDigit()
+                    Text(Format.short(p.value)).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
                 }
             }
             Text(L("Ставки навчальні, для 2026 року. Для реальних розрахунків звіряйтеся з Податковим кодексом.").s)
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
     }
 }

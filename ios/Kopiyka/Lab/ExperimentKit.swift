@@ -308,9 +308,9 @@ struct ExperimentScreen: View {
                 if i > 0 { Rectangle().fill(Theme.ink.opacity(0.12)).frame(height: 0.5) }
                 HStack(alignment: .firstTextBaseline, spacing: 16) {
                     Text(String(format: "%02d", i + 1))
-                        .font(.system(size: 13, weight: .semibold)).tracking(1.5)
+                        .font(Theme.ui(13, .semibold)).tracking(1.5)
                         .foregroundStyle(Theme.gold).frame(width: 24, alignment: .leading)
-                    Text(text).font(.system(size: 17)).lineSpacing(5).fixedSize(horizontal: false, vertical: true)
+                    Text(text).font(Theme.ui(17)).lineSpacing(5).fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.vertical, 16)
             }
@@ -373,7 +373,7 @@ struct QuizView: View {
         let q = qs[i]
         return VStack(alignment: .leading, spacing: 14) {
             Text(String(format: "%02d / %02d", i + 1, qs.count))
-                .font(.system(size: 13, weight: .semibold)).tracking(1.5).foregroundStyle(Theme.gold)
+                .font(Theme.ui(13, .semibold)).tracking(1.5).foregroundStyle(Theme.gold)
             Text(q.text).font(.display(24, .medium)).tracking(-0.4).fixedSize(horizontal: false, vertical: true)
             VStack(spacing: 10) {
                 ForEach(q.options.indices, id: \.self) { o in option(i, q, o) }
@@ -402,7 +402,7 @@ struct QuizView: View {
                 Button(L("Спробувати знову").s) { picked = [:]; current = 0 }.buttonStyle(InkButton())
             }
             if let best = progress.score(experiment) {
-                Text(L("Найкращий результат: \(best) / \(qs.count)").s).font(.footnote).foregroundStyle(.secondary)
+                Text(L("Найкращий результат: \(best) / \(qs.count)").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
         }
         .transition(.opacity.combined(with: .move(edge: .bottom)))
@@ -422,14 +422,14 @@ struct QuizView: View {
         } label: {
             HStack(spacing: 14) {
                 Text(["A", "B", "C", "D"][min(o, 3)])
-                    .font(.system(size: 13, weight: .semibold)).tracking(1)
+                    .font(Theme.ui(13, .semibold)).tracking(1)
                     .foregroundStyle(revealed && right ? Theme.accent : (wrong ? Theme.alert : Theme.gold))
                     .frame(width: 18)
-                Text(q.options[o]).font(.subheadline.weight(.medium)).multilineTextAlignment(.leading)
+                Text(q.options[o]).font(Theme.ui(style: .subheadline, .medium)).multilineTextAlignment(.leading)
                 Spacer(minLength: 8)
                 if revealed, right || wrong {
                     Image(systemName: right ? "checkmark" : "xmark")
-                        .font(.footnote.weight(.bold))
+                        .font(Theme.ui(style: .footnote, .bold))
                         .foregroundStyle(right ? Theme.accent : Theme.alert)
                 }
             }
@@ -457,9 +457,9 @@ struct LabSlider: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(title).font(.subheadline)
+                Text(title).font(Theme.ui(style: .subheadline))
                 Spacer()
-                Text(value).font(.subheadline.weight(.semibold)).monospacedDigit()
+                Text(value).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
             }
             Slider(value: $x, in: range).tint(Theme.accent)
         }

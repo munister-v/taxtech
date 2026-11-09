@@ -110,13 +110,13 @@ struct OverviewView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel(L("Профіль").s)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(Self.greeting).font(.footnote).foregroundStyle(.secondary)
-                    Text(firstName).font(.system(size: 17, weight: .semibold)).lineLimit(1)
+                    Text(Self.greeting).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+                    Text(firstName).font(Theme.ui(17, .semibold)).lineLimit(1)
                 }
                 Spacer()
                 GearButton()
                 NavigationLink { NoticesView() } label: {
-                    Image(systemName: unread > 0 ? "bell.badge" : "bell").font(.system(size: 16, weight: .semibold)).foregroundStyle(Theme.ink)
+                    Image(systemName: unread > 0 ? "bell.badge" : "bell").font(Theme.ui(16, .semibold)).foregroundStyle(Theme.ink)
                         .symbolEffect(.wiggle, value: unread)
                         .frame(width: 40, height: 40)
                         .glassCircle()
@@ -180,10 +180,10 @@ struct OverviewView: View {
                         .aspectRatio(1.586, contentMode: .fit)
                         .overlay {
                             VStack(spacing: 12) {
-                                Image(systemName: "plus").font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.onAccent)
+                                Image(systemName: "plus").font(Theme.ui(20, .semibold)).foregroundStyle(Theme.onAccent)
                                     .frame(width: 52, height: 52)
                                     .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .circle)
-                                Text(L("Випустити картку").s).font(.system(size: 17, weight: .semibold))
+                                Text(L("Випустити картку").s).font(Theme.ui(17, .semibold))
                             }
                         }
                 }
@@ -209,15 +209,15 @@ struct OverviewView: View {
     private var terminalTile: some View {
         Button { showTerminal = true } label: {
             HStack(spacing: 14) {
-                Image(systemName: "wave.3.right").font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.onAccent)
+                Image(systemName: "wave.3.right").font(Theme.ui(20, .semibold)).foregroundStyle(Theme.onAccent)
                     .frame(width: 48, height: 48)
                     .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .circle)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(L("Термінал").s).font(.system(size: 20, weight: .semibold))
-                    Text("POS · 3-D Secure").font(.footnote).foregroundStyle(.secondary)
+                    Text(L("Термінал").s).font(Theme.ui(20, .semibold))
+                    Text("POS · 3-D Secure").font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Image(systemName: "arrow.up.right").font(.footnote.weight(.bold)).foregroundStyle(.secondary)
+                Image(systemName: "arrow.up.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.secondary)
             }
             .padding(16)
             .frame(maxWidth: .infinity)
@@ -247,8 +247,8 @@ struct OverviewView: View {
 
     private func monthPill(_ symbol: String, _ text: String, tint: Color) -> some View {
         HStack(spacing: 5) {
-            Image(systemName: symbol).font(.caption2.weight(.bold)).foregroundStyle(tint)
-            Text(text).font(.caption.weight(.semibold)).monospacedDigit()
+            Image(systemName: symbol).font(Theme.ui(style: .caption2, .bold)).foregroundStyle(tint)
+            Text(text).font(Theme.ui(style: .caption1, .semibold)).monospacedDigit()
         }
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 10)
@@ -270,12 +270,12 @@ struct OverviewView: View {
                 HStack(spacing: 16) {
                     Button { prefill = ""; sheet = .byAccount } label: {
                         VStack(spacing: 6) {
-                            Image(systemName: "plus").font(.title3.weight(.semibold))
+                            Image(systemName: "plus").font(Theme.ui(style: .title3, .semibold))
                                 .frame(width: 54, height: 54)
                                 .foregroundStyle(Theme.accent)
                                 .background(Theme.bg, in: .circle)
                                 .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.9))
-                            Text(L("Новий").s).font(.caption.weight(.medium))
+                            Text(L("Новий").s).font(Theme.ui(style: .caption1, .medium))
                         }
                     }
                     .buttonStyle(PressScale())
@@ -284,8 +284,8 @@ struct OverviewView: View {
                             VStack(spacing: 6) {
                                 let shop = r.relatedAccount.hasPrefix("MRC-")
                                 Group {
-                                    if shop { Image(systemName: "storefront.fill").font(.title3) }
-                                    else { Text(String(r.relatedAccount.suffix(2))).font(.system(size: 19, weight: .semibold)).monospacedDigit() }
+                                    if shop { Image(systemName: "storefront.fill").font(Theme.ui(style: .title3)) }
+                                    else { Text(String(r.relatedAccount.suffix(2))).font(Theme.ui(19, .semibold)).monospacedDigit() }
                                 }
                                     .foregroundStyle(Theme.goldFill)
                                     .frame(width: 54, height: 54)
@@ -293,7 +293,7 @@ struct OverviewView: View {
                                     .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.9))
                                 Text(shop ? String(r.relatedAccount.dropFirst(4)).replacingOccurrences(of: "-", with: " ").capitalized
                                           : r.relatedAccount)
-                                    .font(.caption2.weight(.medium).monospacedDigit())
+                                    .font(Theme.ui(style: .caption2, .medium).monospacedDigit())
                                     .foregroundStyle(.secondary).lineLimit(1)
                             }
                             .frame(width: 70)
@@ -317,9 +317,9 @@ struct OverviewView: View {
                 Text(L("Баланс за 30 днів").s).caption()
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text((delta >= 0 ? "+" : "−") + Self.compact(abs(delta)))
-                        .font(.system(size: 30, weight: .semibold)).monospacedDigit()
+                        .font(Theme.ui(30, .semibold)).monospacedDigit()
                     Image(systemName: delta >= 0 ? "arrow.up.right" : "arrow.down.right")
-                        .font(.footnote.weight(.bold))
+                        .font(Theme.ui(style: .footnote, .bold))
                         .foregroundStyle(delta >= 0 ? Theme.accent : Color.secondary)
                 }
                 Chart(Array(points.enumerated()), id: \.offset) { i, p in
@@ -354,9 +354,9 @@ struct OverviewView: View {
                 Button { open(.operations) } label: {
                     HStack(spacing: 4) {
                         Text(L("Усі").s)
-                        Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold))
+                        Image(systemName: "chevron.right").font(Theme.ui(10, .bold))
                     }
-                    .font(.footnote.weight(.semibold)).foregroundStyle(Theme.accent)
+                    .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.accent)
                 }
                 .buttonStyle(.plain)
             }
@@ -385,13 +385,13 @@ struct OverviewView: View {
         return Button { open(.operations) } label: {
             Card {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L("Витрати цього місяця").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                    Text(L("Витрати цього місяця").s).font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(Self.compact(out)).font(.system(size: 28, weight: .bold)).monospacedDigit()
+                        Text(Self.compact(out)).font(Theme.ui(28, .bold)).monospacedDigit()
                         if prev > 0 {
                             let d = (out - prev) / prev * 100
                             Text(L("\(d >= 0 ? "+" : "−")\(Int(abs(d).rounded()))% до минулого").s)
-                                .font(.footnote.weight(.semibold)).foregroundStyle(.secondary)
+                                .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
                         }
                     }
                     HStack(alignment: .bottom, spacing: 3) {
@@ -431,14 +431,14 @@ struct OverviewView: View {
         return Button { open(.taxes) } label: {
             Card {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L("Податки").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
+                    Text(L("Податки").s).font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(.secondary)
                     Spacer(minLength: 0)
-                    Text(L("\(left) дн.").s).font(.system(size: 28, weight: .bold)).monospacedDigit()
+                    Text(L("\(left) дн.").s).font(Theme.ui(28, .bold)).monospacedDigit()
                         .foregroundStyle(left <= 7 && next != nil ? Theme.accent : Theme.ink)
-                    Text(next?.title ?? L("Строків немає").s).font(.footnote).foregroundStyle(.secondary).lineLimit(2)
+                    Text(next?.title ?? L("Строків немає").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(2)
                     if let d = next?.date {
                         Text(d.formatted(.dateTime.day().month(.abbreviated).locale(Lang.current.locale)))
-                            .font(.caption.weight(.semibold)).foregroundStyle(Theme.accent)
+                            .font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(Theme.accent)
                     }
                 }
                 .padding(18)
@@ -453,7 +453,7 @@ struct OverviewView: View {
             Card {
                 ZStack(alignment: .bottomLeading) {
                     ProductArt(product: p, size: 50, height: 176, showsLabel: false)
-                    Text(Self.compact(p.price)).font(.footnote.weight(.bold)).monospacedDigit()
+                    Text(Self.compact(p.price)).font(Theme.ui(style: .footnote, .bold)).monospacedDigit()
                         .padding(.horizontal, 10).frame(height: 28)
                         .background(.ultraThinMaterial, in: .capsule)
                         .padding(10)
@@ -521,17 +521,17 @@ struct ActivityRow: View {
         HStack(spacing: 14) {
             TxGlyph(tx: tx)
             VStack(alignment: .leading, spacing: 3) {
-                Text(row.title).font(.body.weight(.medium)).lineLimit(2)
+                Text(row.title).font(Theme.ui(style: .body, .medium)).lineLimit(2)
                 Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Lang.current.locale)))
-                    .font(.footnote).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
                 Text((tx.isIncome ? "+" : "−") + Format.amount(tx.amount))
-                    .font(.system(size: 20, weight: .semibold)).monospacedDigit()
+                    .font(Theme.ui(20, .semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
                     .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
-                Text("TAX").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                Text("TAX").font(Theme.ui(style: .caption2, .semibold)).foregroundStyle(.secondary)
             }
             .fixedSize(horizontal: true, vertical: false)
         }
@@ -558,14 +558,14 @@ struct HeroAmount: View {
         let parts = s.split(separator: Character(sep), maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {
-                Text("••••••").font(.system(size: 52, weight: .semibold))
+                Text("••••••").font(Theme.ui(52, .semibold))
             } else {
-                Text(parts.first ?? s).font(.system(size: 66, weight: .semibold)).tracking(-1.5)
+                Text(parts.first ?? s).font(Theme.ui(66, .semibold)).tracking(-1.5)
                 if parts.count > 1, parts[1] != "00" {
-                    Text("\(sep)\(parts[1])").font(.system(size: 28, weight: .semibold)).opacity(0.55)
+                    Text("\(sep)\(parts[1])").font(Theme.ui(28, .semibold)).opacity(0.55)
                 }
             }
-            Text(" TAX").font(.system(size: 20, weight: .semibold)).tracking(2).foregroundStyle(Theme.accent)
+            Text(" TAX").font(Theme.ui(20, .semibold)).tracking(2).foregroundStyle(Theme.accent)
         }
         .monospacedDigit()
         .foregroundStyle(Theme.goldFill)
@@ -589,14 +589,14 @@ struct BigAmount: View {
         let parts = s.split(separator: Character(sep), maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {
-                Text("••••••").font(.system(size: size, weight: .semibold))
+                Text("••••••").font(Theme.ui(size, .semibold))
             } else {
                 Text(parts.first ?? s).font(.display(size)).tracking(-size * 0.025)
                 if parts.count > 1, parts[1] != "00" {
-                    Text("\(sep)\(parts[1])").font(.system(size: size * 0.5, weight: .regular)).foregroundStyle(.secondary)
+                    Text("\(sep)\(parts[1])").font(Theme.ui(size * 0.5, .regular)).foregroundStyle(.secondary)
                 }
             }
-            Text(" TAX").font(.system(size: size * 0.36, weight: .semibold)).foregroundStyle(.secondary)
+            Text(" TAX").font(Theme.ui(size * 0.36, .semibold)).foregroundStyle(.secondary)
         }
         .monospacedDigit()
         .lineLimit(1)
@@ -614,9 +614,9 @@ struct Initials: View {
         let letters = name.split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
         Group {
             if letters.contains(where: \.isLetter) || letters.isEmpty {
-                Text(letters.isEmpty ? "TT" : letters).font(.system(size: size * 0.36, weight: .semibold))
+                Text(letters.isEmpty ? "TT" : letters).font(Theme.ui(size * 0.36, .semibold))
             } else {
-                Image(systemName: "person.fill").font(.system(size: size * 0.4, weight: .medium)).foregroundStyle(.secondary)
+                Image(systemName: "person.fill").font(Theme.ui(size * 0.4, .medium)).foregroundStyle(.secondary)
             }
         }
         .frame(width: size, height: size)
@@ -661,7 +661,7 @@ struct TrailingIcon: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 5) {
             configuration.title
-            configuration.icon.font(.caption2)
+            configuration.icon.font(Theme.ui(style: .caption2))
         }
     }
 }
