@@ -174,6 +174,7 @@ struct GlassAura: View {
                     .offset(x: w * (drift ? 0.30 : -0.10), y: g.size.height * (drift ? 0.62 : 0.35))
             }
         }
+        .overlay { LogoBackdrop() }
         .drawingGroup()
         .allowsHitTesting(false)
         .onAppear {
@@ -472,14 +473,39 @@ struct AnyLabelStyle: LabelStyle {
 }
 
 
-/// Знак платіжної мережі TaxPay: два перетини кіл, як на справжніх картках.
+/// Знак на картці: власний логотип у золоті.
 struct NetworkMark: View {
     var body: some View {
-        HStack(spacing: -9) {
-            Circle().fill(Color(red: 0.86, green: 0.10, blue: 0.20)).frame(width: 22, height: 22)
-            Circle().fill(Theme.goldLight).frame(width: 22, height: 22).blendMode(.screen).opacity(0.92)
+        Image("Mark").renderingMode(.template).resizable().scaledToFit()
+            .frame(height: 26)
+            .foregroundStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+    }
+}
+
+
+/// Графіка у стилі логотипу за склом: величезний знак контуром, кільця й гільйош.
+struct LogoBackdrop: View {
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            Canvas { ctx, size in
+                let gold = Color(red: 0.86, green: 0.66, blue: 0.24)
+                var r = ctx
+                r.opacity = 0.26
+                Engraving.rings(in: &r, center: CGPoint(x: size.width * 0.95, y: size.height * 0.18),
+                                from: 40, to: size.width * 0.75, count: 14, color: gold)
+                var q = ctx
+                q.opacity = 0.18
+                Engraving.rosette(in: &q, center: CGPoint(x: size.width * 0.05, y: size.height * 0.78),
+                                  radius: size.width * 0.62, curves: 36, lobes: 9, color: gold)
+            }
+            Image("Mark").renderingMode(.template).resizable().scaledToFit()
+                .frame(width: w * 1.1).foregroundStyle(Color.white.opacity(0.075))
+                .rotationEffect(.degrees(-14)).position(x: w * 0.9, y: h * 0.72)
+            Image("Mark").renderingMode(.template).resizable().scaledToFit()
+                .frame(width: w * 0.42).foregroundStyle(Color(red: 0.86, green: 0.66, blue: 0.24).opacity(0.14))
+                .rotationEffect(.degrees(12)).position(x: w * 0.12, y: h * 0.2)
         }
-        .compositingGroup()
-        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
     }
 }

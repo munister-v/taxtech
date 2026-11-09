@@ -145,13 +145,6 @@ struct OverviewView: View {
                     withAnimation(.smooth(duration: 1.1)) { shown = v }
                 }
                 .sensoryFeedback(.success, trigger: shown > 0)
-                if let m = summary?.currentMonth, !hidden, m.totalIn > 0 || m.totalOut > 0 {
-                    HStack(spacing: 8) {
-                        if m.totalIn > 0 { monthPill("arrow.down.left", "+" + Self.compact(m.totalIn), tint: Theme.accent) }
-                        if m.totalOut > 0 { monthPill("arrow.up.right", "−" + Self.compact(m.totalOut), tint: .secondary) }
-                    }
-                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
-                }
             }
             .padding(.top, 30)
             .frame(maxWidth: .infinity)
