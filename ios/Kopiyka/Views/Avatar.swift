@@ -38,9 +38,8 @@ enum AvatarStyle {
 
     /// Стабільний вибір за ініціалами: хеш не змінюється між запусками, на відміну від `hashValue`.
     static func auto(for seed: String) -> Int {
-        // автоматично лише яскраві: пісочний і графітовий лишаються для ручного вибору
-        let vivid = [0, 1, 2, 3, 4, 5, 6, 7, 10, 11]
-        return vivid[Int(seed.unicodeScalars.reduce(UInt32(7)) { ($0 &* 31) &+ $1.value } % UInt32(vivid.count))]
+        // за замовчуванням графіт із золотом, як усе в застосунку
+        9
     }
 
     static func resolved(seed: String) -> Palette {
@@ -68,7 +67,7 @@ struct AvatarView: View {
         .id(rev)
         .frame(width: size, height: size)
         .clipShape(.circle)
-        .overlay(Circle().strokeBorder(.white.opacity(0.22), lineWidth: 1))
+        .overlay(Circle().strokeBorder(Theme.gold.opacity(0.55), lineWidth: max(1, size * 0.015)))
     }
 
     private var palette: AvatarStyle.Palette {
@@ -80,9 +79,17 @@ struct AvatarView: View {
         let p = palette
         return ZStack {
             LinearGradient(colors: [p.a, p.b], startPoint: .topLeading, endPoint: .bottomTrailing)
-            Circle().fill(.white.opacity(0.22)).frame(width: size * 0.9).offset(x: size * 0.28, y: -size * 0.3).blur(radius: size * 0.04)
-            Circle().fill(.black.opacity(0.16)).frame(width: size * 1.0).offset(x: -size * 0.3, y: size * 0.42)
-            Text(initials).font(Theme.ui(size * 0.38, .semibold)).tracking(size * 0.01)
+            Canvas { ctx, sz in
+                var c = ctx
+                let mid = CGPoint(x: sz.width / 2, y: sz.height / 2)
+                Engraving.rosette(in: &c, center: mid, radius: sz.width * 0.62, curves: 9, lobes: 7,
+                                  color: p.ink.opacity(0.5), width: max(0.35, sz.width * 0.006))
+                Engraving.rings(in: &c, center: mid, from: sz.width * 0.1, to: sz.width * 0.34, count: 5,
+                                color: p.ink.opacity(0.3), width: max(0.3, sz.width * 0.005))
+            }
+            Circle().fill(RadialGradient(colors: [.black.opacity(0.55), .clear], center: .center, startRadius: 0, endRadius: size * 0.34))
+                .frame(width: size * 0.7)
+            Text(initials).font(Theme.mono(size * 0.34, .bold))
                 .foregroundStyle(p.ink)
         }
     }
