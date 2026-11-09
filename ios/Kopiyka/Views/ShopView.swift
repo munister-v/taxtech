@@ -22,6 +22,8 @@ struct ShopView: View {
     @State private var loading = false
     @State private var detailSource = ""
     @Namespace private var zoom
+    /// Верхній відступ шапки: більший, коли магазин відкрито поверх екрана з кнопкою закриття.
+    var topInset: CGFloat = 10
 
     enum Tab: Hashable, CaseIterable {
         case catalog, orders, invoices
@@ -65,7 +67,7 @@ struct ShopView: View {
                             .buttonStyle(.plain)
                             .accessibilityLabel(L("Кошик, товарів: \(cartCount)").s)
                         }
-                        .padding(.top, 10)
+                        .padding(.top, topInset)
                         ShopTabBar(items: Tab.allCases.map { ($0, $0.title) }, selection: $tab)
                         switch tab {
                         case .catalog: catalog(proxy)

@@ -62,7 +62,7 @@ struct MoreHub: View {
                 .presentationDragIndicator(.visible)
             }
             .fullScreenCover(isPresented: $terminal) { PosTerminalView() }
-            .fullScreenCover(isPresented: $shop) { closable { ShopView() } }
+            .fullScreenCover(isPresented: $shop) { closable { ShopView(topInset: 54) } }
             .fullScreenCover(isPresented: $lab) { closable { LabHome() } }
             .task { name = (try? await model.api.me())?.fullName ?? "" }
             .onAppear { kyc = KYCState.load(); consume() }

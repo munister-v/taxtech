@@ -120,11 +120,7 @@ struct ShopHero: View {
                         .background(ShopStyle.cream, in: .rect(cornerRadius: 14, style: .continuous))
                     }
                     .buttonStyle(PressScale())
-                    HStack(spacing: 8) {
-                        TaxPayMark()
-                        Text(L("Оплата TaxPay").s).font(.footnote).foregroundStyle(ShopStyle.cream.opacity(0.85))
-                    }
-                    .lineLimit(1).minimumScaleFactor(0.8)
+                    TaxPayMark()
                 }
             }
             .padding(22)
