@@ -1,0 +1,156 @@
+import PhotosUI
+import SwiftUI
+
+/// Текст на трьох мовах для екранів, що не лежать у translations.json: італійська й німецька беруть англійську.
+func Tx(_ uk: String, _ en: String, _ ru: String) -> String {
+    switch Lang.current {
+    case .uk: uk
+    case .ru: ru
+    default: en
+    }
+}
+
+/// Вигляд аватара без фото: пара кольорів, форма й нахил. Без вибору колір береться з ініціалів, тож у кожного свій.
+enum AvatarStyle {
+    static let key = "avatarStyle"
+
+    struct Palette: Identifiable {
+        let id: Int
+        let a: Color
+        let b: Color
+        let ink: Color
+    }
+
+    static let palettes: [Palette] = [
+        .init(id: 0, a: Color(red: 0.99, green: 0.86, blue: 0.58), b: Color(red: 0.78, green: 0.56, blue: 0.22), ink: Color(red: 0.14, green: 0.09, blue: 0.02)),
+        .init(id: 1, a: Color(red: 0.95, green: 0.30, blue: 0.28), b: Color(red: 0.45, green: 0.03, blue: 0.14), ink: .white),
+        .init(id: 2, a: Color(red: 0.98, green: 0.62, blue: 0.30), b: Color(red: 0.80, green: 0.22, blue: 0.20), ink: .white),
+        .init(id: 3, a: Color(red: 0.36, green: 0.80, blue: 0.62), b: Color(red: 0.04, green: 0.34, blue: 0.30), ink: .white),
+        .init(id: 4, a: Color(red: 0.42, green: 0.62, blue: 0.98), b: Color(red: 0.12, green: 0.18, blue: 0.52), ink: .white),
+        .init(id: 5, a: Color(red: 0.70, green: 0.52, blue: 0.96), b: Color(red: 0.28, green: 0.14, blue: 0.52), ink: .white),
+        .init(id: 6, a: Color(red: 0.98, green: 0.58, blue: 0.74), b: Color(red: 0.62, green: 0.14, blue: 0.40), ink: .white),
+        .init(id: 7, a: Color(red: 0.62, green: 0.88, blue: 0.94), b: Color(red: 0.14, green: 0.44, blue: 0.62), ink: Color(red: 0.02, green: 0.12, blue: 0.18)),
+        .init(id: 8, a: Color(red: 0.90, green: 0.86, blue: 0.76), b: Color(red: 0.56, green: 0.50, blue: 0.40), ink: Color(red: 0.10, green: 0.09, blue: 0.06)),
+        .init(id: 9, a: Color(red: 0.34, green: 0.34, blue: 0.38), b: Color(red: 0.05, green: 0.05, blue: 0.06), ink: Color(red: 0.99, green: 0.86, blue: 0.58)),
+        .init(id: 10, a: Color(red: 0.78, green: 0.90, blue: 0.40), b: Color(red: 0.30, green: 0.50, blue: 0.10), ink: Color(red: 0.06, green: 0.14, blue: 0.02)),
+        .init(id: 11, a: Color(red: 0.99, green: 0.78, blue: 0.40), b: Color(red: 0.88, green: 0.36, blue: 0.20), ink: Color(red: 0.20, green: 0.06, blue: 0.02)),
+    ]
+
+    /// Стабільний вибір за ініціалами: хеш не змінюється між запусками, на відміну від `hashValue`.
+    static func auto(for seed: String) -> Int {
+        // автоматично лише яскраві: пісочний і графітовий лишаються для ручного вибору
+        let vivid = [0, 1, 2, 3, 4, 5, 6, 7, 10, 11]
+        return vivid[Int(seed.unicodeScalars.reduce(UInt32(7)) { ($0 &* 31) &+ $1.value } % UInt32(vivid.count))]
+    }
+
+    static func resolved(seed: String) -> Palette {
+        let saved = UserDefaults.standard.object(forKey: key) as? Int
+        return palettes[(saved.flatMap { palettes.indices.contains($0) ? $0 : nil }) ?? auto(for: seed)]
+    }
+}
+
+/// Круглий аватар: фото, а без нього градієнт із м'якою формою й ініціалами.
+struct AvatarView: View {
+    let initials: String
+    var size: CGFloat = 40
+    var style: Int?
+    @AppStorage(ProfilePhoto.revKey) private var rev = 0
+    @AppStorage(AvatarStyle.key) private var saved = -1
+
+    var body: some View {
+        Group {
+            if style == nil, let img = ProfilePhoto.load() {
+                Image(uiImage: img).resizable().scaledToFill()
+            } else {
+                generated
+            }
+        }
+        .id(rev)
+        .frame(width: size, height: size)
+        .clipShape(.circle)
+        .overlay(Circle().strokeBorder(.white.opacity(0.22), lineWidth: 1))
+    }
+
+    private var palette: AvatarStyle.Palette {
+        if let style { return AvatarStyle.palettes[style % AvatarStyle.palettes.count] }
+        return saved >= 0 && saved < AvatarStyle.palettes.count ? AvatarStyle.palettes[saved] : AvatarStyle.palettes[AvatarStyle.auto(for: initials)]
+    }
+
+    private var generated: some View {
+        let p = palette
+        return ZStack {
+            LinearGradient(colors: [p.a, p.b], startPoint: .topLeading, endPoint: .bottomTrailing)
+            Circle().fill(.white.opacity(0.22)).frame(width: size * 0.9).offset(x: size * 0.28, y: -size * 0.3).blur(radius: size * 0.04)
+            Circle().fill(.black.opacity(0.16)).frame(width: size * 1.0).offset(x: -size * 0.3, y: size * 0.42)
+            Text(initials).font(.system(size: size * 0.38, weight: .semibold, design: .rounded)).tracking(size * 0.01)
+                .foregroundStyle(p.ink)
+        }
+    }
+}
+
+/// Вибір аватара: велике превʼю, дванадцять стилів, фото з галереї й повернення до автоматичного.
+struct AvatarPicker: View {
+    @Environment(\.dismiss) private var dismiss
+    let initials: String
+    @State private var pick: PhotosPickerItem?
+    @AppStorage(AvatarStyle.key) private var saved = -1
+    @AppStorage(ProfilePhoto.revKey) private var rev = 0
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 26) {
+                    AvatarView(initials: initials, size: 132)
+                        .shadow(color: .black.opacity(0.35), radius: 22, y: 12)
+                        .padding(.top, 12)
+                        .animation(.smooth, value: saved)
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 4), spacing: 14) {
+                        ForEach(AvatarStyle.palettes) { p in
+                            Button {
+                                ProfilePhoto.remove()
+                                saved = p.id
+                            } label: {
+                                AvatarView(initials: initials, size: 66, style: p.id)
+                                    .padding(4)
+                                    .overlay(Circle().strokeBorder(Theme.ink, lineWidth: ProfilePhoto.load() == nil && current == p.id ? 2 : 0))
+                            }
+                            .buttonStyle(PressScale())
+                        }
+                    }
+                    VStack(spacing: 10) {
+                        PhotosPicker(selection: $pick, matching: .images) {
+                            Label(Tx("Фото з галереї", "Photo from library", "Фото из галереи"), systemImage: "photo")
+                                .font(.body.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .background(Theme.surface, in: .capsule)
+                                .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+                                .foregroundStyle(Theme.ink)
+                        }
+                        Button(Tx("Підібрати автоматично", "Reset to automatic", "Подобрать автоматически")) {
+                            ProfilePhoto.remove()
+                            saved = -1
+                        }
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, Theme.gutter)
+                .padding(.bottom, 24)
+            }
+            .screenBackground()
+            .navigationTitle(Tx("Аватар", "Avatar", "Аватар"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } } }
+            .onChange(of: pick) { _, item in
+                guard let item else { return }
+                Task {
+                    if let data = try? await item.loadTransferable(type: Data.self) { _ = ProfilePhoto.save(data) }
+                    pick = nil
+                }
+            }
+            .sensoryFeedback(.selection, trigger: saved)
+        }
+        .presentationDetents([.large])
+    }
+
+    private var current: Int { saved >= 0 ? saved : AvatarStyle.auto(for: initials) }
+}

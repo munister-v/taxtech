@@ -30,30 +30,6 @@ enum ProfilePhoto {
     }
 }
 
-/// Круглий аватар: фото, а без нього - ініціали.
-struct AvatarView: View {
-    let initials: String
-    var size: CGFloat = 40
-    @AppStorage(ProfilePhoto.revKey) private var rev = 0
-
-    var body: some View {
-        Group {
-            if let img = ProfilePhoto.load() {
-                Image(uiImage: img).resizable().scaledToFill()
-            } else {
-                Text(initials).font(.system(size: size * 0.38, weight: .semibold))
-                    .foregroundStyle(Theme.onAccent)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Theme.goldFill)
-            }
-        }
-        .id(rev)
-        .frame(width: size, height: size)
-        .clipShape(.circle)
-        .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 1))
-    }
-}
-
 /// Профіль: жовта картка власника, розділи банку, безпека, особистий облік і лабораторія, запрошення, вихід.
 struct ProfileView: View {
     @Environment(AppModel.self) private var model
@@ -62,7 +38,9 @@ struct ProfileView: View {
     @State private var personal: Personal?
     @State private var confirmDelete = false
     @State private var deleteError: String?
-    @State private var pick: PhotosPickerItem?
+    @State private var choosingAvatar = false
+    @State private var kycVerified = KYCState.load().level == .verified
+    @State private var showKYC = false
     @AppStorage(ProfilePhoto.revKey) private var photoRev = 0
 
     enum Personal: String, Identifiable {
@@ -95,6 +73,7 @@ struct ProfileView: View {
                     RowGroup(title: L("Безпека").s) {
                         nav(Biometrics.kind == .none ? L("PIN, пароль і пристрої").s : L("PIN, \(Biometrics.title), пароль").s, "lock") { SecurityView() }
                         nav(L("Сповіщення").s, "bell") { NoticesView() }
+                        nav(Tx("Дані та приватність", "Data & privacy", "Данные и приватность"), "hand.raised") { DataControlsView() }
                         NavigationLink { AchievementsView() } label: {
                             IconRow(title: L("Досягнення").s, symbol: "trophy",
                                     detail: achievements.map { L("\($0.done) з \($0.total)").s })
@@ -139,6 +118,8 @@ struct ProfileView: View {
                 me = try? await m
                 achievements = try? await a
             }
+            .sheet(isPresented: $choosingAvatar) { AvatarPicker(initials: initials) }
+            .sheet(isPresented: $showKYC, onDismiss: { kycVerified = KYCState.load().level == .verified }) { KYCView(prefill: me?.fullName ?? "") }
             .sheet(item: $personal) { p in
                 Group {
                     switch p {
@@ -170,10 +151,10 @@ struct ProfileView: View {
     private var header: some View {
         HeroPanel {
             HStack(alignment: .center, spacing: 16) {
-                PhotosPicker(selection: $pick, matching: .images) {
+                Button { choosingAvatar = true } label: {
                     AvatarView(initials: initials, size: 76)
                         .overlay(alignment: .bottomTrailing) {
-                            Image(systemName: "camera.fill").font(.system(size: 11, weight: .bold))
+                            Image(systemName: "pencil").font(.system(size: 11, weight: .bold))
                                 .foregroundStyle(Theme.onAccent)
                                 .frame(width: 26, height: 26)
                                 .background(Theme.accent, in: .circle)
@@ -181,24 +162,15 @@ struct ProfileView: View {
                                 .offset(x: 2, y: 2)
                         }
                 }
+                .buttonStyle(PressScale())
                 .accessibilityLabel(L("Змінити фото").s)
-                .contextMenu {
-                    if ProfilePhoto.load() != nil {
-                        Button(L("Видалити фото").s, systemImage: "trash", role: .destructive) { ProfilePhoto.remove() }
-                    }
-                }
-                .onChange(of: pick) { _, item in
-                    guard let item else { return }
-                    Task {
-                        if let data = try? await item.loadTransferable(type: Data.self) { _ = ProfilePhoto.save(data) }
-                        pick = nil
-                    }
-                }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(me?.fullName ?? " ").font(.system(size: 24, weight: .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                     if let e = me?.email, !e.isEmpty {
                         Text(e).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
                     }
+                    Button { showKYC = true } label: { KYCBadge(verified: kycVerified) }
+                        .buttonStyle(.plain).padding(.top, 4)
                 }
             }
             if let me {

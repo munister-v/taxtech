@@ -118,6 +118,7 @@ struct LabHome: View {
 struct SandboxGate: View {
     @Environment(AppModel.self) private var model
     @State private var signIn = false
+    @State private var policy = false
     @State private var float = false
 
     var body: some View {
@@ -147,8 +148,12 @@ struct SandboxGate: View {
                 VStack(spacing: 12) {
                     Button(L("Увійти").s) { signIn = true }
                         .buttonStyle(InkButton())
-                    Text(L("Токен TAX - навчальна одиниця, а не гроші.").s)
-                        .font(.caption).foregroundStyle(.tertiary).multilineTextAlignment(.center)
+                    VStack(spacing: 4) {
+                        Text(L("Токен TAX - навчальна одиниця, а не гроші.").s)
+                            .font(.caption).foregroundStyle(.tertiary).multilineTextAlignment(.center)
+                        Button(PrivacyPolicy.heading) { policy = true }
+                            .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                    }
                 }
                 .padding(.top, 30).padding(.bottom, model.expert ? 78 : 8) // у режимі Expert знизу плаваюча панель вкладок
                 .rise(3)
@@ -157,6 +162,7 @@ struct SandboxGate: View {
         }
         .onAppear { float = true }
         .fullScreenCover(isPresented: $signIn) { AuthView(onClose: { signIn = false }) }
+        .sheet(isPresented: $policy) { PrivacyPolicyView() }
     }
 
     /// Три картки віялом: золота, графітова й чорна спереду, під ними золоте сяйво.
