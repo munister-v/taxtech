@@ -230,7 +230,7 @@ struct DocumentsView: View {
             }
             .padding(Theme.gutter)
         }
-        .screenBackground()
+        .screenBackground(.hatch)
         .navigationTitle(L("Мої документи").s)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
@@ -342,7 +342,7 @@ struct DocumentDetailView: View {
                 }
                 .padding(Theme.gutter)
             }
-            .screenBackground()
+            .screenBackground(.hatch)
             .navigationTitle(doc.isReceipt ? L("Квитанція").s : L("Виписка").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } } }

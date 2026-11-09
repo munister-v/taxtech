@@ -76,7 +76,7 @@ struct ShopView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .screenBackground()
+            .screenBackground(.grid)
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .bottom) { if cartCount > 0 && !showCart { cartBar } }
             .task(id: "\(search)|\(category.rawValue)|\(sort.rawValue)") {
@@ -603,7 +603,7 @@ struct ProductView: View {
                 }
                 .padding(Theme.gutter)
             }
-            .screenBackground()
+            .screenBackground(.grid)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } } }
             .task {
                 sizes = await model.api.sizes(for: product.id)
@@ -774,7 +774,7 @@ struct CartView: View {
                 .padding(.bottom, 24)
             }
             .scrollDismissesKeyboard(.interactively)
-            .screenBackground()
+            .screenBackground(.grid)
             .safeAreaInset(edge: .bottom) {
                 if bought == nil && !cart.isEmpty {
                     Button(L("Оплатити \(Format.money(total))").s, action: pay)
@@ -906,7 +906,7 @@ struct ThreeDSView: View {
                 Text(L("3-D Secure · навчальний банк TaxTech").s).font(Theme.ui(style: .caption1)).foregroundStyle(.tertiary).frame(maxWidth: .infinity)
             }
             .padding(24)
-            .screenBackground()
+            .screenBackground(.grid)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
             .task {
                 left = challenge.expiresIn

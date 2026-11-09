@@ -98,7 +98,7 @@ struct KYCView: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 28)
             }
-            .screenBackground()
+            .screenBackground(.hatch)
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle(Tx("Підтвердження особи", "Verify identity", "Подтверждение личности"))
             .navigationBarTitleDisplayMode(.inline)

@@ -58,8 +58,8 @@ private extension UIColor {
 
 extension View {
     /// Тло екрана.
-    func screenBackground() -> some View {
-        background { GlassAura().ignoresSafeArea() }
+    func screenBackground(_ style: BackdropStyle = .logo) -> some View {
+        background { GlassAura(style: style).ignoresSafeArea() }
     }
 
     /// Скляна панель: матеріал, світлий торець зверху, тонка лінія, м'яка тінь.
@@ -155,6 +155,7 @@ struct Surface<Content: View>: View {
 
 /// Тло під склом: темна основа з двома розмитими золотими й бірюзовими плямами.
 struct GlassAura: View {
+    var style: BackdropStyle = .logo
     @Environment(\.accessibilityReduceMotion) private var reduce
     @State private var drift = false
 
@@ -174,7 +175,7 @@ struct GlassAura: View {
                     .offset(x: w * (drift ? 0.30 : -0.10), y: g.size.height * (drift ? 0.62 : 0.35))
             }
         }
-        .overlay { LogoBackdrop() }
+        .overlay { LogoBackdrop(style: style) }
         .drawingGroup()
         .allowsHitTesting(false)
         .onAppear {
@@ -484,28 +485,65 @@ struct NetworkMark: View {
 }
 
 
-/// Графіка у стилі логотипу за склом: величезний знак контуром, кільця й гільйош.
+enum BackdropStyle { case logo, orbit, grid, hatch }
+
+/// Графіка у стилі логотипу за склом: у кожного розділу своя конструкція.
 struct LogoBackdrop: View {
+    var style: BackdropStyle = .logo
+    private let gold = Color(red: 0.86, green: 0.66, blue: 0.24)
+
     var body: some View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
-            Canvas { ctx, size in
-                let gold = Color(red: 0.86, green: 0.66, blue: 0.24)
-                var r = ctx
-                r.opacity = 0.26
-                Engraving.rings(in: &r, center: CGPoint(x: size.width * 0.95, y: size.height * 0.18),
-                                from: 40, to: size.width * 0.75, count: 14, color: gold)
-                var q = ctx
-                q.opacity = 0.18
-                Engraving.rosette(in: &q, center: CGPoint(x: size.width * 0.05, y: size.height * 0.78),
-                                  radius: size.width * 0.62, curves: 36, lobes: 9, color: gold)
+            switch style {
+            case .logo:
+                Canvas { ctx, size in
+                    var r = ctx; r.opacity = 0.26
+                    Engraving.rings(in: &r, center: CGPoint(x: size.width * 0.95, y: size.height * 0.18),
+                                    from: 40, to: size.width * 0.75, count: 14, color: gold)
+                    var q = ctx; q.opacity = 0.18
+                    Engraving.rosette(in: &q, center: CGPoint(x: size.width * 0.05, y: size.height * 0.78),
+                                      radius: size.width * 0.62, curves: 36, lobes: 9, color: gold)
+                }
+                mark(w * 1.1, 0.075).rotationEffect(.degrees(-14)).position(x: w * 0.9, y: h * 0.72)
+                mark(w * 0.42, 0.14, tint: gold).rotationEffect(.degrees(12)).position(x: w * 0.12, y: h * 0.2)
+            case .orbit:
+                Canvas { ctx, size in
+                    let c = CGPoint(x: size.width * 0.5, y: size.height * 0.34)
+                    var r = ctx; r.opacity = 0.30
+                    Engraving.rings(in: &r, center: c, from: 30, to: size.width * 0.95, count: 22, color: gold)
+                    var q = ctx; q.opacity = 0.16
+                    Engraving.rosette(in: &q, center: c, radius: size.width * 0.5, curves: 30, lobes: 12, color: gold)
+                }
+                mark(w * 0.55, 0.10, tint: gold).position(x: w * 0.5, y: h * 0.34)
+            case .grid:
+                let step: CGFloat = 64
+                let cols = Int(w / step) + 2, rows = Int(h / step) + 2
+                ForEach(0..<rows, id: \.self) { j in
+                    ForEach(0..<cols, id: \.self) { i in
+                        Image("Mark").renderingMode(.template).resizable().scaledToFit()
+                            .frame(width: 22)
+                            .foregroundStyle(Color.white.opacity(0.07))
+                            .rotationEffect(.degrees((i + j) % 2 == 0 ? 0 : 90))
+                            .position(x: CGFloat(i) * step + (j % 2 == 0 ? 0 : step / 2), y: CGFloat(j) * step)
+                    }
+                }
+            case .hatch:
+                Canvas { ctx, size in
+                    var p = Path()
+                    var x: CGFloat = -size.height
+                    while x < size.width { p.move(to: CGPoint(x: x, y: size.height)); p.addLine(to: CGPoint(x: x + size.height, y: 0)); x += 14 }
+                    ctx.stroke(p, with: .color(gold.opacity(0.10)), lineWidth: 0.5)
+                    var r = ctx; r.opacity = 0.22
+                    Engraving.rings(in: &r, center: CGPoint(x: size.width, y: size.height * 0.9), from: 30, to: size.width * 0.7, count: 12, color: gold)
+                }
+                mark(w * 0.9, 0.06).rotationEffect(.degrees(20)).position(x: w * 0.15, y: h * 0.62)
             }
-            Image("Mark").renderingMode(.template).resizable().scaledToFit()
-                .frame(width: w * 1.1).foregroundStyle(Color.white.opacity(0.075))
-                .rotationEffect(.degrees(-14)).position(x: w * 0.9, y: h * 0.72)
-            Image("Mark").renderingMode(.template).resizable().scaledToFit()
-                .frame(width: w * 0.42).foregroundStyle(Color(red: 0.86, green: 0.66, blue: 0.24).opacity(0.14))
-                .rotationEffect(.degrees(12)).position(x: w * 0.12, y: h * 0.2)
         }
+    }
+
+    private func mark(_ size: CGFloat, _ opacity: Double, tint: Color = .white) -> some View {
+        Image("Mark").renderingMode(.template).resizable().scaledToFit()
+            .frame(width: size).foregroundStyle(tint.opacity(opacity))
     }
 }

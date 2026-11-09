@@ -34,7 +34,7 @@ struct MoneyView: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 24)
             }
-            .screenBackground()
+            .screenBackground(.hatch)
             .navigationTitle(L("Гроші").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

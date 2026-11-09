@@ -96,7 +96,7 @@ struct AccountsView: View {
             }
             .padding(.horizontal, Theme.gutter).padding(.bottom, 40)
         }
-        .screenBackground()
+        .screenBackground(.orbit)
         .toolbar(.hidden, for: .navigationBar)
         .task { await load() }
         .refreshable { await load() }
@@ -236,7 +236,7 @@ struct WalletView: View {
             }
             .padding(.horizontal, Theme.gutter).padding(.bottom, 40)
         }
-        .screenBackground()
+        .screenBackground(.orbit)
         .navigationTitle(current.currency)
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
@@ -284,7 +284,7 @@ private struct TopupView: View {
             Spacer()
         }
         .padding(20)
-        .screenBackground()
+        .screenBackground(.orbit)
     }
 }
 
@@ -354,7 +354,7 @@ struct ExchangeView: View {
                 }
                 .padding(.horizontal, Theme.gutter).padding(.bottom, 30)
             }
-            .screenBackground()
+            .screenBackground(.orbit)
             .navigationTitle(Tx("Обмін валют", "Currency exchange", "Обмен валют"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
@@ -504,7 +504,7 @@ struct IbanTransferView: View {
                 }
                 .padding(.horizontal, Theme.gutter).padding(.bottom, 30)
             }
-            .screenBackground()
+            .screenBackground(.orbit)
             .navigationTitle(Tx("Переказ на IBAN", "Send to IBAN", "Перевод на IBAN"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Закрити").s) { dismiss() } } }
@@ -593,7 +593,7 @@ struct CertificatesView: View {
             }
             .padding(.horizontal, Theme.gutter).padding(.bottom, 40)
         }
-        .screenBackground()
+        .screenBackground(.orbit)
         .toolbar(.hidden, for: .navigationBar)
         .task { await loadIssued() }
         .sheet(item: $selected) { DocumentDetailView(doc: $0) }
