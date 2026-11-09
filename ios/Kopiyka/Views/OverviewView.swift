@@ -229,7 +229,7 @@ struct OverviewView: View {
     }
 
     private var firstName: String {
-        Translator.server(me?.fullName ?? "").split(separator: " ").first.map(String.init) ?? Brand.name
+        DisplayName.of(me?.fullName).split(separator: " ").first.map(String.init) ?? Brand.name
     }
 
     static var greeting: String {
@@ -242,7 +242,7 @@ struct OverviewView: View {
     }
 
     private var initials: String? {
-        let l = (me?.fullName ?? "").split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
+        let l = DisplayName.initials(me?.fullName)
         return l.isEmpty ? nil : l
     }
 
@@ -470,11 +470,11 @@ struct OverviewView: View {
     }
 }
 
-/// Нахил картки за телефоном; на іншій, не головній картці - без руху.
+/// Раніше картка нахилялась за телефоном; тепер лежить рівно.
 private struct CardTilt: ViewModifier {
     let active: Bool
     func body(content: Content) -> some View {
-        if active { content.tilt(cornerRadius: 20) } else { content }
+        content
     }
 }
 

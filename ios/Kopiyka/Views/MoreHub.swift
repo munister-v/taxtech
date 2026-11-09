@@ -66,7 +66,7 @@ struct MoreHub: View {
             .fullScreenCover(isPresented: $terminal) { PosTerminalView() }
             .fullScreenCover(isPresented: $shop) { closable { ShopView(topInset: 54) } }
             .fullScreenCover(isPresented: $lab) { closable { LabHome() } }
-            .task { name = Translator.server((try? await model.api.me())?.fullName ?? "") }
+            .task { name = DisplayName.of((try? await model.api.me())?.fullName) }
             .onAppear { kyc = KYCState.load(); consume() }
             .onChange(of: jump) { _, _ in consume() }
         }

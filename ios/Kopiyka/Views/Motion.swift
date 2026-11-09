@@ -25,8 +25,8 @@ struct Rise: ViewModifier {
 extension View {
     func rise(_ order: Int = 0) -> some View { modifier(Rise(order: order)) }
 
-    /// Картка-предмет: нахиляється за телефоном, відблиск біжить слідом.
-    func tilt(cornerRadius: CGFloat = 18) -> some View { modifier(MotionTilt(cornerRadius: cornerRadius)) }
+    /// Картка лежить рівно: нахил за гіроскопом вимкнено. Модифікатор лишено, щоб не чіпати виклики.
+    func tilt(cornerRadius: CGFloat = 18) -> some View { self }
 
     /// Одноразовий світловий проблиск по поверхні (після завантаження, після оплати).
     func glint<T: Equatable>(trigger: T, cornerRadius: CGFloat = 26) -> some View {

@@ -1,12 +1,12 @@
 import PhotosUI
 import SwiftUI
 
-/// Текст на трьох мовах для екранів, що не лежать у translations.json: італійська й німецька беруть англійську.
+/// Текст на трьох мовах для екранів, що не лежать у translations.json: італійська й німецька беруть переклад із translations.json, а без нього - англійську.
 func Tx(_ uk: String, _ en: String, _ ru: String) -> String {
     switch Lang.current {
     case .uk: uk
     case .ru: ru
-    default: en
+    default: Translator.extra(uk) ?? en
     }
 }
 

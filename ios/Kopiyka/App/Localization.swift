@@ -80,6 +80,9 @@ enum Translator {
         return server(s)
     }
 
+    /// Переклад ключа для мов, яких немає в Tx: італійська й німецька.
+    static func extra(_ key: String) -> String? { table[key]?[Lang.current.rawValue] }
+
     static func text(_ key: String, _ args: [String]) -> String {
         var s = Lang.current == .uk ? key : (table[key]?[Lang.current.rawValue] ?? key)
         guard !args.isEmpty else { return s }
@@ -109,4 +112,32 @@ struct L: ExpressibleByStringInterpolation {
     }
 
     var s: String { Translator.text(key, args) }
+}
+
+/// Имя для показа: заглушку сервера («Користувач Apple») заменяет имя из проверки личности,
+/// а ВСЕ ЗАГЛАВНЫЕ и все строчные имена приводятся к виду «Имя Фамилия».
+enum DisplayName {
+    static func of(_ raw: String?) -> String {
+        let name = (raw ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let placeholder = name.hasPrefix("Користувач") || name.hasPrefix("Пользователь") || name.hasPrefix("User ")
+        if name.isEmpty || placeholder {
+            let kyc = KYCState.load().fullName.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !kyc.isEmpty { return tidy(kyc) }
+            return name.isEmpty ? "" : Translator.server(name)
+        }
+        return tidy(name)
+    }
+
+    static func tidy(_ s: String) -> String {
+        guard s == s.lowercased() || s == s.uppercased() else { return s }
+        return s.split(separator: " ").map { w in
+            w.split(separator: "-", omittingEmptySubsequences: false)
+                .map { $0.prefix(1).uppercased() + $0.dropFirst().lowercased() }
+                .joined(separator: "-")
+        }.joined(separator: " ")
+    }
+
+    static func initials(_ raw: String?) -> String {
+        of(raw).split(separator: " ").prefix(2).compactMap(\.first).map(String.init).joined().uppercased()
+    }
 }

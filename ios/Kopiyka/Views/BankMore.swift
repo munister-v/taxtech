@@ -487,7 +487,7 @@ struct SecurityView: View {
                 if let me {
                     Surface {
                         VStack(spacing: 0) {
-                            Line2(L("Ім'я").s, Translator.server(me.fullName))
+                            Line2(L("Ім'я").s, DisplayName.of(me.fullName))
                             if let e = me.email, !e.isEmpty { Rule(); Line2(L("Пошта").s, e) }
                             if let p = me.phone, !p.isEmpty, !p.hasPrefix("apple:") { Rule(); Line2(L("Телефон").s, p) }
                             if let a = me.bankAccountNumber { Rule(); Line2(L("Рахунок").s, a) }
