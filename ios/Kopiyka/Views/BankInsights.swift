@@ -23,7 +23,7 @@ struct TransactionDetailView: View {
                             Text(TransactionRow(tx: tx).title)
                                 .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Text((tx.isIncome ? "+" : "−") + Format.money(tx.amount))
-                                .font(Theme.ui(44, .semibold)).monospacedDigit()
+                                .font(Theme.mono(38, .bold)).monospacedDigit()
                                 .minimumScaleFactor(0.5).lineLimit(1)
                                 .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
                             Label(L("Виконано").s, systemImage: "checkmark.seal.fill")
@@ -287,7 +287,7 @@ struct AnalyticsView: View {
 
     private func tile(_ title: String, _ value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(value).font(Theme.ui(style: .title3, .semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(value).font(Theme.mono(style: .title3, .semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
             Text(title).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -228,7 +228,7 @@ struct MoneyField: View {
                     .keyboardType(.decimalPad)
                     .font(Theme.ui(28, .semibold))
                     .monospacedDigit()
-                Text("TAX").font(Theme.ui(style: .title3, .semibold)).foregroundStyle(.secondary)
+                Text("TAX").font(Theme.mono(style: .title3, .semibold)).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -248,7 +248,7 @@ struct BrandEmpty: View {
             MarkView(height: 84, color: Theme.accent)
                 .padding(22)
                 .background(Theme.surface, in: .circle)
-            Text(title).font(Theme.ui(style: .title3, .bold)).multilineTextAlignment(.center)
+            Text(title).font(Theme.mono(style: .title3, .bold)).multilineTextAlignment(.center)
             if let action, let perform {
                 Button(action, action: perform).buttonStyle(InkButton()).frame(maxWidth: 260)
             }

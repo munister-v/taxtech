@@ -169,7 +169,7 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(Theme.ui(21, .semibold))
+            Text(text).font(Theme.mono(19, .bold))
             Spacer()
             if let trailing {
                 Text(trailing).font(Theme.ui(style: .subheadline, .semibold)).foregroundStyle(.secondary).monospacedDigit()
@@ -374,7 +374,7 @@ struct VirtualCardView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(l.name.isEmpty ? Brand.name : l.name)
-                        .font(Theme.ui(style: .title3, .semibold))
+                        .font(Theme.mono(style: .title3, .semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     if !l.name.isEmpty {

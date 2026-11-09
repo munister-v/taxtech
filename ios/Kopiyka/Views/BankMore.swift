@@ -220,7 +220,7 @@ struct DebtsView: View {
     private func figure(_ title: String, _ value: Double) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).caption()
-            Text(Format.money(value)).font(Theme.ui(style: .title3, .semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+            Text(Format.money(value)).font(Theme.mono(style: .title3, .semibold)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
@@ -600,7 +600,7 @@ struct SecurityView: View {
 
     private func section<C: View>(_ title: String, footer: String?, @ViewBuilder _ content: () -> C) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title).font(Theme.ui(style: .title3, .bold))
+            Text(title).font(Theme.mono(style: .title3, .bold))
             Surface { VStack(spacing: 0) { content() } }
             if let footer { Text(footer).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).padding(.horizontal, 4) }
         }

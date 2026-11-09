@@ -225,7 +225,7 @@ struct OperationsView: View {
                     }
                     .chartBackground { _ in
                         VStack(spacing: 0) {
-                            Text("\(out.count)").font(Theme.ui(style: .title2, .bold)).monospacedDigit()
+                            Text("\(out.count)").font(Theme.mono(style: .title2, .bold)).monospacedDigit()
                             Text(L("видів").s).font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
                         }
                     }
@@ -272,7 +272,7 @@ struct OperationsView: View {
             BrandEmpty(title: filter.search.isEmpty ? L("Операцій ще немає").s : L("Нічого не знайдено").s)
         } else {
             HStack(alignment: .firstTextBaseline) {
-                Text(L("Історія").s).font(Theme.ui(style: .title3, .bold))
+                Text(L("Історія").s).font(Theme.mono(style: .title3, .bold))
                 Text("\(items.count)").foregroundStyle(.secondary).monospacedDigit()
                 Spacer()
                 Menu {

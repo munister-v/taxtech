@@ -200,7 +200,7 @@ struct StatTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(value)
-                .font(Theme.ui(style: .title1, .semibold))
+                .font(Theme.mono(style: .title1, .semibold))
                 .monospacedDigit()
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)

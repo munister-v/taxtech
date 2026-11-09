@@ -270,7 +270,7 @@ struct OverviewView: View {
                 HStack(spacing: 16) {
                     Button { prefill = ""; sheet = .byAccount } label: {
                         VStack(spacing: 6) {
-                            Image(systemName: "plus").font(Theme.ui(style: .title3, .semibold))
+                            Image(systemName: "plus").font(Theme.mono(style: .title3, .semibold))
                                 .frame(width: 54, height: 54)
                                 .foregroundStyle(Theme.accent)
                                 .background(Theme.bg, in: .circle)
@@ -284,7 +284,7 @@ struct OverviewView: View {
                             VStack(spacing: 6) {
                                 let shop = r.relatedAccount.hasPrefix("MRC-")
                                 Group {
-                                    if shop { Image(systemName: "storefront.fill").font(Theme.ui(style: .title3)) }
+                                    if shop { Image(systemName: "storefront.fill").font(Theme.mono(style: .title3)) }
                                     else { Text(String(r.relatedAccount.suffix(2))).font(Theme.ui(19, .semibold)).monospacedDigit() }
                                 }
                                     .foregroundStyle(Theme.goldFill)

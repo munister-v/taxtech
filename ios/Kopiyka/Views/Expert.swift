@@ -57,7 +57,7 @@ struct SettingsSheet: View {
                     Text(L("Налаштування").s).font(.display(38, .medium)).tracking(-1).padding(.top, 8)
                     Button { withAnimation(.smooth) { model.expert.toggle() } } label: {
                         HStack(spacing: 14) {
-                            Image(systemName: "flask").font(Theme.ui(style: .title3)).foregroundStyle(Theme.accent).frame(width: 28)
+                            Image(systemName: "flask").font(Theme.mono(style: .title3)).foregroundStyle(Theme.accent).frame(width: 28)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(L("Експертний режим").s).font(Theme.ui(style: .body, .semibold))
                                 Text(L("Лабораторія, пояснення, журнал рішень").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)

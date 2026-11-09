@@ -116,7 +116,7 @@ struct DepositsView: View {
                         Text(L("\(d.interestRate.formatted())% річних").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(Format.money(d.amount)).font(Theme.ui(style: .title3, .bold)).monospacedDigit()
+                    Text(Format.money(d.amount)).font(Theme.mono(style: .title3, .bold)).monospacedDigit()
                 }
                 if d.isActive {
                     Meter(value: d.progress ?? 0)
@@ -249,7 +249,7 @@ struct CreditsView: View {
                         Text(L("\(Format.money(c.principal)) під \(c.interestRate.formatted())%").s).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Text(Format.money(c.balanceRemaining)).font(Theme.ui(style: .title3, .bold)).monospacedDigit()
+                    Text(Format.money(c.balanceRemaining)).font(Theme.mono(style: .title3, .bold)).monospacedDigit()
                 }
                 if c.isActive {
                     Meter(value: c.progress ?? 0)

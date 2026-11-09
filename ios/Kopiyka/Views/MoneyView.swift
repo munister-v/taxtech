@@ -151,7 +151,7 @@ struct MoneyView: View {
                             .font(Theme.ui(style: .footnote))
                             .foregroundStyle(.secondary)
                         Text(Format.money(total))
-                            .font(Theme.ui(style: .title3, .semibold))
+                            .font(Theme.mono(style: .title3, .semibold))
                             .monospacedDigit()
                     }
                 }

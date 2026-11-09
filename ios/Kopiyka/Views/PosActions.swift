@@ -141,7 +141,7 @@ struct PosReceipt: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text(payment.merchant ?? "").font(.display(30, .medium)).tracking(-0.8).padding(.top, 28)
-                Text(Format.short(payment.amount ?? 0)).font(Theme.ui(style: .title2).monospacedDigit()).foregroundStyle(Theme.accent)
+                Text(Format.short(payment.amount ?? 0)).font(Theme.mono(style: .title2).monospacedDigit()).foregroundStyle(Theme.accent)
                 Card {
                     row(L("Статус").s, PosStatus.text(payment))
                     if payment.isHeld {

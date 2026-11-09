@@ -150,7 +150,7 @@ struct PosMerchantView: View {
     private func hero(_ t: API.PosMerchantSummary.Totals) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(L("Чистий оборот").s).caption()
-            Text(Format.short(t.net)).font(Theme.ui(52, .semibold)).tracking(-1.5).monospacedDigit()
+            Text(Format.short(t.net)).font(Theme.mono(46, .bold)).tracking(-1.5).monospacedDigit()
                 .lineLimit(1).minimumScaleFactor(0.5).contentTransition(.numericText())
             if model.expert {
                 Text("MDR \(PosFormat.percent(t.mdr)) · T+1").font(Theme.mono(style: .footnote)).foregroundStyle(Theme.accent)

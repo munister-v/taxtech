@@ -123,7 +123,7 @@ struct CardsTab: View {
             VirtualCardView(number: "•••• •••• •••• ••••", expiry: nil, holder: nil,
                             look: CardLook(material: .glass, color: .graphite, pattern: .waves))
                 .opacity(0.6)
-            Text(L("Карток ще немає").s).font(Theme.ui(style: .title3, .semibold))
+            Text(L("Карток ще немає").s).font(Theme.mono(style: .title3, .semibold))
             Text(L("Випустіть віртуальну картку й зберіть її вигляд: матеріал, колір, візерунок.").s)
                 .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).multilineTextAlignment(.center).expertOnly()
             Button(L("Випустити картку").s) { issuing = true }.buttonStyle(InkButton())

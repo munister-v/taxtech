@@ -376,7 +376,7 @@ struct PosTerminalView: View {
                 .sensoryFeedback(ok ? .success : .error, trigger: r?.id)
             VStack(spacing: 6) {
                 Text(ok ? (held ? L("Утримано").s : L("Оплачено").s) : L("Відхилено").s).font(.display(34, .medium)).tracking(-0.8)
-                Text(OverviewView.compact(r?.amount ?? amount)).font(Theme.ui(style: .title2).monospacedDigit()).foregroundStyle(Theme.accent)
+                Text(OverviewView.compact(r?.amount ?? amount)).font(Theme.mono(style: .title2).monospacedDigit()).foregroundStyle(Theme.accent)
                 Text(ok ? merchant.name : (r?.message ?? "")).foregroundStyle(.secondary)
             }
             if held, model.expert, let r {
