@@ -33,6 +33,10 @@ enum Theme {
     /// Тепле золото лендингу: рамки, капітелі, гільйош.
     static let gold = Color(UIColor(hex: 0xC7A46F))
     static let goldLight = Color(UIColor(hex: 0xDCC195))
+    /// Палітра фону: шампанське золото й глибокий графітово-синій. Без жовтого й бірюзового, що давали болотний відтінок.
+    static let auraGold = Color(UIColor(hex: 0xC7A46F))
+    static let auraCool = Color(UIColor(hex: 0x2A3F66))
+    static let auraBronze = Color(UIColor(hex: 0x8A5A3C))
     /// Золотий градієнт для великих цифр і заголовків.
     static let goldFill = LinearGradient(colors: [Color(UIColor(hex: 0xDCC195)), Color(UIColor(hex: 0xDCC195))],
                                          startPoint: .top, endPoint: .bottom)
@@ -164,13 +168,13 @@ struct GlassAura: View {
             Theme.bg
             GeometryReader { g in
                 let w = g.size.width
-                Circle().fill(Color(red: 0.86, green: 0.66, blue: 0.24).opacity(0.32))
+                Circle().fill(Theme.auraGold.opacity(0.30))
                     .frame(width: w * 0.9).blur(radius: 90)
                     .offset(x: -w * (drift ? 0.15 : 0.45), y: -w * (drift ? 0.30 : 0.05))
-                Circle().fill(Color(red: 0.10, green: 0.55, blue: 0.60).opacity(0.28))
+                Circle().fill(Theme.auraCool.opacity(0.55))
                     .frame(width: w * 0.8).blur(radius: 100)
                     .offset(x: w * (drift ? 0.25 : 0.55), y: g.size.height * (drift ? 0.30 : 0.55))
-                Circle().fill(Color(red: 0.62, green: 0.30, blue: 0.75).opacity(0.16))
+                Circle().fill(Theme.auraBronze.opacity(0.22))
                     .frame(width: w * 0.6).blur(radius: 90)
                     .offset(x: w * (drift ? 0.30 : -0.10), y: g.size.height * (drift ? 0.62 : 0.35))
             }
@@ -490,7 +494,7 @@ enum BackdropStyle { case logo, orbit, grid, hatch }
 /// Графіка у стилі логотипу за склом: у кожного розділу своя конструкція.
 struct LogoBackdrop: View {
     var style: BackdropStyle = .logo
-    private let gold = Color(red: 0.86, green: 0.66, blue: 0.24)
+    private let gold = Theme.auraGold
 
     var body: some View {
         GeometryReader { g in
