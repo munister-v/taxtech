@@ -81,6 +81,7 @@ struct KYCView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     if state.level == .verified && !checking { done } else {
+                        IDCredential(state: state, docNumber: docNumber)
                         ribbon
                         Group {
                             switch step {
@@ -135,7 +136,7 @@ struct KYCView: View {
             }
             HStack {
                 ForEach(0..<4, id: \.self) { i in
-                    Text(names[i].uppercased()).font(Theme.ui(10, .semibold)).tracking(1.2)
+                    Text(names[i]).font(Theme.ui(12, .semibold))
                         .foregroundStyle(i == step ? Theme.ink : .secondary)
                         .frame(maxWidth: .infinity, alignment: i == 0 ? .leading : i == 3 ? .trailing : .center)
                 }
@@ -306,19 +307,15 @@ struct KYCView: View {
 
     private var done: some View {
         VStack(spacing: 18) {
-            Image(systemName: "checkmark.seal.fill").font(Theme.ui(64)).foregroundStyle(Theme.goldFill)
-                .padding(.top, 36)
-            Text(Tx("Особу підтверджено", "Identity verified", "Личность подтверждена")).font(.display(30, .medium))
+            IDCredential(state: state, verified: true).padding(.top, 12)
+            Text(Tx("Особу підтверджено", "Identity verified", "Личность подтверждена")).font(Theme.mono(22, .bold))
+            AMLGauge(risk: state.risk)
             VStack(spacing: 0) {
                 Line2(Tx("Імʼя", "Name", "Имя"), state.fullName)
                 Rule()
                 Line2(Tx("Документ", "Document", "Документ"), "•••• " + state.docLast4)
                 Rule()
                 Line2(Tx("Біометрія", "Biometrics", "Биометрия"), state.biometry.isEmpty ? "—" : state.biometry)
-                Rule()
-                Line2(Tx("Ризик AML", "AML risk", "Риск AML"), AML.title(state.risk))
-                Rule()
-                Line2(Tx("Ліміт на переказ", "Transfer limit", "Лимит на перевод"), Format.money(KYCLimits.transfer))
                 Rule()
                 Line2(Tx("Перевірено", "Verified on", "Проверено"),
                       (state.verifiedAt ?? .now).formatted(.dateTime.day().month(.abbreviated).year().locale(Lang.current.locale)))

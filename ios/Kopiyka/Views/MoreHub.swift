@@ -104,11 +104,29 @@ struct MoreHub: View {
                 Image(systemName: "chevron.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.secondary)
             }
             .padding(16)
+            .safeAreaInset(edge: .bottom, spacing: 0) { limitStrip }
             .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline))
             .foregroundStyle(Theme.ink)
         }
         .buttonStyle(PressScale())
+    }
+
+    private var limitStrip: some View {
+        let verified = kyc.level == .verified
+        return HStack {
+            Text(verified ? Tx("Ліміт на переказ", "Transfer limit", "Лимит на перевод")
+                          : Tx("Ліміт на переказ", "Transfer limit", "Лимит на перевод"))
+                .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+            Spacer()
+            Text(Format.short(KYCLimits.transfer)).font(Theme.mono(14, .bold)).foregroundStyle(Theme.accent)
+            if !verified {
+                Image(systemName: "arrow.right").font(Theme.ui(style: .caption1, .bold)).foregroundStyle(Theme.accent)
+                Text(Format.short(KYCLimits.verified)).font(Theme.mono(14, .bold)).foregroundStyle(Theme.accent)
+            }
+        }
+        .padding(.horizontal, 16).padding(.vertical, 12)
+        .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: Theme.hairline) }
     }
 
     private var initials: String {
@@ -122,7 +140,7 @@ struct MoreHub: View {
         VStack(spacing: 12) {
             if Build.shop {
                 hero(title: "SAINT AGNES", sub: Tx("Магазин · оплата в TAX", "Shop · pay in TAX", "Магазин · оплата в TAX"), symbol: "bag.fill",
-                     colors: [Color(red: 0.86, green: 0.07, blue: 0.17), Color(red: 0.30, green: 0.02, blue: 0.10)]) { shop = true }
+                     colors: [Color(white: 0.20), Color(white: 0.07)]) { shop = true }
             }
             HStack(spacing: 12) {
                 hero(title: Tx("Термінал", "Terminal", "Терминал"), sub: "POS · 3-D Secure", symbol: "wave.3.right", compact: true,
@@ -146,14 +164,14 @@ struct MoreHub: View {
                     .padding(18)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(compact ? .headline : Theme.ui(26, .semibold)).tracking(compact ? 0 : 3)
+                    Text(title).font(Theme.mono(compact ? 17 : 24, .bold))
                     Text(sub).font(Theme.ui(style: .footnote, .medium)).opacity(0.75)
                 }
                 .foregroundStyle(dark ? Theme.onAccent : Color.white)
                 .padding(18)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: compact ? 112 : 150)
+            .frame(height: compact ? 112 : 124)
             .clipShape(.rect(cornerRadius: 26, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
             .shadow(color: colors[0].opacity(0.25), radius: 18, y: 10)
@@ -172,26 +190,18 @@ struct MoreHub: View {
         }
     }
 
-    private static let hues: [Color] = [
-        Color(red: 0.86, green: 0.18, blue: 0.28), Color(red: 0.95, green: 0.62, blue: 0.20), Color(red: 0.12, green: 0.62, blue: 0.50),
-        Color(red: 0.35, green: 0.40, blue: 0.92), Color(red: 0.16, green: 0.62, blue: 0.82), Color(red: 0.62, green: 0.30, blue: 0.80),
-    ]
-
     private func tileBody(_ title: String, _ symbol: String) -> some View {
-        let hue = Self.hues[Int(symbol.unicodeScalars.reduce(0) { $0 + Int($1.value) } % Self.hues.count)]
-        return VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 14) {
             Image(systemName: symbol).font(Theme.ui(17, .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.accent)
                 .frame(width: 40, height: 40)
-                .background(LinearGradient(colors: [hue.opacity(0.95), hue.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing), in: .circle)
-                .shadow(color: hue.opacity(0.5), radius: 8, y: 4)
+                .background(Theme.accent.opacity(0.12), in: .circle)
             Text(title).font(Theme.ui(style: .subheadline, .semibold)).lineLimit(2).multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, minHeight: 92, alignment: .topLeading)
         .padding(16)
-        .background(LinearGradient(colors: [hue.opacity(0.34), hue.opacity(0.08), Theme.surface], startPoint: .topLeading, endPoint: .bottomTrailing),
-                    in: .rect(cornerRadius: 22, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(hue.opacity(0.25), lineWidth: 1))
+        .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline))
         .foregroundStyle(Theme.ink)
     }
 
