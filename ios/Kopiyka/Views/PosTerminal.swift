@@ -85,7 +85,7 @@ struct PosTerminalView: View {
             }
             .buttonStyle(PressScale())
             Spacer()
-            Text(L("Термінал").s).font(Theme.ui(style: .headline))
+            Text(L("Термінал").s).font(Theme.mono(style: .headline, .bold))
             Spacer()
             if phase == .entry {
                 Button { showMerchant = true } label: {
@@ -122,7 +122,7 @@ struct PosTerminalView: View {
                 VStack(spacing: 6) {
                     Text(merchant.name).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(digits.isEmpty ? "0" : digits).font(Theme.ui(64, .semibold)).tracking(-1.5).monospacedDigit()
+                        Text(digits.isEmpty ? "0" : digits).font(Theme.mono(56, .bold)).tracking(-2).monospacedDigit()
                             .foregroundStyle(digits.isEmpty ? Color.secondary : Theme.ink)
                             .contentTransition(.numericText())
                             .lineLimit(1).minimumScaleFactor(0.5)
@@ -169,7 +169,7 @@ struct PosTerminalView: View {
                     Group {
                         if k == "⌫" { Image(systemName: "delete.left") } else { Text(k) }
                     }
-                    .font(Theme.ui(26, .medium)).frame(maxWidth: .infinity).frame(height: 58)
+                    .font(Theme.mono(26, .bold)).frame(maxWidth: .infinity).frame(height: 58)
                     .background(.ultraThinMaterial, in: .rect(cornerRadius: 18, style: .continuous))
                 }
                 .buttonStyle(PressScale())
@@ -330,12 +330,12 @@ struct PosTerminalView: View {
             Text(L("Код для підтвердження платежу").s).foregroundStyle(.secondary)
             if let demo = c.demoOtp {
                 Button { otp = demo } label: {
-                    HStack { Image(systemName: "message.fill"); Text(demo).font(Theme.ui(22, .semibold)).monospacedDigit(); Spacer(); Text(L("Підставити").s).font(Theme.ui(style: .footnote)) }
+                    HStack { Image(systemName: "message.fill"); Text(demo).font(Theme.mono(22, .bold)).monospacedDigit(); Spacer(); Text(L("Підставити").s).font(Theme.ui(style: .footnote)) }
                         .padding(16).background(Theme.accent.opacity(0.14), in: .rect(cornerRadius: 16, style: .continuous))
                 }
                 .buttonStyle(.plain)
             }
-            TextField("000000", text: $otp).keyboardType(.numberPad).font(Theme.ui(32, .semibold)).monospacedDigit()
+            TextField("000000", text: $otp).keyboardType(.numberPad).font(Theme.mono(32, .bold)).monospacedDigit()
                 .padding(16).background(.ultraThinMaterial, in: .rect(cornerRadius: 16, style: .continuous))
             if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Button(L("Підтвердити").s) {
