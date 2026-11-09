@@ -558,11 +558,11 @@ struct HeroAmount: View {
         let parts = s.split(separator: Character(sep), maxSplits: 1).map(String.init)
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             if hidden {
-                Text("••••••").font(Theme.ui(52, .semibold))
+                Text("••••••").font(Theme.mono(44, .bold))
             } else {
-                Text(parts.first ?? s).font(Theme.ui(66, .semibold)).tracking(-1.5)
+                Text(parts.first ?? s).font(Theme.mono(56, .bold)).tracking(-2)
                 if parts.count > 1, parts[1] != "00" {
-                    Text("\(sep)\(parts[1])").font(Theme.ui(28, .semibold)).opacity(0.55)
+                    Text("\(sep)\(parts[1])").font(Theme.mono(24, .bold)).opacity(0.55)
                 }
             }
             Text(" TAX").font(Theme.ui(20, .semibold)).tracking(2).foregroundStyle(Theme.accent)
