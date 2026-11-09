@@ -10,9 +10,21 @@ struct PosTerminalView: View {
         var id: String { name }
         static let all = [
             Merchant(name: "Café Roma", symbol: "cup.and.saucer.fill", category: "cafe"),
+            Merchant(name: "Trattoria Trastevere", symbol: "fork.knife", category: "restaurant"),
+            Merchant(name: "Gelato Via Veneto", symbol: "snowflake", category: "cafe"),
+            Merchant(name: "Supermercato Pantheon", symbol: "cart.fill", category: "groceries"),
             Merchant(name: "Metro Taxi", symbol: "car.fill", category: "transport"),
+            Merchant(name: "Metro Roma · Linea A", symbol: "tram.fill", category: "transit"),
+            Merchant(name: "Fuel Appia", symbol: "fuelpump.fill", category: "fuel"),
             Merchant(name: "Libreria Aurea", symbol: "book.fill", category: "books"),
             Merchant(name: "Atelier Via Condotti", symbol: "bag.fill", category: "fashion"),
+            Merchant(name: "Farmacia Salute", symbol: "cross.case.fill", category: "pharmacy"),
+            Merchant(name: "Cinema Colosseo", symbol: "film.fill", category: "cinema"),
+            Merchant(name: "Musei Vaticani", symbol: "building.columns.fill", category: "tickets"),
+            Merchant(name: "Palestra Gladiatore", symbol: "dumbbell.fill", category: "sport"),
+            Merchant(name: "TIM Roma", symbol: "antenna.radiowaves.left.and.right", category: "telecom"),
+            Merchant(name: "Fiori di Piazza", symbol: "camera.macro", category: "flowers"),
+            Merchant(name: "Tech Store EUR", symbol: "laptopcomputer", category: "electronics"),
             Merchant(name: "Hotel Forum", symbol: "bed.double.fill", category: "travel"),
         ]
     }
@@ -350,7 +362,10 @@ struct PosTerminalView: View {
         let r = result
         let ok = r?.isApproved == true
         let held = r?.isHeld == true
-        return VStack(spacing: 22) {
+        if ok, !held, let r {
+            return AnyView(receiptResult(r))
+        }
+        return AnyView(VStack(spacing: 22) {
             Spacer(minLength: 0)
             Image(systemName: ok ? (held ? "lock.fill" : "checkmark") : "xmark")
                 .font(.system(size: 44, weight: .bold)).foregroundStyle(ok ? Theme.onAccent : Theme.ink)
@@ -368,17 +383,6 @@ struct PosTerminalView: View {
                 Card {
                     line(L("Код авторизації").s, r.authCode ?? "")
                     Rule().padding(.leading, 18); line("RRN", r.rrn ?? "")
-                }
-            } else if ok, !held, let r {
-                Card {
-                    line(L("Комісія еквайра").s, Format.short(r.fee ?? 0))
-                    Rule().padding(.leading, 18)
-                    line(L("Магазин отримає").s, Format.short(r.net ?? 0))
-                    if model.expert {
-                        Rule().padding(.leading, 18); line(L("Код авторизації").s, r.authCode ?? "")
-                        Rule().padding(.leading, 18); line("RRN", r.rrn ?? "")
-                        Rule().padding(.leading, 18); line(L("Код відповіді").s, r.responseCode)
-                    }
                 }
             } else if model.expert, let r {
                 Card { line(L("Код відповіді").s, "\(r.responseCode) · \(r.message)") }
@@ -399,7 +403,27 @@ struct PosTerminalView: View {
                 }
             }
             .padding(.bottom, 8)
+        })
+    }
+
+    /// Успішна оплата: чек виїжджає зі щілини термінала.
+    private func receiptResult(_ r: API.PosPayment) -> some View {
+        VStack(spacing: 8) {
+            PosPrintedReceipt(payment: r, cardLast4: card?.maskedNumber.suffix(4).description, symbol: merchant.symbol)
+                .id(r.id ?? 0)
+            Spacer(minLength: 0)
+            VStack(spacing: 10) {
+                Button(L("Готово").s) { digits = ""; withAnimation(.smooth) { phase = .entry } }.buttonStyle(InkButton())
+                if model.expert, r.id != nil {
+                    Button(L("Розбір платежу").s) { detail = r }.buttonStyle(LineButton())
+                }
+                if r.id != nil {
+                    Button(L("Повернути платіж").s) { Task { await refund(r) } }.buttonStyle(LineButton())
+                }
+            }
+            .padding(.bottom, 8)
         }
+        .sensoryFeedback(.success, trigger: r.id)
     }
 
     private func line(_ t: String, _ v: String) -> some View {

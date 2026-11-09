@@ -35,7 +35,9 @@ TIP_LIMIT = 0.20
 DISPUTE_REASONS = ('not_recognized', 'not_received', 'duplicate', 'wrong_amount')
 _schema_ready = False
 
-MCC = {'cafe': '5814', 'transport': '4121', 'books': '5942', 'fashion': '5651', 'travel': '7011'}
+MCC = {'cafe': '5814', 'transport': '4121', 'books': '5942', 'fashion': '5651', 'travel': '7011',
+       'groceries': '5411', 'restaurant': '5812', 'pharmacy': '5912', 'cinema': '7832', 'transit': '4111',
+       'fuel': '5541', 'sport': '7997', 'telecom': '4814', 'flowers': '5992', 'tickets': '7991', 'electronics': '5732'}
 
 CODES = {
     '00': 'Approved',

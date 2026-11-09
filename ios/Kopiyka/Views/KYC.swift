@@ -11,6 +11,11 @@ struct KYCState: Codable, Equatable {
     var docType = "passport"
     var docLast4 = ""
     var biometry = ""
+    var pep = false
+    var source = "salary"
+    var turnover = "low"
+    var risk = ""
+    var riskNotes: [String] = []
     var verifiedAt: Date?
 
     private static let key = "kyc.v1"
@@ -67,6 +72,7 @@ struct KYCView: View {
     private var checks: [String] {
         [Tx("Перевіряємо формат документа", "Checking the document format", "Проверяем формат документа"),
          Tx("Привʼязуємо до біометрії пристрою", "Binding to device biometrics", "Привязываем к биометрии устройства"),
+         Tx("Оцінка ризику AML", "AML risk scoring", "Оценка риска AML"),
          Tx("Перевірка за списками санкцій (імітація)", "Sanctions screening (simulated)", "Проверка по санкционным спискам (имитация)")]
     }
 
@@ -80,6 +86,7 @@ struct KYCView: View {
                             switch step {
                             case 0: personal
                             case 1: document
+                            case 2: aml
                             default: face
                             }
                         }
@@ -103,13 +110,39 @@ struct KYCView: View {
 
     // MARK: Кроки
 
+    /// Ступені перевірки як лінія метро: станції I, II, III, пройдені закриті галочкою.
     private var ribbon: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<3, id: \.self) { i in
-                Capsule().fill(i <= step ? Theme.accent : Theme.line).frame(height: 4)
+        let names = [Tx("Дані", "Details", "Данные"), Tx("Документ", "Document", "Документ"), "AML", Tx("Біометрія", "Biometrics", "Биометрия")]
+        let roman = ["I", "II", "III", "IV"]
+        return VStack(spacing: 8) {
+            HStack(spacing: 0) {
+                ForEach(0..<4, id: \.self) { i in
+                    ZStack {
+                        Circle().fill(i <= step ? AnyShapeStyle(Theme.goldFill) : AnyShapeStyle(Theme.surface))
+                        Circle().strokeBorder(i <= step ? Color.clear : Theme.line, lineWidth: 2)
+                        if i < step {
+                            Image(systemName: "checkmark").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.onAccent)
+                        } else {
+                            Text(roman[i]).font(.system(size: 13, weight: .bold, design: .serif))
+                                .foregroundStyle(i == step ? Theme.onAccent : Color.secondary)
+                        }
+                    }
+                    .frame(width: 34, height: 34)
+                    if i < 3 {
+                        Capsule().fill(i < step ? Theme.accent : Theme.line).frame(height: 5).padding(.horizontal, 4)
+                    }
+                }
+            }
+            HStack {
+                ForEach(0..<4, id: \.self) { i in
+                    Text(names[i].uppercased()).font(.system(size: 10, weight: .semibold)).tracking(1.2)
+                        .foregroundStyle(i == step ? Theme.ink : .secondary)
+                        .frame(maxWidth: .infinity, alignment: i == 0 ? .leading : i == 3 ? .trailing : .center)
+                }
             }
         }
         .padding(.top, 8)
+        .animation(.smooth, value: step)
     }
 
     private func heading(_ title: String, _ sub: String) -> some View {
@@ -189,6 +222,43 @@ struct KYCView: View {
         }
     }
 
+    private var aml: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            heading("AML", Tx("Кілька питань про гроші, як у реальному банку.", "A few questions about your money, as in a real bank.", "Несколько вопросов о деньгах, как в настоящем банке."))
+            field(Tx("Джерело коштів", "Source of funds", "Источник средств")) {
+                Picker("", selection: $state.source) {
+                    Text(Tx("Зарплата", "Salary", "Зарплата")).tag("salary")
+                    Text(Tx("Бізнес", "Business", "Бизнес")).tag("business")
+                    Text(Tx("Заощадження", "Savings", "Сбережения")).tag("savings")
+                    Text(Tx("Подарунок чи спадок", "Gift or inheritance", "Подарок или наследство")).tag("gift")
+                    Text(Tx("Інше", "Other", "Другое")).tag("other")
+                }
+                .labelsHidden().frame(maxWidth: .infinity, alignment: .leading)
+            }
+            field(Tx("Обіг на місяць", "Expected monthly turnover", "Оборот в месяц")) {
+                Picker("", selection: $state.turnover) {
+                    Text("< 10 000").tag("low")
+                    Text("10 000 – 100 000").tag("mid")
+                    Text("> 100 000").tag("high")
+                }
+                .labelsHidden().frame(maxWidth: .infinity, alignment: .leading)
+            }
+            Toggle(isOn: $state.pep) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Tx("Публічний діяч (PEP)", "Politically exposed person (PEP)", "Публичное лицо (PEP)")).font(.body.weight(.medium))
+                    Text(Tx("Ви або близькі родичі обіймаєте чи обіймали публічну посаду.", "You or a close relative holds or held a public office.", "Вы или близкие родственники занимаете или занимали публичную должность."))
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+            }
+            .tint(Theme.accent)
+            .padding(14).background(Theme.surface, in: .rect(cornerRadius: 14, style: .continuous))
+            HStack(spacing: 10) {
+                Button(L("Назад").s) { step = 1 }.buttonStyle(LineButton()).frame(width: 110)
+                Button(Tx("Далі", "Continue", "Далее")) { step = 3 }.buttonStyle(InkButton())
+            }
+        }
+    }
+
     private var face: some View {
         VStack(alignment: .leading, spacing: 18) {
             heading(Tx("Біометрія", "Biometrics", "Биометрия"),
@@ -223,7 +293,7 @@ struct KYCView: View {
                 .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
                 .onTapGesture { if !bioOK { Task { await authenticate() } } }
                 HStack(spacing: 10) {
-                    Button(L("Назад").s) { step = 1 }.buttonStyle(LineButton()).frame(width: 110)
+                    Button(L("Назад").s) { step = 2 }.buttonStyle(LineButton()).frame(width: 110)
                     if bioOK {
                         Button(Tx("Підтвердити", "Verify", "Подтвердить")) { Task { await run() } }.buttonStyle(InkButton())
                     } else {
@@ -246,12 +316,20 @@ struct KYCView: View {
                 Rule()
                 Line2(Tx("Біометрія", "Biometrics", "Биометрия"), state.biometry.isEmpty ? "—" : state.biometry)
                 Rule()
-                Line2(Tx("Ліміт на переказ", "Transfer limit", "Лимит на перевод"), Format.money(KYCLimits.verified))
+                Line2(Tx("Ризик AML", "AML risk", "Риск AML"), AML.title(state.risk))
+                Rule()
+                Line2(Tx("Ліміт на переказ", "Transfer limit", "Лимит на перевод"), Format.money(KYCLimits.transfer))
                 Rule()
                 Line2(Tx("Перевірено", "Verified on", "Проверено"),
                       (state.verifiedAt ?? .now).formatted(.dateTime.day().month(.abbreviated).year().locale(Lang.current.locale)))
             }
             .background(Theme.surface, in: .rect(cornerRadius: 20, style: .continuous))
+            if !state.riskNotes.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(state.riskNotes, id: \.self) { Label($0, systemImage: "exclamationmark.triangle").font(.footnote).foregroundStyle(.secondary) }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
             Button(Tx("Скинути підтвердження", "Reset verification", "Сбросить подтверждение")) {
                 KYCState.erase(); state = KYCState(); step = 0; docNumber = ""; bioOK = false; bioError = nil
             }
@@ -303,13 +381,23 @@ struct KYCView: View {
     private func run() async {
         checking = true
         progress = 0
-        for i in 0..<3 {
+        for i in 0..<checks.count {
             try? await Task.sleep(for: .milliseconds(700))
             progress = i + 1
         }
         try? await Task.sleep(for: .milliseconds(300))
+        if AML.sanctionsHit(state.fullName) {
+            checking = false
+            bioError = Tx("Збіг зі списком санкцій (навчальним). Перевірку не завершено: в реальному банку це передали б комплаєнсу.",
+                          "Match on the (training) sanctions list. The check was not completed: a real bank would escalate this to compliance.",
+                          "Совпадение с (учебным) санкционным списком. Проверка не завершена: в реальном банке это передали бы комплаенсу.")
+            return
+        }
         state.docLast4 = String(docNumber.filter { !$0.isWhitespace }.suffix(4))
         state.biometry = bioKind
+        let r = AML.assess(state)
+        state.risk = r.level
+        state.riskNotes = r.notes
         state.level = .verified
         state.verifiedAt = .now
         state.save()
@@ -322,5 +410,43 @@ struct KYCView: View {
 enum KYCLimits {
     static let basic = 10_000.0
     static let verified = 100_000.0
-    static var transfer: Double { KYCState.load().level == .verified ? verified : basic }
+    static let enhanced = 30_000.0
+    static var transfer: Double {
+        let s = KYCState.load()
+        guard s.level == .verified else { return basic }
+        return s.risk == "high" ? enhanced : verified
+    }
+}
+
+/// AML: оцінка ризику клієнта та перевірка за навчальним списком санкцій. Усе рахується на телефоні.
+enum AML {
+    struct Result { let level: String; let notes: [String] }
+
+    static let watchlist = ["lukashenko", "лукашенко", "putin", "путин", "путін", "kim jong", "assad", "асад"]
+
+    static func title(_ level: String) -> String {
+        switch level {
+        case "high": Tx("Високий", "High", "Высокий")
+        case "medium": Tx("Середній", "Medium", "Средний")
+        case "low": Tx("Низький", "Low", "Низкий")
+        default: "—"
+        }
+    }
+
+    static func sanctionsHit(_ name: String) -> Bool {
+        let n = name.lowercased()
+        return watchlist.contains { n.contains($0) }
+    }
+
+    static func assess(_ s: KYCState) -> Result {
+        var score = 0
+        var notes: [String] = []
+        if s.country == "OTHER" { score += 2; notes.append(Tx("Країна поза переліком низького ризику", "Country outside the low-risk list", "Страна вне списка низкого риска")) }
+        if s.pep { score += 3; notes.append(Tx("Публічний діяч: посилена перевірка", "Politically exposed person: enhanced due diligence", "Публичное лицо: усиленная проверка")) }
+        if s.turnover == "high" { score += 2; notes.append(Tx("Великий очікуваний обіг", "High expected turnover", "Большой ожидаемый оборот")) }
+        else if s.turnover == "mid" { score += 1 }
+        if s.source == "other" { score += 2; notes.append(Tx("Джерело коштів не уточнено", "Source of funds not specified", "Источник средств не уточнён")) }
+        else if s.source == "gift" { score += 1 }
+        return Result(level: score >= 4 ? "high" : score >= 2 ? "medium" : "low", notes: notes)
+    }
 }
