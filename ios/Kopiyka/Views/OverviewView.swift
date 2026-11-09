@@ -38,12 +38,13 @@ struct OverviewView: View {
                         activity.rise(4)
                         if !recipients.isEmpty { quickTransfer.rise(5) }
                         spending.rise(6)
-                        if points.count > 1 { balanceTrend.rise(4) }
+                        // рівна лінія без змін за 30 днів нічого не каже: картку показуємо, лише коли баланс рухався
+                        if points.count > 1, Set(points.map(\.balance)).count > 1 { balanceTrend.rise(4) }
                         HStack(spacing: 12) {
                             taxesCard
                             if Build.shop, let hit = hits.first { shopCard(hit) }
                         }
-                        .frame(height: Build.shop && !hits.isEmpty ? 176 : 124)
+                        .frame(height: Build.shop && !hits.isEmpty ? 176 : 144)
                         .rise(5)
                     }
                     .padding(.horizontal, Theme.gutter)
@@ -211,7 +212,10 @@ struct OverviewView: View {
                 Image(systemName: "wave.3.right").font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.onAccent)
                     .frame(width: 48, height: 48)
                     .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .circle)
-                Text(L("Термінал").s).font(.system(size: 20, weight: .semibold))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L("Термінал").s).font(.system(size: 20, weight: .semibold))
+                    Text("POS · 3-D Secure").font(.footnote).foregroundStyle(.secondary)
+                }
                 Spacer()
                 Image(systemName: "arrow.up.right").font(.footnote.weight(.bold)).foregroundStyle(.secondary)
             }
@@ -377,7 +381,7 @@ struct OverviewView: View {
         let top = max(days.max() ?? 1, 1)
         // без витрат стовпчики лише позначають дні: нижчі, щоб порожня картка не займала пів екрана
         let quiet = out == 0 && (days.max() ?? 0) == 0
-        let barHeight: CGFloat = quiet ? 18 : 70
+        let barHeight: CGFloat = quiet ? 10 : 70
         return Button { open(.operations) } label: {
             Card {
                 VStack(alignment: .leading, spacing: 4) {
@@ -430,7 +434,12 @@ struct OverviewView: View {
                     Text(L("Податки").s).font(.subheadline.weight(.medium)).foregroundStyle(.secondary)
                     Spacer(minLength: 0)
                     Text(L("\(left) дн.").s).font(.system(size: 28, weight: .bold)).monospacedDigit()
+                        .foregroundStyle(left <= 7 && next != nil ? Theme.accent : Theme.ink)
                     Text(next?.title ?? L("Строків немає").s).font(.footnote).foregroundStyle(.secondary).lineLimit(2)
+                    if let d = next?.date {
+                        Text(d.formatted(.dateTime.day().month(.abbreviated).locale(Lang.current.locale)))
+                            .font(.caption.weight(.semibold)).foregroundStyle(Theme.accent)
+                    }
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

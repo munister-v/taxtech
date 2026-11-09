@@ -13,6 +13,10 @@ struct RootView: View {
 
     var body: some View {
         Group {
+            if !model.signedIn && !model.expert {
+                // без входу вкладка одна: окрема панель з єдиним «Home» лише заважає, тож TabView не показуємо
+                SandboxGate()
+            } else {
             TabView(selection: $selection) {
                 if model.signedIn {
                     Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
@@ -34,6 +38,7 @@ struct RootView: View {
             .tabBarMinimizeBehavior(.onScrollDown)
             // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
             .overlay(alignment: .top) { if selection != .overview && selection != .lab { TopFade() } }
+            }
         }
         .animation(.smooth(duration: 0.45), value: model.signedIn)
         .animation(.smooth(duration: 0.35), value: model.bankUnlocked)

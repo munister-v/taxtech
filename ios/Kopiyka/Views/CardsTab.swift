@@ -144,8 +144,12 @@ struct CardsTab: View {
                         Text(card.isBlocked ? L("Заморожена").s : (card.isPrimary ? L("Головна · активна").s : L("Активна").s))
                         if let e = card.expiryDisplay { Text(L("· до \(e)").s) }
                     }
-                    .font(.caption.weight(.medium))
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12).frame(height: 28)
+                    .background(Theme.surface, in: .capsule)
+                    .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+                    .padding(.top, 4)
                 }
                 .animation(.smooth, value: index)
             }
@@ -211,8 +215,8 @@ struct CardsTab: View {
                         Label(L("Поповнити картку").s, systemImage: "plus")
                             .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity, minHeight: 50)
-                            .background(Theme.ink, in: .capsule)
-                            .foregroundStyle(Theme.onInk)
+                            .background(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom), in: .capsule)
+                            .foregroundStyle(Theme.onAccent)
                     }
                     .buttonStyle(PressScale())
                 }

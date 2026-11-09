@@ -55,7 +55,9 @@ struct OperationsView: View {
                     search
                     TextTabs(items: [(String?.none, L("Усі").s), (String?.some("in"), L("Надходження").s), (String?.some("out"), L("Витрати").s)],
                              selection: $filter.direction)
-                    if filter.search.isEmpty && filter.direction != "in" { spending }
+                    if filter.search.isEmpty && !items.isEmpty { flow }
+                    // без витрат за період велика порожня панель нічого не каже
+                    if filter.search.isEmpty && filter.direction != "in" && !spent.isEmpty { spending }
                     if filter.search.isEmpty, let summary { byType(summary) }
                     if filter.search.isEmpty && !insights.isEmpty && model.expert { insightList }
                     history
@@ -128,6 +130,36 @@ struct OperationsView: View {
         .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
     }
 
+    /// Надійшло і витрачено за обраний період: дві рівні плитки над графіком.
+    private var flow: some View {
+        let inRange = items.filter { $0.date >= period.start }
+        let income = inRange.filter(\.isIncome).reduce(0) { $0 + $1.amount }
+        let outgo = inRange.filter { !$0.isIncome }.reduce(0) { $0 + $1.amount }
+        return HStack(spacing: 12) {
+            flowTile(L("Надійшло").s, symbol: "arrow.down.left", value: income, tint: Theme.accent)
+            flowTile(L("Витрачено").s, symbol: "arrow.up.right", value: outgo, tint: Theme.ink)
+        }
+    }
+
+    private func flowTile(_ title: String, symbol: String, value: Double, tint: Color) -> some View {
+        Surface {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    Image(systemName: symbol).font(.caption.weight(.bold)).foregroundStyle(tint)
+                    Text(title).font(.footnote.weight(.medium)).foregroundStyle(.secondary)
+                    Spacer(minLength: 0)
+                    Text(period.title).font(.caption2.weight(.semibold)).foregroundStyle(.tertiary)
+                }
+                Text(OverviewView.compactCents(value))
+                    .font(.system(size: 22, weight: .semibold)).monospacedDigit()
+                    .lineLimit(1).minimumScaleFactor(0.6)
+                    .contentTransition(.numericText(value: value))
+            }
+            .padding(14)
+        }
+        .animation(.snappy, value: period)
+    }
+
     // MARK: Витрати за період
 
     private var spending: some View {
@@ -160,7 +192,9 @@ struct OperationsView: View {
                             .cornerRadius(3)
                     }
                     .chartYAxis(.hidden)
-                    .chartXScale(range: .plotDimension(padding: 14))
+                    // шкала від початку періоду до сьогодні: один день не розтягується на всю картку
+                    .chartXScale(domain: min(period.start, byBucket.first?.day ?? period.start)...Date.now.addingTimeInterval(period == .year ? 86400 * 20 : 86400),
+                                 range: .plotDimension(padding: 14))
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 4)) {
                             AxisValueLabel(format: period == .year
