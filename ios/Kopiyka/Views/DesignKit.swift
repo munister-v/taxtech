@@ -50,13 +50,8 @@ struct HeroPanel<Content: View>: View {
             .padding(22)
             .foregroundStyle(yellow ? Theme.onAccent : Theme.ink)
             .environment(\.onYellow, yellow)
-            .background(yellow ? Theme.accent : Theme.surface)
-            .clipShape(.rect(cornerRadius: 24, style: .continuous))
-            .overlay {
-                if !yellow {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.edge, lineWidth: 0.8)
-                }
-            }
+            .background { if yellow { Theme.accent.clipShape(.rect(cornerRadius: 24, style: .continuous)) } }
+            .modifier(HeroGlass(on: !yellow))
     }
 }
 
@@ -430,5 +425,13 @@ struct LeaderRow: View {
         .overlay(alignment: .bottom) {
             Rectangle().fill(Theme.ink.opacity(0.08)).frame(height: 0.5).padding(.horizontal, 18)
         }
+    }
+}
+
+
+private struct HeroGlass: ViewModifier {
+    let on: Bool
+    func body(content: Content) -> some View {
+        if on { content.glass(24) } else { content }
     }
 }

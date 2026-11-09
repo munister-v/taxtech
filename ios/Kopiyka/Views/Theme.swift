@@ -59,7 +59,21 @@ private extension UIColor {
 extension View {
     /// Тло екрана.
     func screenBackground() -> some View {
-        background { Theme.bg.ignoresSafeArea() }
+        background { GlassAura().ignoresSafeArea() }
+    }
+
+    /// Скляна панель: матеріал, світлий торець зверху, тонка лінія, м'яка тінь.
+    func glass(_ radius: CGFloat = 22) -> some View {
+        background {
+            RoundedRectangle(cornerRadius: radius, style: .continuous).fill(.ultraThinMaterial)
+            RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Theme.surface.opacity(0.55))
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .strokeBorder(LinearGradient(colors: [Color.white.opacity(0.28), Color.white.opacity(0.10), Color.white.opacity(0.05)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.9)
+        }
+        .shadow(color: .black.opacity(0.28), radius: 18, y: 8)
     }
 
     /// Контент, що з'їжджає вгору, розчиняється під годинником, а не налазить на нього.
@@ -135,8 +149,25 @@ struct Surface<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
-            .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
-            .goldEdge(22)
+            .glass(22)
+    }
+}
+
+/// Тло під склом: темна основа з двома розмитими золотими й бірюзовими плямами.
+struct GlassAura: View {
+    var body: some View {
+        ZStack {
+            Theme.bg
+            GeometryReader { g in
+                Circle().fill(Color(red: 0.86, green: 0.66, blue: 0.24).opacity(0.30))
+                    .frame(width: g.size.width * 0.9).blur(radius: 90)
+                    .offset(x: -g.size.width * 0.35, y: -g.size.width * 0.15)
+                Circle().fill(Color(red: 0.10, green: 0.55, blue: 0.60).opacity(0.26))
+                    .frame(width: g.size.width * 0.8).blur(radius: 100)
+                    .offset(x: g.size.width * 0.45, y: g.size.height * 0.45)
+            }
+        }
+        .allowsHitTesting(false)
     }
 }
 
