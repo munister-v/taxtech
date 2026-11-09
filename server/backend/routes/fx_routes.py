@@ -24,6 +24,7 @@ from flask import Blueprint, Response, g, jsonify, request
 from ..database import get_connection, get_returning_id_suffix, insert_last_id
 from ..services import fx_service as fx
 from ..services.document_service import DocumentService, KIND_CERT, verify_url
+from ..i18n import tr
 from .helpers import api_error, auth_required, rate_limit
 
 fx_bp = Blueprint('fx', __name__)
@@ -390,18 +391,18 @@ def _render_pdf(doc: dict, root: str) -> bytes:
     c.setLineWidth(0.6)
     c.line(20 * mm, h - 33 * mm, w - 20 * mm, h - 33 * mm)
     c.setFont(_f(True), 16)
-    c.drawString(20 * mm, h - 48 * mm, str(doc['title']).split(' · ')[0])
-    rows = [('Клієнт', m.get('holder', '')), ('IBAN', fx.pretty_iban(m.get('iban', ''))), ('Валюта', m.get('currency', '')),
-            ('Дата видачі', m.get('issued_on', ''))]
+    c.drawString(20 * mm, h - 48 * mm, tr(str(doc['title']).split(' · ')[0]))
+    rows = [(tr('Клієнт'), m.get('holder', '')), ('IBAN', fx.pretty_iban(m.get('iban', ''))), (tr('Валюта'), m.get('currency', '')),
+            (tr('Дата видачі'), m.get('issued_on', ''))]
     if m.get('cert') == 'account':
-        rows.append(('Рахунок відкрито', m.get('opened', '') or '—'))
+        rows.append((tr('Рахунок відкрито'), m.get('opened', '') or '—'))
     if m.get('cert') == 'balance':
-        rows.append(('Залишок на дату', f"{m.get('balance', 0):,.2f} {m.get('currency', '')}".replace(',', ' ')))
+        rows.append((tr('Залишок на дату'), f"{m.get('balance', 0):,.2f} {m.get('currency', '')}".replace(',', ' ')))
     if m.get('cert') in ('turnover', 'income'):
-        rows.append(('Період', f"{m.get('from_date', '')} – {m.get('to_date', '')}"))
-        rows.append(('Надходження', f"{m.get('credit', 0):,.2f} {m.get('currency', '')}".replace(',', ' ')))
+        rows.append((tr('Період'), f"{m.get('from_date', '')} – {m.get('to_date', '')}"))
+        rows.append((tr('Надходження'), f"{m.get('credit', 0):,.2f} {m.get('currency', '')}".replace(',', ' ')))
         if m.get('cert') == 'turnover':
-            rows.append(('Списання', f"{m.get('debit', 0):,.2f} {m.get('currency', '')}".replace(',', ' ')))
+            rows.append((tr('Списання'), f"{m.get('debit', 0):,.2f} {m.get('currency', '')}".replace(',', ' ')))
     y = h - 66 * mm
     for k, v in rows:
         c.setFont(_f(), 9)
@@ -416,8 +417,8 @@ def _render_pdf(doc: dict, root: str) -> bytes:
     blk.drawOn(c, 20 * mm, 38 * mm)
     c.setFont(_f(), 7.5)
     c.setFillGray(0.5)
-    c.drawString(20 * mm, 30 * mm, 'Документ підписано електронною печаткою TaxTech. Будь-яка зміна змісту робить підпис недійсним.')
-    c.drawString(20 * mm, 25.5 * mm, 'Навчальний документ. Суми у віртуальних токенах, не є банківською довідкою.')
+    c.drawString(20 * mm, 30 * mm, tr('Документ підписано електронною печаткою TaxTech. Будь-яка зміна змісту робить підпис недійсним.'))
+    c.drawString(20 * mm, 25.5 * mm, tr('Навчальний документ. Суми у віртуальних токенах, не є банківською довідкою.'))
     c.setStrokeColorRGB(0.67, 0.67, 0.67)
     c.setLineWidth(0.5)
     c.rect(10 * mm, 10 * mm, w - 20 * mm, h - 20 * mm)
