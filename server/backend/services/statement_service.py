@@ -557,12 +557,7 @@ class StatementService:
     def _build_receipt(self, account: dict, user: dict, tx: dict, doc: dict | None = None, root: str | None = None) -> bytes:
         """Генерує одну сторінку PDF-квитанції (A6-ширина) для транзакції: знак, сума, реквізити, QR."""
         buf = io.BytesIO()
-        width, height = 105 * mm, 184 * mm
-        from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate
-        pdf_doc = BaseDocTemplate(buf, pagesize=(width, height), leftMargin=0, rightMargin=0,
-                                  topMargin=0, bottomMargin=0)
-        pdf_doc.addPageTemplates([PageTemplate(id='r', frames=[Frame(
-            0, 0, width, height, leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0, id='f')])])
+        width = 105 * mm
         pad = 9 * mm
         inner = width - 2 * pad
 
@@ -672,6 +667,16 @@ class StatementService:
         story.append(Spacer(1, 4 * mm))
         story.append(P(tr('Навчальний документ: токени TAX не є грошима'), 6.3, False, _MUTED))
 
+        # Висота сторінки рахується за вмістом: довге призначення чи контрагент не зсуне підвал на другу сторінку.
+        needed = 0.0
+        for fl in story:
+            needed += fl.wrap(width, 10_000 * mm)[1] + fl.getSpaceBefore() + fl.getSpaceAfter()
+        height = max(184 * mm, needed + 6 * mm)
+        from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate
+        pdf_doc = BaseDocTemplate(buf, pagesize=(width, height), leftMargin=0, rightMargin=0,
+                                  topMargin=0, bottomMargin=0)
+        pdf_doc.addPageTemplates([PageTemplate(id='r', frames=[Frame(
+            0, 0, width, height, leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0, id='f')])])
         pdf_doc.build(story)
         return buf.getvalue()
 
