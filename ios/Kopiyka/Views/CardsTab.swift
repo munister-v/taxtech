@@ -31,6 +31,7 @@ struct CardsTab: View {
                     }
                     ErrorSection(error: screen.error)
                 }
+                .background(alignment: .top) { glow }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 110)
             }
@@ -53,6 +54,34 @@ struct CardsTab: View {
                 }
             }
         }
+    }
+
+    /// Яскраві відтінки під колір картки: темні кольори (графіт, чорний) тягнуть малиново-золоті, щоб панель не була сірою.
+    static func tints(_ c: CardColor) -> (Color, Color) {
+        switch c {
+        case .graphite, .black: (Color(red: 0.78, green: 0.12, blue: 0.24), Color(red: 0.88, green: 0.62, blue: 0.24))
+        case .white, .sand, .gold: (Color(red: 0.90, green: 0.66, blue: 0.28), Color(red: 0.62, green: 0.30, blue: 0.14))
+        default: (c.partner, c.base)
+        }
+    }
+
+    /// Подложка: світіння кольору вибраної картки за стрічкою.
+    private var glow: some View {
+        let (a, b) = Self.tints(card?.look.color ?? .graphite)
+        return ZStack {
+            Ellipse().fill(a.opacity(0.55)).frame(width: 340, height: 260).blur(radius: 70).offset(x: -70, y: 130)
+            Ellipse().fill(b.opacity(0.28)).frame(width: 260, height: 180).blur(radius: 80).offset(x: 110, y: 170)
+        }
+        .animation(.smooth(duration: 0.6), value: card?.look.color)
+        .allowsHitTesting(false)
+    }
+
+    private func panel(_ c: API.Card) -> some View {
+        let (a, b) = Self.tints(c.look.color)
+        return RoundedRectangle(cornerRadius: 26, style: .continuous)
+            .fill(LinearGradient(colors: [a.opacity(0.62), a.opacity(0.18), Color.black.opacity(0.92)],
+                                 startPoint: .topLeading, endPoint: .bottomTrailing))
+            .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
     }
 
     private func load() async {
@@ -135,21 +164,20 @@ struct CardsTab: View {
             .animation(.smooth, value: card?.isBlocked)
             .sensoryFeedback(.selection, trigger: index)
             if let card {
-                VStack(spacing: 4) {
+                VStack(spacing: 8) {
                     Text(card.look.name.isEmpty ? L("Картка •• \(card.maskedNumber.suffix(4))").s : card.look.name)
                         .font(.headline)
                         .contentTransition(.opacity)
-                    HStack(spacing: 6) {
-                        Circle().fill(card.isBlocked ? Color.cyan : Color.green).frame(width: 6, height: 6)
-                        Text(card.isBlocked ? L("Заморожена").s : (card.isPrimary ? L("Головна · активна").s : L("Активна").s))
-                        if let e = card.expiryDisplay { Text(L("· до \(e)").s) }
+                    if card.isBlocked {
+                        Label(L("Заморожена").s, systemImage: "snowflake")
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 12).frame(height: 28)
+                            .background(Color.cyan.opacity(0.22), in: .capsule)
+                            .foregroundStyle(Color.cyan)
+                    } else if let e = card.expiryDisplay {
+                        Text((card.isPrimary ? L("Головна").s + " · " : "") + L("до \(e)").s)
+                            .font(.footnote).foregroundStyle(.secondary)
                     }
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12).frame(height: 28)
-                    .background(Theme.surface, in: .capsule)
-                    .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
-                    .padding(.top, 4)
                 }
                 .animation(.smooth, value: index)
             }
@@ -186,8 +214,7 @@ struct CardsTab: View {
                     .buttonStyle(PressScale())
             }
             Surface { LearnLink(.hold).padding(.horizontal, 16).padding(.vertical, 8) }.expertOnly()
-            Surface {
-                VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         Text(c.isPrimary ? L("Баланс рахунку").s : L("Баланс картки").s).caption()
                         Spacer()
@@ -221,7 +248,7 @@ struct CardsTab: View {
                     .buttonStyle(PressScale())
                 }
                 .padding(16)
-            }
+                .background(panel(c))
             Surface {
                 VStack(alignment: .leading, spacing: 0) {
                     row(copied ? L("Номер рахунку скопійовано").s : L("Скопіювати номер рахунку").s,

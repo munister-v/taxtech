@@ -63,8 +63,8 @@ enum CardColor: String, CaseIterable, Identifiable, Codable, Sendable {
     /// Друга точка градієнта: зсув відтінку, щоб градієнт жив, а не просто темнішав.
     var partner: Color {
         switch self {
-        case .graphite: Color(red: 0.36, green: 0.38, blue: 0.42)
-        case .black: Color(red: 0.18, green: 0.18, blue: 0.24)
+        case .graphite: Color(red: 0.27, green: 0.28, blue: 0.32)
+        case .black: Color(red: 0.11, green: 0.10, blue: 0.12)
         case .white: Color(red: 0.80, green: 0.84, blue: 0.90)
         case .gold: Color(red: 0.55, green: 0.38, blue: 0.16)
         case .navy: Color(red: 0.22, green: 0.38, blue: 0.68)
@@ -121,12 +121,12 @@ struct CardLook: Codable, Equatable, Sendable {
     /// Старі дизайни (`design`) у новій мові - щоб картки без власного вигляду теж мали чип, візерунок і матеріал.
     init(legacy design: CardDesign) {
         switch design {
-        case .dark: self.init(material: .solid, color: .black, pattern: .mark)
-        case .slate: self.init(material: .solid, color: .graphite, pattern: .mark)
-        case .navy: self.init(material: .metal, color: .graphite, pattern: .lines)
+        case .dark: self.init(material: .solid, color: .black, pattern: .guilloche)
+        case .slate: self.init(material: .metal, color: .graphite, pattern: .lines)
+        case .navy: self.init(material: .metal, color: .navy, pattern: .lines)
         case .forest: self.init(material: .solid, color: .white, pattern: .mark)
-        case .gold: self.init(material: .solid, color: .black, pattern: .guilloche)
-        case .rose: self.init(material: .glass, color: .graphite, pattern: .waves)
+        case .gold: self.init(material: .metal, color: .black, pattern: .guilloche)
+        case .rose: self.init(material: .metal, color: .burgundy, pattern: .guilloche)
         }
     }
 
@@ -206,15 +206,15 @@ struct CardSurface: View {
             LinearGradient(stops: [
                 .init(color: c.base, location: 0),
                 .init(color: c.partner, location: 0.38),
-                .init(color: .white.opacity(0.85).mix(with: c.base, by: 0.55), location: 0.5),
+                .init(color: .white.opacity(look.color == .black ? 0.35 : 0.85).mix(with: c.base, by: 0.55), location: 0.5),
                 .init(color: c.partner, location: 0.62),
                 .init(color: c.base, location: 1),
             ], startPoint: .topLeading, endPoint: .bottomTrailing)
         case .glass:
             ZStack {
-                LinearGradient(colors: [c.base.opacity(0.85), c.partner.opacity(0.55)],
+                LinearGradient(colors: [c.base.opacity(0.98), c.partner.opacity(0.62)],
                                startPoint: .topLeading, endPoint: .bottomTrailing)
-                Rectangle().fill(.ultraThinMaterial).opacity(0.55)
+                Rectangle().fill(.ultraThinMaterial).opacity(0.22)
             }
         }
     }
@@ -446,8 +446,8 @@ struct HoloSheen: View {
     var body: some View {
         let x = reduce ? 0 : tilt.x, y = reduce ? 0 : tilt.y
         let strength: Double = switch look.material {
-        case .metal: 0.32
-        case .glass: 0.26
+        case .metal: 0.12
+        case .glass: 0.10
         case .gradient: 0.14
         case .solid: 0.06
         }

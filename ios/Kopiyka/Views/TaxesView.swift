@@ -135,18 +135,13 @@ private struct OverviewPart: View {
             }
             VStack(alignment: .leading, spacing: 12) {
                 BlockTitle(L("Ставки \(String(rates.year))").s)
-                Surface {
-                    rate(L("ПДФО з зарплати та інших доходів").s, percent(rates.pdfo))
-                    Rule()
-                    rate(L("Військовий збір").s, percent(rates.military))
-                    Rule()
-                    rate(L("ЄСВ роботодавця чи ФОП").s, percent(rates.esv))
-                    Rule()
-                    rate(L("Проценти за депозитом").s, percent(rates.pdfo + rates.military))
-                    Rule()
-                    rate(L("Мінімальна зарплата").s, Format.money(rates.minWage))
-                    Rule()
-                    rate(L("Прожитковий мінімум").s, Format.money(rates.subsistence))
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                    rateTile(percent(rates.pdfo), L("ПДФО з зарплати та інших доходів").s, "person.text.rectangle")
+                    rateTile(percent(rates.military), L("Військовий збір").s, "shield.lefthalf.filled")
+                    rateTile(percent(rates.esv), L("ЄСВ роботодавця чи ФОП").s, "building.2")
+                    rateTile(percent(rates.pdfo + rates.military), L("Проценти за депозитом").s, "banknote")
+                    rateTile(Format.amount(rates.minWage), L("Мінімальна зарплата").s, "arrow.up.to.line")
+                    rateTile(Format.amount(rates.subsistence), L("Прожитковий мінімум").s, "basket")
                 }
             }
             if !deposits.isEmpty {
@@ -167,7 +162,17 @@ private struct OverviewPart: View {
         }
     }
 
-    private func rate(_ t: String, _ v: String) -> some View { Line2(t, v) }
+    private func rateTile(_ value: String, _ title: String, _ symbol: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: symbol).font(.system(size: 15, weight: .semibold)).foregroundStyle(Theme.accent)
+            Text(value).font(.system(size: 32, weight: .semibold)).tracking(-1).monospacedDigit().lineLimit(1).minimumScaleFactor(0.6)
+            Text(title).font(.footnote).foregroundStyle(.secondary).lineLimit(2).multilineTextAlignment(.leading)
+        }
+        .frame(maxWidth: .infinity, minHeight: 116, alignment: .topLeading)
+        .padding(16)
+        .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline))
+    }
 }
 
 func percent(_ v: Double) -> String {

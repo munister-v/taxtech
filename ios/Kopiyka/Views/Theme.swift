@@ -402,6 +402,7 @@ struct VirtualCardView: View {
                 Spacer()
                 if let expiry { Text(expiry).monospacedDigit() }
                 Text(L("ВІРТУАЛЬНА").s).font(.system(size: 9, weight: .bold)).tracking(1.4).opacity(0.7)
+                NetworkMark().padding(.leading, 4)
             }
             .font(.caption.weight(.medium))
             .opacity(0.85)
@@ -417,4 +418,17 @@ struct AnyLabelStyle: LabelStyle {
     private let make: (Configuration) -> AnyView
     init<S: LabelStyle>(_ style: S) { make = { AnyView(Label($0).labelStyle(style)) } }
     func makeBody(configuration: Configuration) -> some View { make(configuration) }
+}
+
+
+/// Знак платіжної мережі TaxPay: два перетини кіл, як на справжніх картках.
+struct NetworkMark: View {
+    var body: some View {
+        HStack(spacing: -9) {
+            Circle().fill(Color(red: 0.86, green: 0.10, blue: 0.20)).frame(width: 22, height: 22)
+            Circle().fill(Theme.goldLight).frame(width: 22, height: 22).blendMode(.screen).opacity(0.92)
+        }
+        .compositingGroup()
+        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+    }
 }

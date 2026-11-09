@@ -8,8 +8,9 @@ struct RootView: View {
     @State private var selection = AppTab.overview
     @State private var pinRequired = false
     @State private var splash = true
+    @State private var moreJump: MoreHub.Jump?
 
-    enum AppTab: Hashable { case lab, overview, operations, cards, taxes, shop }
+    enum AppTab: Hashable { case lab, overview, operations, cards, taxes, shop, more }
 
     var body: some View {
         Group {
@@ -23,13 +24,13 @@ struct RootView: View {
                     Tab(AppTab.operations.title, systemImage: "list.bullet.rectangle", value: AppTab.operations) { bank { OperationsView() } }
                     Tab(AppTab.cards.title, systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
                     Tab(AppTab.taxes.title, systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
-                    if Build.shop {
-                        Tab(L("Магазин").s, systemImage: "bag", value: AppTab.shop) { bank { ShopView() } }
+                    if Build.shop || model.expert {
+                        Tab(Tx("Ще", "More", "Ещё"), systemImage: "ellipsis", value: AppTab.more) { bank { MoreHub(jump: $moreJump) } }
                     }
                 } else {
                     Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }
                 }
-                if model.expert {
+                if model.expert && !model.signedIn {
                     Tab("Studio", systemImage: "flask", value: AppTab.lab) { LabHome() }
                 }
             }
@@ -37,7 +38,7 @@ struct RootView: View {
             .toolbarVisibility(model.signedIn || model.expert ? .automatic : .hidden, for: .tabBar)
             .tabBarMinimizeBehavior(.onScrollDown)
             // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
-            .overlay(alignment: .top) { if selection != .overview && selection != .lab { TopFade() } }
+            .overlay(alignment: .top) { if selection != .overview && selection != .lab && selection != .more { TopFade() } }
             }
         }
         .animation(.smooth(duration: 0.45), value: model.signedIn)
@@ -48,8 +49,13 @@ struct RootView: View {
         }
         .onChange(of: model.jumpTab) { _, tab in
             guard let tab else { return }
-            selection = tab
             model.jumpTab = nil
+            if model.signedIn && (tab == .shop || tab == .lab) {
+                selection = .more
+                moreJump = tab == .shop ? .shop : .lab
+            } else {
+                selection = tab
+            }
         }
         .onChange(of: model.signedIn) { _, signedIn in
             if !signedIn { selection = .overview }
@@ -68,12 +74,13 @@ struct RootView: View {
             // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|taxes|shop
             if ProcessInfo.processInfo.environment["KOPIYKA_EXPERT"] == "1" || ProcessInfo.processInfo.environment["KOPIYKA_EXPERIMENT"] != nil { model.expert = true }
             switch ProcessInfo.processInfo.environment["KOPIYKA_TAB"] {
+            case "more": selection = .more
             case "lab": selection = .lab
             case "overview": selection = .overview
             case "operations": selection = .operations
             case "cards": selection = .cards
             case "taxes": selection = .taxes
-            case "shop": selection = .shop
+            case "shop": selection = .more; moreJump = .shop
             default: break
             }
             #endif

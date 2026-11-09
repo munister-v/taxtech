@@ -35,6 +35,7 @@ extension RootView.AppTab {
         case .taxes: L("Податки").s
         case .lab: "Studio"
         case .shop: L("Магазин").s
+        case .more: Tx("Ще", "More", "Ещё")
         }
     }
 }
