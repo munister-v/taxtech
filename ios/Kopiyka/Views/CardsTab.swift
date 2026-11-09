@@ -2,12 +2,14 @@ import SwiftUI
 
 /// Картки: стрічка карток угорі, під нею все про вибрану - статус, дизайн, баланс, активність і дії.
 struct CardsTab: View {
+    private struct Req: Identifiable { let card: API.Card; let revealed: API.Revealed; var id: Int { card.id } }
     @Environment(AppModel.self) private var model
     @State private var cards: [API.Card] = []
     @State private var account: API.Account?
     @State private var monthOut: Double?
     @State private var index = 0
     @State private var revealed: API.Revealed?
+    @State private var requisites: API.Revealed?
     @State private var issuing = false
     @State private var designing: API.Card?
     @State private var topping: API.Card?
@@ -41,6 +43,9 @@ struct CardsTab: View {
             .refreshable { await load() }
             .onChange(of: index) { revealed = nil }
             .sheet(isPresented: $issuing) { IssueCardView { await load() } }
+            .sheet(item: Binding(get: { requisites.flatMap { r in card.map { Req(card: $0, revealed: r) } } }, set: { if $0 == nil { requisites = nil } })) { r in
+                CardRequisitesView(card: r.card, revealed: r.revealed, accountNumber: account?.accountNumber).presentationDetents([.large])
+            }
             .sheet(item: $designing) { c in CardDesignPicker(card: c) { await load() } }
             .sheet(item: $topping) { c in
                 AmountSheet(title: L("На картку").s, action: L("Поповнити").s, hint: L("З головного рахунку на картку.").s, amount: 500) { a in
@@ -59,8 +64,8 @@ struct CardsTab: View {
     /// Яскраві відтінки під колір картки: темні кольори (графіт, чорний) тягнуть малиново-золоті, щоб панель не була сірою.
     static func tints(_ c: CardColor) -> (Color, Color) {
         switch c {
-        case .graphite, .black: (Color(red: 0.78, green: 0.12, blue: 0.24), Color(red: 0.88, green: 0.62, blue: 0.24))
-        case .white, .sand, .gold: (Color(red: 0.90, green: 0.66, blue: 0.28), Color(red: 0.62, green: 0.30, blue: 0.14))
+        case .graphite, .black: (Theme.auraGold, Theme.auraCool)
+        case .white, .sand, .gold: (Theme.auraGold, Theme.auraBronze)
         default: (c.partner, c.base)
         }
     }
@@ -74,14 +79,6 @@ struct CardsTab: View {
         }
         .animation(.smooth(duration: 0.6), value: card?.look.color)
         .allowsHitTesting(false)
-    }
-
-    private func panel(_ c: API.Card) -> some View {
-        let (a, b) = Self.tints(c.look.color)
-        return RoundedRectangle(cornerRadius: 26, style: .continuous)
-            .fill(LinearGradient(colors: [a.opacity(0.62), a.opacity(0.18), Color.black.opacity(0.92)],
-                                 startPoint: .topLeading, endPoint: .bottomTrailing))
-            .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
     }
 
     private func load() async {
@@ -110,8 +107,7 @@ struct CardsTab: View {
                     .font(Theme.ui(style: .subheadline, .semibold))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(Theme.surface, in: .capsule)
-                    .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+                    .glassCapsule()
                     .foregroundStyle(Theme.ink)
             }
             .buttonStyle(PressScale())
@@ -202,8 +198,8 @@ struct CardsTab: View {
     private func details(_ c: API.Card) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 0) {
-                RoundAction(title: revealed == nil ? L("Реквізити").s : L("Сховати").s, symbol: revealed == nil ? "eye" : "eye.slash") {
-                    toggleReveal(c)
+                RoundAction(title: L("Реквізити").s, symbol: "list.bullet.rectangle") {
+                    act { requisites = try await model.api.reveal(c.id) }
                 }
                 RoundAction(title: c.isBlocked ? L("Розморозити").s : L("Заморозити").s, symbol: c.isBlocked ? "sun.max" : "snowflake",
                             on: c.isBlocked) {
@@ -248,7 +244,7 @@ struct CardsTab: View {
                     .buttonStyle(PressScale())
                 }
                 .padding(16)
-                .background(panel(c))
+                .glass(26)
             Surface {
                 VStack(alignment: .leading, spacing: 0) {
                     row(copied ? L("Номер рахунку скопійовано").s : L("Скопіювати номер рахунку").s,
@@ -317,8 +313,8 @@ struct RoundActionLabel: View {
                 .font(Theme.ui(21, .semibold))
                 .frame(width: 58, height: 58)
                 .foregroundStyle(on ? Theme.onAccent : Theme.ink)
-                .background(on ? Theme.accent : Theme.surface, in: .circle)
-                .overlay(Circle().strokeBorder(Theme.line, lineWidth: on ? 0 : Theme.hairline))
+                .background(on ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(.ultraThinMaterial), in: .circle)
+                .overlay(Circle().strokeBorder(LinearGradient(colors: [.white.opacity(on ? 0 : 0.3), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
             Text(title).font(Theme.ui(style: .caption1, .semibold)).lineLimit(1).minimumScaleFactor(0.75)
                 .contentTransition(.opacity)
         }

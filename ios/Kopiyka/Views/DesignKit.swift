@@ -9,16 +9,17 @@ struct ScreenTitle<Trailing: View>: View {
     var subtitle: String?
     @ViewBuilder var trailing: Trailing
 
+    /// Крупный заголовок убран: экран и так понятен по вкладке. Остаются только кнопки справа, если они есть.
     var body: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.display(38, .medium)).tracking(-1)
-                    .lineLimit(1).minimumScaleFactor(0.55).allowsTightening(true)
+        if Trailing.self != EmptyView.self {
+            HStack {
+                Spacer()
+                trailing
             }
-            Spacer()
-            trailing
+            .padding(.top, 6)
+        } else {
+            Color.clear.frame(height: 4)
         }
-        .padding(.top, 10)
     }
 }
 
