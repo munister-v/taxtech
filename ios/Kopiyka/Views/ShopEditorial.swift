@@ -50,8 +50,7 @@ struct ShopWordmark: View {
 
     var body: some View {
         Text("SAINT AGNES")
-            .font(Theme.ui(size, .semibold))
-            .tracking(size * 0.3)
+            .font(Theme.mono(size, .bold))
             .foregroundStyle(Theme.ink)
             .lineLimit(1)
             .minimumScaleFactor(0.7)
@@ -65,7 +64,7 @@ struct ShopHeading: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(title).font(ShopStyle.caps(19)).tracking(1.6).textCase(.uppercase).foregroundStyle(Theme.ink)
+            Text(title).font(ShopStyle.caps(19)).foregroundStyle(Theme.ink)
             if let sub { Text(sub).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -105,13 +104,13 @@ struct ShopHero: View {
                     Text(L("Осінь").s).foregroundStyle(ShopStyle.cream)
                     Text(L("вже тут").s).foregroundStyle(ShopStyle.tan)
                 }
-                .font(Theme.ui(40, .semibold))
-                .textCase(.uppercase)
-                .tracking(0.8)
+                .font(Theme.mono(38, .bold))
+                
+                
                 HStack(spacing: 16) {
                     Button(action: onShop) {
                         HStack(spacing: 10) {
-                            Text(L("До каталогу").s).textCase(.uppercase).tracking(1.2).lineLimit(1).fixedSize()
+                            Text(L("До каталогу").s).lineLimit(1).fixedSize()
                             Image(systemName: "arrow.right").font(Theme.ui(style: .footnote, .semibold))
                         }
                         .font(ShopStyle.caps(12, .semibold))
@@ -120,7 +119,6 @@ struct ShopHero: View {
                         .background(ShopStyle.cream, in: .rect(cornerRadius: 14, style: .continuous))
                     }
                     .buttonStyle(PressScale())
-                    TaxPayMark()
                 }
             }
             .padding(22)
@@ -147,7 +145,7 @@ struct ShopTrust: View {
                         } else {
                             TaxPayMark(size: 22)
                         }
-                        Text(item.text).font(ShopStyle.caps(10.5)).tracking(1.1).textCase(.uppercase)
+                        Text(item.text).font(ShopStyle.caps(10.5))
                             .lineLimit(1).minimumScaleFactor(0.8)
                     }
                     .foregroundStyle(Theme.ink.opacity(0.85))
@@ -182,7 +180,7 @@ struct ShopCollections: View {
                 .overlay(alignment: .bottomLeading) {
                     VStack(alignment: .leading, spacing: 5) {
                         HStack(spacing: 6) {
-                            Text(title).font(ShopStyle.caps(14)).tracking(1).textCase(.uppercase).lineLimit(1).minimumScaleFactor(0.7)
+                            Text(title).font(ShopStyle.caps(14)).lineLimit(1).minimumScaleFactor(0.7)
                             Spacer(minLength: 0)
                             Image(systemName: "arrow.right").font(Theme.ui(style: .caption1, .semibold))
                         }
@@ -241,7 +239,7 @@ struct ShopTag: View {
     let text: String
 
     var body: some View {
-        Text(text).font(ShopStyle.caps(9, .semibold)).tracking(0.9).textCase(.uppercase)
+        Text(text).font(ShopStyle.caps(9, .semibold))
             .foregroundStyle(ShopStyle.ink)
             .padding(.horizontal, 7).padding(.vertical, 4)
             .background(ShopStyle.cream, in: .rect(cornerRadius: 5, style: .continuous))
@@ -291,14 +289,14 @@ struct ShopCard: View {
             Button(action: open) {
                 VStack(alignment: .leading, spacing: 4) {
                     if !product.brand.isEmpty {
-                        Text(product.brand).font(ShopStyle.caps(10.5, .semibold)).tracking(1.3).textCase(.uppercase)
+                        Text(product.brand).font(ShopStyle.caps(10.5, .semibold))
                             .foregroundStyle(Theme.ink).lineLimit(1)
                     }
                     Text(product.shortName).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(1)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text(Format.amount(product.price))
                             .font(Theme.ui(16, .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
-                        Text("TAX").font(Theme.ui(10, .medium)).tracking(0.6).foregroundStyle(.tertiary)
+                        Text("TAX").font(Theme.ui(10, .medium)).foregroundStyle(.tertiary)
                     }
                     .padding(.top, 3)
                 }
@@ -326,7 +324,7 @@ struct ShopTabBar<T: Hashable>: View {
                     let on = selection == items[i].0
                     Button { withAnimation(.snappy(duration: 0.25)) { selection = items[i].0 } } label: {
                         VStack(spacing: 10) {
-                            Text(items[i].1).font(ShopStyle.caps(11.5, on ? .semibold : .medium)).tracking(1.5).textCase(.uppercase)
+                            Text(items[i].1).font(ShopStyle.caps(11.5, on ? .semibold : .medium))
                                 .foregroundStyle(on ? Theme.ink : Color.secondary)
                             ZStack {
                                 Rectangle().fill(Color.clear).frame(height: 2)

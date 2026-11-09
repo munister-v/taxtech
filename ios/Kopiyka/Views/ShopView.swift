@@ -42,11 +42,7 @@ struct ShopView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
                         HStack(alignment: .center) {
-                            VStack(alignment: .leading, spacing: 9) {
-                                ShopWordmark()
-                                Text(L("Магазин · оплата TAX").s).font(ShopStyle.caps(10)).tracking(2).textCase(.uppercase)
-                                    .foregroundStyle(.secondary)
-                            }
+                            ShopWordmark()
                             Spacer()
                             Button { showCart = true } label: {
                                 ZStack(alignment: .topTrailing) {
@@ -152,7 +148,6 @@ struct ShopView: View {
     @ViewBuilder private func catalog(_ proxy: ScrollViewProxy) -> some View {
         if browsing {
             ShopHero { scrollToGrid(proxy) }
-            ShopTrust()
             ShopHeading(title: L("Колекції").s, sub: L("Оригінальні бренди з Європи").s)
             ShopCollections { c in
                 withAnimation(.snappy) { category = c }
@@ -189,7 +184,7 @@ struct ShopView: View {
                 }
             } label: {
                 HStack(spacing: 6) {
-                    Text(sort.title).textCase(.uppercase).tracking(1.2)
+                    Text(sort.title)
                     Image(systemName: "chevron.down").font(Theme.ui(9, .semibold))
                 }
                 .font(ShopStyle.caps(10.5, .semibold))
@@ -531,10 +526,10 @@ struct ProductView: View {
                     }
                     VStack(alignment: .leading, spacing: 8) {
                         if !product.brand.isEmpty {
-                            Text(product.brand).font(ShopStyle.caps(12, .semibold)).tracking(2.2).textCase(.uppercase)
+                            Text(product.brand).font(ShopStyle.caps(12, .semibold))
                                 .foregroundStyle(.secondary)
                         }
-                        Text(product.shortName).font(Theme.ui(28, .semibold)).tracking(0.3)
+                        Text(product.shortName).font(Theme.ui(28, .semibold))
                             .foregroundStyle(Theme.ink)
                         if let code = product.code { Text(code).font(Theme.ui(style: .footnote)).foregroundStyle(.tertiary) }
                     }
@@ -542,7 +537,7 @@ struct ProductView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
                             Text(Format.amount(product.price))
                                 .font(Theme.ui(34, .semibold)).monospacedDigit().foregroundStyle(Theme.accent)
-                            Text("TAX").font(Theme.ui(14, .medium)).tracking(0.8).foregroundStyle(.tertiary)
+                            Text("TAX").font(Theme.ui(14, .medium)).foregroundStyle(.tertiary)
                         }
                         Spacer()
                         Text(soldOut ? L("Немає в наявності").s : L("В наявності").s)
@@ -817,7 +812,7 @@ struct CartView: View {
             ShopPhoto(product: p, radius: 10).frame(width: 58)
             VStack(alignment: .leading, spacing: 4) {
                 if !p.brand.isEmpty {
-                    Text(p.brand).font(ShopStyle.caps(10.5, .semibold)).tracking(1.3).textCase(.uppercase).lineLimit(1)
+                    Text(p.brand).font(ShopStyle.caps(10.5, .semibold)).lineLimit(1)
                 }
                 Text(p.shortName).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary).lineLimit(1)
                 if !line.size.isEmpty {
