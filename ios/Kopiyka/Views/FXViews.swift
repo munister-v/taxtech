@@ -122,6 +122,7 @@ struct AccountsView: View {
 /// Рахунок як картка з гільйошем: валюта, залишок, IBAN.
 struct AccountCard: View {
     let account: API.FXAccount
+    var large = false
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -140,11 +141,21 @@ struct AccountCard: View {
                 }
                 Spacer(minLength: 14)
                 Text(Format.amount(account.balance)).font(Theme.mono(30, .bold)).minimumScaleFactor(0.6).lineLimit(1)
-                Text(account.ibanPretty).font(Theme.mono(11)).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6).padding(.top, 6)
+                if large {
+                    let g = account.ibanPretty.split(separator: " ").map(String.init)
+                    let half = (g.count + 1) / 2
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(g.prefix(half).joined(separator: " "))
+                        Text(g.dropFirst(half).joined(separator: " "))
+                    }
+                    .font(Theme.mono(14, .semibold)).foregroundStyle(Theme.ink.opacity(0.8)).padding(.top, 8)
+                } else {
+                    Text(account.ibanPretty).font(Theme.mono(11)).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.6).padding(.top, 6)
+                }
             }
             .padding(18)
         }
-        .frame(height: 148)
+        .frame(height: large ? 214 : 148)
         .clipShape(.rect(cornerRadius: 22, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Theme.gold.opacity(0.3), lineWidth: 1))
         .foregroundStyle(Theme.ink)
@@ -174,48 +185,49 @@ struct WalletView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                AccountCard(account: current)
-                Surface {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("IBAN").font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
-                        Text(current.ibanPretty).font(Theme.mono(16, .bold)).textSelection(.enabled)
-                        HStack(spacing: 10) {
-                            Button {
-                                UIPasteboard.general.string = current.iban
-                                copied = true
-                                Task { try? await Task.sleep(for: .seconds(1.5)); copied = false }
-                            } label: { Label(copied ? Tx("Скопійовано", "Copied", "Скопировано") : Tx("Копіювати", "Copy", "Копировать"), systemImage: copied ? "checkmark" : "doc.on.doc") }
-                                .buttonStyle(LineButton())
-                            ShareLink(item: "\(current.ibanPretty)\n\(Brand.name) · \(current.currency)") {
-                                Label(Tx("Поділитися", "Share", "Поделиться"), systemImage: "square.and.arrow.up")
-                            }
-                            .buttonStyle(LineButton())
-                        }
-                        .padding(.top, 4)
-                    }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
+                AccountCard(account: current, large: true)
                 HStack(spacing: 10) {
-                    if current.id != 0 {
-                        Button { topup = true } label: { Label(Tx("Поповнити", "Top up", "Пополнить"), systemImage: "plus") }.buttonStyle(InkButton())
+                    Button {
+                        UIPasteboard.general.string = current.iban
+                        copied = true
+                        Task { try? await Task.sleep(for: .seconds(1.5)); copied = false }
+                    } label: {
+                        Label(copied ? Tx("Скопійовано", "Copied", "Скопировано") : Tx("Копіювати IBAN", "Copy IBAN", "Копировать IBAN"), systemImage: copied ? "checkmark" : "doc.on.doc")
+                            .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 14).frame(height: 36).glassCapsule()
                     }
-                    Button { transfer = true } label: { Label(Tx("Переказ", "Send", "Перевод"), systemImage: "arrow.up.right") }
-                        .buttonStyle(current.id == 0 ? AnyButtonStyle(InkButton()) : AnyButtonStyle(LineButton()))
-                    Button { exchange = true } label: { Image(systemName: "arrow.left.arrow.right") }.buttonStyle(LineButton()).frame(width: 64)
+                    ShareLink(item: "\(current.ibanPretty)\n\(Brand.name) · \(current.currency)") {
+                        Label(Tx("Поділитися", "Share", "Поделиться"), systemImage: "square.and.arrow.up")
+                            .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 14).frame(height: 36).glassCapsule()
+                    }
+                    Spacer()
                 }
+                .buttonStyle(PressScale())
+                HStack(alignment: .top, spacing: 0) {
+                    if current.id != 0 {
+                        CircleAction(title: Tx("Поповнити", "Top up", "Пополнить"), symbol: "plus", primary: true) { topup = true }
+                    }
+                    CircleAction(title: Tx("Переказ", "Send", "Перевод"), symbol: "arrow.up.right", primary: current.id == 0) { transfer = true }
+                    CircleAction(title: Tx("Обмін", "Exchange", "Обмен"), symbol: "arrow.left.arrow.right") { exchange = true }
+                }
+                .padding(.vertical, 14)
+                .glass(30)
                 if current.id != 0 {
                     BlockTitle(Tx("Рух коштів", "Activity", "Движение средств"))
                     if txs.isEmpty {
-                        Text(Tx("Поки порожньо. Поповніть рахунок або зробіть обмін.", "Nothing yet. Top up or exchange.", "Пока пусто. Пополните счёт или сделайте обмен."))
-                            .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary)
+                        VStack(spacing: 12) {
+                            GuillocheBadge(symbol: "tray", size: 52)
+                            Text(Tx("Поки порожньо. Поповніть рахунок або зробіть обмін.", "Nothing yet. Top up or exchange.", "Пока пусто. Пополните счёт или сделайте обмен."))
+                                .font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity).padding(24).glass(22)
                     } else {
                         Surface {
                             ForEach(Array(txs.enumerated()), id: \.element.id) { i, t in
                                 if i > 0 { Rule() }
                                 HStack(spacing: 12) {
-                                    Image(systemName: t.isIncome ? "arrow.down.left" : "arrow.up.right")
-                                        .font(Theme.ui(style: .subheadline, .bold)).foregroundStyle(t.isIncome ? Theme.accent : .secondary).frame(width: 28)
+                                    GuillocheBadge(symbol: t.isIncome ? "arrow.down.left" : "arrow.up.right", size: 38)
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(t.description).font(Theme.ui(style: .subheadline, .medium)).lineLimit(2)
                                         Text(BankText.date(String(t.createdAt.prefix(10)))).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
