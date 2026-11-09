@@ -155,19 +155,31 @@ struct Surface<Content: View>: View {
 
 /// Тло під склом: темна основа з двома розмитими золотими й бірюзовими плямами.
 struct GlassAura: View {
+    @Environment(\.accessibilityReduceMotion) private var reduce
+    @State private var drift = false
+
     var body: some View {
         ZStack {
             Theme.bg
             GeometryReader { g in
-                Circle().fill(Color(red: 0.86, green: 0.66, blue: 0.24).opacity(0.30))
-                    .frame(width: g.size.width * 0.9).blur(radius: 90)
-                    .offset(x: -g.size.width * 0.35, y: -g.size.width * 0.15)
-                Circle().fill(Color(red: 0.10, green: 0.55, blue: 0.60).opacity(0.26))
-                    .frame(width: g.size.width * 0.8).blur(radius: 100)
-                    .offset(x: g.size.width * 0.45, y: g.size.height * 0.45)
+                let w = g.size.width
+                Circle().fill(Color(red: 0.86, green: 0.66, blue: 0.24).opacity(0.32))
+                    .frame(width: w * 0.9).blur(radius: 90)
+                    .offset(x: -w * (drift ? 0.15 : 0.45), y: -w * (drift ? 0.30 : 0.05))
+                Circle().fill(Color(red: 0.10, green: 0.55, blue: 0.60).opacity(0.28))
+                    .frame(width: w * 0.8).blur(radius: 100)
+                    .offset(x: w * (drift ? 0.25 : 0.55), y: g.size.height * (drift ? 0.30 : 0.55))
+                Circle().fill(Color(red: 0.62, green: 0.30, blue: 0.75).opacity(0.16))
+                    .frame(width: w * 0.6).blur(radius: 90)
+                    .offset(x: w * (drift ? 0.30 : -0.10), y: g.size.height * (drift ? 0.62 : 0.35))
             }
         }
+        .drawingGroup()
         .allowsHitTesting(false)
+        .onAppear {
+            guard !reduce else { return }
+            withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) { drift = true }
+        }
     }
 }
 
