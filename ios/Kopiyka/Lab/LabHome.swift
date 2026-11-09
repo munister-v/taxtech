@@ -229,9 +229,9 @@ struct GateCard: View {
                     GeometryReader { g in
                         LinearGradient(colors: [.clear, Color(red: 1, green: 0.88, blue: 0.6).opacity(glow ? 0.5 : 0.34), .clear],
                                        startPoint: .leading, endPoint: .trailing)
-                            .frame(width: g.size.width * 0.45)
+                            .frame(width: g.size.width * 0.4, height: g.size.height * 2.4)
                             .rotationEffect(.degrees(18))
-                            .offset(x: -g.size.width * 0.5 + k * g.size.width * 1.6)
+                            .position(x: -g.size.width * 0.4 + k * g.size.width * 1.8, y: g.size.height / 2)
                             .blendMode(.plusLighter)
                     }
                     .clipShape(shape)
