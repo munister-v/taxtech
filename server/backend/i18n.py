@@ -133,6 +133,13 @@ _T: dict[str, tuple[str, str, str, str]] = {
     'Рахунок': ('Account', 'Счёт', 'Konto', 'Conto'),
     'Контрагент': ('Counterparty', 'Контрагент', 'Gegenpartei', 'Controparte'),
     'Призначення': ('Purpose', 'Назначение', 'Verwendungszweck', 'Causale'),
+    'ЕЛЕКТРОННИЙ ПІДПИС ТА ПЕРЕВІРКА': ('ELECTRONIC SIGNATURE AND VERIFICATION', 'ЭЛЕКТРОННАЯ ПОДПИСЬ И ПРОВЕРКА', 'ELEKTRONISCHE SIGNATUR UND PRÜFUNG', 'FIRMA ELETTRONICA E VERIFICA'),
+    'Підписав': ('Signed by', 'Подписал', 'Unterzeichnet von', 'Firmato da'),
+    'ТаксТех · електронна печатка': ('TaxTech · electronic seal', 'ТаксТех · электронная печать', 'TaxTech · elektronisches Siegel', 'TaxTech · sigillo elettronico'),
+    'Серійний номер': ('Serial number', 'Серийный номер', 'Seriennummer', 'Numero di serie'),
+    'Алгоритм': ('Algorithm', 'Алгоритм', 'Algorithmus', 'Algoritmo'),
+    'Час підпису': ('Signed at', 'Время подписи', 'Zeitpunkt der Signatur', 'Ora della firma'),
+    'Електронний підпис': ('Electronic signature', 'Электронная подпись', 'Elektronische Signatur', 'Firma elettronica'),
     '№ операції': ('Transaction no.', '№ операции', 'Transaktionsnr.', 'N. operazione'),
     'Скануйте QR, щоб звірити квитанцію з реєстром TaxTech': (
         'Scan the QR to check the receipt against the TaxTech register',

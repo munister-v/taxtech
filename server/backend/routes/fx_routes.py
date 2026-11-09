@@ -377,7 +377,7 @@ def _render_pdf(doc: dict, root: str) -> bytes:
     from reportlab.pdfgen import canvas
     from reportlab.graphics import renderPDF
     from ..services.document_service import qr_drawing
-    from ..services.statement_service import _ensure_fonts, _f
+    from ..services.statement_service import StatementService, _ensure_fonts, _f
     _ensure_fonts()
     m = doc['meta']
     buf = io.BytesIO()
@@ -411,13 +411,16 @@ def _render_pdf(doc: dict, root: str) -> bytes:
         c.setFont(_f(True), 11)
         c.drawString(70 * mm, y, str(v))
         y -= 9 * mm
-    d = qr_drawing(verify_url(doc['code'], root), 30 * mm)
-    renderPDF.draw(d, c, 20 * mm, 30 * mm)
-    c.setFont(_f(), 8)
-    c.setFillGray(0.4)
-    c.drawString(56 * mm, 44 * mm, 'Перевірка: скануйте QR або відкрийте посилання на сторінці перевірки.')
-    c.drawString(56 * mm, 39 * mm, verify_url(doc['code'], root))
-    c.drawString(56 * mm, 34 * mm, 'Навчальний документ. Суми в віртуальних токенах, не є банківською довідкою.')
+    blk = StatementService()._verify_block(doc, root, w - 40 * mm)
+    bw, bh = blk.wrapOn(c, w - 40 * mm, 80 * mm)
+    blk.drawOn(c, 20 * mm, 38 * mm)
+    c.setFont(_f(), 7.5)
+    c.setFillGray(0.5)
+    c.drawString(20 * mm, 30 * mm, 'Документ підписано електронною печаткою TaxTech. Будь-яка зміна змісту робить підпис недійсним.')
+    c.drawString(20 * mm, 25.5 * mm, 'Навчальний документ. Суми у віртуальних токенах, не є банківською довідкою.')
+    c.setStrokeColorRGB(0.67, 0.67, 0.67)
+    c.setLineWidth(0.5)
+    c.rect(10 * mm, 10 * mm, w - 20 * mm, h - 20 * mm)
     c.showPage()
     c.save()
     return buf.getvalue()

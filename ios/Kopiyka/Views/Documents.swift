@@ -16,6 +16,14 @@ extension API {
         let createdAt: String
         let verifyUrl: String
         let meta: Meta
+        let signature: Signature?
+
+        struct Signature: Decodable, Sendable, Hashable {
+            let signer: String
+            let algorithm: String
+            let serial: String
+            let signedAt: String
+        }
 
         struct Meta: Decodable, Sendable, Hashable {
             let fromDate: String?
@@ -124,6 +132,7 @@ struct VerifySeal: View {
 
     var body: some View {
         VStack(spacing: 14) {
+            if let sig = doc.signature { SignatureSeal(sig: sig) }
             QRPlate(text: doc.verifyUrl)
             VStack(spacing: 4) {
                 Text(L("Код документа").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary)
@@ -159,6 +168,27 @@ struct VerifySeal: View {
             .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.ink)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// Електронний підпис документа: печатка, серійний номер, алгоритм.
+struct SignatureSeal: View {
+    let sig: API.DocumentRecord.Signature
+
+    var body: some View {
+        HStack(spacing: 14) {
+            GuillocheBadge(symbol: "signature", tint: Theme.auraGold, size: 56)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(L("Електронний підпис").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary)
+                Text(sig.serial).font(Theme.mono(style: .subheadline).weight(.bold)).tracking(0.6)
+                    .lineLimit(1).minimumScaleFactor(0.7).textSelection(.enabled)
+                Text("\(sig.signer) · \(sig.algorithm)").font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "checkmark.seal.fill").font(.title2).foregroundStyle(.green)
+        }
+        .padding(14)
+        .glass(18)
     }
 }
 

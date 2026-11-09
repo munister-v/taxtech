@@ -220,6 +220,31 @@ _REPORT_TYPE_LABELS = {
 }
 
 
+def _fmt_utc(ts) -> str:
+    """2026-11-09 16:00:00 -> 09.11.2026 16:00 UTC."""
+    t = str(ts or '')[:19]
+    try:
+        return datetime.strptime(t, '%Y-%m-%d %H:%M:%S').strftime('%d.%m.%Y %H:%M UTC')
+    except ValueError:
+        return t
+
+
+def _seal_drawing(size: float):
+    """Кругла печатка підпису: подвійне коло, знак TaxTech, галочка."""
+    from reportlab.graphics.shapes import Drawing, Circle, Group, String
+    d = Drawing(size, size)
+    c = size / 2
+    for r, w in ((c - 0.6, 1.4), (c - 3.2, 0.5), (c - 12.5, 0.4)):
+        d.add(Circle(c, c, r, fillColor=None, strokeColor=_GOLD, strokeWidth=w))
+    m = _mark_drawing(size * 0.34, _GOLD)
+    g = Group(*m.contents)
+    g.translate(c - m.width / 2, c - size * 0.05)
+    d.add(g)
+    d.add(String(c, c - size * 0.24, 'TAXTECH', fontName=_f(True), fontSize=size * 0.1, fillColor=_GOLD, textAnchor='middle'))
+    d.add(String(c, size * 0.14, 'E-SIGN', fontName=_f(True), fontSize=size * 0.075, fillColor=_GOLD, textAnchor='middle'))
+    return d
+
+
 class StatementService:
     def __init__(self) -> None:
         self._accounts = AccountRepository()
@@ -523,27 +548,40 @@ class StatementService:
         return tr('весь час')
 
     def _verify_block(self, doc: dict | None, root: str | None, width: float):
-        """Блок «Перевірка документа»: QR із посиланням, код і пояснення."""
+        """Блок «Електронний підпис і перевірка»: печатка, відомості про підпис, QR із посиланням і код."""
         if not doc:
             return None
-        from .document_service import qr_drawing, verify_url
+        from .document_service import qr_drawing, signature, verify_url
         url = verify_url(doc['code'], root)
-        label = ParagraphStyle('vl', fontName=_f(), fontSize=7.4, leading=10.5, textColor=_MUTED)
-        code = ParagraphStyle('vc', fontName=_f(True), fontSize=11, leading=14, textColor=_STEEL)
-        link = ParagraphStyle('vu', fontName=_f(), fontSize=6.3, leading=8.6, textColor=_MUTED)
-        t = Table(
-            [[qr_drawing(url, 24 * mm),
-              [Paragraph(tr('ПЕРЕВІРКА ДОКУМЕНТА'), ParagraphStyle('vh', fontName=_f(True), fontSize=7.4, leading=10, textColor=_GOLD)),
-               Paragraph(doc['code'], code),
-               Paragraph(tr('Скануйте QR або відкрийте адресу: документ звіряється з реєстром TaxTech.'), label),
-               Paragraph(url, link)]]],
-            colWidths=[27 * mm, width - 27 * mm],
-        )
+        sig = signature(doc)
+        head = ParagraphStyle('vh', fontName=_f(True), fontSize=7.6, leading=10, textColor=_GOLD)
+        code = ParagraphStyle('vc', fontName=_f(True), fontSize=11.5, leading=14, textColor=_STEEL)
+        key = ParagraphStyle('vk', fontName=_f(), fontSize=6.8, leading=9.2, textColor=_MUTED)
+        val = ParagraphStyle('vv', fontName=_f(True), fontSize=7.6, leading=10, textColor=_INK)
+        mono = ParagraphStyle('vm', fontName=_f(), fontSize=6.2, leading=8.2, textColor=_MUTED)
+        when = _fmt_utc(doc.get('created_at'))
+        info = Table([
+            [Paragraph(tr('Підписав'), key), Paragraph(tr('ТаксТех · електронна печатка'), val)],
+            [Paragraph(tr('Серійний номер'), key), Paragraph(sig['serial'], val)],
+            [Paragraph(tr('Алгоритм'), key), Paragraph(sig['algorithm'], val)],
+            [Paragraph(tr('Час підпису'), key), Paragraph(when, val)],
+        ], colWidths=[24 * mm, width - 27 * mm - 28 * mm - 24 * mm - 14 * mm])
+        info.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP'), ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                                  ('RIGHTPADDING', (0, 0), (-1, -1), 2), ('TOPPADDING', (0, 0), (-1, -1), 0.6),
+                                  ('BOTTOMPADDING', (0, 0), (-1, -1), 0.6)]))
+        mid = [Paragraph(tr('ЕЛЕКТРОННИЙ ПІДПИС ТА ПЕРЕВІРКА'), head), Spacer(1, 1.5 * mm),
+               Paragraph(doc['code'], code), Spacer(1, 1 * mm), info, Spacer(1, 1 * mm),
+               Paragraph(sig['value'][:32] + '<br/>' + sig['value'][32:], mono),
+               Paragraph(url, mono)]
+        t = Table([[_seal_drawing(24 * mm), mid, qr_drawing(url, 26 * mm)]],
+                  colWidths=[28 * mm, width - 28 * mm - 28 * mm, 28 * mm])
         t.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOX', (0, 0), (-1, -1), 0.5, _GOLD),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6), ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 5), ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('BOX', (0, 0), (-1, -1), 0.7, _GOLD),
+            ('LINEBEFORE', (1, 0), (1, 0), 0.3, _LIGHT), ('LINEBEFORE', (2, 0), (2, 0), 0.3, _LIGHT),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#FBF8F2')),
+            ('LEFTPADDING', (0, 0), (-1, -1), 7), ('RIGHTPADDING', (0, 0), (-1, -1), 7),
+            ('TOPPADDING', (0, 0), (-1, -1), 7), ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
         ]))
         return t
 

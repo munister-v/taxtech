@@ -155,6 +155,12 @@
 "Budget überschritten (%@)",
 "Budget superato (%@)"
 ],
+"Валюта": [
+"Currency",
+"Валюта",
+"Währung",
+"Valuta"
+],
 "Ваша нова %@ картка %@ готова.": [
 "Your new %@ card %@ is ready.",
 "Ваша новая %@ карта %@ готова.",
@@ -1240,6 +1246,12 @@
 "Пароль успешно изменён.",
 "Passwort erfolgreich geändert.",
 "Password cambiata con successo."
+],
+"Перевірено": [
+"Verified on",
+"Проверено",
+"Verifiziert am",
+"Verificato il"
 ],
 "Переказ": [
 "Transfer",

@@ -1,0 +1,59 @@
+{
+ "e2a": {
+  "parallel": 50,
+  "codes": {
+   "400": 49,
+   "200": 1
+  },
+  "sequential_retries": 20,
+  "seq_codes": {
+   "200": 20
+  },
+  "debits": 1,
+  "balance_after": 990.0
+ },
+ "e2b": {
+  "parallel": 50,
+  "amount": 100.0,
+  "start_balance": 1000.0,
+  "codes": {
+   "400": 40,
+   "200": 10
+  },
+  "debits": 10,
+  "blocked_orders": 0,
+  "balance_after": 0.0,
+  "received_total": 1000.0,
+  "money_conserved": true
+ },
+ "e2b_fraud_on": {
+  "parallel": 50,
+  "amount": 100.0,
+  "start_balance": 1000.0,
+  "codes": {
+   "400": 40,
+   "200": 10
+  },
+  "debits": 10,
+  "blocked_orders": 0,
+  "balance_after": 0.0,
+  "received_total": 1000.0,
+  "money_conserved": true
+ },
+ "e4": {
+  "attempts": 40,
+  "codes": {
+   "401": 12,
+   "429": 28
+  },
+  "first_429_at": 13,
+  "retry_after": "57",
+  "wrong_password_ms_median": 234.2035420006141
+ },
+ "live_chain": {
+  "accounts": 14,
+  "broken_accounts": 0,
+  "records": 42,
+  "failing_records": 0
+ }
+}

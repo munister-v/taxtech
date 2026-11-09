@@ -72,6 +72,15 @@ def _mask_name(name: str | None) -> str:
     return ' '.join(p[0] + '***' for p in parts) or '—'
 
 
+def signature(doc: dict) -> dict:
+    """Електронний підпис документа: HMAC-SHA256 від коду, відбитка й часу видачі ключем TaxTech.
+    Відбиток змінюється разом зі змістом, тож підпис під зміненим документом не збігається."""
+    msg = f"sig|{doc['code']}|{doc['digest']}|{doc['created_at']}".encode()
+    mac = hmac.new(SECRET_KEY.encode(), msg, hashlib.sha256).hexdigest()
+    return {'signer': 'TaxTech', 'algorithm': 'HMAC-SHA256', 'signed_at': doc['created_at'],
+            'serial': ' '.join(mac[i:i + 4].upper() for i in range(0, 16, 4)), 'value': mac}
+
+
 class DocumentService:
     _ready = False
 
@@ -162,6 +171,7 @@ class DocumentService:
             'id': doc['id'], 'kind': doc['kind'], 'ref': doc['ref'], 'code': doc['code'], 'title': doc['title'],
             'amount': doc.get('amount'), 'direction': doc.get('direction'), 'created_at': doc['created_at'],
             'meta': doc.get('meta') or {}, 'verify_url': url,
+            'signature': {k: v for k, v in signature(doc).items() if k != 'value'},
         }
 
     # ── публічна перевірка ───────────────────────────────────────────────────
@@ -197,6 +207,7 @@ class DocumentService:
             'direction': doc.get('direction'), 'issued_at': doc['created_at'], 'digest': doc['digest'],
             'intact': intact, 'holder': _mask_name((user or {}).get('full_name')),
             'account': f'••{acct_no[-4:]}' if acct_no else '—', 'meta': meta,
+            'signature': {k: v for k, v in signature(doc).items() if k != 'value'},
         }
 
     @staticmethod
@@ -241,7 +252,8 @@ class DocumentService:
         else:
             rows += [('Період', meta.get('period') or '—'), ('Операцій', str(meta.get('count', '—'))),
                      ('Надійшло', f"{_money(meta.get('total_in'))} TAX"), ('Витрачено', f"{_money(meta.get('total_out'))} TAX")]
-        rows += [('Код', v['code']), ('Видано', _when(v['issued_at'])), ('Власник', v['holder']), ('Рахунок', v['account'])]
+        rows += [('Код', v['code']), ('Видано', _when(v['issued_at'])), ('Власник', v['holder']), ('Рахунок', v['account']),
+                 ('Електронний підпис', v['signature']['serial'])]
         table = ''.join(
             f'<div class="row"><span>{escape(tr(k))}</span><i></i><b{" class=mono" if k == "Код" else ""}>{escape(str(val))}</b></div>'
             for k, val in rows)

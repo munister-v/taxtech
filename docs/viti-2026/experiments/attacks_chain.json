@@ -1,0 +1,38 @@
+{
+ "e3": {
+  "rows_chained": 26406,
+  "accounts": 50,
+  "chain_build_s": 7.492473499994958,
+  "verify_all_s": 0.28451354199205525,
+  "verify_account_ms_median": 5.287666994263418,
+  "verify_account_ms_p95": 9.565874992404133,
+  "by_kind": {
+   "amount_cent": {
+    "trials": 200,
+    "detected": 200,
+    "located": 200
+   },
+   "direction": {
+    "trials": 200,
+    "detected": 200,
+    "located": 200
+   },
+   "timestamp_1s": {
+    "trials": 200,
+    "detected": 200,
+    "located": 200
+   },
+   "delete_row": {
+    "trials": 200,
+    "detected": 200,
+    "located": 200
+   },
+   "swap_amounts": {
+    "trials": 198,
+    "detected": 198,
+    "located": 198
+   }
+  },
+  "false_alarms_on_clean_db": 0
+ }
+}

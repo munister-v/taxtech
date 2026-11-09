@@ -1799,5 +1799,6 @@
 "Ліміти": {"en": "Limits","ru": "Лимиты","it": "Limiti","de": "Limits"},
 "Приватність": {"en": "Privacy","ru": "Приватность","it": "Privacy","de": "Datenschutz"},
 "Ліміт на переказ": {"en": "Transfer limit","ru": "Лимит на перевод","it": "Limite di bonifico","de": "Überweisungslimit"},
-"Магазин · оплата в TAX": {"en": "Shop · pay in TAX","ru": "Магазин · оплата в TAX","it": "Negozio · paga in TAX","de": "Shop · mit TAX zahlen"}
+"Магазин · оплата в TAX": {"en": "Shop · pay in TAX","ru": "Магазин · оплата в TAX","it": "Negozio · paga in TAX","de": "Shop · mit TAX zahlen"},
+"Електронний підпис": {"en": "Electronic signature","it": "Firma elettronica","de": "Elektronische Signatur","ru": "Электронная подпись"}
 }

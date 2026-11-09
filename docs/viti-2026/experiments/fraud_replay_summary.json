@@ -1,0 +1,176 @@
+{
+ "dev_seed42_users50": {
+  "transfers": 4369,
+  "fraud": 124,
+  "l1": {
+   "critical": {
+    "tpr": 0.0161,
+    "fpr": 0.0,
+    "fraud_amount_blocked": 0.0836,
+    "legit_amount_blocked": 0.0
+   },
+   "high_or_critical": {
+    "tpr": 0.1048,
+    "fpr": 0.0,
+    "fraud_amount_blocked": 0.5251,
+    "legit_amount_blocked": 0.0
+   },
+   "ms_p50": 0.011
+  },
+  "l12": {
+   "critical": {
+    "tpr": 0.4516,
+    "fpr": 0.017,
+    "fraud_amount_blocked": 0.9113,
+    "legit_amount_blocked": 0.0846
+   },
+   "high_or_critical": {
+    "tpr": 0.5887,
+    "fpr": 0.0294,
+    "fraud_amount_blocked": 0.9383,
+    "legit_amount_blocked": 0.1282
+   },
+   "ms_p50": 3.657
+  },
+  "l123": {
+   "critical": {
+    "tpr": 0.7419,
+    "fpr": 0.0233,
+    "fraud_amount_blocked": 0.9641,
+    "legit_amount_blocked": 0.1013
+   },
+   "high_or_critical": {
+    "tpr": 0.8629,
+    "fpr": 0.0511,
+    "fraud_amount_blocked": 0.9817,
+    "legit_amount_blocked": 0.153
+   },
+   "ms_p50": 7.734
+  },
+  "l123_corroboration_rule": {
+   "tpr": 0.6371,
+   "fpr": 0.0106,
+   "fraud_amount_blocked": 0.8793,
+   "legit_amount_blocked": 0.0376
+  },
+  "per_pattern_high_or_critical": {
+   "money_mule": {
+    "l1": 0,
+    "l12": 24,
+    "l123": 35,
+    "n": 36
+   },
+   "new_recipient_large_amount": {
+    "l1": 0,
+    "l12": 2,
+    "l123": 2,
+    "n": 2
+   },
+   "night_batch": {
+    "l1": 0,
+    "l12": 3,
+    "l123": 7,
+    "n": 8
+   },
+   "rapid_succession": {
+    "l1": 0,
+    "l12": 12,
+    "l123": 31,
+    "n": 46
+   },
+   "structuring": {
+    "l1": 13,
+    "l12": 32,
+    "l123": 32,
+    "n": 32
+   }
+  }
+ },
+ "test_seed7_users100": {
+  "transfers": 8468,
+  "fraud": 252,
+  "l1": {
+   "critical": {
+    "tpr": 0.0119,
+    "fpr": 0.0,
+    "fraud_amount_blocked": 0.0781,
+    "legit_amount_blocked": 0.0
+   },
+   "high_or_critical": {
+    "tpr": 0.0397,
+    "fpr": 0.0,
+    "fraud_amount_blocked": 0.2524,
+    "legit_amount_blocked": 0.0
+   },
+   "ms_p50": 0.012
+  },
+  "l12": {
+   "critical": {
+    "tpr": 0.4325,
+    "fpr": 0.0194,
+    "fraud_amount_blocked": 0.8827,
+    "legit_amount_blocked": 0.0936
+   },
+   "high_or_critical": {
+    "tpr": 0.5516,
+    "fpr": 0.0369,
+    "fraud_amount_blocked": 0.9191,
+    "legit_amount_blocked": 0.152
+   },
+   "ms_p50": 3.703
+  },
+  "l123": {
+   "critical": {
+    "tpr": 0.754,
+    "fpr": 0.0276,
+    "fraud_amount_blocked": 0.9559,
+    "legit_amount_blocked": 0.116
+   },
+   "high_or_critical": {
+    "tpr": 0.8452,
+    "fpr": 0.0632,
+    "fraud_amount_blocked": 0.9758,
+    "legit_amount_blocked": 0.1882
+   },
+   "ms_p50": 7.813
+  },
+  "l123_corroboration_rule": {
+   "tpr": 0.5794,
+   "fpr": 0.0124,
+   "fraud_amount_blocked": 0.8226,
+   "legit_amount_blocked": 0.0437
+  },
+  "per_pattern_high_or_critical": {
+   "money_mule": {
+    "l1": 0,
+    "l12": 68,
+    "l123": 89,
+    "n": 100
+   },
+   "new_recipient_large_amount": {
+    "l1": 0,
+    "l12": 8,
+    "l123": 9,
+    "n": 9
+   },
+   "night_batch": {
+    "l1": 0,
+    "l12": 10,
+    "l123": 29,
+    "n": 37
+   },
+   "rapid_succession": {
+    "l1": 0,
+    "l12": 17,
+    "l123": 50,
+    "n": 70
+   },
+   "structuring": {
+    "l1": 10,
+    "l12": 36,
+    "l123": 36,
+    "n": 36
+   }
+  }
+ }
+}
