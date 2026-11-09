@@ -557,12 +557,13 @@ struct CertificatesView: View {
                     ForEach(types, id: \.0) { t in
                         Button { type = t.0 } label: {
                             VStack(alignment: .leading, spacing: 10) {
-                                Image(systemName: t.2).font(Theme.ui(18, .semibold)).foregroundStyle(Theme.accent)
+                                GuillocheBadge(symbol: t.2, size: 46)
                                 Text(t.1).font(Theme.ui(style: .subheadline, .semibold))
                             }
-                            .frame(maxWidth: .infinity, minHeight: 78, alignment: .topLeading).padding(14)
-                            .background(type == t.0 ? Theme.accent.opacity(0.14) : Theme.surface, in: .rect(cornerRadius: 18, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(type == t.0 ? Theme.accent : Theme.line, lineWidth: type == t.0 ? 1.5 : Theme.hairline))
+                            .frame(maxWidth: .infinity, minHeight: 96, alignment: .topLeading).padding(14)
+                            .glass(18)
+                            .background(type == t.0 ? Theme.accent.opacity(0.16) : .clear, in: .rect(cornerRadius: 18, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(type == t.0 ? Theme.accent : .clear, lineWidth: 1.5))
                             .foregroundStyle(Theme.ink)
                         }
                         .buttonStyle(PressScale())

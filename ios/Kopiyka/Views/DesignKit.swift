@@ -379,12 +379,25 @@ struct GuillocheBadge: View {
     var onDark = false
 
     var body: some View {
+        let r = size * 0.3
+        let hi = tint == Theme.accent ? Theme.goldLight : tint
         ZStack {
-            Circle().fill(tint.opacity(onDark ? 0.24 : 0.14))
+            RoundedRectangle(cornerRadius: r, style: .continuous)
+                .fill(LinearGradient(colors: [tint.opacity(onDark ? 0.34 : 0.22), tint.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
+            RoundedRectangle(cornerRadius: r, style: .continuous).fill(.ultraThinMaterial.opacity(0.5))
+            Canvas { ctx, sz in
+                var c = ctx; c.opacity = 0.28
+                Engraving.rosette(in: &c, center: CGPoint(x: sz.width * 0.5, y: sz.height * 0.5), radius: sz.width * 0.62,
+                                  curves: 14, lobes: 7, color: tint, width: 0.35)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
             Image(systemName: symbol)
                 .font(Theme.ui(size * 0.4, .semibold))
-                .foregroundStyle(onDark ? .white : tint)
+                .foregroundStyle(onDark ? AnyShapeStyle(.white) : AnyShapeStyle(LinearGradient(colors: [hi, tint], startPoint: .top, endPoint: .bottom)))
+                .shadow(color: tint.opacity(0.55), radius: size * 0.18)
         }
+        .overlay(RoundedRectangle(cornerRadius: r, style: .continuous)
+            .strokeBorder(LinearGradient(colors: [.white.opacity(0.4), tint.opacity(0.25), .white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.9))
         .frame(width: size, height: size)
     }
 }

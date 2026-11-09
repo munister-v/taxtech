@@ -194,16 +194,12 @@ struct MoreHub: View {
 
     private func tileBody(_ title: String, _ symbol: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            Image(systemName: symbol).font(Theme.ui(17, .semibold))
-                .foregroundStyle(Theme.accent)
-                .frame(width: 40, height: 40)
-                .background(Theme.accent.opacity(0.12), in: .circle)
+            GuillocheBadge(symbol: symbol, size: 44)
             Text(title).font(Theme.ui(style: .subheadline, .semibold)).lineLimit(2).multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, minHeight: 92, alignment: .topLeading)
         .padding(16)
-        .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline))
+        .glass(22)
         .foregroundStyle(Theme.ink)
     }
 
