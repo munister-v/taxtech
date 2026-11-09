@@ -165,6 +165,8 @@ struct OverviewView: View {
                 CircleAction(title: L("На картку").s, symbol: "creditcard") { sheet = .byCard }
                 CircleAction(title: L("Податки").s, symbol: "percent") { open(.taxes) }
             }
+            .padding(.vertical, 14)
+            .glass(30)
             .padding(.top, 26)
             .padding(.bottom, 8)
             .rise(3)

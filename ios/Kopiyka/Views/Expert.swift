@@ -138,9 +138,9 @@ struct AuroraField: View {
             Canvas { g, size in
                 g.addFilter(.blur(radius: 70))
                 let orbs: [(Color, Double, Double, Double, Double, Double)] = [
-                    (Color(red: 0.86, green: 0.07, blue: 0.17), 0.30, 0.22, 0.23, 0.17, 0.55),
-                    (Color(red: 0.55, green: 0.03, blue: 0.15), 0.78, 0.32, 0.19, 0.23, 0.55),
-                    (Color(red: 0.95, green: 0.60, blue: 0.24), 0.62, 0.08, 0.31, 0.12, 0.22),
+                    (Color(red: 0.86, green: 0.66, blue: 0.24), 0.30, 0.22, 0.23, 0.17, 0.55),
+                    (Color(red: 0.10, green: 0.55, blue: 0.60), 0.78, 0.32, 0.19, 0.23, 0.55),
+                    (Color(red: 0.95, green: 0.78, blue: 0.40), 0.62, 0.08, 0.31, 0.12, 0.22),
                 ]
                 for (i, o) in orbs.enumerated() {
                     let k = Double(i) * 2.1
