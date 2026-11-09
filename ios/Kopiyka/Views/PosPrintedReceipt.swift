@@ -27,7 +27,7 @@ private struct Code128: View {
 
     var body: some View {
         if let img = Self.render(message) {
-            Image(uiImage: img).interpolation(.none).resizable().frame(maxWidth: .infinity).frame(height: 50).blendMode(.multiply)
+            Image(uiImage: img).interpolation(.none).resizable().frame(maxWidth: .infinity).frame(height: 36).blendMode(.multiply)
         }
     }
 
@@ -44,6 +44,26 @@ private struct Code128: View {
         let img = context.createCGImage(scaled, from: scaled.extent).map { UIImage(cgImage: $0) }
         if let img { cache[text] = img }
         return img
+    }
+}
+
+/// QR-код фіскального чека.
+private struct QRCode: View {
+    let text: String
+    var body: some View {
+        if let img = Self.render(text) {
+            Image(uiImage: img).interpolation(.none).resizable().scaledToFit().frame(width: 78, height: 78).blendMode(.multiply)
+        }
+    }
+
+    private static let context = CIContext()
+    static func render(_ text: String) -> UIImage? {
+        let f = CIFilter.qrCodeGenerator()
+        f.message = Data(text.utf8)
+        f.correctionLevel = "M"
+        guard let out = f.outputImage else { return nil }
+        let scaled = out.transformed(by: CGAffineTransform(scaleX: 6, y: 6))
+        return context.createCGImage(scaled, from: scaled.extent).map { UIImage(cgImage: $0) }
     }
 }
 
@@ -102,7 +122,7 @@ struct PosPrintedReceipt: View {
             }
             .padding(.bottom, 30)
             .clipped()
-            .padding(.horizontal, 36)
+            .frame(maxWidth: 300)
             .padding(.top, -7)
             .padding(.bottom, 14)
             .contentShape(.rect)
@@ -155,41 +175,73 @@ struct PosPrintedReceipt: View {
         return r.uiImage.map { Image(uiImage: $0) } ?? Image(systemName: "doc.text")
     }
 
+    private var amount: Double { payment.amount ?? 0 }
+    private var fiscalNo: String { digits("fn" + (payment.rrn ?? ""), 10) }
+    private var checkNo: String { String(format: "%06d", (payment.id ?? 1) % 1_000_000) }
+
     private var receipt: some View {
-        VStack(spacing: 6) {
-            Text((payment.merchant ?? "").uppercased()).font(.system(size: 15, weight: .bold, design: .monospaced)).tracking(0.8).multilineTextAlignment(.center)
-            Text("ROMA · IT").font(.system(size: 10, design: .monospaced)).opacity(0.7)
-            Text(date).font(.system(size: 10, design: .monospaced)).opacity(0.7)
-            dash
-            Text(Tx("ПРОДАЖ / SALE", "SALE", "ПРОДАЖА / SALE")).font(.system(size: 11, weight: .semibold, design: .monospaced)).tracking(2)
-            line(Tx("СУМА", "AMOUNT", "СУММА"), Format.money(payment.amount ?? 0))
-            line(Tx("КОМІСІЯ ЕКВАЙРА", "ACQUIRER FEE", "КОМИССИЯ ЭКВАЙРА"), Format.money(payment.fee ?? 0))
-            line(Tx("МАГАЗИН ОТРИМАЄ", "MERCHANT NET", "МАГАЗИН ПОЛУЧИТ"), Format.money(payment.net ?? 0))
-            dash
-            HStack(alignment: .firstTextBaseline) {
-                Text(Tx("РАЗОМ", "TOTAL", "ИТОГО")).font(.system(size: 14, weight: .bold, design: .monospaced))
+        let name = (payment.merchant ?? "").uppercased()
+        let vat = amount / 6
+        return VStack(spacing: 3) {
+            Text(name).font(.system(size: 13, weight: .bold, design: .monospaced)).multilineTextAlignment(.center)
+            center("Via del Corso 12, Roma, IT")
+            center(Tx("ІПН ", "TIN ", "ИНН ") + digits(payment.merchant ?? "", 10))
+            center(Tx("ПРРО ", "POS ", "ПРРО ") + digits("tid" + (payment.merchant ?? ""), 10))
+            rule
+            Text(Tx("ФІСКАЛЬНИЙ ЧЕК", "FISCAL RECEIPT", "ФИСКАЛЬНЫЙ ЧЕК")).font(.system(size: 12, weight: .bold, design: .monospaced)).tracking(1)
+            rule
+            row("1 x " + Format.amount(amount), Format.amount(amount))
+            center(Tx("Оплата покупки", "Purchase", "Оплата покупки"), left: true)
+            rule
+            HStack {
+                Text(Tx("СУМА", "TOTAL", "СУММА")).font(.system(size: 13, weight: .bold, design: .monospaced))
                 Spacer()
-                Text(Format.money(payment.amount ?? 0)).font(.system(size: 17, weight: .bold, design: .monospaced)).monospacedDigit()
+                Text(Format.amount(amount) + " TAX").font(.system(size: 13, weight: .bold, design: .monospaced)).monospacedDigit()
             }
-            dash
-            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in line(row.0, row.1) }
-            dash
-            Text("\(Tx("СХВАЛЕНО", "APPROVED", "ОДОБРЕНО")) · \(payment.responseCode)")
-                .font(.system(size: 13, weight: .bold, design: .monospaced)).tracking(1.5)
-                .padding(.vertical, 2)
-            Code128(message: payment.rrn ?? "TAXTECH").padding(.top, 4)
-            Text(payment.rrn ?? "").font(.system(size: 9, design: .monospaced)).tracking(2).opacity(0.7)
-            Text(Tx("КОПІЯ ДЛЯ КЛІЄНТА", "CARDHOLDER COPY", "КОПИЯ КЛИЕНТА")).font(.system(size: 9, design: .monospaced)).tracking(1.5).padding(.top, 6)
-            Text(Tx("Дякуємо за покупку", "Thank you", "Спасибо за покупку")).font(.system(size: 9, design: .monospaced)).opacity(0.7)
-            Text("TAXTECH · " + Tx("навчальний платіж", "training payment", "учебный платёж")).font(.system(size: 8, design: .monospaced)).opacity(0.45)
+            row(Tx("в т.ч. ПДВ 20%", "incl. VAT 20%", "в т.ч. НДС 20%"), Format.amount(vat))
+            rule
+            row(Tx("ОПЛАТА", "PAYMENT", "ОПЛАТА"), Tx("КАРТКА", "CARD", "КАРТА"))
+            row(Tx("КАРТКА", "CARD", "КАРТА"), "**** " + (cardLast4 ?? payment.cardLast4 ?? "----"))
+            row(Tx("СПОСІБ", "ENTRY", "СПОСОБ"), payment.threeDs == true ? "3-D SECURE" : "NFC")
+            row(Tx("КОД АВТОР.", "AUTH CODE", "КОД АВТОР."), payment.authCode ?? "-")
+            row("RRN", payment.rrn ?? "-")
+            row("MID / TID", digits(payment.merchant ?? "", 8) + "/" + digits("tid" + (payment.merchant ?? ""), 8))
+            rule
+            row(Tx("КОМІСІЯ ЕКВАЙРА", "ACQUIRER FEE", "КОМИССИЯ ЭКВАЙРА"), Format.amount(payment.fee ?? 0))
+            row(Tx("ДО ВИПЛАТИ МАГАЗИНУ", "MERCHANT NET", "К ВЫПЛАТЕ МАГАЗИНУ"), Format.amount(payment.net ?? 0))
+            rule
+            row(Tx("ЧЕК №", "RECEIPT NO", "ЧЕК №"), checkNo)
+            row(Tx("ФН", "FN", "ФН"), fiscalNo)
+            row(Tx("ДАТА", "DATE", "ДАТА"), date)
+            QRCode(text: "https://bank.munister.com.ua/check?fn=\(fiscalNo)&id=\(checkNo)&sm=\(Format.amount(amount))&rrn=\(payment.rrn ?? "")")
+                .padding(.top, 4)
+            Code128(message: fiscalNo + checkNo).padding(.top, 2)
+            center(Tx("ФІСКАЛЬНИЙ НОМЕР ", "FISCAL NO ", "ФИСКАЛЬНЫЙ НОМЕР ") + fiscalNo)
+            center(Tx("ДЯКУЄМО ЗА ПОКУПКУ", "THANK YOU", "СПАСИБО ЗА ПОКУПКУ")).padding(.top, 4)
+            Text(Tx("навчальний чек · TaxTech", "training receipt · TaxTech", "учебный чек · TaxTech")).font(.system(size: 8, design: .monospaced)).opacity(0.45)
         }
         .foregroundStyle(ink)
-        .padding(.horizontal, 18).padding(.top, 22).padding(.bottom, 30)
+        .padding(.horizontal, 16).padding(.top, 14).padding(.bottom, 22)
         .frame(maxWidth: .infinity)
-        .background(paper, in: TornEdge())
+        .background { TornEdge().fill(paper).shadow(color: .black.opacity(0.45), radius: 16, y: 10) }
         .overlay(TornEdge().fill(LinearGradient(colors: [.black.opacity(0.03), .clear, .black.opacity(0.04)], startPoint: .leading, endPoint: .trailing)).allowsHitTesting(false))
-        .shadow(color: .black.opacity(0.45), radius: 16, y: 10)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height = $0 + 20 }
+    }
+
+    private var rule: some View {
+        DashLine().stroke(ink.opacity(0.55), style: StrokeStyle(lineWidth: 1, dash: [2, 2])).frame(height: 1).padding(.vertical, 2)
+    }
+
+    private func center(_ t: String, left: Bool = false) -> some View {
+        Text(t).font(.system(size: 11, design: .monospaced)).frame(maxWidth: .infinity, alignment: left ? .leading : .center).multilineTextAlignment(.center)
+    }
+
+    private func row(_ t: String, _ v: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(t).font(.system(size: 11, design: .monospaced))
+            Spacer(minLength: 4)
+            Text(v).font(.system(size: 11, design: .monospaced)).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
+        }
     }
 
     private func line(_ t: String, _ v: String) -> some View {
