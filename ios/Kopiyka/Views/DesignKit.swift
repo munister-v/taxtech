@@ -13,6 +13,7 @@ struct ScreenTitle<Trailing: View>: View {
         HStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.display(38, .medium)).tracking(-1)
+                    .lineLimit(1).minimumScaleFactor(0.55).allowsTightening(true)
             }
             Spacer()
             trailing

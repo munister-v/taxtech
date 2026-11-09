@@ -165,7 +165,7 @@ struct ProfileView: View {
                 .buttonStyle(PressScale())
                 .accessibilityLabel(L("Змінити фото").s)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(me?.fullName ?? " ").font(Theme.ui(24, .semibold)).lineLimit(1).minimumScaleFactor(0.7)
+                    Text(Translator.server(me?.fullName ?? " ")).font(Theme.ui(24, .semibold)).lineLimit(1).minimumScaleFactor(0.7)
                     if let e = me?.email, !e.isEmpty {
                         Text(e).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).lineLimit(1)
                     }

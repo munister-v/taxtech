@@ -229,7 +229,7 @@ struct OverviewView: View {
     }
 
     private var firstName: String {
-        (me?.fullName ?? "").split(separator: " ").first.map(String.init) ?? Brand.name
+        Translator.server(me?.fullName ?? "").split(separator: " ").first.map(String.init) ?? Brand.name
     }
 
     static var greeting: String {
