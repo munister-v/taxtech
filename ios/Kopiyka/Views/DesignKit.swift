@@ -170,8 +170,9 @@ struct CircleAction: View {
 struct PressScale: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.snappy(duration: 0.15), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.62), value: configuration.isPressed)
+            .sensoryFeedback(.selection, trigger: configuration.isPressed) { _, new in new }
     }
 }
 

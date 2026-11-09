@@ -225,7 +225,7 @@ struct BlockTitle: View {
 struct Rule: View {
     var body: some View {
         Rectangle()
-            .fill(Theme.line)
+            .fill(LinearGradient(colors: [.clear, Theme.line, Theme.line, .clear], startPoint: .leading, endPoint: .trailing))
             .frame(height: Theme.hairline).padding(.horizontal, 16)
     }
 }
@@ -240,8 +240,15 @@ struct InkButton: ButtonStyle {
             .foregroundStyle(Theme.onAccent)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(Theme.accent.opacity(configuration.isPressed ? 0.82 : 1), in: .capsule)
-            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .background {
+                Capsule().fill(LinearGradient(colors: [Theme.goldLight, Theme.accent], startPoint: .top, endPoint: .bottom))
+                    .brightness(configuration.isPressed ? -0.08 : 0)
+            }
+            .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 0.8).mask(LinearGradient(colors: [.white, .clear], startPoint: .top, endPoint: .bottom)))
+            .shadow(color: Theme.accent.opacity(enabled ? 0.38 : 0), radius: configuration.isPressed ? 6 : 16, y: configuration.isPressed ? 2 : 7)
+            .scaleEffect(configuration.isPressed ? 0.975 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, new in new }
             .opacity(enabled ? 1 : 0.35)
     }
 }
@@ -254,10 +261,11 @@ struct LineButton: ButtonStyle {
             .foregroundStyle(Theme.ink)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
-            .background(Theme.surface, in: .capsule)
-            .overlay(Capsule().strokeBorder(Theme.line, lineWidth: 1))
-            .scaleEffect(configuration.isPressed ? 0.985 : 1)
-            .opacity(configuration.isPressed ? 0.75 : 1)
+            .background(.ultraThinMaterial, in: .capsule)
+            .overlay(Capsule().strokeBorder(LinearGradient(colors: [.white.opacity(0.28), .white.opacity(0.06)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
+            .scaleEffect(configuration.isPressed ? 0.975 : 1)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 

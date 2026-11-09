@@ -119,12 +119,13 @@ extension View {
     /// Скляний круг для кнопок на шапці.
     func glassCircle() -> some View {
         background(.ultraThinMaterial, in: .circle)
-            .overlay(Circle().strokeBorder(.white.opacity(0.14), lineWidth: Theme.hairline))
+            .overlay(Circle().strokeBorder(LinearGradient(colors: [.white.opacity(0.32), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
+            .shadow(color: .black.opacity(0.25), radius: 8, y: 3)
     }
 
     func glassCapsule() -> some View {
         background(.ultraThinMaterial, in: .capsule)
-            .overlay(Capsule().strokeBorder(.white.opacity(0.14), lineWidth: Theme.hairline))
+            .overlay(Capsule().strokeBorder(LinearGradient(colors: [.white.opacity(0.32), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
     }
 }
 
