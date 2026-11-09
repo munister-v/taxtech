@@ -3,197 +3,148 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tax Tech · Політика конфіденційності</title>
+<title>Tax Tech · Політика конфіденційності · Privacy Policy</title>
 <meta name="robots" content="index">
+<meta name="theme-color" content="#0a0102">
 <style>
-  :root { color-scheme: dark; --bg: #0b0b0c; --surface: #161618; --ink: #f2f1ec; --muted: #a3a29c; --accent: #ffd400; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
-  nav { display: flex; gap: 8px; margin-bottom: 28px; }
-  nav a { color: var(--ink); text-decoration: none; padding: 6px 14px; border-radius: 999px; background: var(--surface); font-size: 14px; }
-  nav a:hover { background: #222225; }
-  h1 { font-size: 28px; line-height: 1.2; margin: 0 0 6px; }
-  h2 { font-size: 18px; margin: 28px 0 6px; }
-  p, li { color: var(--ink); }
-  .muted { color: var(--muted); font-size: 14px; }
-  ul { padding-left: 20px; }
-  section { background: var(--surface); border-radius: 20px; padding: 4px 22px 18px; margin-top: 18px; }
-  a { color: var(--accent); }
-  hr { border: 0; height: 1px; background: #2a2a2d; margin: 48px 0; }
+:root{color-scheme:dark;--bg:#07010a;--ink:#f6f0e8;--mut:#b4a79f;--gold1:#ffe6ad;--gold2:#d9a757;--red:#e0152c;--card:rgba(255,255,255,.045);--line:rgba(255,255,255,.1)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(120% 70% at 50% -10%,#3a0510 0%,#12030a 45%,#060108 100%)}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:float 18s ease-in-out infinite}
+.o1{width:60vmax;height:60vmax;left:-20vmax;top:-18vmax;background:#c2121f}
+.o2{width:46vmax;height:46vmax;right:-16vmax;top:12vmax;background:#7a0a22;animation-delay:-6s}
+.o3{width:30vmax;height:30vmax;left:34vw;top:-8vmax;background:#f0a23a;opacity:.28;animation-delay:-11s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(4vmax,3vmax) scale(1.08)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px max(20px,calc((100vw - 1120px)/2));backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);background:linear-gradient(#07010acc,#07010a00);}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.2px;color:var(--ink);text-decoration:none}
+.brand i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--gold1),var(--gold2));display:grid;place-items:center;color:#2a1604;font-style:normal;font-weight:800;font-size:14px}
+.sw{position:relative;display:flex;padding:4px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.sw button{position:relative;z-index:1;border:0;background:none;color:var(--mut);font:600 13px/1 inherit;letter-spacing:.8px;padding:9px 16px;border-radius:999px;cursor:pointer;transition:color .25s}
+.sw button.on{color:#2a1604}
+.sw .knob{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:linear-gradient(135deg,var(--gold1),var(--gold2));transition:transform .35s cubic-bezier(.3,1.3,.5,1)}
+.sw[data-v=en] .knob{transform:translateX(100%)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+.lang{display:none} .lang.show{display:block;animation:in .6s ease both}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.hero{position:relative;padding:56px 0 34px;max-width:760px}
+.pill{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.4px;color:var(--gold1);padding:7px 14px;border-radius:999px;border:1px solid rgba(255,230,173,.3);background:rgba(255,230,173,.08)}
+h1{font-size:clamp(40px,7.5vw,76px);line-height:1.02;letter-spacing:-.035em;margin:22px 0 18px;font-weight:700;background:linear-gradient(180deg,#fff 0%,var(--gold1) 45%,var(--gold2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(17px,2.2vw,21px);color:var(--mut);margin:0;max-width:680px}
+.cards{position:absolute;right:-30px;top:20px;width:360px;height:260px;pointer-events:none;display:none}
+@media(min-width:1000px){.cards{display:block} .hero{max-width:none;padding-right:380px}}
+.cc{position:absolute;width:300px;height:188px;border-radius:20px;border:1px solid rgba(255,255,255,.18);box-shadow:0 30px 60px #0009}
+.cc.a{right:30px;top:0;transform:rotate(-12deg);background:linear-gradient(135deg,#f7d58d,#b4802f)}
+.cc.b{right:10px;top:34px;transform:rotate(-4deg);background:linear-gradient(135deg,#1b1b22,#0a0a0e)}
+.cc.c{right:-6px;top:72px;transform:rotate(4deg);background:linear-gradient(135deg,#8c1530,#3b0614);box-shadow:0 30px 70px #e0152c55}
+.cc::before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-radial-gradient(circle at 75% 55%,transparent 0 7px,rgba(255,255,255,.07) 7px 8px);mix-blend-mode:screen}
+.cc::after{content:"";position:absolute;left:22px;top:60px;width:46px;height:34px;border-radius:7px;background:linear-gradient(135deg,#ffe6ad,#c99447)}
+.cc.c{animation:shine 6s ease-in-out infinite}
+@keyframes shine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25)}}
+.glance{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:8px 0 46px}
+@media(max-width:860px){.glance{grid-template-columns:repeat(2,1fr)}}
+.g{padding:22px;border-radius:24px;background:var(--card);border:1px solid var(--line);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:6px;transition:transform .3s,border-color .3s}
+.g:hover{transform:translateY(-4px);border-color:rgba(255,230,173,.4)}
+.g strong{font-size:clamp(30px,4vw,44px);line-height:1;letter-spacing:-.03em;background:linear-gradient(180deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.g span{font-size:14px;color:var(--mut);line-height:1.4}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:40px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.toc{position:sticky;top:84px;display:flex;flex-direction:column;gap:2px}
+.toc-t{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);margin:0 0 10px 12px}
+.toc a{display:flex;gap:12px;align-items:baseline;color:var(--mut);text-decoration:none;font-size:14.5px;line-height:1.35;padding:9px 12px;border-radius:12px;transition:.2s}
+.toc a b{font-weight:600;font-size:12px;color:#6f625e;font-variant-numeric:tabular-nums;transition:.2s}
+.toc a:hover{color:var(--ink);background:var(--card)}
+.toc a.on{color:var(--ink);background:rgba(224,21,44,.16)} .toc a.on b{color:var(--gold1)}
+@media(max-width:900px){.toc{position:static;flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:6px;scrollbar-width:none;margin:0 -20px;padding:0 20px}.toc::-webkit-scrollbar{display:none}.toc-t{display:none}.toc a{white-space:nowrap;border:1px solid var(--line);background:var(--card)}.toc a b{display:none}}
+.secs{display:flex;flex-direction:column;gap:18px}
+.card{position:relative;padding:30px 30px 26px 30px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.025));border:1px solid var(--line);backdrop-filter:blur(12px);overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 80% at 100% 0,rgba(224,21,44,.16),transparent 60%);pointer-events:none}
+.num{position:absolute;right:22px;top:6px;font-size:84px;font-weight:800;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1px rgba(255,230,173,.16);line-height:1}
+.ico{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:var(--gold1);background:rgba(255,230,173,.09);border:1px solid rgba(255,230,173,.22);margin-bottom:16px}
+.ico svg{width:24px;height:24px}
+h2{font-size:clamp(22px,3vw,28px);margin:0 0 12px;letter-spacing:-.02em;line-height:1.2;position:relative}
+.card p,.card li{color:#ddd2c8;margin:0 0 10px;position:relative}
+.card ul{list-style:none;padding:0;margin:0 0 10px;display:flex;flex-direction:column;gap:11px;position:relative}
+.card li{padding-left:26px;margin:0}
+.card li::before{content:"";position:absolute;left:3px;top:.62em;width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--gold1),var(--gold2));box-shadow:0 0 12px #e0152c99}
+.contact{background:linear-gradient(135deg,rgba(224,21,44,.28),rgba(120,10,34,.18));border-color:rgba(255,120,120,.28)}
+.btn{display:inline-flex;align-items:center;margin-top:6px;padding:15px 24px;border-radius:999px;font-weight:650;font-size:16px;text-decoration:none;color:#2a1604;background:linear-gradient(135deg,var(--gold1),var(--gold2));box-shadow:0 10px 34px #d9a75755;transition:transform .2s,box-shadow .2s;position:relative;word-break:break-all}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 44px #d9a75777}
+.foot{text-align:center;color:#7c6f6a;font-size:13px;padding:36px 0 0}
+.foot a{color:var(--mut)}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)} .reveal.v{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.orb,.cc.c{animation:none} .reveal{opacity:1;transform:none;transition:none} html{scroll-behavior:auto}}
+@media(max-width:600px){body{font-size:16px} .card{padding:24px 20px 20px} .num{font-size:60px} .hero{padding-top:34px}}
 </style>
+<noscript><style>.lang{display:block}.lang[data-lang=en]{display:none}.reveal{opacity:1;transform:none}</style></noscript>
 </head>
 <body>
-<main>
-  <nav><a href="#uk">Українська</a><a href="#en">English</a><a href="/support.html">Підтримка · Support</a></nav>
-
-  <article id="uk" lang="uk">
-    <h1>Політика конфіденційності Tax Tech</h1>
-    <p class="muted">Діє з 9 листопада 2026 року, версія 1.0</p>
-
-    <p>Tax Tech: Digital Finance Lab - навчальний застосунок. Банк у ньому віртуальний: гроші, картки, кредити й перекази не справжні,
-      справжніх платежів немає. Тут написано, які дані застосунок збирає і що з ними робить.</p>
-
-    <section>
-      <h2>Без входу</h2>
-      <p>Досліди в розділі Studio працюють на телефоні, без мережі й без акаунта. Ми нічого не отримуємо.</p>
-    </section>
-
-    <section>
-      <h2>Акаунт</h2>
-      <ul>
-        <li>Під час реєстрації: ім'я, телефон, email і пароль. Пароль зберігається лише у вигляді хешу.</li>
-        <li>Через «Увійти з Apple»: ідентифікатор від Apple, а ім'я та email - лише якщо ви ними поділились (email може бути прихованою адресою Apple).</li>
-        <li>Дані навчального банку: рахунки й операції в навчальних токенах TAX (це не гроші), картки, депозити, кредити, цілі, шаблони, нотатки до операцій.</li>
-      </ul>
-      <p>Усе це зберігається на нашому сервері bank.munister.com.ua і потрібне лише для роботи застосунку.</p>
-    </section>
-
-    <section>
-      <h2>Чек, помічник і перевірка переказів</h2>
-      <ul>
-        <li><b>Фото чека</b> розпізнається на телефоні й нікуди не надсилається. Якщо розбір іде на сервері, туди йде лише текст чека, з якого перед відправкою прибрано особисті дані (імена, номери карток і телефонів тощо).</li>
-        <li><b>Помічник</b> відповідає на телефоні, а якщо там не виходить - на сервері, теж після прибирання особистих даних.</li>
-        <li>На сервері такий текст може обробити мовна модель Anthropic (Claude). Anthropic отримує лише текст запиту без вашого імені й акаунта.</li>
-        <li><b>Перевірка переказу</b> на шахрайство: дані операції в навчальному банку перевіряються на телефоні або на нашому сервері.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Журнал дослідження</h2>
-      <p>Застосунок записує, де виконувалась кожна задача (телефон чи сервер), скільки це тривало й оцінку витрат енергії. Журнал лежить на телефоні
-        й залишає його, лише якщо ви самі його експортуєте.</p>
-    </section>
-
-    <section>
-      <h2>Дозволи</h2>
-      <ul>
-        <li><b>Камера</b> - щоб сфотографувати чек.</li>
-        <li><b>Face ID</b> - щоб відмикати застосунок замість PIN-коду. Обличчя перевіряє iOS, застосунок отримує лише «так» чи «ні».</li>
-        <li><b>Локальна мережа</b> - лише щоб підключитися до навчального сервера у вашій мережі, якщо ви його вкажете.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Лише на телефоні</h2>
-      <ul>
-        <li>Фото профілю й вибраний вигляд аватара.</li>
-        <li>Підтвердження особи (KYC) - навчальна імітація. Імʼя, дата народження, країна й тип документа лишаються на телефоні. Фото документа й селфі не зберігаються й не надсилаються: вони відкидаються одразу після «перевірки». Лишаються лише результат, дата й останні 4 цифри номера документа.</li>
-        <li>Облік витрат і журнал дослідження.</li>
-      </ul>
-      <p>Усе це можна стерти в Профіль → «Дані та приватність» → «Видалити дані на телефоні».</p>
-    </section>
-
-    <section>
-      <h2>Ваші права</h2>
-      <p>Ви можете отримати копію своїх даних (Профіль → «Дані та приватність» → «Експорт моїх даних»), виправити їх, видалити акаунт, відкликати згоду на мовну модель на сервері, обмежити обробку чи заперечити проти неї та подати скаргу до наглядового органу (в Україні - Уповноважений Верховної Ради з прав людини). Основа обробки: виконання угоди, законний інтерес у захисті акаунтів від шахрайства, а для мовної моделі - ваша згода.</p>
-    </section>
-
-    <section>
-      <h2>Чого немає</h2>
-      <p>Реклами, стеження, сторонньої аналітики й продажу даних. Дані не використовуються для визначення особи на інших сайтах і в застосунках.</p>
-    </section>
-
-    <section>
-      <h2>Видалення</h2>
-      <p>Профіль → «Видалити акаунт». Акаунт, рахунок, картки, депозити, кредити, сесії й історія операцій видаляються з сервера одразу. Записи журналу безпеки лишаються без привʼязки до вас. Поки акаунт є, дані зберігаються.</p>
-    </section>
-
-    <section>
-      <h2>Діти</h2>
-      <p>Застосунок не призначений для дітей до 13 років і свідомо не збирає їхніх даних.</p>
-    </section>
-
-    <section>
-      <h2>Контакт</h2>
-      <p>Питання й запити щодо даних: <a href="mailto:tilandiya@gmail.com">tilandiya@gmail.com</a>. Про зміни цієї політики повідомимо тут, з новою датою.</p>
-    </section>
-  </article>
-
-  <hr>
-
-  <article id="en" lang="en">
-    <h1>Tax Tech Privacy Policy</h1>
-    <p class="muted">Effective 9 November 2026, version 1.0</p>
-
-    <p>Tax Tech: Digital Finance Lab is an educational app. Its bank is virtual: the money, cards, loans and transfers are not real,
-      and there are no real payments. This page explains what data the app collects and what it does with it.</p>
-
-    <section>
-      <h2>Without signing in</h2>
-      <p>The experiments in Studio run on the phone, offline and without an account. We receive nothing.</p>
-    </section>
-
-    <section>
-      <h2>Account</h2>
-      <ul>
-        <li>When you register: your name, phone, email and password. The password is stored only as a hash.</li>
-        <li>With Sign in with Apple: an identifier from Apple, plus your name and email only if you choose to share them (the email may be an Apple private relay address).</li>
-        <li>Training bank data: accounts and transactions in TAX learning tokens (not money), cards, deposits, loans, goals, templates and notes on transactions.</li>
-      </ul>
-      <p>All of this is stored on our server bank.munister.com.ua and is used only to run the app.</p>
-    </section>
-
-    <section>
-      <h2>Receipts, assistant and transfer checks</h2>
-      <ul>
-        <li><b>Receipt photos</b> are recognised on the phone and never uploaded. If the receipt is parsed on the server, only its text is sent, with personal data (names, card and phone numbers and so on) removed first.</li>
-        <li><b>The assistant</b> answers on the phone and, if that is not possible, on the server, also after personal data is removed.</li>
-        <li>On the server this text may be processed by Anthropic's language model (Claude). Anthropic receives only the text of the request, without your name or account.</li>
-        <li><b>Transfer fraud checks</b>: the details of a training bank transaction are checked on the phone or on our server.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Research log</h2>
-      <p>The app records where each task ran (phone or server), how long it took and an energy estimate. The log stays on the phone
-        and leaves it only if you export it yourself.</p>
-    </section>
-
-    <section>
-      <h2>Permissions</h2>
-      <ul>
-        <li><b>Camera</b> - to photograph a receipt.</li>
-        <li><b>Face ID</b> - to unlock the app instead of a PIN. iOS checks your face; the app only gets yes or no.</li>
-        <li><b>Local network</b> - only to connect to a training server on your network if you set one.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>On the phone only</h2>
-      <ul>
-        <li>Your profile photo and chosen avatar style.</li>
-        <li>Identity verification (KYC) is a training simulation. Name, date of birth, country and document type stay on the phone. The document photo and selfie are neither stored nor sent: they are discarded right after the "check". Only the result, the date and the last 4 digits of the document number are kept.</li>
-        <li>The expense log and the research log.</li>
-      </ul>
-      <p>You can erase all of this in Profile → "Data &amp; privacy" → "Delete data on this phone".</p>
-    </section>
-
-    <section>
-      <h2>Your rights</h2>
-      <p>You can get a copy of your data (Profile → "Data &amp; privacy" → "Export my data"), correct it, delete your account, withdraw consent for the server-side language model, restrict or object to processing, and complain to a supervisory authority (in Ukraine, the Parliament Commissioner for Human Rights). The bases are performance of a contract, a legitimate interest in protecting accounts from fraud and, for the language model, your consent.</p>
-    </section>
-
-    <section>
-      <h2>What we do not do</h2>
-      <p>No ads, no tracking, no third-party analytics and no selling of data. Data is not used to identify you on other websites or apps.</p>
-    </section>
-
-    <section>
-      <h2>Deletion</h2>
-      <p>Profile → "Delete account". The account, cards, deposits, credits, sessions and transaction history are deleted from the server at once. Security log entries remain, no longer linked to you. Data is kept while the account exists.</p>
-    </section>
-
-    <section>
-      <h2>Children</h2>
-      <p>The app is not intended for children under 13 and does not knowingly collect their data.</p>
-    </section>
-
-    <section>
-      <h2>Contact</h2>
-      <p>Questions and data requests: <a href="mailto:tilandiya@gmail.com">tilandiya@gmail.com</a>. Changes to this policy will be posted here with a new date.</p>
-    </section>
-  </article>
-</main>
+<div class="bg"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="grain"></div>
+<div class="top">
+  <a class="brand" href="/"><i>T</i>Tax Tech</a>
+  <div class="sw" id="sw" data-v="uk"><span class="knob"></span><button data-v="uk" class="on">UA</button><button data-v="en">EN</button></div>
+</div>
+<div class="wrap">
+<div class="cards" aria-hidden="true"><div class="cc a"></div><div class="cc b"></div><div class="cc c"></div></div>
+<div class="lang" data-lang="uk" lang="uk">
+  <header class="hero">
+    <div class="pill">Діє з 9 листопада 2026 · версія 1.0</div>
+    <h1>Політика конфіденційності</h1>
+    <p class="lead">Tax Tech: Digital Finance Lab - навчальний застосунок. Банк у ньому віртуальний: гроші, картки, кредити й перекази не справжні, справжніх платежів немає. Тут написано, які дані застосунок збирає і що з ними робить.</p>
+  </header>
+  <div class="glance"><div class="g reveal"><strong>0</strong><span>реклами, стеження й сторонньої аналітики</span></div><div class="g reveal"><strong>100%</strong><span>чеки розпізнаються на телефоні</span></div><div class="g reveal"><strong>1 дотик</strong><span>щоб видалити акаунт з усіма даними</span></div><div class="g reveal"><strong>KYC</strong><span>лише навчальна імітація</span></div></div>
+  <div class="layout">
+    <aside class="toc"><div class="toc-t">Зміст</div><a href="#uk-0" data-i="0"><b>01</b>Без входу</a><a href="#uk-1" data-i="1"><b>02</b>Акаунт</a><a href="#uk-2" data-i="2"><b>03</b>Чек, помічник і перевірка переказів</a><a href="#uk-3" data-i="3"><b>04</b>Журнал дослідження</a><a href="#uk-4" data-i="4"><b>05</b>Дозволи</a><a href="#uk-5" data-i="5"><b>06</b>Лише на телефоні</a><a href="#uk-6" data-i="6"><b>07</b>Ваші права</a><a href="#uk-7" data-i="7"><b>08</b>Чого немає</a><a href="#uk-8" data-i="8"><b>09</b>Видалення</a><a href="#uk-9" data-i="9"><b>10</b>Діти</a></aside>
+    <div class="secs"><section id="uk-0" class="card reveal"><div class="num">01</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M11 18h2"/></svg></div><h2>Без входу</h2><p>Досліди в розділі Studio працюють на телефоні, без мережі й без акаунта. Ми нічого не отримуємо.</p></section><section id="uk-1" class="card reveal"><div class="num">02</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4-6 8-6s7 1.5 8 6"/></svg></div><h2>Акаунт</h2><ul><li>Під час реєстрації: ім&#x27;я, телефон, email і пароль. Пароль зберігається лише у вигляді хешу.</li><li>Через «Увійти з Apple»: ідентифікатор від Apple, а ім&#x27;я та email - лише якщо ви ними поділились (email може бути прихованою адресою Apple).</li><li>Дані навчального банку: рахунки й операції в навчальних токенах TAX (це не гроші), картки, депозити, кредити, цілі, шаблони, нотатки до операцій.</li></ul><p>Усе це зберігається на нашому сервері bank.munister.com.ua і потрібне лише для роботи застосунку.</p></section><section id="uk-2" class="card reveal"><div class="num">03</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/></svg></div><h2>Чек, помічник і перевірка переказів</h2><ul><li>Фото чека розпізнається на телефоні й нікуди не надсилається. Якщо розбір іде на сервері, туди йде лише текст чека, з якого перед відправкою прибрано особисті дані (імена, номери карток і телефонів тощо).</li><li>Помічник відповідає на телефоні, а якщо там не виходить - на сервері, теж після прибирання особистих даних.</li><li>На сервері такий текст може обробити мовна модель Anthropic (Claude). Anthropic отримує лише текст запиту без вашого імені й акаунта.</li><li>Перевірка переказу на шахрайство: дані операції в навчальному банку перевіряються на телефоні або на нашому сервері.</li></ul></section><section id="uk-3" class="card reveal"><div class="num">04</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg></div><h2>Журнал дослідження</h2><p>Застосунок записує, де виконувалась кожна задача (телефон чи сервер), скільки це тривало й оцінку витрат енергії. Журнал лежить на телефоні й залишає його, лише якщо ви самі його експортуєте.</p></section><section id="uk-4" class="card reveal"><div class="num">05</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg></div><h2>Дозволи</h2><ul><li>Камера - щоб сфотографувати чек.</li><li>Face ID - щоб відмикати застосунок замість PIN-коду. Обличчя перевіряє iOS, застосунок отримує лише «так» чи «ні».</li><li>Локальна мережа - лише щоб підключитися до навчального сервера у вашій мережі, якщо ви його вкажете.</li></ul></section><section id="uk-5" class="card reveal"><div class="num">06</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M6 16c.6-1.6 1.8-2.2 3-2.2s2.4.6 3 2.2M15 10h3M15 14h3"/></svg></div><h2>Лише на телефоні</h2><ul><li>Фото профілю й вибраний вигляд аватара.</li><li>Підтвердження особи (KYC) - навчальна імітація. Імʼя, дата народження, країна й тип документа лишаються на телефоні. Фото документа й селфі не зберігаються й не надсилаються: вони відкидаються одразу після «перевірки». Лишаються лише результат, дата й останні 4 цифри номера документа.</li><li>Облік витрат і журнал дослідження.</li></ul><p>Усе це можна стерти: Профіль → «Дані та приватність» → «Видалити дані на телефоні».</p></section><section id="uk-6" class="card reveal"><div class="num">07</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/></svg></div><h2>Ваші права</h2><p>Ви можете отримати копію своїх даних (Профіль → «Дані та приватність» → «Експорт моїх даних»), виправити їх, видалити акаунт, відкликати згоду на мовну модель на сервері, обмежити обробку чи заперечити проти неї та подати скаргу до наглядового органу (в Україні - Уповноважений Верховної Ради з прав людини).</p><p>Основа обробки: виконання угоди, законний інтерес у захисті акаунтів від шахрайства, а для мовної моделі - ваша згода.</p></section><section id="uk-7" class="card reveal"><div class="num">08</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div><h2>Чого немає</h2><p>Реклами, стеження, сторонньої аналітики й продажу даних. Дані не використовуються для визначення особи на інших сайтах і в застосунках.</p></section><section id="uk-8" class="card reveal"><div class="num">09</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></div><h2>Видалення</h2><p>Профіль → «Видалити акаунт». Акаунт, рахунок, картки, депозити, кредити, сесії й історія операцій видаляються з сервера одразу. Записи журналу безпеки лишаються без привʼязки до вас. Поки акаунт є, дані зберігаються.</p></section><section id="uk-9" class="card reveal"><div class="num">10</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M5 21c.8-3.6 3.4-5 7-5s6.2 1.4 7 5"/><path d="M9 5.5C9.5 3.5 11 3 12 3s2.5.5 3 2.5"/></svg></div><h2>Діти</h2><p>Застосунок не призначений для дітей до 13 років і свідомо не збирає їхніх даних.</p></section><section id="uk-c" class="card contact reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><h2>Контакт</h2><p>Питання й запити щодо даних. Про зміни цієї політики повідомимо тут, з новою датою.</p><a class="btn" href="mailto:tilandiya@gmail.com">Написати · tilandiya@gmail.com</a></section></div>
+  </div>
+</div>
+<div class="lang" data-lang="en" lang="en">
+  <header class="hero">
+    <div class="pill">Effective 9 November 2026 · version 1.0</div>
+    <h1>Privacy Policy</h1>
+    <p class="lead">Tax Tech: Digital Finance Lab is an educational app. Its bank is virtual: the money, cards, loans and transfers are not real, and there are no real payments. This page explains what data the app collects and what it does with it.</p>
+  </header>
+  <div class="glance"><div class="g reveal"><strong>0</strong><span>ads, trackers or third-party analytics</span></div><div class="g reveal"><strong>100%</strong><span>receipts are read on your phone</span></div><div class="g reveal"><strong>1 tap</strong><span>to delete your account and all data</span></div><div class="g reveal"><strong>KYC</strong><span>is a training simulation only</span></div></div>
+  <div class="layout">
+    <aside class="toc"><div class="toc-t">Contents</div><a href="#en-0" data-i="0"><b>01</b>Without signing in</a><a href="#en-1" data-i="1"><b>02</b>Account</a><a href="#en-2" data-i="2"><b>03</b>Receipts, assistant and transfer checks</a><a href="#en-3" data-i="3"><b>04</b>Research log</a><a href="#en-4" data-i="4"><b>05</b>Permissions</a><a href="#en-5" data-i="5"><b>06</b>On the phone only</a><a href="#en-6" data-i="6"><b>07</b>Your rights</a><a href="#en-7" data-i="7"><b>08</b>What we do not do</a><a href="#en-8" data-i="8"><b>09</b>Deletion</a><a href="#en-9" data-i="9"><b>10</b>Children</a></aside>
+    <div class="secs"><section id="en-0" class="card reveal"><div class="num">01</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M11 18h2"/></svg></div><h2>Without signing in</h2><p>The experiments in Studio run on the phone, offline and without an account. We receive nothing.</p></section><section id="en-1" class="card reveal"><div class="num">02</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4-6 8-6s7 1.5 8 6"/></svg></div><h2>Account</h2><ul><li>When you register: your name, phone, email and password. The password is stored only as a hash.</li><li>With Sign in with Apple: an identifier from Apple, plus your name and email only if you choose to share them (the email may be an Apple private relay address).</li><li>Training bank data: accounts and transactions in TAX learning tokens (not money), cards, deposits, loans, goals, templates and notes on transactions.</li></ul><p>All of this is stored on our server bank.munister.com.ua and is used only to run the app.</p></section><section id="en-2" class="card reveal"><div class="num">03</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/></svg></div><h2>Receipts, assistant and transfer checks</h2><ul><li>Receipt photos are recognised on the phone and never uploaded. If the receipt is parsed on the server, only its text is sent, with personal data (names, card and phone numbers and so on) removed first.</li><li>The assistant answers on the phone and, if that is not possible, on the server, also after personal data is removed.</li><li>On the server this text may be processed by Anthropic&#x27;s language model (Claude). Anthropic receives only the text of the request, without your name or account.</li><li>Transfer fraud checks: the details of a training bank transaction are checked on the phone or on our server.</li></ul></section><section id="en-3" class="card reveal"><div class="num">04</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg></div><h2>Research log</h2><p>The app records where each task ran (phone or server), how long it took and an energy estimate. The log stays on the phone and leaves it only if you export it yourself.</p></section><section id="en-4" class="card reveal"><div class="num">05</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg></div><h2>Permissions</h2><ul><li>Camera - to photograph a receipt.</li><li>Face ID - to unlock the app instead of a PIN. iOS checks your face; the app only gets yes or no.</li><li>Local network - only to connect to a training server on your network if you set one.</li></ul></section><section id="en-5" class="card reveal"><div class="num">06</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M6 16c.6-1.6 1.8-2.2 3-2.2s2.4.6 3 2.2M15 10h3M15 14h3"/></svg></div><h2>On the phone only</h2><ul><li>Your profile photo and chosen avatar style.</li><li>Identity verification (KYC) is a training simulation. Name, date of birth, country and document type stay on the phone. The document photo and selfie are neither stored nor sent: they are discarded right after the &quot;check&quot;. Only the result, the date and the last 4 digits of the document number are kept.</li><li>The expense log and the research log.</li></ul><p>You can erase all of this: Profile → &quot;Data &amp; privacy&quot; → &quot;Delete data on this phone&quot;.</p></section><section id="en-6" class="card reveal"><div class="num">07</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/></svg></div><h2>Your rights</h2><p>You can get a copy of your data (Profile → &quot;Data &amp; privacy&quot; → &quot;Export my data&quot;), correct it, delete your account, withdraw consent for the server-side language model, restrict or object to processing, and complain to a supervisory authority (in Ukraine, the Parliament Commissioner for Human Rights).</p><p>The bases are performance of a contract, a legitimate interest in protecting accounts from fraud and, for the language model, your consent.</p></section><section id="en-7" class="card reveal"><div class="num">08</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div><h2>What we do not do</h2><p>No ads, no tracking, no third-party analytics and no selling of data. Data is not used to identify you on other websites or apps.</p></section><section id="en-8" class="card reveal"><div class="num">09</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></div><h2>Deletion</h2><p>Profile → &quot;Delete account&quot;. The account, cards, deposits, credits, sessions and transaction history are deleted from the server at once. Security log entries remain, no longer linked to you. Data is kept while the account exists.</p></section><section id="en-9" class="card reveal"><div class="num">10</div><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="4"/><path d="M5 21c.8-3.6 3.4-5 7-5s6.2 1.4 7 5"/><path d="M9 5.5C9.5 3.5 11 3 12 3s2.5.5 3 2.5"/></svg></div><h2>Children</h2><p>The app is not intended for children under 13 and does not knowingly collect their data.</p></section><section id="en-c" class="card contact reveal"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><h2>Contact</h2><p>Questions and data requests. Changes to this policy will be posted here with a new date.</p><a class="btn" href="mailto:tilandiya@gmail.com">Write to us · tilandiya@gmail.com</a></section></div>
+  </div>
+</div>
+<div class="foot">© Tax Tech · <a href="/support.html">Підтримка · Support</a></div>
+</div>
+<script>
+(function(){
+  var langs=document.querySelectorAll('.lang'),sw=document.getElementById('sw'),btns=sw.querySelectorAll('button');
+  function io(root){
+    var items=root.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){items.forEach(function(x){x.classList.add('v')});return}
+    var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('v');o.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:.08});
+    items.forEach(function(x,i){x.style.transitionDelay=(i%4)*60+'ms';o.observe(x)});
+  }
+  function spy(root){
+    var links=root.querySelectorAll('.toc a'),secs=[].map.call(links,function(a){return document.getElementById(a.getAttribute('href').slice(1))});
+    function on(){var y=window.scrollY+140,cur=0;secs.forEach(function(s,i){if(s&&s.offsetTop<=y)cur=i});links.forEach(function(a,i){a.classList.toggle('on',i===cur)})}
+    window.addEventListener('scroll',on,{passive:true});on();
+  }
+  function show(v){
+    langs.forEach(function(l){l.classList.toggle('show',l.dataset.lang===v)});
+    sw.dataset.v=v;btns.forEach(function(b){b.classList.toggle('on',b.dataset.v===v)});
+    document.documentElement.lang=v;
+    try{localStorage.setItem('pp-lang',v)}catch(e){}
+    var cur=document.querySelector('.lang.show');
+    cur.querySelectorAll('.reveal').forEach(function(x){x.classList.remove('v')});
+    io(cur);
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.v);history.replaceState(null,'','#'+b.dataset.v)})});
+  langs.forEach(spy);
+  var h=location.hash.replace('#','').split('-')[0],saved=null;try{saved=localStorage.getItem('pp-lang')}catch(e){}
+  var v=(h==='en'||h==='uk')?h:(saved||((navigator.language||'uk').toLowerCase().indexOf('uk')===0||(navigator.language||'').toLowerCase().indexOf('ru')===0?'uk':'en'));
+  show(v);
+  window.addEventListener('hashchange',function(){var x=location.hash.replace('#','').split('-')[0];if(x==='en'||x==='uk')show(x)});
+})();
+</script>
 </body>
 </html>
