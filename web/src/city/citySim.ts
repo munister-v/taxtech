@@ -25,10 +25,15 @@ export type Venue = {
   i: number; x: number; y: number; z: number; cat: Cat; name: string; b: number; sub: string; info: VenueInfo; rione: string;
   pop: number; rev: number; n: number; hours: Float32Array; last: Tx[]; mix: [number, number, number];
 };
-export type Account = { i: number; id: string; kind: 'resident' | 'tourist' | 'commuter'; hx: number; hy: number; x: number; y: number; lastT: number; recent: number[]; bal: number; you?: boolean; name?: string };
+export type Account = { i: number; id: string; kind: 'resident' | 'tourist' | 'commuter'; hx: number; hy: number; x: number; y: number; lastT: number; recent: number[]; bal: number; you?: boolean; real?: boolean; name?: string };
+
+/** A payment as /api/city/live sends it */
+export type ServerPay = { id: number; ts: number; v: number; a: number; ok: boolean; r?: Tx['reason']; k: 'res' | 'tou' | 'com' | 'user'; w: string; f: [number, number] };
+export type ServerStats = { vol: number; n: number; declined: number; by_cat: Record<Cat, number>; hours: number[]; reasons: Record<NonNullable<Tx['reason']>, number> };
 export type Tx = {
   id: number; t: number; acc: Account; venue: Venue; amount: number; ok: boolean; reason?: 'velocity' | 'travel' | 'limit' | 'funds';
   fx: number; fy: number; fz: number;
+  counted?: boolean;             // already in the server's totals
 };
 
 // Average ticket in TAX and how busy each kind of place is hour by hour (0..23), Rome-like: late lunch, late dinner.
@@ -67,6 +72,75 @@ export class CitySim {
   private R = rng(20261111);
   you: Account | null = null;
   onTx: ((tx: Tx) => void) | null = null;
+
+  // ── remote mode: the server runs the city, this class plays its payments back a few seconds behind ──
+  remote = false;
+  mine = new Set<number>();
+  private queue: Tx[] = [];
+  private offset = 0;              // server clock - local clock, seconds
+  private romeAt = { h: 0, local: 0 };
+  private remoteBusy = 0;
+  private who = new Map<string, Account>();
+  seen = new Set<number>();
+  static DELAY = 5;
+
+  /** Clock and totals from /api/city/live */
+  sync(d: { now: number; hour: number; busy: number; stats: ServerStats }) {
+    this.remote = true;
+    this.offset = d.now - Date.now() / 1000;
+    this.romeAt = { h: d.hour, local: Date.now() / 1000 };
+    this.remoteBusy = d.busy;
+    const st = d.stats;
+    this.stats.vol = st.vol; this.stats.n = st.n; this.stats.declined = st.declined;
+    for (const c of CATS) this.stats.byCat[c] = st.by_cat[c] || 0;
+    this.cityHours.set(st.hours.slice(0, 24));
+    this.reasons = { ...this.reasons, ...st.reasons };
+  }
+
+  /** Today's turnover per place from /api/city/venues: the heat of every roof */
+  setRev(rev: Record<string, [number, number]>) {
+    this.bRev.fill(0);
+    for (const v of this.venues) { const r = rev[v.i]; v.rev = r ? r[0] : 0; v.n = r ? r[1] : 0; if (v.b >= 0) this.bRev[v.b] += v.rev; }
+  }
+
+  private accFor(p: ServerPay): Account {
+    let a = this.who.get(p.w);
+    if (!a) {
+      a = { i: -1, id: p.w, kind: p.k === 'tou' ? 'tourist' : p.k === 'com' ? 'commuter' : 'resident', hx: p.f[0], hy: p.f[1], x: p.f[0], y: p.f[1], lastT: 0, recent: [], bal: 0, real: p.k === 'user' };
+      this.who.set(p.w, a);
+      if (this.who.size > 4000) this.who.clear();
+    }
+    return a;
+  }
+
+  /** Queue server payments for playback */
+  ingest(list: ServerPay[], counted = false) {
+    for (const p of list) {
+      const v = this.venues[p.v];
+      if (!v) continue;
+      const acc = this.accFor(p);
+      const you = this.mine.has(p.id) && this.you ? this.you : null;
+      if (this.seen.has(p.id)) continue;
+      this.seen.add(p.id);
+      this.queue.push({ id: p.id, t: p.ts, acc: you || acc, venue: v, amount: p.a, ok: p.ok, reason: p.r, fx: p.f[0], fy: p.f[1], fz: 1, counted });
+    }
+    this.queue.sort((a, b) => a.t - b.t);
+  }
+
+  /** Play one payment now (the visitor's own approved payment does not wait for the next poll) */
+  play(tx: Tx, fresh = true) {
+    const v = tx.venue;
+    if (tx.ok && !tx.counted) {
+      v.rev += tx.amount; v.n++;
+      if (v.b >= 0) { this.bRev[v.b] += tx.amount; this.bPulse[v.b] = 1; }
+    }
+    v.last.unshift(tx); if (v.last.length > 6) v.last.pop();
+    this.feed.unshift(tx); if (this.feed.length > 40) this.feed.pop();
+    this.window.push(performance.now());
+    if (fresh) this.onTx?.(tx);
+  }
+
+  romeHour() { return this.remote ? (this.romeAt.h + (Date.now() / 1000 - this.romeAt.local) / 3600) % 24 : (this.minute / 60) % 24; }
 
   constructor(public D: CityData) {
     const R = this.R;
@@ -109,10 +183,11 @@ export class CitySim {
   private key(x: number, y: number) { return (Math.floor(x / 250) + 100) * 1000 + Math.floor(y / 250) + 100; }
   private accId() { const R = this.R; return 'TT' + String((R() * 90 + 10) | 0) + ' •••• ' + String((R() * 9000 + 1000) | 0); }
 
-  hour() { return Math.floor(this.minute / 60) % 24; }
-  clock() { const m = Math.floor(this.minute) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; }
+  hour() { return Math.floor(this.romeHour()) % 24; }
+  clock() { const m = Math.floor(this.romeHour() * 60) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; }
   /** How busy the city is right now, 0..1 */
-  busy() { const h = (this.minute / 60) % 24; let s = 0; for (const c of CATS) s += WEIGHT[c] * lerpH(PROFILE[c], h); return s / 2.4; }
+  busy() {
+    if (this.remote) return this.remoteBusy; const h = (this.minute / 60) % 24; let s = 0; for (const c of CATS) s += WEIGHT[c] * lerpH(PROFILE[c], h); return s / 2.4; }
 
   private pickVenue(a: Account, cat: Cat): Venue | null {
     const R = this.R;
@@ -183,6 +258,7 @@ export class CitySim {
   }
 
   step(dt: number) {
+    if (this.remote) { this.stepRemote(dt); return; }
     const prev = this.minute;
     this.minute += dt * this.speed;
     if (Math.floor(this.minute / 1440) !== Math.floor(prev / 1440)) this.newDay();
@@ -206,6 +282,22 @@ export class CitySim {
     while (this.window.length && now - this.window[0] > 4000) this.window.shift();
     // payments per simulated minute
     this.stats.perMin = this.window.length / 4 / Math.max(0.0001, this.speed);
+  }
+
+  private stepRemote(dt: number) {
+    const playT = Date.now() / 1000 + this.offset - CitySim.DELAY;
+    let k = 0;
+    while (this.queue.length && this.queue[0].t <= playT) {
+      const tx = this.queue.shift()!;
+      if (this.mine.has(tx.id)) continue;   // the visitor's own payment was drawn the moment it was approved
+      // a tab that slept: book what it missed without drawing a storm of arcs
+      this.play(tx, playT - tx.t < 8 && k++ < 40);
+    }
+    const kd = Math.exp(-dt * 3.2);
+    for (let i = 0; i < this.bPulse.length; i++) if (this.bPulse[i] > 0.002) this.bPulse[i] *= kd; else this.bPulse[i] = 0;
+    const now = performance.now();
+    while (this.window.length && now - this.window[0] > 60000) this.window.shift();
+    this.stats.perMin = this.window.length;
   }
 
   private newDay() {

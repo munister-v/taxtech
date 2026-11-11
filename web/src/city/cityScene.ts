@@ -214,7 +214,8 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     // roof outlines: the crisp edge that makes the blocks read at any distance
     const eg = new THREE.BufferGeometry();
     eg.setAttribute('position', new THREE.Float32BufferAttribute(edges, 3));
-    scene.add(new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: 0x5a5f70, transparent: true, opacity: 0.38, fog: true, depthWrite: false })));
+    // (not on the landing: fine lines under a moving camera shimmer)
+    if (!preview) scene.add(new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: 0x5a5f70, transparent: true, opacity: 0.38, fog: true, depthWrite: false })));
   }
 
   // ── Places: a small dot on each roof, visible when close ──
@@ -260,7 +261,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     const pts = new THREE.Points(g, m);
     pts.frustumCulled = false;
     pts.renderOrder = 2;
-    scene.add(pts);
+    if (!preview) scene.add(pts);
   }
 
   // ── Payments: thin arcs with a short trail, a small head ──
@@ -423,7 +424,8 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   controls.enableDamping = true; controls.dampingFactor = 0.07;
   controls.maxPolarAngle = 1.3; controls.minDistance = 90; controls.maxDistance = 5200;
   controls.autoRotateSpeed = preview ? 0.4 : 0.18;
-  controls.autoRotate = true;
+  // the landing holds still: no rotation, nothing for the eye to chase
+  controls.autoRotate = !preview;
   controls.zoomToCursor = true;
   controls.enabled = !preview;
   let lastUser = performance.now();
@@ -434,7 +436,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.4, 0.82));
+  if (!preview) composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.4, 0.82));
   composer.addPass(new OutputPass());
 
   const resize = () => {
@@ -559,7 +561,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
       controls.target.lerpVectors(fly.fromT, fly.toT, e);
       camera.position.lerpVectors(fly.fromP, fly.toP, e);
       if (k >= 1) fly = null;
-    } else if (!preview && !controls.autoRotate && performance.now() - lastUser > 20000 && !selV) controls.autoRotate = true;
+    } else if (!preview && !controls.autoRotate && performance.now() - lastUser > 30000 && !selV) controls.autoRotate = true;
     controls.target.x = Math.max(bx0, Math.min(bx1, controls.target.x));
     controls.target.z = Math.max(-by1, Math.min(-by0, controls.target.z));
     controls.update(dt);

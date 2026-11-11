@@ -37,7 +37,8 @@ _schema_ready = False
 
 MCC = {'cafe': '5814', 'transport': '4121', 'books': '5942', 'fashion': '5651', 'travel': '7011',
        'groceries': '5411', 'restaurant': '5812', 'pharmacy': '5912', 'cinema': '7832', 'transit': '4111',
-       'fuel': '5541', 'sport': '7997', 'telecom': '4814', 'flowers': '5992', 'tickets': '7991', 'electronics': '5732'}
+       'fuel': '5541', 'sport': '7997', 'telecom': '4814', 'flowers': '5992', 'tickets': '7991', 'electronics': '5732',
+       'bar': '5813', 'hotel': '7011', 'museum': '7991', 'shop': '5999', 'cash': '6011'}
 
 CODES = {
     '00': 'Approved',
@@ -195,9 +196,10 @@ def _slug(merchant: str) -> str:
     return re.sub(r'[^A-Z0-9]+', '-', merchant.upper()).strip('-')[:24] or 'MERCHANT'
 
 
-def _authorize(preauth: bool):
+def _authorize(preauth: bool, data: dict[str, Any] | None = None):
+    """Authorisation for /pos/pay and /pos/preauth; Roma Live (city_routes.py) calls it with its own body."""
     _ensure_schema()
-    data = request.get_json(silent=True) or {}
+    data = data if data is not None else (request.get_json(silent=True) or {})
     user_id = int(g.current_user['id'])
     merchant = re.sub(r'\s+', ' ', str(data.get('merchant') or '').strip())[:80]
     category = str(data.get('category') or '').strip()[:40]
