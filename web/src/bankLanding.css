@@ -277,6 +277,44 @@
 .bl .bl-seg button { padding: 10px 6px; border-radius: 980px; font-size: 14px; color: #d4d4dc; white-space: nowrap; transition: background .25s, color .25s; }
 .bl .bl-seg button.on { background: var(--yellow); color: #14120a; font-weight: 600; }
 
+/* Roma Live: the 3D city behind the copy, a shade from the left so the words stay readable */
+.bl-city { position: relative; min-height: min(100svh, 920px); display: flex; align-items: flex-end; overflow: hidden; background: #040507; isolation: isolate; }
+.bl-city .cl-prev { z-index: -2; }
+.bl-city-shade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgba(4,5,7,.88) 0%, rgba(4,5,7,.5) 34%, rgba(4,5,7,0) 62%), linear-gradient(0deg, #040507 0%, rgba(4,5,7,0) 30%), linear-gradient(180deg, #000 0%, rgba(4,5,7,0) 16%); }
+.bl-city-in { position: relative; width: 100%; padding-bottom: 104px; pointer-events: none; }
+.bl-city-in > * { pointer-events: auto; }
+.bl-city .bl-h-xl { margin: 0 0 30px; max-width: 8ch; }
+.bl-city-nums { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 12px 40px; margin: 0 0 34px; font-variant-numeric: tabular-nums; }
+.bl-city-nums dt { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: rgba(255,255,255,.5); margin-bottom: 6px; }
+.bl-city-nums dd { margin: 0; font-size: clamp(22px, 2.4vw, 32px); font-weight: 600; letter-spacing: -.03em; }
+.bl-city-nums dd small { font-size: 12px; color: rgba(255,255,255,.5); letter-spacing: .06em; }
+.bl-city .bl-pill i { font-style: normal; margin-left: 10px; }
+@media (max-width: 734px) {
+  .bl-city { min-height: 88svh; }
+  .bl-city-in { padding-bottom: 64px; }
+  .bl-city-nums { grid-template-columns: repeat(2, auto); gap: 14px 32px; }
+  .bl-city-shade { background: linear-gradient(0deg, #040507 0%, rgba(4,5,7,.85) 38%, rgba(4,5,7,0) 70%), linear-gradient(180deg, #000 0%, rgba(4,5,7,0) 14%); }
+}
+
+/* Saint Agnes, small: one quiet row */
+.bl-shopmini { padding: 56px 0 64px; background: #040507; border-top: 1px solid rgba(255,255,255,.07); }
+.bl-shopmini-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.bl-shopmini-head h3 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.bl-shopmini-head a { color: rgba(255,255,255,.62); text-decoration: none; font-size: 14px; }
+.bl-shopmini-head a:hover { color: #fff; }
+.bl-shopmini-head a i { font-style: normal; margin-left: 6px; }
+.bl-shopmini-row { display: grid; grid-template-columns: repeat(4, minmax(0, 170px)); gap: 14px; }
+.bl-shopmini-item { display: grid; gap: 6px; color: inherit; text-decoration: none; }
+.bl-shopmini-item img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; background: #111; filter: saturate(.92); transition: filter .3s; }
+.bl-shopmini-item:hover img { filter: saturate(1.05) brightness(1.05); }
+.bl-shopmini-item span { font-size: 13px; color: rgba(255,255,255,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bl-shopmini-item b { font-size: 14px; font-weight: 600; }
+.bl-shopmini-item b small { font-size: 11px; color: rgba(255,255,255,.5); }
+@media (max-width: 734px) {
+  .bl-shopmini-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -20px; padding: 0 20px; scrollbar-width: none; }
+  .bl-shopmini-item { flex: 0 0 42%; scroll-snap-align: start; }
+}
+
 /* Security */
 
 /* Saint Agnes: a cream lookbook page, the colours of the shop */

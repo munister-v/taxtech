@@ -10,9 +10,10 @@ import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import { autoplay } from './autoplay';
 import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
-import ShopWindow from './ShopWindow';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
+
+const CityPreview = React.lazy(() => import('./city/CityLive').then(m => ({ default: m.CityPreview })));
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
 // guilloche rosette and engraved medallions as the app, the Rome card photos from web/public/cards/ and live
@@ -339,6 +340,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
   }, [menu]);
   const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
+  const [city, setCity] = useState<{ vol: number; n: number; clock: string; venues: number } | null>(null);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
   // Debit notification as the app sends it: icon, app name, "now", what was charged and what is left.
   const push = (merchant: string, amount: number, bal: number) => (
@@ -468,7 +470,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
 
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#shop', 'Saint Agnes'], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#faq', t('Питання', 'Questions')]];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#city', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#faq', t('Питання', 'Questions')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (
@@ -637,18 +639,42 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </section>
 
-        {/* ── Saint Agnes: a cream lookbook page like the shop itself; the shoot on the left, four pieces priced in TAX ── */}
-        <Lazy id="shop" className="bl-shopx" h={[1400, 1225]}>
-          <div className="bl-wrap">
-            <div className="bl-shopx-head bl-rv">
-              <div>
-                <h2 className="bl-h bl-h-xl">{t('Осінь у Saint Agnes.', 'Autumn at Saint Agnes.')}</h2>
-              </div>
-              <a className="bl-shopx-go" href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
+        {/* ── Roma Live: the whole city paying, the real places of central Rome lit by their turnover; opens /roma ── */}
+        <Lazy id="city" className="bl-city" h={[920, 760]}>
+          <React.Suspense fallback={null}><CityPreview onStats={setCity} /></React.Suspense>
+          <div className="bl-city-shade" aria-hidden />
+          <div className="bl-wrap bl-city-in">
+            <h2 className="bl-h bl-h-xl bl-rv">{t('Рим наживо.', 'Rome, live.')}</h2>
+            <dl className="bl-city-nums bl-rv">
+              <div><dt>{t('Оборот', 'Turnover')}</dt><dd>{city ? fmt(Math.round(city.vol)) : '—'} <small>TAX</small></dd></div>
+              <div><dt>{t('Платежі', 'Payments')}</dt><dd>{city ? fmt(city.n) : '—'}</dd></div>
+              <div><dt>{t('Місця', 'Places')}</dt><dd>{city ? fmt(city.venues) : '4 551'}</dd></div>
+              <div><dt>Roma</dt><dd>{city?.clock || '18:40'}</dd></div>
+            </dl>
+            <div className="bl-cta bl-rv">
+              <a className="bl-pill" href="/roma">{t('Відкрити карту', 'Open the map')}<i aria-hidden>→</i></a>
             </div>
-            <ShopWindow items={shop} wall="/shop/hero-autumn.webp" t={t} fmt={fmt} push={push} />
           </div>
         </Lazy>
+
+        {/* ── Saint Agnes, small: four pieces in TAX and a link to the shop ── */}
+        <section id="shop" className="bl-shopmini">
+          <div className="bl-wrap">
+            <div className="bl-shopmini-head">
+              <h3>Saint Agnes</h3>
+              <a href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
+            </div>
+            <div className="bl-shopmini-row">
+              {shop.map(p => (
+                <a key={p.id} className="bl-shopmini-item" href={SHOP_URL} target="_blank" rel="noreferrer">
+                  <img src={p.image_url} alt="" loading="lazy" decoding="async" />
+                  <span>{p.title.replace(/\s*\([^)]*\)\s*$/, '')}</span>
+                  <b>{fmt(Number(p.price))} <small>TAX</small></b>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
