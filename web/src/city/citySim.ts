@@ -12,15 +12,18 @@ export const CAT_COLOR: Record<Cat, string> = {
 export type CityData = {
   origin: [number, number];
   bounds: [number, number, number, number];
-  b: number[][];                       // [height, x0, y0, x1, y1, …]
-  v: [number, number, string, string, number, string][]; // x, y, cat, name, building, subtype
+  b: [number, ...number[][]][];       // [height, outer ring [x0, y0, x1, y1, …], courtyard rings…]
+  v: [number, number, string, string, number, string, VenueInfo?][]; // x, y, cat, name, building, subtype, details
   roads: Record<'major' | 'mid' | 'minor' | 'foot', number[][]>;
-  river: number[][]; water: number[][]; parks: number[][];
+  river: number[][];
+  areas: Record<'park' | 'water' | 'square', number[][][]>;
+  labels: [number, number, string, number][]; // x, y, name, 0 rione | 1 landmark | 2 piazza
 };
+export type VenueInfo = { a?: string; h?: string; c?: string; s?: string };
 
 export type Venue = {
-  i: number; x: number; y: number; z: number; cat: Cat; name: string; b: number; sub: string;
-  pop: number; rev: number; n: number; hours: Float32Array; last: Tx[];
+  i: number; x: number; y: number; z: number; cat: Cat; name: string; b: number; sub: string; info: VenueInfo; rione: string;
+  pop: number; rev: number; n: number; hours: Float32Array; last: Tx[]; mix: [number, number, number];
 };
 export type Account = { i: number; id: string; kind: 'resident' | 'tourist' | 'commuter'; hx: number; hy: number; x: number; y: number; lastT: number; recent: number[]; bal: number; you?: boolean; name?: string };
 export type Tx = {
@@ -56,6 +59,8 @@ export class CitySim {
   on: Record<Cat, boolean> = { food: true, cafe: true, bar: true, shop: true, stay: true, culture: true, money: true, health: true };
   stats = { vol: 0, n: 0, declined: 0, perMin: 0, byCat: {} as Record<Cat, number> };
   feed: Tx[] = [];
+  cityHours = new Float32Array(24);
+  reasons = { velocity: 0, travel: 0, limit: 0, funds: 0 };
   private seq = 1;
   private acc = 0;
   private window: number[] = [];
@@ -66,16 +71,18 @@ export class CitySim {
   constructor(public D: CityData) {
     const R = this.R;
     this.heights = new Float32Array(D.b.length);
-    D.b.forEach((b, i) => { this.heights[i] = b[0]; });
+    D.b.forEach((b, i) => { this.heights[i] = b[0] as number; });
+    const rioni = D.labels.filter(l => l[3] === 0);
+    const rioneOf = (x: number, y: number) => { let best = '', bd = 1e9; for (const l of rioni) { const d = Math.hypot(l[0] - x, l[1] - y); if (d < bd) { bd = d; best = l[2]; } } return best; };
     this.bRev = new Float32Array(D.b.length);
     this.bPulse = new Float32Array(D.b.length);
     for (const c of CATS) this.stats.byCat[c] = 0;
-    D.v.forEach(([x, y, cat, name, b, sub], i) => {
+    D.v.forEach(([x, y, cat, name, b, sub, info], i) => {
       const c = cat as Cat;
       // log-normal popularity, landmarks and big hotels draw more
       let pop = Math.exp((R() + R() + R() - 1.5) * 1.3);
       if (sub === 'attraction' || sub === 'museum') pop *= 2.2;
-      const v: Venue = { i, x, y, z: b >= 0 ? this.heights[b] + 2 : 3, cat: c, name, b, sub, pop, rev: 0, n: 0, hours: new Float32Array(24), last: [] };
+      const v: Venue = { i, x, y, z: b >= 0 ? this.heights[b] + 2 : 3, cat: c, name, b, sub, info: info || {}, rione: rioneOf(x, y), pop, rev: 0, n: 0, hours: new Float32Array(24), last: [], mix: [0, 0, 0] };
       this.venues.push(v);
       this.byCat[c].push(v);
       const k = this.key(x, y);
@@ -86,7 +93,7 @@ export class CitySim {
     const shopB = new Set(this.venues.map(v => v.b));
     const homes = D.b.map((_, i) => i).filter(i => !shopB.has(i));
     const hotels = this.byCat.stay;
-    const centre = (i: number) => { const b = D.b[i]; let x = 0, y = 0; const n = (b.length - 1) / 2; for (let k = 1; k < b.length; k += 2) { x += b[k]; y += b[k + 1]; } return [x / n, y / n]; };
+    const centre = (i: number) => { const r = D.b[i][1] as number[]; let x = 0, y = 0; const n = r.length / 2; for (let k = 0; k < r.length; k += 2) { x += r[k]; y += r[k + 1]; } return [x / n, y / n]; };
     const [bx0, by0, bx1, by1] = D.bounds;
     for (let i = 0; i < 9000; i++) {
       const r = R();
@@ -148,10 +155,11 @@ export class CitySim {
     a.recent.push(t);
     if (ok) {
       a.bal -= amount; a.x = v.x; a.y = v.y; a.lastT = t;
-      v.rev += amount; v.n++; v.hours[this.hour()] += amount;
+      v.rev += amount; v.n++; v.hours[this.hour()] += amount; v.mix[a.kind === 'resident' ? 0 : a.kind === 'tourist' ? 1 : 2]++;
+      this.cityHours[this.hour()] += amount;
       if (v.b >= 0) { this.bRev[v.b] += amount; this.bPulse[v.b] = 1; }
       this.stats.vol += amount; this.stats.n++; this.stats.byCat[v.cat] += amount;
-    } else this.stats.declined++;
+    } else { this.stats.declined++; this.reasons[reason!]++; }
     v.last.unshift(tx); if (v.last.length > 6) v.last.pop();
     this.feed.unshift(tx); if (this.feed.length > 40) this.feed.pop();
     this.window.push(performance.now());
@@ -179,7 +187,7 @@ export class CitySim {
     this.minute += dt * this.speed;
     if (Math.floor(this.minute / 1440) !== Math.floor(prev / 1440)) this.newDay();
     // payments per real second: the city's pulse times the visual rate
-    this.acc += dt * (3 + 24 * this.busy()) * this.rate * Math.min(2.2, 0.7 + this.speed / 5);
+    this.acc += dt * (2 + 13 * this.busy()) * this.rate * Math.min(2, 0.7 + this.speed / 6);
     let guard = 0;
     while (this.acc >= 1 && guard++ < 60) {
       this.acc -= 1;
@@ -203,7 +211,9 @@ export class CitySim {
   private newDay() {
     this.day++;
     this.bRev.fill(0);
-    for (const v of this.venues) { v.rev = 0; v.n = 0; v.hours.fill(0); }
+    for (const v of this.venues) { v.rev = 0; v.n = 0; v.hours.fill(0); v.mix = [0, 0, 0]; }
+    this.cityHours.fill(0);
+    this.reasons = { velocity: 0, travel: 0, limit: 0, funds: 0 };
     this.stats.vol = 0; this.stats.n = 0; this.stats.declined = 0;
     for (const c of CATS) this.stats.byCat[c] = 0;
     for (const a of this.accounts) a.bal += a.kind === 'tourist' ? 9000 : 1200;
@@ -232,6 +242,9 @@ export class CitySim {
     for (const v of this.venues) { if (v.name.toLowerCase().includes(s)) { out.push(v); if (out.length >= 40) break; } }
     return out.sort((a, b) => (a.name.toLowerCase().startsWith(s) ? 0 : 1) - (b.name.toLowerCase().startsWith(s) ? 0 : 1) || b.pop - a.pop).slice(0, n);
   }
+
+  /** Rank of a place among its kind by today's turnover, 1-based */
+  rank(v: Venue) { let r = 1; for (const o of this.byCat[v.cat]) if (o.rev > v.rev) r++; return r; }
 
   top(n = 5) { return [...this.venues].sort((a, b) => b.rev - a.rev).slice(0, n); }
 }
