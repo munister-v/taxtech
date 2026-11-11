@@ -51,7 +51,11 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(BG, 2400, 6800);
   const camera = new THREE.PerspectiveCamera(36, 1, 5, 24000);
-  const uniforms = { uTime: { value: 0 }, uFogNear: { value: 2400 }, uFogFar: { value: 6800 }, uBg: { value: new THREE.Color(BG) } };
+  const uniforms = { uTime: { value: 0 }, uFogNear: { value: 2400 }, uFogFar: { value: 6800 }, uBg: { value: new THREE.Color(BG) }, uNight: { value: 1 } };
+  // the light follows Rome's clock: travertine by day, lit windows by night, dawn and dusk in between
+  const BG_NIGHT = new THREE.Color(BG), BG_DAY = new THREE.Color(0x101219);
+  const GROUND_NIGHT = new THREE.Color(0x090a0f), GROUND_DAY = new THREE.Color(0x16171c);
+  const nightAt = (h: number) => { const sm = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }; return 1 - sm(5.8, 8, h) + sm(18.6, 20.6, h); };
 
   // ── Heat: building turnover (eased), selection, has-places; venue selection ──
   const nb = D.b.length;
@@ -173,7 +177,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
           gl_Position = projectionMatrix * mv;
         }`,
       fragmentShader: /* glsl */`
-        uniform vec3 uBg; uniform float uFogNear; uniform float uFogFar;
+        uniform vec3 uBg; uniform float uFogNear; uniform float uFogFar; uniform float uNight;
         varying vec3 vN; varying float vY; varying float vU; varying vec4 vHeat; varying float vDist; varying float vId;
         ${RAMP}
         float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
@@ -181,8 +185,8 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
           float lv = vHeat.r, sel = vHeat.b, has = vHeat.a;
           vec3 n = normalize(vN);
           float roof = step(.5, n.y);
-          float light = .5 + .5 * max(dot(n, normalize(vec3(.35, .9, .25))), 0.0);
-          vec3 stone = vec3(.17, .175, .2);
+          float light = mix(.42, .5, uNight) + mix(.62, .5, uNight) * max(dot(n, normalize(vec3(.35, .9, .25))), 0.0);
+          vec3 stone = mix(vec3(.36, .31, .25), vec3(.17, .175, .2), uNight);
           vec3 heat = ramp(lv);
           float lit = has * smoothstep(0.0, .06, lv);
           vec3 col;
@@ -197,7 +201,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
             float win = step(.26, f.x) * step(f.x, .74) * step(.28, f.y) * step(f.y, .8) * step(1.0, cell.y);
             float h = hash(vec3(floor(cell), vId));
             col *= 1.0 - win * aa * .4;
-            col += win * aa * step(.68, h) * vec3(1.0, .74, .42) * (.09 + .16 * h);
+            col += win * aa * step(mix(.9, .62, uNight), h) * vec3(1.0, .74, .42) * (.09 + .16 * h) * (.4 + .6 * uNight);
             // shopfronts: the ground floor glows with the day's turnover
             float shop = (1.0 - step(1.0, cell.y)) * step(.15, f.x) * step(f.x, .85) * step(.12, f.y) * step(f.y, .8);
             col += shop * aa * lit * heat * .28;
@@ -535,6 +539,15 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     const dt = Math.min(0.1, (t - last) / 1000);
     last = t;
     uniforms.uTime.value = now();
+    if (frame % 60 === 0) {
+      const forced = Number(new URLSearchParams(location.search).get('light'));   // ?light=13 shows 13:00 light
+      const nt = nightAt(Number.isFinite(forced) && forced > 0 ? forced : sim.romeHour());
+      uniforms.uNight.value = nt;
+      uniforms.uBg.value.copy(BG_DAY).lerp(BG_NIGHT, nt);
+      renderer.setClearColor(uniforms.uBg.value, 1);
+      (scene.fog as THREE.Fog).color.copy(uniforms.uBg.value);
+      (ground.material as THREE.MeshBasicMaterial).color.copy(GROUND_DAY).lerp(GROUND_NIGHT, nt);
+    }
     sim.step(dt);
     flush();
 

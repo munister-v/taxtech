@@ -4629,6 +4629,13 @@ function OverviewScreen() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8 }}>
         {quickActions.map(a => <Fragment key={a.label}><QuickAction icon={a.icon} label={a.label} onClick={() => handleQuickAction(a.action)} /></Fragment>)}
       </div>
+      {/* Roma Live: the city the card pays in, one tap away */}
+      <a href="/roma" style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, padding: '12px 14px', borderRadius: 14, textDecoration: 'none',
+        background: 'linear-gradient(110deg, #0b0c11 0%, #1a1020 55%, #3a1622 100%)', color: '#ecebe6', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06)' }}>
+        <span style={{ width: 7, height: 7, borderRadius: 7, background: '#ff3b47', boxShadow: '0 0 0 3px rgba(255,59,71,0.18)', flex: 'none' }} />
+        <span style={{ fontWeight: 600, fontSize: 15 }}>Roma <span style={{ color: '#ffd400' }}>Live</span></span>
+        <span style={{ marginLeft: 'auto', fontSize: 18, opacity: 0.7 }}>→</span>
+      </a>
     </div>
   );
 
@@ -10384,6 +10391,8 @@ export default function App({ initialAuthView }: { initialAuthView?: 'login' | '
   if (!authed) {
     // Sign-in sits outside the banking layout but still needs the chosen language.
     return <PreferencesCtx.Provider value={preferencesCtx}><LoginScreen key={authView} initialMode={authView === 'register' ? 'register' : 'login'} onBack={() => setAuthView('promo')} onLogin={() => {
+      // came from Roma Live's "Sign in to pay": go back to the map, now signed in
+      try { const next = sessionStorage.getItem('tt-after-login'); sessionStorage.removeItem('tt-after-login'); if (next === '/roma') { location.replace('/roma'); return; } } catch { /* ignore */ }
       markAppContinuation();  // prevent splash replay on next open
       setLoadingData(true);   // show spinner immediately, skip empty-screen flash
       setAuthed(true);

@@ -18,6 +18,7 @@ const loadScene = () => import('./cityScene');
 const fmt = (n: number) => Math.round(n).toLocaleString('uk-UA').replace(/\s/g, ' ');
 const short = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace('.', ',') + ' M' : n >= 1e4 ? Math.round(n / 1e3) + ' k' : fmt(n);
 
+const afterLogin = () => { try { sessionStorage.setItem('tt-after-login', '/roma'); } catch { /* ignore */ } };
 const token = () => { try { return localStorage.getItem('army_bank_token') || ''; } catch { return ''; } };
 type ApiErr = Error & { status?: number };
 async function api<T>(path: string, body?: unknown): Promise<T> {
@@ -311,7 +312,7 @@ export default function CityLive() {
             {CHIPS[sel.cat].map(a => <button key={a} type="button" disabled={paying || !online} onClick={() => pay(sel, a)}>{fmt(a)}{a >= 1000 ? <small>3DS</small> : null}</button>)}
           </div>
         ) : me === null ? (
-          <a className="cl-btn cl-btn-y cl-wide" href="/#login">{t('Увійти, щоб платити', 'Sign in to pay')}</a>
+          <a className="cl-btn cl-btn-y cl-wide" href="/#login" onClick={afterLogin}>{t('Увійти, щоб платити', 'Sign in to pay')}</a>
         ) : null}
       </section>
     );
@@ -343,7 +344,7 @@ export default function CityLive() {
           <button type="button" className={`cl-ib cl-hide-m${labels ? ' on' : ''}`} aria-label={t('Підписи', 'Labels')} title={t('Підписи', 'Labels')} onClick={() => setLabels(l => !l)}>{Ico.tag}</button>
           <button type="button" className="cl-ib cl-hide-m" aria-label={t('Весь Рим', 'All of Rome')} title={t('Весь Рим', 'All of Rome')} onClick={() => { pick(null); apiRef.current?.home(); }}>{Ico.home}</button>
           <div className="cl-lang">{LANDING_LANGS.map(l => <button key={l.id} type="button" className={lang === l.id ? 'on' : ''} onClick={() => setLang(l.id)}>{l.label}</button>)}</div>
-          {me === null && <a className="cl-btn cl-btn-y" href="/#register">{t('Відкрити рахунок', 'Open account')}</a>}
+          {me === null && <a className="cl-btn cl-btn-y" href="/#register" onClick={afterLogin}>{t('Відкрити рахунок', 'Open account')}</a>}
         </div>
       </header>
 
@@ -407,7 +408,7 @@ export default function CityLive() {
               <strong>{fmt(me.balance)}<small>TAX</small></strong>
             </a>
           ) : me === null ? (
-            <a className="cl-btn cl-btn-glass" href="/#login">{t('Увійти', 'Sign in')}</a>
+            <a className="cl-btn cl-btn-glass" href="/#login" onClick={afterLogin}>{t('Увійти', 'Sign in')}</a>
           ) : null}
           {flash && <div className={`cl-flash${flash.ok ? '' : ' no'}`}>{flash.text}{flash.sub && <small>{flash.sub}</small>}</div>}
         </div>
