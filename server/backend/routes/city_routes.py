@@ -114,3 +114,118 @@ def city_pay():
                            _who(uid), d.get('id'), at)
         cs._cache.clear()
     return jsonify(out)
+
+
+# ── QR payments ──────────────────────────────────────────────────────────────────────────────────────────────
+# The map (or any screen) asks for a QR invoice for a place and an amount; the code opens /pay/<code> on a phone,
+# the signed-in payer confirms there and the payment goes through the same POS pipeline. The screen that shows
+# the code polls its status. An invoice lives 5 minutes and is paid at most once.
+import secrets
+
+QR_TTL = 300
+
+
+def _qr_row(r) -> dict:
+    v = cs.city().venues[int(r['venue'])]
+    now = time.time()
+    status = r['status']
+    if status == 'pending' and now > float(r['expires_ts']):
+        status = 'expired'
+    out = {'code': r['code'], 'venue': int(r['venue']), 'name': v[3], 'cat': v[2], 'rione': v[4], 'amount': float(r['amount']),
+           'status': status, 'expires_in': max(0, int(float(r['expires_ts']) - now)), 'sca': float(r['amount']) >= 1000}
+    if status in ('paid', 'declined'):
+        out.update({'response_code': r['response_code'], 'auth_code': r['auth_code'], 'rrn': r['rrn'], 'who': r['who'],
+                    'three_ds': bool(r['three_ds'])})
+    return out
+
+
+def _qr_load(conn, code: str):
+    return conn.execute('SELECT * FROM city_qr WHERE code = %s', (code[:24],)).fetchone()
+
+
+@city_bp.post('/city/qr')
+@rate_limit(20, 600, key_func=lambda: f"city-qr:{request.remote_addr}")
+def qr_create():
+    cs.ensure_schema()
+    data = request.get_json(silent=True) or {}
+    try:
+        vid = int(data.get('venue'))
+        amount = round(float(data.get('amount') or 0), 2)
+    except (TypeError, ValueError):
+        return api_error('venue and amount are required')
+    if vid < 0 or vid >= len(cs.city().venues) or amount <= 0 or amount > 30000:
+        return api_error('venue and amount from 0.01 to 30000 are required')
+    code = secrets.token_urlsafe(9)
+    now = time.time()
+    with get_connection() as conn:
+        conn.execute('INSERT INTO city_qr(code, venue, amount, status, created_ts, expires_ts) VALUES (%s, %s, %s, %s, %s, %s)',
+                     (code, vid, amount, 'pending', now, now + QR_TTL))
+        r = _qr_load(conn, code)
+    return jsonify({'ok': True, 'data': _qr_row(r)})
+
+
+@city_bp.get('/city/qr/<code>')
+def qr_get(code: str):
+    cs.ensure_schema()
+    with get_connection() as conn:
+        r = _qr_load(conn, code)
+    if not r:
+        return api_error('Not found', 404)
+    return jsonify({'ok': True, 'data': _qr_row(r)})
+
+
+@city_bp.post('/city/qr/<code>/cancel')
+def qr_cancel(code: str):
+    cs.ensure_schema()
+    with get_connection() as conn:
+        conn.execute("UPDATE city_qr SET status = 'cancelled' WHERE code = %s AND status = 'pending'", (code[:24],))
+        r = _qr_load(conn, code)
+    if not r:
+        return api_error('Not found', 404)
+    return jsonify({'ok': True, 'data': _qr_row(r)})
+
+
+@city_bp.post('/city/qr/<code>/confirm')
+@auth_required
+@rate_limit(30, 600, key_func=lambda: f"pos-pay:{g.current_user['id']}")
+def qr_confirm(code: str):
+    """The payer confirms on the phone. 3-D Secure from 1000 TAX: the first call answers sca_required."""
+    cs.ensure_schema()
+    uid = int(g.current_user['id'])
+    data = request.get_json(silent=True) or {}
+    with get_connection() as conn:
+        r = _qr_load(conn, code)
+        if not r:
+            return api_error('Not found', 404)
+        if r['status'] != 'pending' or time.time() > float(r['expires_ts']):
+            return jsonify({'ok': True, 'data': {**_qr_row(r), 'outcome': 'closed'}})
+        # one confirmation at a time: take the invoice
+        took = conn.execute("UPDATE city_qr SET status = 'processing' WHERE code = %s AND status = 'pending'", (r['code'],))
+        if getattr(took, 'rowcount', 1) == 0:
+            return api_error('Already being paid', 409)
+    vid, amount = int(r['venue']), float(r['amount'])
+    v = cs.city().venues[vid]
+    body = {'merchant': f'Roma · {v[3]}'[:80], 'category': POS_CAT.get(v[2], 'shop'), 'amount': amount,
+            'tds_session': data.get('tds_session') or '', 'card_id': data.get('card_id') or 0}
+    resp = _authorize(False, body)
+    if isinstance(resp, tuple):
+        with get_connection() as conn:
+            conn.execute("UPDATE city_qr SET status = 'pending' WHERE code = %s", (r['code'],))
+        return resp
+    d = (resp.get_json() or {}).get('data') or {}
+    outcome = d.get('outcome')
+    with get_connection() as conn:
+        if outcome == 'sca_required':
+            conn.execute("UPDATE city_qr SET status = 'pending' WHERE code = %s", (r['code'],))
+        else:
+            ok = outcome == 'approved'
+            conn.execute('UPDATE city_qr SET status = %s, payer_user_id = %s, pos_id = %s, response_code = %s, auth_code = %s, rrn = %s, '
+                         'who = %s, three_ds = %s, paid_ts = %s WHERE code = %s',
+                         ('paid' if ok else 'declined', uid, d.get('id'), d.get('response_code'), d.get('auth_code'), d.get('rrn'),
+                          _who(uid), 1 if d.get('three_ds') else 0, time.time(), r['code']))
+            cs.record_user(conn, uid, vid, amount, ok, None if ok else REASON_BY_CODE.get(str(d.get('response_code')), 'limit'),
+                           _who(uid), d.get('id'), None)
+            cs._cache.clear()
+        q = _qr_load(conn, r['code'])
+    return jsonify({'ok': True, 'data': {**_qr_row(q), 'outcome': outcome, 'new_balance': d.get('new_balance'),
+                                         'message': d.get('message'), 'fee': d.get('fee')}})

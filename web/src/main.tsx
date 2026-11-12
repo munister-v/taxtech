@@ -7,6 +7,7 @@ import BankLanding from './BankLanding';
 type AuthView = 'login' | 'register';
 const loadApp = () => import('./App.tsx');
 const CityLive = lazy(() => import('./city/CityLive'));
+const PayQR = lazy(() => import('./city/PayQR'));
 const App = lazy(() => loadApp().then(m => ({
   default: (p: { initialAuthView?: AuthView }) => <m.ErrorBoundary><m.default {...p} /></m.ErrorBoundary>,
 })));
@@ -27,6 +28,8 @@ function Root() {
     const go = () => { if (window.requestIdleCallback) window.requestIdleCallback(run, { timeout: 6000 }); else window.setTimeout(run, 4000); };
     if (document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true });
   }, [view]);
+  const payCode = location.pathname.match(/^\/pay\/([\w-]{6,24})\/?$/)?.[1];
+  if (payCode) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#05060a' }} />}><PayQR code={payCode} /></Suspense>;
   if (/^\/roma\/?$/.test(location.pathname)) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#040507' }} />}><CityLive /></Suspense>;
   if (!view) return <BankLanding onAuth={setView} />;
   return (

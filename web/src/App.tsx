@@ -10392,7 +10392,7 @@ export default function App({ initialAuthView }: { initialAuthView?: 'login' | '
     // Sign-in sits outside the banking layout but still needs the chosen language.
     return <PreferencesCtx.Provider value={preferencesCtx}><LoginScreen key={authView} initialMode={authView === 'register' ? 'register' : 'login'} onBack={() => setAuthView('promo')} onLogin={() => {
       // came from Roma Live's "Sign in to pay": go back to the map, now signed in
-      try { const next = sessionStorage.getItem('tt-after-login'); sessionStorage.removeItem('tt-after-login'); if (next === '/roma') { location.replace('/roma'); return; } } catch { /* ignore */ }
+      try { const next = sessionStorage.getItem('tt-after-login'); sessionStorage.removeItem('tt-after-login'); if (next && /^\/(roma|pay\/[\w-]+)$/.test(next)) { location.replace(next); return; } } catch { /* ignore */ }
       markAppContinuation();  // prevent splash replay on next open
       setLoadingData(true);   // show spinner immediately, skip empty-screen flash
       setAuthed(true);

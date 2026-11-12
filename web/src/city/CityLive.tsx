@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import qrcode from 'qrcode-generator';
 import romeUrl from './rome.json?url';
 import { CATS, CAT_COLOR, CitySim, type Cat, type CityData, type ServerPay, type ServerStats, type Tx, type Venue } from './citySim';
 import type { SceneApi } from './cityScene';
 import { initialLandingLang, landingText, LANDING_LANGS, saveLandingLang, type LandingLang } from '../landingLang';
+import { api, returnHere, type ApiErr, type Me, type PayRes, type QrInvoice } from './cityApi';
 import './city.css';
 
 // Roma Live (/roma). The city runs on the bank's server (server/backend/services/city_service.py) on Rome's real clock:
@@ -18,18 +20,7 @@ const loadScene = () => import('./cityScene');
 const fmt = (n: number) => Math.round(n).toLocaleString('uk-UA').replace(/\s/g, ' ');
 const short = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace('.', ',') + ' M' : n >= 1e4 ? Math.round(n / 1e3) + ' k' : fmt(n);
 
-const afterLogin = () => { try { sessionStorage.setItem('tt-after-login', '/roma'); } catch { /* ignore */ } };
-const token = () => { try { return localStorage.getItem('army_bank_token') || ''; } catch { return ''; } };
-type ApiErr = Error & { status?: number };
-async function api<T>(path: string, body?: unknown): Promise<T> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  const tk = token();
-  if (tk) headers.Authorization = `Bearer ${tk}`;
-  const r = await fetch(path, { method: body ? 'POST' : 'GET', credentials: 'include', headers, body: body ? JSON.stringify(body) : undefined });
-  const j = await r.json().catch(() => null);
-  if (!r.ok || !j?.ok) { const e: ApiErr = new Error(j?.error || String(r.status)); e.status = r.status; throw e; }
-  return j.data as T;
-}
+const afterLogin = () => returnHere('/roma');
 
 type Live = { now: number; rome: string; hour: number; busy: number; day: string; stats: ServerStats; payments: ServerPay[]; last_id: number };
 
@@ -59,6 +50,17 @@ async function follow(sim: CitySim): Promise<(() => void) | null> {
   }
 }
 
+/** A QR code as one SVG path (dark modules on a light tile, so any phone camera reads it) */
+function QrSvg({ text }: { text: string }) {
+  const q = qrcode(0, 'M');
+  q.addData(text);
+  q.make();
+  const n = q.getModuleCount();
+  let d = '';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return <svg className="cl-qr-svg" viewBox={`-2 -2 ${n + 4} ${n + 4}`} shapeRendering="crispEdges" aria-label="QR"><rect x={-2} y={-2} width={n + 4} height={n + 4} fill="#fff" /><path d={d} fill="#0b0c11" /></svg>;
+}
+
 const CAT_NAME: Record<Cat, [string, string]> = {
   cafe: ['Кава', 'Coffee'], food: ['Їжа', 'Food'], bar: ['Бари', 'Bars'], shop: ['Крамниці', 'Shops'],
   stay: ['Готелі', 'Hotels'], culture: ['Культура', 'Culture'], money: ['Банки', 'Banks'], health: ['Аптеки', 'Pharmacy'],
@@ -71,9 +73,7 @@ const CHIPS: Record<Cat, number[]> = {
   culture: [380, 720], money: [1000, 3000], health: [160, 420],
 };
 
-type Me = { name: string; who: string; balance: number; card_id: number | null; card_last4: string | null; payments: ServerPay[] };
 type Detail = { id: number; rev: number; n: number; hours: number[]; mix: Record<'res' | 'tou' | 'com' | 'user', number>; rank: number; of: number; last: ServerPay[] };
-type PayRes = { outcome: 'approved' | 'declined' | 'sca_required'; approved: boolean; response_code?: string; message?: string; new_balance?: number; id?: number; auth_code?: string; rrn?: string; fee?: number; three_ds?: boolean };
 type Tds = { venue: Venue; amount: number; challenge: string; otp: string; hint: string; phone?: string; busy?: boolean; err?: string };
 type Flash = { ok: boolean; text: string; sub?: string };
 
@@ -136,6 +136,9 @@ export default function CityLive() {
   const [me, setMe] = useState<Me | null | undefined>(undefined);  // undefined: still asking
   const [paying, setPaying] = useState(false);
   const [tds, setTds] = useState<Tds | null>(null);
+  const [payMode, setPayMode] = useState<'card' | 'qr'>('card');
+  const [ask, setAsk] = useState<{ venue: Venue; amount: number } | null>(null);     // confirm step before a card payment
+  const [qr, setQr] = useState<(QrInvoice & { url: string; at: number }) | null>(null);
   const [flash, setFlash] = useState<Flash | null>(null);
   const [panel, setPanel] = useState<'city' | 'feed' | null>(null);
 
@@ -165,6 +168,8 @@ export default function CityLive() {
     if (s) { m.payments.forEach(p => s.mine.add(p.id)); if (!s.you) s.join(m.name || 'You', 0, 0, m.balance); s.you!.bal = m.balance; s.you!.id = m.who; }
   }).catch(() => setMe(null));
   useEffect(() => { if (ready) loadMe(); }, [ready]);
+  // not signed in on this screen: a QR for a phone is the way to pay
+  useEffect(() => { if (me === null) setPayMode('qr'); }, [me]);
 
   useEffect(() => { if (simRef.current) { simRef.current.on = on; apiRef.current?.setCats(on); } }, [on, ready]);
   useEffect(() => { apiRef.current?.setLabels(labels); }, [labels, ready]);
@@ -196,7 +201,8 @@ export default function CityLive() {
   const pick = (v: Venue | null, fly = true) => {
     setSel(v); apiRef.current?.select(v);
     if (v) apiRef.current?.flyTo(v.x, v.y, fly ? 420 : 520);
-    setQ(''); setSearching(false); setTds(null);
+    setQ(''); setSearching(false); setTds(null); setAsk(null);
+    setQr(old => { if (old && old.status === 'pending') api(`/api/city/qr/${old.code}/cancel`, {}).catch(() => {}); return null; });
     if (v) setPanel(p => (p === 'feed' ? null : p));
   };
   const pickRef = useRef(pick);
@@ -236,6 +242,39 @@ export default function CityLive() {
       setPaying(false);
     }
   };
+
+  // QR: the screen shows a code, a phone confirms it (/pay/<code>), the status comes back here
+  const showQr = async (v: Venue, amount: number) => {
+    try {
+      const q = await api<QrInvoice>('/api/city/qr', { venue: v.i, amount });
+      setQr({ ...q, url: `${location.origin}/pay/${q.code}`, at: Date.now() });
+    } catch (e) { say({ ok: false, text: (e as Error).message }); }
+  };
+  const qrCode = qr?.code, qrStatus = qr?.status;
+  useEffect(() => {
+    if (!qrCode || qrStatus !== 'pending') return;
+    let alive = true;
+    const iv = window.setInterval(async () => {
+      try {
+        const q = await api<QrInvoice>(`/api/city/qr/${qrCode}`);
+        if (!alive) return;
+        setQr(o => (o && o.code === q.code ? { ...o, ...q } : o));
+        if (q.status === 'paid' || q.status === 'declined') {
+          const s = simRef.current, v = s?.venues[q.venue];
+          if (s && v && q.status === 'paid') {
+            // the phone's payment flies in from the street in front of the place
+            s.play({ id: -Date.now(), t: Date.now() / 1000, acc: { i: -1, id: q.who || 'TaxTech', kind: 'resident', hx: 0, hy: 0, x: 0, y: 0, lastT: 0, recent: [], bal: 0, real: true }, venue: v, amount: q.amount, ok: true, fx: v.x - 160, fy: v.y - 110, fz: 1 });
+          }
+          say(q.status === 'paid'
+            ? { ok: true, text: `QR · ${q.name} · −${fmt(q.amount)} TAX`, sub: `${t('Код', 'Auth')} ${q.auth_code} · RRN ${q.rrn}${q.three_ds ? ' · 3-D Secure' : ''}` }
+            : { ok: false, text: `QR · ${t('Відхилено', 'Declined')} · ${q.response_code}` });
+          if (me) loadMe();
+        }
+      } catch { /* keep polling */ }
+    }, 1500);
+    return () => { alive = false; clearInterval(iv); };
+  }, [qrCode, qrStatus]);
+  const qrLeft = qr ? Math.max(0, qr.expires_in - Math.floor((Date.now() - qr.at) / 1000)) : 0;
 
   const confirmTds = async () => {
     if (!tds) return;
@@ -299,7 +338,37 @@ export default function CityLive() {
             {last.slice(0, 5).map(x => <li key={x.id} className={`${x.ok ? '' : 'no'}${x.mine ? ' mine' : x.real ? ' real' : ''}`}><span>{x.mine ? t('Ви', 'You') : x.who}</span><em>{x.ok ? '' : t(...REASON[x.r || 'limit'])}</em><b>{fmt(x.a)}</b></li>)}
           </ul>
         )}
-        {tds && tds.venue === sel ? (
+        <div className="cl-paymode" role="tablist">
+          <button type="button" role="tab" aria-selected={payMode === 'card'} className={payMode === 'card' ? 'on' : ''} onClick={() => { setPayMode('card'); setQr(null); }}>{t('Карткою', 'Card')}</button>
+          <button type="button" role="tab" aria-selected={payMode === 'qr'} className={payMode === 'qr' ? 'on' : ''} onClick={() => { setPayMode('qr'); setAsk(null); setTds(null); }}>QR</button>
+        </div>
+        {payMode === 'qr' ? (
+          qr && qr.venue === sel.i ? (
+            <div className={`cl-qr is-${qr.status}`}>
+              {qr.status === 'pending' || qr.status === 'processing' ? (
+                <>
+                  <a href={qr.url} target="_blank" rel="noreferrer" className="cl-qr-tile"><QrSvg text={qr.url} /></a>
+                  <div className="cl-qr-side">
+                    <b>{fmt(qr.amount)} <small>TAX</small></b>
+                    <span>{t('Скануйте телефоном і підтвердьте', 'Scan with a phone and confirm')}</span>
+                    <em>{qr.status === 'processing' ? t('Підтверджується…', 'Confirming…') : `${Math.floor(qrLeft / 60)}:${String(qrLeft % 60).padStart(2, '0')}`}</em>
+                    <button type="button" className="cl-link" onClick={() => { api(`/api/city/qr/${qr.code}/cancel`, {}).catch(() => {}); setQr(null); }}>{t('Скасувати', 'Cancel')}</button>
+                  </div>
+                </>
+              ) : (
+                <div className="cl-qr-done">
+                  <b>{qr.status === 'paid' ? `✓ ${t('Оплачено', 'Paid')}` : qr.status === 'declined' ? `✕ ${t('Відхилено', 'Declined')}` : t('Час вийшов', 'Expired')}</b>
+                  {qr.auth_code && <span>{t('Код', 'Auth')} {qr.auth_code} · RRN {qr.rrn}</span>}
+                  <button type="button" className="cl-link" onClick={() => setQr(null)}>{t('Новий код', 'New code')}</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="cl-pay">
+              {CHIPS[sel.cat].map(a => <button key={a} type="button" disabled={!online} onClick={() => showQr(sel, a)}>{fmt(a)}</button>)}
+            </div>
+          )
+        ) : tds && tds.venue === sel ? (
           <form className="cl-tds" onSubmit={e => { e.preventDefault(); confirmTds(); }}>
             <span>3-D Secure · {fmt(tds.amount)} TAX</span>
             <p>{t('Код підтвердження', 'Confirmation code')}{tds.phone ? ` · ${tds.phone}` : ''} <em>{t('демо', 'demo')}: {tds.hint}</em></p>
@@ -309,9 +378,19 @@ export default function CityLive() {
             </div>
             {tds.err && <p className="cl-err">{tds.err}</p>}
           </form>
+        ) : me && ask && ask.venue === sel ? (
+          <div className="cl-ask">
+            <div className="cl-ask-row"><span>{t('Сума', 'Amount')}</span><b>{fmt(ask.amount)} TAX</b></div>
+            <div className="cl-ask-row"><span>{t('З рахунку', 'From')}</span><b>{me.card_last4 ? `•••• ${me.card_last4}` : me.who} · {fmt(me.balance)}</b></div>
+            {ask.amount >= 1000 && <div className="cl-ask-row"><span>SCA</span><b>3-D Secure</b></div>}
+            <div className="cl-ask-btns">
+              <button type="button" className="cl-btn cl-btn-glass" onClick={() => setAsk(null)}>{t('Скасувати', 'Cancel')}</button>
+              <button type="button" className="cl-btn cl-btn-y" disabled={paying} onClick={() => { const a = ask; setAsk(null); pay(a.venue, a.amount); }}>{paying ? '…' : t('Підтвердити', 'Confirm')}</button>
+            </div>
+          </div>
         ) : me ? (
           <div className="cl-pay">
-            {CHIPS[sel.cat].map(a => <button key={a} type="button" disabled={paying || !online} onClick={() => pay(sel, a)}>{fmt(a)}{a >= 1000 ? <small>3DS</small> : null}</button>)}
+            {CHIPS[sel.cat].map(a => <button key={a} type="button" disabled={paying || !online} onClick={() => setAsk({ venue: sel, amount: a })}>{fmt(a)}{a >= 1000 ? <small>3DS</small> : null}</button>)}
           </div>
         ) : me === null ? (
           <a className="cl-btn cl-btn-y cl-wide" href="/#login" onClick={afterLogin}>{t('Увійти, щоб платити', 'Sign in to pay')}</a>

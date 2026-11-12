@@ -229,6 +229,30 @@ a.cl-me:hover strong { color: #fff; }
 .cl-flash { display: grid; gap: 2px; }
 .cl-flash small { margin: 0; font-size: 10.5px; font-weight: 500; color: inherit; opacity: .7; font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0; }
 
+/* paying: card or QR, confirm step, QR tile */
+.cl-paymode { display: flex; gap: 2px; margin-top: 16px; padding: 3px; border-radius: 10px; background: rgba(255,255,255,.04); }
+.cl-paymode button { flex: 1; height: 30px; border-radius: 7px; font-size: 12px !important; font-weight: 600 !important; color: var(--mut) !important; }
+.cl-paymode button.on { background: rgba(255,255,255,.1); color: #fff !important; }
+.cl-paymode + .cl-pay { margin-top: 10px; }
+.cl-ask { margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(255,212,0,.06); box-shadow: inset 0 0 0 1px rgba(255,212,0,.28); display: grid; gap: 7px; }
+.cl-ask-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+.cl-ask-row span { color: var(--mut); }
+.cl-ask-row b { font-weight: 500; }
+.cl-ask-btns { display: grid; grid-template-columns: 1fr 1.4fr; gap: 6px; margin-top: 4px; }
+.cl-ask-btns .cl-btn { height: 38px; }
+.cl-qr { display: grid; grid-template-columns: 136px 1fr; gap: 14px; align-items: center; margin-top: 12px; }
+.cl-qr-tile { display: block; width: 136px; height: 136px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px -12px rgba(0,0,0,.8); }
+.cl .cl-qr-svg { width: 100%; height: 100%; display: block; stroke: none; }
+.cl-qr-side { display: grid; gap: 6px; align-content: center; }
+.cl-qr-side b { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.cl-qr-side span { font-size: 12px; color: #b4b3ad; line-height: 1.35; }
+.cl-qr-side em { font-style: normal; font-size: 12px; color: var(--y); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.cl-link { justify-self: start; font-size: 12px !important; color: var(--mut) !important; text-decoration: underline; text-underline-offset: 3px; }
+.cl-qr-done { grid-column: 1 / -1; display: grid; gap: 4px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.04); }
+.cl-qr.is-paid .cl-qr-done b { color: #46e3a6; }
+.cl-qr.is-declined .cl-qr-done b { color: #ff6b74; }
+.cl-qr-done span { font-size: 11.5px; color: var(--mut); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
 /* Landing preview */
 .cl-prev { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s ease; }
 .cl-prev.on { opacity: 1; }

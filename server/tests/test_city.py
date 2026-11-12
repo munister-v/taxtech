@@ -99,3 +99,64 @@ def test_bad_input(client):
     h = _user(client)
     for body in ({'venue': -1, 'amount': 5}, {'venue': 1, 'amount': 0}, {'venue': 'x', 'amount': 5}, {'venue': 1, 'amount': 50000}):
         assert client.post('/api/city/pay', json=body, headers=h).status_code == 400
+
+
+def _qr(client, amount=90, cat='cafe'):
+    vid = cs.city().by_cat[cat][1]
+    r = client.post('/api/city/qr', json={'venue': vid, 'amount': amount})
+    assert r.status_code == 200
+    return r.get_json()['data']
+
+
+def test_qr_create_and_read_without_auth(client):
+    q = _qr(client)
+    assert q['status'] == 'pending' and q['expires_in'] > 200 and q['name']
+    g = client.get(f"/api/city/qr/{q['code']}").get_json()['data']
+    assert g['code'] == q['code'] and g['amount'] == 90
+    assert client.get('/api/city/qr/nope').status_code == 404
+
+
+def test_qr_confirm_pays_once(client):
+    h = _user(client)
+    before = _balance(client, h)
+    q = _qr(client)
+    assert client.post(f"/api/city/qr/{q['code']}/confirm").status_code in (401, 403)   # 403: cookie session without CSRF header
+    d = client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=h).get_json()['data']
+    assert d['outcome'] == 'approved' and d['status'] == 'paid' and d['auth_code']
+    assert abs(_balance(client, h) - (before - 90)) < 0.01
+    # the screen that showed the code sees it paid; a second confirm does nothing
+    assert client.get(f"/api/city/qr/{q['code']}").get_json()['data']['status'] == 'paid'
+    again = client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=h).get_json()['data']
+    assert again['outcome'] == 'closed'
+    assert abs(_balance(client, h) - (before - 90)) < 0.01
+
+
+def test_qr_big_amount_needs_3ds(client):
+    h = _user(client, topup=9000)
+    q = _qr(client, 3800, 'stay')
+    d = client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=h).get_json()['data']
+    assert d['outcome'] == 'sca_required' and d['status'] == 'pending'
+    ch = client.post('/api/3ds/challenge', json={'amount': 3800, 'recipient': 'Roma'}, headers=h).get_json()['data']
+    tok = client.post('/api/3ds/verify', json={'challenge_id': ch['challenge_id'], 'otp_code': ch['demo_otp']}, headers=h).get_json()['data']['session_token']
+    d = client.post(f"/api/city/qr/{q['code']}/confirm", json={'tds_session': tok}, headers=h).get_json()['data']
+    assert d['status'] == 'paid' and d['three_ds'] is True
+
+
+def test_qr_expired_and_cancelled(client):
+    h = _user(client)
+    q = _qr(client)
+    client.post(f"/api/city/qr/{q['code']}/cancel")
+    d = client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=h).get_json()['data']
+    assert d['outcome'] == 'closed' and d['status'] == 'cancelled'
+    q2 = _qr(client)
+    from backend.database import get_connection
+    with get_connection() as conn:
+        conn.execute('UPDATE city_qr SET expires_ts = %s WHERE code = %s', (time.time() - 1, q2['code']))
+    assert client.get(f"/api/city/qr/{q2['code']}").get_json()['data']['status'] == 'expired'
+
+
+def test_qr_no_funds_declines(client):
+    h = _user(client, topup=20)
+    q = _qr(client, 400, 'food')
+    d = client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=h).get_json()['data']
+    assert d['status'] == 'declined' and d['response_code'] == '51'

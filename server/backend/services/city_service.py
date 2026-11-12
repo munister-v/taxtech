@@ -149,6 +149,24 @@ def ensure_schema() -> None:
         conn.execute('CREATE INDEX IF NOT EXISTS idx_city_venue_day ON city_payments(venue, day)')
         conn.execute('CREATE INDEX IF NOT EXISTS idx_city_ts ON city_payments(ts)')
         conn.execute('CREATE TABLE IF NOT EXISTS city_state (id INTEGER PRIMARY KEY, last_ts DOUBLE PRECISION NOT NULL)')
+        # QR invoices: the map shows a code for a place and an amount, a phone confirms it
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS city_qr (
+                code VARCHAR(24) PRIMARY KEY,
+                venue INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                status VARCHAR(12) NOT NULL,
+                created_ts DOUBLE PRECISION NOT NULL,
+                expires_ts DOUBLE PRECISION NOT NULL,
+                payer_user_id INTEGER,
+                pos_id INTEGER,
+                response_code VARCHAR(4),
+                auth_code VARCHAR(12),
+                rrn VARCHAR(16),
+                who VARCHAR(24),
+                three_ds INTEGER NOT NULL DEFAULT 0,
+                paid_ts DOUBLE PRECISION
+            )""")
     _schema_ready = True
 
 
