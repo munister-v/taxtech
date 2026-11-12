@@ -279,7 +279,8 @@
 
 /* Roma Live: the 3D city behind the copy, a shade from the left so the words stay readable */
 .bl-city { position: relative; min-height: min(100svh, 920px); display: flex; align-items: flex-end; overflow: hidden; background: #040507; isolation: isolate; }
-.bl-city .cl-prev { z-index: -2; }
+.bl-city-still { position: absolute; inset: 0; z-index: -2; }
+.bl-city-still img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; display: block; }
 .bl-city-shade { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgba(4,5,7,.88) 0%, rgba(4,5,7,.5) 34%, rgba(4,5,7,0) 62%), linear-gradient(0deg, #040507 0%, rgba(4,5,7,0) 30%), linear-gradient(180deg, #000 0%, rgba(4,5,7,0) 16%); }
 .bl-city-in { position: relative; width: 100%; padding-bottom: 104px; pointer-events: none; }
 .bl-city-in > * { pointer-events: auto; }
