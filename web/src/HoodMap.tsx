@@ -28,7 +28,7 @@ const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 const X0 = 463, X1 = 1740, Y0 = 493, Y1 = 1382;
 const N_CARS = 4;
 // How long the train stands at a station while the card is read, ms.
-export const HOOD_DWELL = 6000;
+export const HOOD_DWELL = 9500;
 
 const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const ease = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);

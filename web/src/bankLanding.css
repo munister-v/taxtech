@@ -1248,3 +1248,12 @@
 .bl-vt-rail.drag { cursor: grabbing; user-select: none; }
 .bl-vt-rail.drag img { pointer-events: none; }
 .bl-vt-look img { will-change: transform; transform: scale(1.12); }
+
+/* 2026-11-12 Line T: a plain title in the site's type and the route as a transit diagram - hairline, nine ticks. */
+.bl-lt-head { display: flex; flex-direction: column; align-items: flex-start; gap: 26px; }
+.bl-lt-route { display: flex; align-items: center; gap: 18px; font: 500 10.5px/1 var(--display, system-ui), sans-serif; letter-spacing: .24em; text-transform: uppercase; color: #8a857c; }
+.bl-lt-route i { position: relative; display: flex; justify-content: space-between; align-items: center; width: clamp(160px, 26vw, 360px); height: 14px; font-style: normal; }
+.bl-lt-route i::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(236,230,218,.3); }
+.bl-lt-route u { position: relative; width: 1px; height: 7px; background: rgba(236,230,218,.55); transition: height .4s, background .4s; }
+.bl-lt-route u.on { height: 14px; width: 2px; background: #ffd400; }
+@media (max-width: 560px) { .bl-lt-route { gap: 10px; font-size: 9px; letter-spacing: .16em; } .bl-lt-route i { width: 90px; } }

@@ -10,6 +10,7 @@ import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import { autoplay } from './autoplay';
 import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
+import MetroPay from './MetroPay';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
@@ -702,7 +703,13 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
           <div className="bl-wrap bl-lt-head">
-            <h2 className="bl-h bl-rv">{t('Лінія T.', 'Line T.')}</h2>
+            <h2 className="bl-h bl-lt-title">{t('Лінія T.', 'Line T.')}</h2>
+            {/* the route as a transit diagram: a hairline, nine ticks, the stop the train stands at */}
+            <div className="bl-lt-route" aria-hidden>
+              <span>{HOOD_PLACES[0].name}</span>
+              <i>{HOOD_PLACES.map((p, k) => <u key={p.name} className={k === hood ? 'on' : ''} />)}</i>
+              <span>{HOOD_PLACES[HOOD_PLACES.length - 1].name}</span>
+            </div>
           </div>
           <div className="bl-lt-stage">
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
@@ -712,28 +719,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
               <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
                 onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
                 onArrive={i => { hoodIdle.current.going = false; hoodIdle.current.since = Date.now(); setHood(i); setHoodGo(false); }} />
-              {(() => {
-                const x = HOOD[hood];
-                return (
-                  <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite"
-                    onPointerEnter={() => { hoodIdle.current.hold = true; hoodRef.current?.classList.add('hold'); }}
-                    onPointerLeave={() => { hoodIdle.current.hold = false; hoodRef.current?.classList.remove('hold'); }}>
-                    <div className="bl-lt-st" aria-hidden>
-                      <span className="bl-lt-num">{ROMAN[hood]}</span>
-                      <i />
-                      <span className="bl-lt-place">{HOOD_PLACES[hood].name}</span>
-                    </div>
-                    <div className="bl-tx-body">
-                      <h3>{t(x.uk[0], x.en[0])}</h3>
-                      <p>{t(x.uk[1], x.en[1])}</p>
-                    </div>
-                    <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
-                      <Stage kind={x.kind} t={t} />
-                    </div>
-                    <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
-                  </article>
-                );
-              })()}
+              <MetroPay stops={HOOD.map(x => ({ kind: x.kind, title: t(x.uk[0], x.en[0]), text: t(x.uk[1], x.en[1]), proof: t(x.uk[2], x.en[2]) }))}
+                shown={hood} target={hoodTo} going={hoodGo} photo={k => HOOD_PHOTO[k as Kind]} t={t} onPick={pickHood}
+                onHold={h => { hoodIdle.current.hold = h; if (!h) hoodIdle.current.since = Date.now(); }} />
             </div>
             <div className="bl-cta bl-center bl-rv">
               <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
