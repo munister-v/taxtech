@@ -796,12 +796,9 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           <div className="bl-wrap bl-faq-wrap">
             <h2 className="bl-h bl-rv">{t('Питання.', 'Questions.')}</h2>
             <div className="bl-faq bl-rv">
-              {FAQ.map(g => (
-                <div className="bl-faq-group" key={g.title.en}>
-                  <h3>{g.title[lang]}</h3>
-                  {g.items.map(it => <details key={it.q.en}><summary>{it.q[lang]}</summary><p>{it.a[lang]}</p></details>)}
-                </div>
-              ))}
+              <div className="bl-faq-group">
+                {FAQ.flatMap(g => g.items).map(it => <details key={it.q.en}><summary>{it.q[lang]}</summary><p>{it.a[lang]}</p></details>)}
+              </div>
             </div>
           </div>
         </section>
