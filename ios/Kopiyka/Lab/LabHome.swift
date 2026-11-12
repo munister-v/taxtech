@@ -187,32 +187,26 @@ struct SandboxGate: View {
 /// Тло входу: майже чорне бордо, повільні багряні й золоті плями, знизу темніє під кнопку.
 struct GateBackdrop: View {
     @Environment(\.accessibilityReduceMotion) private var reduce
+    @State private var p = false
+    @State private var q = false
 
     var body: some View {
         ZStack {
             Color(red: 0.05, green: 0.01, blue: 0.02)
-            TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { ctx in
-                let t = reduce ? 0 : ctx.date.timeIntervalSinceReferenceDate
-                Canvas { g, size in
-                    g.addFilter(.blur(radius: 80))
-                    let orbs: [(Color, Double, Double, Double, Double)] = [
-                        (Color(red: 0.86, green: 0.07, blue: 0.17), 0.28, 0.20, 0.62, 0.85),
-                        (Color(red: 0.52, green: 0.03, blue: 0.16), 0.88, 0.40, 0.55, 0.75),
-                        (Color(red: 0.98, green: 0.62, blue: 0.24), 0.68, 0.12, 0.26, 0.40),
-                    ]
-                    for (i, o) in orbs.enumerated() {
-                        let k = Double(i) * 2.3
-                        let cx = size.width * (o.1 + 0.14 * sin(t * 0.35 + k))
-                        let cy = size.height * (o.2 + 0.09 * cos(t * 0.45 + k))
-                        let r = size.width * (o.3 + 0.05 * sin(t * 0.5 + k))
-                        g.fill(Path(ellipseIn: CGRect(x: cx - r, y: cy - r, width: r * 2, height: r * 2)), with: .color(o.0.opacity(o.4)))
-                    }
-                }
+            GeometryReader { g in
+                let w = g.size.width, h = g.size.height
+                SoftOrb(color: Color(red: 0.86, green: 0.07, blue: 0.17).opacity(0.85), radius: w * 0.62, blur: 80)
+                    .position(x: w * (p ? 0.42 : 0.14), y: h * (q ? 0.29 : 0.11))
+                SoftOrb(color: Color(red: 0.52, green: 0.03, blue: 0.16).opacity(0.75), radius: w * 0.55, blur: 80)
+                    .position(x: w * (q ? 0.74 : 1.0), y: h * (p ? 0.49 : 0.31))
+                SoftOrb(color: Color(red: 0.98, green: 0.62, blue: 0.24).opacity(0.40), radius: w * 0.26, blur: 80)
+                    .position(x: w * (p ? 0.82 : 0.54), y: h * (q ? 0.21 : 0.03))
             }
             LinearGradient(stops: [.init(color: .clear, location: 0.35), .init(color: Color(red: 0.03, green: 0.0, blue: 0.01), location: 0.70)],
                            startPoint: .top, endPoint: .bottom)
         }
         .accessibilityHidden(true)
+        .drift(reduce: reduce, $p, 9, $q, 7)
     }
 }
 
@@ -225,13 +219,14 @@ struct GateCard: View {
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
-            let period = 5.0
-            let u = reduce ? 0.5 : ((tl.date.timeIntervalSinceReferenceDate / period + phase).truncatingRemainder(dividingBy: 1))
-            // відблиск займає лише частину циклу, решту часу картка спокійна
-            let k = min(max((u - 0.15) / 0.5, 0), 1)
-            VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", look: look)
-                .overlay {
+        VirtualCardView(number: "•••• •••• •••• 2026", expiry: "10/30", holder: "TAXTECH", look: look)
+            .overlay {
+                // щокадру оновлюється лише смуга відблиску, сама картка з її канвасами малюється один раз
+                TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { tl in
+                    let period = 5.0
+                    let u = reduce ? 0.5 : ((tl.date.timeIntervalSinceReferenceDate / period + phase).truncatingRemainder(dividingBy: 1))
+                    // відблиск займає лише частину циклу, решту часу картка спокійна
+                    let k = min(max((u - 0.15) / 0.5, 0), 1)
                     GeometryReader { g in
                         LinearGradient(colors: [.clear, Color(red: 1, green: 0.88, blue: 0.6).opacity(glow ? 0.5 : 0.34), .clear],
                                        startPoint: .leading, endPoint: .trailing)

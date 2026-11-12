@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: Рух інтерфейсу: поява, нахил карток, відблиск, трусіння, заставка.
 // Усе поважає «Зменшити рух»: тоді лишаються тільки прозорість і миттєві стани.
 
-/// Поява блоку каскадом: знизу, з розмиттям, із затримкою за порядком.
+/// Поява блоку каскадом: знизу й з прозорості, із затримкою за порядком (без розмиття - воно дороге на кожен блок).
 struct Rise: ViewModifier {
     let order: Int
     @Environment(\.accessibilityReduceMotion) private var reduce
@@ -14,7 +14,6 @@ struct Rise: ViewModifier {
         content
             .opacity(shown ? 1 : 0)
             .offset(y: shown || reduce ? 0 : 22)
-            .blur(radius: shown || reduce ? 0 : 6)
             .onAppear {
                 guard !shown else { return }
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.82).delay(Double(order) * 0.06)) { shown = true }

@@ -129,33 +129,29 @@ extension View {
     }
 }
 
-/// Живий фон шапки: три розмиті плями тепла дрейфують по чорному. Рух повільний, поверх нього - зерно.
+/// Живий фон шапки: три м'які плями тепла дрейфують по чорному.
+/// Плями - готові радіальні градієнти без фільтра розмиття: їх малюють раз, далі GPU лише зсуває шари.
 struct AuroraField: View {
     @Environment(\.accessibilityReduceMotion) private var reduce
+    @State private var p = false
+    @State private var q = false
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduce)) { ctx in
-            let t = reduce ? 0 : ctx.date.timeIntervalSinceReferenceDate
-            Canvas { g, size in
-                g.addFilter(.blur(radius: 70))
-                let orbs: [(Color, Double, Double, Double, Double, Double)] = [
-                    (Theme.auraGold, 0.30, 0.22, 0.23, 0.17, 0.55),
-                    (Theme.auraCool, 0.78, 0.32, 0.19, 0.23, 0.55),
-                    (Theme.auraBronze, 0.62, 0.08, 0.31, 0.12, 0.22),
-                ]
-                for (i, o) in orbs.enumerated() {
-                    let k = Double(i) * 2.1
-                    let cx = size.width * (o.1 + 0.16 * sin(t * o.3 + k))
-                    let cy = size.height * (o.2 + 0.12 * cos(t * o.4 * 1.3 + k))
-                    let r = size.width * (0.42 + 0.05 * sin(t * 0.5 + k))
-                    g.fill(Path(ellipseIn: CGRect(x: cx - r, y: cy - r, width: r * 2, height: r * 2)),
-                           with: .color(o.0.opacity(o.5)))
-                }
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            ZStack {
+                SoftOrb(color: Theme.auraGold.opacity(0.55), radius: w * 0.42, blur: 70)
+                    .position(x: w * (p ? 0.44 : 0.16), y: h * (q ? 0.32 : 0.12))
+                SoftOrb(color: Theme.auraCool.opacity(0.55), radius: w * 0.40, blur: 70)
+                    .position(x: w * (q ? 0.64 : 0.92), y: h * (p ? 0.42 : 0.22))
+                SoftOrb(color: Theme.auraBronze.opacity(0.22), radius: w * 0.45, blur: 70)
+                    .position(x: w * (p ? 0.50 : 0.74), y: h * (q ? 0.0 : 0.16))
             }
         }
         .mask(LinearGradient(stops: [.init(color: .black, location: 0), .init(color: .black.opacity(0.7), location: 0.55),
                                      .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+        .drift(reduce: reduce, $p, 13, $q, 10)
     }
 }

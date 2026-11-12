@@ -167,24 +167,54 @@ struct GlassAura: View {
         ZStack {
             Theme.bg
             GeometryReader { g in
-                let w = g.size.width
-                Circle().fill(Theme.auraGold.opacity(0.30))
-                    .frame(width: w * 0.9).blur(radius: 90)
-                    .offset(x: -w * (drift ? 0.15 : 0.45), y: -w * (drift ? 0.30 : 0.05))
-                Circle().fill(Theme.auraCool.opacity(0.55))
-                    .frame(width: w * 0.8).blur(radius: 100)
-                    .offset(x: w * (drift ? 0.25 : 0.55), y: g.size.height * (drift ? 0.30 : 0.55))
-                Circle().fill(Theme.auraBronze.opacity(0.22))
-                    .frame(width: w * 0.6).blur(radius: 90)
-                    .offset(x: w * (drift ? 0.30 : -0.10), y: g.size.height * (drift ? 0.62 : 0.35))
+                let w = g.size.width, h = g.size.height
+                SoftOrb(color: Theme.auraGold.opacity(0.30), radius: w * 0.45, blur: 90)
+                    .position(x: w * (drift ? 0.30 : 0.0), y: w * (drift ? 0.15 : 0.40))
+                SoftOrb(color: Theme.auraCool.opacity(0.55), radius: w * 0.40, blur: 100)
+                    .position(x: w * (drift ? 0.65 : 0.95), y: h * (drift ? 0.30 : 0.55) + w * 0.40)
+                SoftOrb(color: Theme.auraBronze.opacity(0.22), radius: w * 0.30, blur: 90)
+                    .position(x: w * (drift ? 0.60 : 0.20), y: h * (drift ? 0.62 : 0.35) + w * 0.30)
             }
+            // гравюра нерухома: растеризуємо її окремо, щоб дрейф плям її не перемальовував
+            LogoBackdrop(style: style).drawingGroup()
         }
-        .overlay { LogoBackdrop(style: style) }
-        .drawingGroup()
         .allowsHitTesting(false)
-        .onAppear {
+        .drift(reduce: reduce, $drift, 14)
+    }
+}
+
+/// М'яка пляма кольору: те саме, що коло під .blur, але як радіальний градієнт - без фільтра на кожен кадр.
+struct SoftOrb: View {
+    let color: Color
+    let radius: CGFloat
+    var blur: CGFloat = 70
+
+    var body: some View {
+        let outer = max(radius + blur * 1.3, 1)
+        let core = max(radius - blur, 0) / outer
+        Circle()
+            .fill(RadialGradient(stops: [
+                .init(color: color, location: 0),
+                .init(color: color, location: core),
+                .init(color: color.opacity(0.5), location: radius / outer),
+                .init(color: color.opacity(0.12), location: (radius + blur * 0.7) / outer),
+                .init(color: color.opacity(0), location: 1),
+            ], center: .center, startRadius: 0, endRadius: outer))
+            .frame(width: outer * 2, height: outer * 2)
+    }
+}
+
+extension View {
+    /// Повільний нескінченний дрейф: вмикається, коли екран видно, і зупиняється, коли його сховали.
+    func drift(reduce: Bool, _ a: Binding<Bool>, _ da: Double, _ b: Binding<Bool>? = nil, _ db: Double = 0) -> some View {
+        onAppear {
             guard !reduce else { return }
-            withAnimation(.easeInOut(duration: 14).repeatForever(autoreverses: true)) { drift = true }
+            withAnimation(.easeInOut(duration: da).repeatForever(autoreverses: true)) { a.wrappedValue = true }
+            if let b { withAnimation(.easeInOut(duration: db).repeatForever(autoreverses: true)) { b.wrappedValue = true } }
+        }
+        .onDisappear {
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { a.wrappedValue = false; b?.wrappedValue = false }
         }
     }
 }

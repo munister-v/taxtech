@@ -12,19 +12,23 @@ final class BankModel {
     var loaded = false
 
     func load(_ api: API) async {
+        // усі шість запитів ідуть разом: один мережевий цикл замість чотирьох поспіль
+        async let a = api.account()
+        async let c = api.cards()
+        async let h = api.history()
+        async let d = api.deposits()
+        async let k = api.credits()
+        async let g = api.goals()
         do {
-            async let a = api.account()
-            async let c = api.cards()
-            async let h = api.history()
             (account, cards, history) = try await (a, c, h)
             cards = cards.filter { !$0.isClosed }
             error = nil
         } catch {
             self.error = error.localizedDescription
         }
-        deposits = ((try? await api.deposits()) ?? []).filter(\.isActive)
-        credits = ((try? await api.credits()) ?? []).filter(\.isActive)
-        goals = (try? await api.goals()) ?? []
+        deposits = ((try? await d) ?? []).filter(\.isActive)
+        credits = ((try? await k) ?? []).filter(\.isActive)
+        goals = (try? await g) ?? []
         loaded = true
     }
 

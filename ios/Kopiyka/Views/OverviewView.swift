@@ -56,7 +56,9 @@ struct OverviewView: View {
             }
             .scrollIndicators(.hidden)
             .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
-                edge = min(max(y / 70, 0), 1)
+                // крок 0.05: тіло головної не перераховується на кожен піксель прокрутки
+                let e = (min(max(y / 70, 0), 1) * 20).rounded() / 20
+                if e != edge { edge = e }
             }
             .screenBackground()
             .statusScrim(edge)
@@ -95,7 +97,7 @@ struct OverviewView: View {
     }
 
     private func load() async {
-        await bank.load(model.api)
+        async let b: Void = bank.load(model.api)
         async let m = model.api.me()
         async let s = model.api.analytics()
         async let p = model.api.balanceHistory(days: 30)
@@ -109,6 +111,7 @@ struct OverviewView: View {
         points = Array(raw.drop { $0.balance < peak * 0.05 })
         recipients = (try? await r) ?? []
         unread = (try? await u) ?? 0
+        await b
         if Build.shop, hits.isEmpty {
             hits = ((try? await model.api.catalog(search: "", page: 1, sort: "stock", perPage: 40))?.items ?? [])
                 .filter { ["HOT", "TOP", "NEW"].contains($0.badge ?? "") }
