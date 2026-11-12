@@ -7580,6 +7580,7 @@ function ProfileScreen() {
 
       {/* Sign out */}
       <div style={{ padding: '8px 18px', breakInside: 'avoid' }}>
+        <a href="/?home=1" style={{ display: 'block', textAlign: 'center', padding: '14px', marginBottom: 8, borderRadius: 16, background: 'rgba(255,255,255,0.1)', color: '#bdbdbd', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Website ↗</a>
         <button onClick={logout} style={{
           width: '100%', padding: '14px', borderRadius: 16,
           background: 'rgba(255,255,255, 0.1)', border: '1px solid transparent',
@@ -9127,6 +9128,7 @@ function DesktopSidebar({ active, onChange, collapsed, onToggle }: { active: Tab
         )}
       </button>
 
+      <a href="/?home=1" className="kp-hover" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 42, marginBottom: 8, borderRadius: 12, border: '1px solid var(--kp-line)', color: 'var(--kp-muted)', fontFamily, fontSize: 13.5, fontWeight: 500, textDecoration: 'none' }}>{collapsed ? '↗' : 'Website ↗'}</a>
       <div style={{ display: 'flex', gap: 8, flexDirection: collapsed ? 'column' : 'row' }}>
         <button onClick={logout} className="kp-hover" title={t('profile_logout')} aria-label={t('profile_logout')} style={{
           flex: collapsed ? 'none' : 1, width: collapsed ? '100%' : undefined, height: 42, borderRadius: 12, border: '1px solid var(--kp-line)', background: 'transparent',
@@ -10385,7 +10387,7 @@ export default function App({ initialAuthView }: { initialAuthView?: 'login' | '
   };
 
   if (!authed && authView === 'promo') {
-    return <BankLanding onAuth={(m) => setAuthView(m)} />;
+    return <BankLanding onAuth={(m) => { if (m !== 'app') setAuthView(m); }} />;
   }
 
   if (!authed) {

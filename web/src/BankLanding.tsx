@@ -311,7 +311,8 @@ function Card({ finish, n = '6595', name = 'DEMO USER' }: { finish: Finish; n?: 
   );
 }
 
-export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'register') => void }) {
+export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onAuth: (m: 'login' | 'register' | 'app') => void; authed?: boolean }) {
+  const onAuth = (m: 'login' | 'register') => onAuthRaw(authed ? 'app' : m);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const seekRome = useRef<(stop: number) => void>(() => {});
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
@@ -512,8 +513,10 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <nav className="bl-links" aria-label={t('Розділи', 'Sections')}>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>
             <div className="bl-nav-r">
               {langSwitch}
-              <button type="button" className="bl-nav-in-btn" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
-              <button type="button" className="bl-pill bl-pill-sm" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open account')}</button>
+              {authed
+                ? <button type="button" className="bl-pill bl-pill-sm" onClick={() => onAuth('login')}>{t('Кабінет', 'My account')}</button>
+                : <><button type="button" className="bl-nav-in-btn" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
+                <button type="button" className="bl-pill bl-pill-sm" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open account')}</button></>}
               <button type="button" className={`bl-snd${sound ? ' on' : ''}`} aria-pressed={sound} aria-label={sound ? t('Вимкнути звук', 'Sound off') : t('Увімкнути звук', 'Sound on')} title={sound ? t('Вимкнути звук', 'Sound off') : t('Увімкнути звук', 'Sound on')} onClick={toggleSound}>
                 <svg viewBox="0 0 24 24" aria-hidden><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />{sound ? <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.6 7.6 0 0 1 0 11" /> : <path d="M16 9.5l5 5M21 9.5l-5 5" />}</svg>
               </button>

@@ -18,7 +18,7 @@ function hasToken() {
 
 function Root() {
   const [view, setView] = useState<AuthView | 'app' | null>(() =>
-    hasToken() || location.hash === '#login' || location.hash === '#register' ? 'app' : null);
+    (hasToken() && !/[?&]home\b/.test(location.search)) || location.hash === '#login' || location.hash === '#register' ? 'app' : null);
   useEffect(() => {
     if (view) return;
     // The app chunk is prefetched after the page has settled, and not at all on a saver/slow connection.
@@ -31,7 +31,7 @@ function Root() {
   const payCode = location.pathname.match(/^\/pay\/([\w-]{6,24})\/?$/)?.[1];
   if (payCode) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#05060a' }} />}><PayQR code={payCode} /></Suspense>;
   if (/^\/roma\/?$/.test(location.pathname)) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#040507' }} />}><CityLive /></Suspense>;
-  if (!view) return <BankLanding onAuth={setView} />;
+  if (!view) return <BankLanding authed={hasToken()} onAuth={v => { if (v === 'app') history.replaceState(null, '', '/'); setView(v); }} />;
   return (
     <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#000' }} />}>
       <App initialAuthView={view === 'app' ? undefined : view} />
