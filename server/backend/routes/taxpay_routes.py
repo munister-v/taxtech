@@ -22,7 +22,7 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..database import get_connection, get_returning_id_suffix, insert_last_id
 from ..services import shop_sync
-from .helpers import api_error, auth_required, auth_service, rate_limit
+from .helpers import _client_ip, api_error, auth_required, auth_service, rate_limit
 from ..utils.security import verify_password
 from .marketplace_routes import (
     _authorize_and_capture_payment,
@@ -279,6 +279,7 @@ def session_view(token: str):
 
 
 @taxpay_bp.post('/api/taxpay/sessions/<token>/cancel')
+@rate_limit(30, 600, key_func=lambda: f"taxpay-cancel:{_client_ip()}")
 def session_cancel(token: str):
     _ensure_schema()
     with get_connection() as conn:

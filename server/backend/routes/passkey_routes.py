@@ -19,7 +19,7 @@ from ..repositories.passkey_repository import PasskeyRepository
 from ..repositories.user_repository import UserRepository
 from ..services.auth_service import AuthService
 from ..utils.security import generate_token, token_expiration_iso
-from .helpers import api_error, auth_required
+from .helpers import _client_ip, api_error, auth_required
 
 passkey_bp = Blueprint('passkey', __name__, url_prefix='/api/auth/passkey')
 
@@ -52,10 +52,8 @@ def _origin() -> str:
 
 
 def _client_context() -> dict:
-    xff = (request.headers.get('X-Forwarded-For') or '').strip()
-    ip = xff.split(',')[0].strip() if xff else (request.remote_addr or 'unknown')
     return {
-        'ip_address': ip[:80],
+        'ip_address': _client_ip(),
         'user_agent': (request.headers.get('User-Agent') or '')[:500],
     }
 

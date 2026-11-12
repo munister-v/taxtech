@@ -21,7 +21,7 @@ from flask import Blueprint, g, jsonify, request
 
 from ..config import RESEARCH_ECHO_MAX_BYTES
 from ..services.research_service import FraudResearchService, LLMResearchService, ResearchError
-from .helpers import auth_required
+from .helpers import _client_ip, auth_required, rate_limit
 
 research_bp = Blueprint('research', __name__, url_prefix='/api/research')
 fraud_service = FraudResearchService()
@@ -56,6 +56,7 @@ def ping():
 # ── Пропускна здатність ───────────────────────────────────────────────────────
 
 @research_bp.post('/echo')
+@rate_limit(30, 600, key_func=lambda: f"research-echo:{_client_ip()}")
 def echo():
     """POST /api/research/echo — приймає сирі байти (будь-який Content-Type) до 5 МБ.
 

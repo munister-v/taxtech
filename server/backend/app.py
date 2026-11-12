@@ -124,6 +124,12 @@ def create_app() -> Flask:
         resp.headers['X-Content-Type-Options'] = 'nosniff'
         resp.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
         resp.headers.setdefault('X-Frame-Options', 'DENY')
+        # the bank only lives on HTTPS (nginx redirects port 80); the browser should never try plain HTTP again
+        resp.headers.setdefault('Strict-Transport-Security', 'max-age=31536000')
+        # no plugins, no foreign <base>, no framing; scripts/styles stay as they are (the built app needs no wider CSP)
+        resp.headers.setdefault('Content-Security-Policy', "object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
+        resp.headers.setdefault('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=()')
+        resp.headers.setdefault('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
         req_id = str(getattr(g, 'request_id', '') or '').strip()
         if req_id:
             resp.headers['X-Request-Id'] = req_id
@@ -207,14 +213,17 @@ def create_app() -> Flask:
             methods = sorted(m for m in rule.methods if m not in {'HEAD', 'OPTIONS'})
             routes.append({'path': rule.rule, 'methods': methods})
         routes.sort(key=lambda r: r['path'])
-        return jsonify({
+        out = {
             'ok': True,
             'service': SERVICE_NAME,
             'version': API_VERSION,
             'currency': CURRENCY_CODE,
             'notice': f'Навчальна пісочниця: усі суми — {CURRENCY_LABEL}, не справжні гроші.',
-            'routes': routes,
-        })
+        }
+        # the full route map is a gift to scanners: only local runs and tests get it
+        if app.debug or app.testing:
+            out['routes'] = routes
+        return jsonify(out)
 
     @app.get(prefix + '/api/version')
     def api_version():

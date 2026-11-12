@@ -136,9 +136,14 @@ def _client_ip() -> str:
     Беремо ПЕРШИЙ елемент списку (оригінальний клієнт), решта — це
     проміжні проксі.
     """
+    # nginx sets X-Real-IP to the connecting address and *appends* it to X-Forwarded-For, so the first
+    # X-Forwarded-For entry is whatever the client sent: trusting it let anyone dodge the login limits.
+    real = (request.headers.get('X-Real-IP') or '').strip()
+    if real:
+        return real[:80]
     xff = (request.headers.get('X-Forwarded-For') or '').strip()
     if xff:
-        return xff.split(',')[0].strip()[:80]
+        return xff.split(',')[-1].strip()[:80]
     return (request.remote_addr or 'unknown')[:80]
 
 

@@ -54,3 +54,19 @@ def test_api_catalog_lists_only_sandbox_routes(client):
     assert '/api/transactions/transfer' in paths
     assert not any(p.startswith(('/api/admin', '/api/leads', '/api/messenger'))
                    for p in paths)
+
+
+def test_security_headers(client):
+    h = client.get('/api/version').headers
+    assert h['Strict-Transport-Security'].startswith('max-age=')
+    assert "frame-ancestors 'none'" in h['Content-Security-Policy']
+    assert 'camera=()' in h['Permissions-Policy']
+
+
+def test_client_ip_ignores_spoofed_forwarded_for(app):
+    from backend.routes.helpers import _client_ip
+    # nginx: X-Real-IP = the connecting address, X-Forwarded-For = "<whatever the client sent>, <real>"
+    with app.test_request_context(headers={'X-Real-IP': '203.0.113.7', 'X-Forwarded-For': '1.2.3.4, 203.0.113.7'}):
+        assert _client_ip() == '203.0.113.7'
+    with app.test_request_context(headers={'X-Forwarded-For': '1.2.3.4, 203.0.113.7'}):
+        assert _client_ip() == '203.0.113.7'

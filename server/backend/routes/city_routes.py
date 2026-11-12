@@ -16,7 +16,7 @@ from flask import Blueprint, g, jsonify, request
 
 from ..database import get_connection
 from ..services import city_service as cs
-from .helpers import api_error, auth_required, rate_limit
+from .helpers import _client_ip, api_error, auth_required, rate_limit
 from .pos_routes import _authorize
 
 city_bp = Blueprint('city', __name__)
@@ -32,7 +32,7 @@ def _who(user_id: int) -> str:
 
 
 @city_bp.get('/city/live')
-@rate_limit(120, 60, key_func=lambda: f"city-live:{request.remote_addr}")
+@rate_limit(120, 60, key_func=lambda: f"city-live:{_client_ip()}")
 def city_live():
     try:
         since = int(request.args.get('since') or 0)
@@ -144,7 +144,7 @@ def _qr_load(conn, code: str):
 
 
 @city_bp.post('/city/qr')
-@rate_limit(20, 600, key_func=lambda: f"city-qr:{request.remote_addr}")
+@rate_limit(20, 600, key_func=lambda: f"city-qr:{_client_ip()}")
 def qr_create():
     cs.ensure_schema()
     data = request.get_json(silent=True) or {}
@@ -175,6 +175,7 @@ def qr_get(code: str):
 
 
 @city_bp.post('/city/qr/<code>/cancel')
+@rate_limit(30, 600, key_func=lambda: f"city-qr-cancel:{_client_ip()}")
 def qr_cancel(code: str):
     cs.ensure_schema()
     with get_connection() as conn:
