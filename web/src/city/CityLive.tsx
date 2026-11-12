@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import qrcode from 'qrcode-generator';
 import romeUrl from './rome.json?url';
-import { CATS, CAT_COLOR, CitySim, type Cat, type CityData, type ServerPay, type ServerShop, type ServerStats, type Tx, type Venue } from './citySim';
+import { CATS, CAT_COLOR, CitySim, type Cat, type CityData, type CityEvent, type ServerPay, type ServerShop, type ServerStats, type Tx, type Venue, type Weather } from './citySim';
 import type { SceneApi } from './cityScene';
 import { initialLandingLang, landingText, LANDING_LANGS, saveLandingLang, type LandingLang } from '../landingLang';
 import { api, returnHere, type ApiErr, type Me, type MyShop, type PayRes, type QrInvoice } from './cityApi';
@@ -22,7 +22,7 @@ const short = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).repl
 
 const afterLogin = () => returnHere('/roma');
 
-type Live = { now: number; rome: string; hour: number; busy: number; day: string; stats: ServerStats; payments: ServerPay[]; last_id: number };
+type Live = { now: number; rome: string; hour: number; busy: number; day: string; stats: ServerStats; payments: ServerPay[]; last_id: number; weather?: Weather; events?: CityEvent[] };
 
 /** Follow the server's city: first snapshot, then a poll every 3 s and fresh roof heat every 30 s. Null if offline. */
 async function follow(sim: CitySim): Promise<(() => void) | null> {
@@ -73,6 +73,13 @@ const CHIPS: Record<Cat, number[]> = {
   culture: [380, 720], money: [1000, 3000], health: [160, 420],
 };
 
+const romeTime = (ts: number) => new Date(ts * 1000).toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' });
+const evDist = (e: CityEvent, x: number, y: number) => Math.hypot(e.x - x, e.y - y);
+/** WMO weather code -> a small icon */
+const wIcon = (w: Weather) => w.rain || (w.code >= 51 && w.code < 100)
+  ? <svg viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1 .5-8 5 5 0 0 1 9.6 1.5A3.5 3.5 0 0 1 17 15H7Z" /><path d="M9 18l-1 2M13 18l-1 2M17 18l-1 2" /></svg>
+  : w.code >= 2 ? <svg viewBox="0 0 24 24"><path d="M7 17a4 4 0 0 1 .5-8 5 5 0 0 1 9.6 1.5A3.5 3.5 0 0 1 17 17H7Z" /></svg>
+  : <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" /></svg>;
 const SHOP_CATS: MyShop['cat'][] = ['cafe', 'food', 'bar', 'shop'];
 const PRICES: [MyShop['price'], string, string][] = [['low', 'Дешевше', 'Cheaper'], ['fair', 'Звичайно', 'Fair'], ['high', 'Дорожче', 'Pricier']];
 const OPEN_FEE = 2000;
@@ -198,6 +205,13 @@ export default function CityLive() {
     const iv = window.setInterval(() => { if (!document.hidden) loadMyShop(); }, 15000);
     return () => clearInterval(iv);
   }, [!!me]);
+  // what is on in town: tags on the map, refreshed with the clock
+  const evKey = (simRef.current?.events || []).map(e => e.id + (e.on ? '1' : '0')).join(',');
+  useEffect(() => {
+    const s = simRef.current;
+    if (!s || !apiRef.current) return;
+    apiRef.current.setEvents(s.events.map(e => ({ x: e.x, y: e.y, on: e.on, text: e.on ? e.name : `${e.name} · ${romeTime(e.start)}` })));
+  }, [evKey, ready]);
   // the gold tags over client places, yours and the one being opened
   useEffect(() => {
     const s = simRef.current;
@@ -476,6 +490,9 @@ export default function CityLive() {
             <div className="cl-own-row"><span>{t('Ціна', 'Prices')}</span>
               <div className="cl-seg">{PRICES.map(([k, uk, en]) => <button key={k} type="button" className={myShop.price === k ? 'on' : ''} disabled={shopBusy} onClick={() => myShop.price !== k && shopAction('/api/city/shop/price', { price: k })}>{t(uk, en)}</button>)}</div>
             </div>
+            {sim && sim.events.filter(e => evDist(e, myShop.x, myShop.y) < e.r + 700).slice(0, 2).map(e => (
+              <div key={e.id + e.start} className={`cl-own-evt${e.on ? ' on' : ''}`}><i /><span>{e.name}</span><em>{e.on ? t('зараз', 'now') : romeTime(e.start)} · {fmt(evDist(e, myShop.x, myShop.y))} m</em></div>
+            ))}
             <div className="cl-own-row"><span>{t('Виведено всього', 'Paid out')}</span><b>{fmt(myShop.paid_total)} TAX</b></div>
             <button type="button" className="cl-link" onClick={closeShop}>{t('Закрити заклад', 'Close the place')}</button>
           </div>
@@ -554,6 +571,9 @@ export default function CityLive() {
           <span>{online ? t('Рим, наживо', 'Rome, live') : t('Симуляція', 'Simulation')}</span>
           <i className="cl-busy" style={{ ['--b' as string]: busy.toFixed(2) }} />
         </div>
+        {sim?.weather && sim.weather.t != null && (
+          <div className={`cl-wx${sim.weather.rain ? ' rain' : ''}`} title={`Roma · ${Math.round(sim.weather.t)}°`}>{wIcon(sim.weather)}<b>{Math.round(sim.weather.t)}°</b></div>
+        )}
         <div className="cl-top-r">
           <button type="button" className="cl-qrbtn" onClick={() => quickQr()} disabled={!ready || !online} title={t('Оплатити за QR-кодом', 'Pay by QR code')}>
             {Ico.qr}<span>{t('Оплатити за QR-кодом', 'Pay by QR code')}</span>
@@ -585,6 +605,18 @@ export default function CityLive() {
           <div><span>{t('Середній чек', 'Avg ticket')}</span><b>{st?.n ? fmt(st.vol / st.n) : '—'}</b></div>
         </div>
         {sim && <Bars data={sim.cityHours} now={hour} color="#ffd400" />}
+        {sim && sim.events.length > 0 && (
+          <>
+            <h4>{t('Події', 'Events')}</h4>
+            <div className="cl-evts">
+              {sim.events.map(e => (
+                <button key={e.id + e.start} type="button" className={e.on ? 'on' : ''} onClick={() => { pick(null); apiRef.current?.flyTo(e.x, e.y, 900); }}>
+                  <i /><span>{e.name}</span><em>{e.on ? t('зараз', 'now') : romeTime(e.start)}</em>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
         <h4>{t('Категорії', 'Categories')}</h4>
         <div className="cl-cats">
           {CATS.map(c => (

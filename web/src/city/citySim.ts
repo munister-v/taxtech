@@ -26,6 +26,9 @@ export type Venue = {
   pop: number; rev: number; n: number; hours: Float32Array; last: Tx[]; mix: [number, number, number];
   own?: { owner: string; price: string; since: number };      // a client's own place ("Il tuo locale")
 };
+/** Something on in town (server: city_service.EVENTS); `on` while it runs, else it starts at `start` */
+export type CityEvent = { id: string; name: string; x: number; y: number; r: number; cats: Cat[]; crowd: number; start: number; end: number; on: boolean };
+export type Weather = { t: number | null; rain: boolean; code: number };
 /** A client's place as /api/city/shops sends it */
 export type ServerShop = { id: number; b: number; x: number; y: number; cat: Cat; name: string; rione: string; price: string; owner: string; since: number };
 export type Account = { i: number; id: string; kind: 'resident' | 'tourist' | 'commuter'; hx: number; hy: number; x: number; y: number; lastT: number; recent: number[]; bal: number; you?: boolean; real?: boolean; name?: string };
@@ -88,8 +91,13 @@ export class CitySim {
   static DELAY = 5;
 
   /** Clock and totals from /api/city/live */
-  sync(d: { now: number; hour: number; busy: number; stats: ServerStats }) {
+  weather: Weather | null = null;
+  events: CityEvent[] = [];
+
+  sync(d: { now: number; hour: number; busy: number; stats: ServerStats; weather?: Weather; events?: CityEvent[] }) {
     this.remote = true;
+    if (d.weather) this.weather = d.weather;
+    if (d.events) this.events = d.events;
     this.offset = d.now - Date.now() / 1000;
     this.romeAt = { h: d.hour, local: Date.now() / 1000 };
     this.remoteBusy = d.busy;

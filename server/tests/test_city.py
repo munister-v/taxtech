@@ -1,6 +1,7 @@
 """Roma Live: the shared city on the server and paying its places with a real account."""
 from __future__ import annotations
 
+import math
 import random
 import time
 
@@ -264,3 +265,55 @@ def test_a_real_client_pays_a_shop_and_the_owner_cannot_pay_his_own(client):
     assert c['paid'] >= 300 * (1 - cs.SHOP_MDR) and _balance(client, owner) > before
     assert client.get('/api/city/shop', headers=owner).get_json()['data'] is None
     assert all(s['id'] != vid for s in client.get('/api/city/shops').get_json()['data'])
+
+
+# ── Weather and events ─────────────────────────────────────────────────────────────────────────────────────────
+
+def _rome_ts(s):
+    from datetime import datetime
+    return datetime.strptime(s, '%Y-%m-%d %H:%M').replace(tzinfo=cs.ROME).timestamp()
+
+
+def test_events_follow_romes_week():
+    on = lambda s: {e['id'] for e in cs.events_at(_rome_ts(s)) if e['on']}
+    assert on('2026-11-15 12:00') == {'angelus'}                          # Sunday noon
+    assert {'udienza', 'campo', 'testaccio'} <= on('2026-11-18 10:00')     # Wednesday morning
+    assert {'circo', 'trastevere', 'sanlorenzo'} <= on('2026-11-14 22:30')  # Saturday night
+    assert on('2026-11-15 00:30') == {'trastevere', 'sanlorenzo'}          # past midnight, still Saturday's evening
+    ahead = cs.events_at(_rome_ts('2026-11-16 03:00'), ahead=6 * 3600)
+    assert {e['id'] for e in ahead if not e['on']} == {'campo', 'testaccio'}
+
+
+def test_an_event_fills_the_places_around_it(monkeypatch):
+    cs.ensure_schema()
+    monkeypatch.setattr(cs, 'weather', lambda: {'t': 18, 'rain': False, 'code': 0})
+    c = cs.city()
+    near = lambda vid, ev: math.hypot(c.venues[vid][0] - ev['x'], c.venues[vid][1] - ev['y']) < 600 if vid < len(c.venues) else False
+    angelus = next(e for e in cs.events_at(_rome_ts('2026-11-15 12:00')) if e['id'] == 'angelus')
+    # an hour of the same Sunday with and without the Angelus
+    def share(monkey_events):
+        monkeypatch.setattr(cs, 'events_at', monkey_events)
+        rows = []
+        monkeypatch.setattr(cs, '_bulk', lambda conn, r: rows.extend(r))
+        from backend.database import get_connection
+        with get_connection() as conn:
+            conn.execute('UPDATE city_state SET last_ts = %s WHERE id = 1', (_rome_ts('2026-11-15 11:30'),))
+        cs.advance(now=_rome_ts('2026-11-15 12:30'), rng=random.Random(4))
+        return sum(1 for r in rows if near(r[3], angelus)) / max(1, len(rows)), len(rows)
+    real = cs.events_at
+    with_ev, n_ev = share(lambda ts, ahead=0.0: [e for e in real(ts, ahead) if e['id'] == 'angelus'])
+    without, n_plain = share(lambda ts, ahead=0.0: [])
+    assert n_ev > n_plain and with_ev > without * 1.5
+
+
+def test_rain_moves_people_indoors():
+    tilt, pace = cs.weather_effect({'t': 14, 'rain': True})
+    assert tilt['cafe'] > 1 and tilt['culture'] > 1 and tilt['bar'] < 1 and pace < 1
+    hot, _ = cs.weather_effect({'t': 33, 'rain': False})
+    assert hot['cafe'] > 1
+
+
+def test_live_reports_weather_and_events(client):
+    d = client.get('/api/city/live?since=999999999').get_json()['data']
+    assert {'t', 'rain', 'code'} <= set(d['weather'])
+    assert isinstance(d['events'], list)

@@ -22,6 +22,8 @@ export type SceneApi = {
   home(): void;
   /** Gold tags over client places (yours brighter); `draft` is the building being chosen for a new one */
   setShops(list: Venue[], mineId: number | null, draft?: { x: number; y: number; z: number; name: string } | null): void;
+  /** Tags over what is on in town: live ones pulse, coming ones carry their start time */
+  setEvents(list: { x: number; y: number; text: string; on: boolean }[]): void;
   /** While set, a tap on a building reports it instead of opening a place */
   setClaim(fn: ((b: number, x: number, y: number) => void) | null): void;
 };
@@ -59,18 +61,22 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   const uniforms = { uTime: { value: 0 }, uFogNear: { value: 2400 }, uFogFar: { value: 6800 }, uBg: { value: new THREE.Color(BG) }, uNight: { value: 1 } };
   // ── Soft edge: the OSM extract is a rectangle; instead of a cut, the city sinks and dissolves into the night along a
   // rounded (superellipse) outline. Shared by every material: buildings lower towards it, everything fades to the background.
-  const EDGE_H = new THREE.Vector2(2260, 1560);   // half-size of the extract in metres (bbox 12.452–12.501, 41.886–41.911)
+  // the outline follows the extract: its centre and half-size (5 % over) from the data's bounds, in world x/z (z = -y)
+  const [bx0, by0, bx1, by1] = D.bounds;
+  const EDGE_H = new THREE.Vector2((bx1 - bx0) / 2 * 1.05, (by1 - by0) / 2 * 1.05);
+  const EDGE_C = new THREE.Vector2((bx0 + bx1) / 2, -(by0 + by1) / 2);
   const EDGE_GLSL = /* glsl */`
     uniform vec2 uEdgeH;
+    uniform vec2 uEdgeC;
     float edgeFade(vec2 p) {
-      vec2 q = p / uEdgeH;
+      vec2 q = (p - uEdgeC) / uEdgeH;
       float a = atan(q.y, q.x);
       // an ellipse with a slow, irregular wobble: reads as a vignette, not as the edge of a data extract
       float r = length(q) * (1.0 + .06 * sin(3.0 * a + 1.3) + .035 * sin(7.0 * a + .4));
       return 1.0 - smoothstep(.45, 1.0, r);
     }`;
-  const edgeU = { uEdgeH: { value: EDGE_H } };
-  const edgeR = (x: number, y: number) => { const qx = x / EDGE_H.x, qy = y / EDGE_H.y, a = Math.atan2(qy, qx); return Math.hypot(qx, qy) * (1 + .06 * Math.sin(3 * a + 1.3) + .035 * Math.sin(7 * a + .4)); };
+  const edgeU = { uEdgeH: { value: EDGE_H }, uEdgeC: { value: EDGE_C } };
+  const edgeR = (x: number, y: number) => { const qx = (x - EDGE_C.x) / EDGE_H.x, qy = (y - EDGE_C.y) / EDGE_H.y, a = Math.atan2(qy, qx); return Math.hypot(qx, qy) * (1 + .06 * Math.sin(3 * a + 1.3) + .035 * Math.sin(7 * a + .4)); };
   /** patch a built-in (basic/line) material so it fades into the fog colour towards the edge */
   const edged = <M extends THREE.Material>(m: M): M => {
     // fade by alpha over the clear colour (mixing towards fogColor here would land in the wrong colour space)
@@ -78,6 +84,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     m.depthWrite = false;
     m.onBeforeCompile = sh => {
       sh.uniforms.uEdgeH = edgeU.uEdgeH;
+      sh.uniforms.uEdgeC = edgeU.uEdgeC;
       sh.vertexShader = 'varying vec2 vEdgeP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vEdgeP = (modelMatrix * vec4(transformed, 1.0)).xz;');
       sh.fragmentShader = 'varying vec2 vEdgeP;\n' + EDGE_GLSL + sh.fragmentShader.replace('#include <fog_fragment>', '#include <fog_fragment>\n  gl_FragColor.a *= edgeFade(vEdgeP);');
     };
@@ -465,6 +472,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   // client places: a gold tag each, drawn before every other label so nothing hides them
   type Tag = { x: number; y: number; z: number; el: HTMLSpanElement; w: number; on: boolean };
   let tags: Tag[] = [];
+  let evTags: Tag[] = [];
   let claimFn: ((b: number, x: number, y: number) => void) | null = null;
 
   // ── Camera, controls, post ──
@@ -474,7 +482,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   const controls = new MapControls(camera, renderer.domElement);
   controls.target.copy(HOME.t);
   controls.enableDamping = true; controls.dampingFactor = 0.07;
-  controls.maxPolarAngle = 1.3; controls.minDistance = 90; controls.maxDistance = 5200;
+  controls.maxPolarAngle = 1.3; controls.minDistance = 90; controls.maxDistance = 6800;
   controls.autoRotateSpeed = preview ? 0.4 : 0.18;
   // the landing holds still: no rotation, nothing for the eye to chase
   controls.autoRotate = !preview;
@@ -558,9 +566,9 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     const W = el.clientWidth, H = el.clientHeight;
     const dist = camera.position.distanceTo(controls.target);
     boxes.length = 0;
-    for (const T of tags) {
+    for (const T of [...tags, ...evTags]) {
       let show = false;
-      if (dist < 4200 && edgeR(T.x, -T.y) < .8) {
+      if (dist < 5200 && edgeR(T.x, -T.y) < .85) {
         v3.set(T.x, T.z + 8, -T.y).project(camera);
         if (v3.z < 1 && v3.x > -.97 && v3.x < .97 && v3.y > -.92 && v3.y < .9) {
           const sx = (v3.x * .5 + .5) * W, sy = (-v3.y * .5 + .5) * H;
@@ -667,7 +675,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
       if (k >= 1) fly = null;
     } else if (!preview && !controls.autoRotate && performance.now() - lastUser > 30000 && !selV) controls.autoRotate = true;
     // the camera's focus stays inside the part of the city that is drawn in full
-    { const r = edgeR(controls.target.x, controls.target.z); if (r > .62) { const k = .62 / r; controls.target.x *= k; controls.target.z *= k; } }
+    { const r = edgeR(controls.target.x, controls.target.z); if (r > .62) { const k = .62 / r; controls.target.x = EDGE_C.x + (controls.target.x - EDGE_C.x) * k; controls.target.z = EDGE_C.y + (controls.target.z - EDGE_C.y) * k; } }
     controls.update(dt);
     renderer.render(scene, camera);
     // labels follow the camera; when it is still they are left alone
@@ -708,6 +716,17 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
         e.textContent = a.name;
         labelBox.appendChild(e);
         return { x: a.x, y: a.y, z: a.z, el: e, w: 0, on: false };
+      });
+      viewMoved = true; wake = performance.now();
+    },
+    setEvents(list) {
+      for (const T of evTags) T.el.remove();
+      evTags = list.map(a => {
+        const e = document.createElement('span');
+        e.className = `cl-evt${a.on ? ' live' : ''}`;
+        e.textContent = a.text;
+        labelBox.appendChild(e);
+        return { x: a.x, y: a.y, z: 30, el: e, w: 0, on: false };
       });
       viewMoved = true; wake = performance.now();
     },

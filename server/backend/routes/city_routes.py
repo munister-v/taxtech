@@ -49,6 +49,7 @@ def city_live():
         'busy': round(cs.busy(d.hour + d.minute / 60), 3),
         'stats': {k: st[k] for k in ('vol', 'n', 'declined', 'by_cat', 'hours', 'reasons')},
         'payments': pays, 'last_id': pays[-1]['id'] if pays else since,
+        'weather': cs.weather(), 'events': cs.events_at(now, ahead=12 * 3600)[:6],
     }})
 
 

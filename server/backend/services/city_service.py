@@ -51,6 +51,98 @@ SIM_DAILY_CAP = 3000.0
 SHOP_MDR = 0.015
 SHOP_DRAW = 2.0          # a new place is talked about: it is considered twice as often as an average one
 
+# ── Rome's weather and events move the city ─────────────────────────────────────────────────────────────────
+# Weather: Open-Meteo (free, no key) for the centre of Rome, refreshed in the background every 10 minutes; rain sends
+# people into cafés and museums and off the bar terraces, heat sells coffee granita and evening drinks.
+# Events: the real rhythm of Rome (the Angelus on Sunday, the Pope's audience on Wednesday, the markets, the evenings in
+# Trastevere and San Lorenzo) and a concert at the Circus Maximus on Friday and Saturday nights. While one is on, a share
+# of the city's payers stands there and pays the places around it.
+LAT0, LON0 = 41.8985, 12.4765
+KX, KY = 111320 * math.cos(math.radians(LAT0)), 110540
+
+
+def _xy(lat: float, lon: float) -> tuple[float, float]:
+    return (lon - LON0) * KX, (lat - LAT0) * KY
+
+
+# id, name, lat, lon, weekdays (0 = Monday), start hour, end hour (may pass midnight), kinds of places, crowd, radius m
+EVENTS = [
+    ('angelus', 'Angelus a San Pietro', 41.9022, 12.4568, {6}, 11.0, 13.5, ('cafe', 'food', 'shop', 'culture'), .55, 450),
+    ('udienza', 'Udienza del Papa', 41.9022, 12.4568, {2}, 8.5, 12.5, ('cafe', 'shop', 'culture', 'food'), .45, 450),
+    ('campo', "Mercato di Campo de' Fiori", 41.8956, 12.4722, {0, 1, 2, 3, 4, 5}, 7.5, 14.0, ('food', 'shop', 'cafe'), .22, 260),
+    ('testaccio', 'Mercato di Testaccio', 41.8774, 12.4752, {0, 1, 2, 3, 4, 5}, 7.5, 15.0, ('food', 'cafe', 'shop'), .14, 300),
+    ('trastevere', 'Sera a Trastevere', 41.8894, 12.4700, {3, 4, 5}, 21.0, 26.0, ('bar', 'food'), .38, 420),
+    ('sanlorenzo', 'Sera a San Lorenzo', 41.8975, 12.5150, {3, 4, 5}, 21.5, 26.5, ('bar', 'food'), .3, 380),
+    ('circo', 'Concerto al Circo Massimo', 41.8861, 12.4851, {4, 5}, 20.5, 23.75, ('bar', 'food', 'cafe'), .5, 520),
+]
+
+
+def _event_row(e, start_ts: float, end_ts: float, now: float) -> dict[str, Any]:
+    x, y = _xy(e[2], e[3])
+    return {'id': e[0], 'name': e[1], 'x': round(x), 'y': round(y), 'r': e[9], 'cats': list(e[7]), 'crowd': e[8],
+            'start': round(start_ts), 'end': round(end_ts), 'on': start_ts <= now < end_ts}
+
+
+def events_at(ts: float, ahead: float = 0.0) -> list[dict[str, Any]]:
+    """Events on at `ts`, plus those starting within `ahead` seconds"""
+    out = []
+    d = rome_now(ts)
+    for offset in (-1, 0, 1):
+        day = (d.replace(hour=0, minute=0, second=0, microsecond=0)).timestamp() + offset * 86400
+        wd = rome_now(day + 3600).weekday()
+        for e in EVENTS:
+            if wd not in e[4]:
+                continue
+            a, b = day + e[5] * 3600, day + e[6] * 3600
+            if a <= ts < b or (ahead and ts <= a < ts + ahead):
+                out.append(_event_row(e, a, b, ts))
+    out.sort(key=lambda r: (not r['on'], r['start']))
+    return out
+
+
+_weather: dict[str, Any] = {'t': None, 'rain': False, 'code': 0, 'at': 0.0, 'busy': False}
+WEATHER_URL = ('https://api.open-meteo.com/v1/forecast?latitude=41.8985&longitude=12.4765'
+               '&current=temperature_2m,precipitation,weather_code&timezone=Europe%2FRome')
+
+
+def _fetch_weather() -> None:
+    import urllib.request
+    try:
+        with urllib.request.urlopen(urllib.request.Request(WEATHER_URL, headers={'User-Agent': 'TaxTech-RomaLive/1.0'}), timeout=6) as r:
+            cur = json.loads(r.read().decode()).get('current') or {}
+        code = int(cur.get('weather_code') or 0)
+        rain = float(cur.get('precipitation') or 0) > 0.1 or code in (51, 53, 55, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99)
+        _weather.update({'t': cur.get('temperature_2m'), 'rain': rain, 'code': code, 'at': time.time()})
+    except Exception:
+        _weather['at'] = time.time() - 480        # try again in two minutes
+    finally:
+        _weather['busy'] = False
+
+
+def weather() -> dict[str, Any]:
+    """Rome's weather now (never blocks: a stale value starts a refresh in the background)"""
+    if WEATHER_URL and not _weather['busy'] and time.time() - _weather['at'] > 600:
+        _weather['busy'] = True
+        threading.Thread(target=_fetch_weather, daemon=True).start()
+    return {k: _weather[k] for k in ('t', 'rain', 'code')}
+
+
+def weather_effect(w: dict[str, Any]) -> tuple[dict[str, float], float]:
+    """How the weather tilts the kinds of places, and the city's overall pace"""
+    m = {c: 1.0 for c in CATS}
+    pace = 1.0
+    t = w.get('t')
+    if w.get('rain'):
+        m.update({'cafe': 1.3, 'culture': 1.35, 'shop': 1.1, 'bar': .75, 'food': .95})
+        pace = .88
+    if t is not None:
+        if t >= 30:
+            m['cafe'] *= 1.2; m['bar'] *= 1.15; m['culture'] *= .9
+        elif t <= 8:
+            m['cafe'] *= 1.15; m['bar'] *= .9
+    return m, pace
+
+
 _lock = threading.Lock()
 _schema_ready = False
 _cache: dict[str, tuple[float, Any]] = {}
@@ -93,8 +185,8 @@ class _City:
             label = f'TT{r.randint(10, 99)} •••• {r.randint(1000, 9999)}'
             self.accounts.append((kind, float(hx), float(hy), label))
 
-    def pick_cat(self, r: random.Random, h: float) -> str:
-        w = [WEIGHT[c] * _profile(c, h) for c in CATS]
+    def pick_cat(self, r: random.Random, h: float, tilt: dict[str, float] | None = None) -> str:
+        w = [WEIGHT[c] * _profile(c, h) * (tilt[c] if tilt else 1.0) for c in CATS]
         x = r.random() * sum(w)
         for c, wi in zip(CATS, w):
             x -= wi
@@ -293,11 +385,17 @@ def advance(now: float | None = None, rng: random.Random | None = None) -> int:
         r = rng or random.Random()
         rows: list[tuple] = []
         till: dict[int, float] = {}
+        tilt, pace = weather_effect(weather())
+        ev_min, ev_on = -1, []
         t = start
-        # a Poisson process whose rate follows the Roman day
+        # a Poisson process whose rate follows the Roman day, the weather and what is on in town
         while True:
+            m = int(t // 60)
+            if m != ev_min:
+                ev_min, ev_on = m, [e for e in events_at(t) if e['on']]
+            crowd = sum(e['crowd'] for e in ev_on)
             h = rome_now(t).hour + rome_now(t).minute / 60
-            rate = .15 + 1.6 * busy(h)
+            rate = (.15 + 1.6 * busy(h)) * pace * (1 + crowd)
             t += r.expovariate(rate)
             if t >= now:
                 break
@@ -307,7 +405,20 @@ def advance(now: float | None = None, rng: random.Random | None = None) -> int:
             if r.random() < .012:
                 rows += _fraud(r, min(t, now - 60), ai)
                 continue
-            cat = c.pick_cat(r, h)
+            if ev_on and r.random() < crowd / (1 + crowd):
+                # this payer is at an event: they pay one of the places around it
+                x = r.random() * crowd
+                ev = ev_on[-1]
+                for e in ev_on:
+                    x -= e['crowd']
+                    if x <= 0:
+                        ev = e
+                        break
+                hx, hy = ev['x'] + r.gauss(0, ev['r'] / 2), ev['y'] + r.gauss(0, ev['r'] / 2)
+                kind = 'tou' if r.random() < .6 else kind
+                cat = ev['cats'][min(len(ev['cats']) - 1, int(r.random() ** 1.6 * len(ev['cats'])))]
+            else:
+                cat = c.pick_cat(r, h, tilt)
             vi, bw = c.pick_venue(r, hx, hy, cat, kind == 'tou', with_weight=True)
             pf = 1.0
             if own:
