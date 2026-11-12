@@ -166,4 +166,14 @@ def test_apple_app_site_association(client):
     r = client.get('/.well-known/apple-app-site-association')
     assert r.status_code == 200 and r.mimetype == 'application/json'
     d = r.get_json()['applinks']['details'][0]
-    assert d['appIDs'] == ['63PXV4HLQZ.com.eprisjournal.kopiyka'] and d['components'][0]['/'] == '/pay/*'
+    assert d['appIDs'] == ['63PXV4HLQZ.com.eprisjournal.kopiyka'] and d['components'][0]['/'] == '/pay/' + '?' * 12
+
+
+def test_pay_page_serves_web_app_for_qr_codes(client, tmp_path, monkeypatch):
+    from backend.routes import taxpay_routes
+    index = tmp_path / 'index.html'
+    index.write_text('<div id="root"></div>')
+    monkeypatch.setattr(taxpay_routes, 'FRONTEND_INDEX', index)
+    assert b'id="root"' in client.get('/pay/Cdi9W7Yh3ha5').data
+    long = client.get('/pay/' + 'x' * 32).data
+    assert b'id="root"' not in long and b'taxpay/sessions' in long

@@ -38,6 +38,7 @@ taxpay_bp = Blueprint('taxpay', __name__)
 SESSION_TTL = 30 * 60
 PROCESSING_STALE = 120
 PAGE = Path(__file__).resolve().parent.parent / 'assets' / 'taxpay.html'
+FRONTEND_INDEX = Path(__file__).resolve().parent.parent.parent / 'frontend' / 'index.html'
 _schema_ready = False
 
 
@@ -254,6 +255,12 @@ def merchant_refund(token: str):
 
 @taxpay_bp.get('/pay/<token>')
 def pay_page(token: str):
+    # /pay/<code> is shared with Roma Live QR invoices (12-char codes, the web app's PayQR page); TaxPay
+    # checkout tokens are 32 chars. Short codes get the web app, or this page would say "payment not found".
+    if len(token) <= 24 and FRONTEND_INDEX.is_file():
+        resp = send_file(FRONTEND_INDEX, mimetype='text/html')
+        resp.headers['Cache-Control'] = 'no-cache'
+        return resp
     resp = send_file(PAGE, mimetype='text/html')
     resp.headers['Cache-Control'] = 'no-store'
     return resp

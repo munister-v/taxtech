@@ -243,7 +243,8 @@ def create_app() -> Flask:
     def apple_app_site_association():
         return jsonify({'applinks': {'details': [{
             'appIDs': ['63PXV4HLQZ.com.eprisjournal.kopiyka'],
-            'components': [{'/': '/pay/*', 'comment': 'Roma Live QR invoices'}],
+            # 12 characters exactly: a QR code (token_urlsafe(9)); TaxPay shop checkouts (/pay/<32 chars>) stay in the browser
+            'components': [{'/': '/pay/????????????', 'comment': 'Roma Live QR invoices'}],
         }]}})
 
     @app.get(prefix + '/' if prefix else '/')
