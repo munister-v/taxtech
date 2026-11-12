@@ -20,6 +20,10 @@ export type SceneApi = {
   setCats(on: Record<string, boolean>): void;
   setLabels(on: boolean): void;
   home(): void;
+  /** Gold tags over client places (yours brighter); `draft` is the building being chosen for a new one */
+  setShops(list: Venue[], mineId: number | null, draft?: { x: number; y: number; z: number; name: string } | null): void;
+  /** While set, a tap on a building reports it instead of opening a place */
+  setClaim(fn: ((b: number, x: number, y: number) => void) | null): void;
 };
 
 type Opts = { preview?: boolean; onPick?: (v: Venue | null) => void };
@@ -458,6 +462,10 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     return { x, y, k, el: s, w: 0, on: false, z: k === 1 || k === 3 ? 22 : 4 };
   });
   let labelsOn = true;
+  // client places: a gold tag each, drawn before every other label so nothing hides them
+  type Tag = { x: number; y: number; z: number; el: HTMLSpanElement; w: number; on: boolean };
+  let tags: Tag[] = [];
+  let claimFn: ((b: number, x: number, y: number) => void) | null = null;
 
   // ── Camera, controls, post ──
   const HOME = { t: new THREE.Vector3(preview ? 150 : 60, 0, preview ? 60 : 40), off: new THREE.Vector3(-760, preview ? 1350 : 1500, 1500) };
@@ -517,8 +525,12 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     const r = renderer.domElement.getBoundingClientRect();
     ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
     const hit = ray.intersectObject(buildings, false)[0] || ray.intersectObject(ground, false)[0];
-    if (!hit) { opts.onPick?.(null); return; }
+    if (!hit) { if (!claimFn) opts.onPick?.(null); return; }
     const px = hit.point.x, py = -hit.point.z;
+    if (claimFn) {
+      if (hit.object === buildings && hit.faceIndex != null) claimFn(Math.round((buildings.geometry.getAttribute('bid') as THREE.BufferAttribute).getX(hit.faceIndex * 3)), px, py);
+      return;
+    }
     const dist = (v: Venue) => Math.hypot(v.x - px, v.y - py);
     let best: Venue | null = null;
     if (hit.object === buildings && hit.faceIndex != null) {
@@ -546,6 +558,23 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     const W = el.clientWidth, H = el.clientHeight;
     const dist = camera.position.distanceTo(controls.target);
     boxes.length = 0;
+    for (const T of tags) {
+      let show = false;
+      if (dist < 4200 && edgeR(T.x, -T.y) < .8) {
+        v3.set(T.x, T.z + 8, -T.y).project(camera);
+        if (v3.z < 1 && v3.x > -.97 && v3.x < .97 && v3.y > -.92 && v3.y < .9) {
+          const sx = (v3.x * .5 + .5) * W, sy = (-v3.y * .5 + .5) * H;
+          if (!T.w) T.w = T.el.offsetWidth || 90;
+          const bx: [number, number, number, number] = [sx - T.w / 2 - 6, sy - 30, sx + T.w / 2 + 6, sy + 4];
+          if (!boxes.some(b => bx[0] < b[2] && bx[2] > b[0] && bx[1] < b[3] && bx[3] > b[1])) {
+            boxes.push(bx);
+            show = true;
+            T.el.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) translate(-50%, -100%)`;
+          }
+        }
+      }
+      if (show !== T.on) { T.on = show; T.el.classList.toggle('on', show); }
+    }
     const cap = [10, 12, 8, 10], used = [0, 0, 0, 0];
     for (const k of [1, 0, 3, 2]) {
       const want = labelsOn && (k === 0 ? dist > 650 : k === 1 ? dist < 3200 : k === 2 ? dist < 750 : dist < 520);
@@ -669,6 +698,20 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     setAuto(on) { controls.autoRotate = on; },
     setCats(on) { catOn.value = CATS.map(c => (on[c] ? 1 : 0)); wake = performance.now(); },
     setLabels(on) { labelsOn = on; viewMoved = true; },
+    setShops(list, mineId, draft) {
+      for (const T of tags) T.el.remove();
+      const all = list.map(v => ({ x: v.x, y: v.y, z: v.z, name: v.name, mine: v.i === mineId, draft: false }));
+      if (draft) all.push({ ...draft, mine: true, draft: true });
+      tags = all.map(a => {
+        const e = document.createElement('span');
+        e.className = `cl-shop${a.mine ? ' mine' : ''}${a.draft ? ' draft' : ''}`;
+        e.textContent = a.name;
+        labelBox.appendChild(e);
+        return { x: a.x, y: a.y, z: a.z, el: e, w: 0, on: false };
+      });
+      viewMoved = true; wake = performance.now();
+    },
+    setClaim(fn) { claimFn = fn; renderer.domElement.style.cursor = fn ? 'crosshair' : ''; },
     home() {
       fly = { t0: performance.now(), dur: 1600, fromT: controls.target.clone(), toT: HOME.t.clone(), fromP: camera.position.clone(), toP: HOME.t.clone().add(HOME.off) };
     },

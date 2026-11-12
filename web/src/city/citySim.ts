@@ -24,7 +24,10 @@ export type VenueInfo = { a?: string; h?: string; c?: string; s?: string };
 export type Venue = {
   i: number; x: number; y: number; z: number; cat: Cat; name: string; b: number; sub: string; info: VenueInfo; rione: string;
   pop: number; rev: number; n: number; hours: Float32Array; last: Tx[]; mix: [number, number, number];
+  own?: { owner: string; price: string; since: number };      // a client's own place ("Il tuo locale")
 };
+/** A client's place as /api/city/shops sends it */
+export type ServerShop = { id: number; b: number; x: number; y: number; cat: Cat; name: string; rione: string; price: string; owner: string; since: number };
 export type Account = { i: number; id: string; kind: 'resident' | 'tourist' | 'commuter'; hx: number; hy: number; x: number; y: number; lastT: number; recent: number[]; bal: number; you?: boolean; real?: boolean; name?: string };
 
 /** A payment as /api/city/live sends it */
@@ -113,10 +116,37 @@ export class CitySim {
     return a;
   }
 
+  /** A place by its id: an OpenStreetMap venue (its index) or a client's shop (SHOP_BASE + n on the server) */
+  at(i: number): Venue | undefined { return i < this.base ? this.venues[i] : this.shops.get(i); }
+  shops = new Map<number, Venue>();
+  private base = 0;
+
+  /** Client places from /api/city/shops: added, renamed, closed */
+  setShops(list: ServerShop[]) {
+    const keep = new Set(list.map(s => s.id));
+    for (const [id, v] of this.shops) if (!keep.has(id)) { this.shops.delete(id); this.venues.splice(this.venues.indexOf(v), 1); }
+    for (const s of list) {
+      const old = this.shops.get(s.id);
+      if (old) { old.name = s.name; old.own = { owner: s.owner, price: s.price, since: s.since }; continue; }
+      const v: Venue = { i: s.id, x: s.x, y: s.y, z: s.b >= 0 && s.b < this.heights.length ? this.heights[s.b] + 2 : 3, cat: s.cat, name: s.name, b: s.b < this.heights.length ? s.b : -1,
+        sub: s.cat, info: {}, rione: s.rione, pop: 1, rev: 0, n: 0, hours: new Float32Array(24), last: [], mix: [0, 0, 0], own: { owner: s.owner, price: s.price, since: s.since } };
+      this.shops.set(s.id, v);
+      this.venues.push(v);
+      const k = this.key(v.x, v.y);
+      if (!this.grid.has(k)) this.grid.set(k, []);
+      this.grid.get(k)!.push(v);
+    }
+  }
+
+  /** Buildings with a place in them: a new shop needs an empty one */
+  taken(b: number) { return this.venues.some(v => v.b === b); }
+  rioneAt(x: number, y: number) { let best = '', bd = 1e9; for (const l of this.D.labels) if (l[3] === 0) { const d = Math.hypot(l[0] - x, l[1] - y); if (d < bd) { bd = d; best = l[2]; } } return best; }
+  centre(b: number): [number, number] { const r = this.D.b[b][1] as number[]; let x = 0, y = 0; const n = r.length / 2; for (let k = 0; k < r.length; k += 2) { x += r[k]; y += r[k + 1]; } return [x / n, y / n]; }
+
   /** Queue server payments for playback */
   ingest(list: ServerPay[], counted = false) {
     for (const p of list) {
-      const v = this.venues[p.v];
+      const v = this.at(p.v);
       if (!v) continue;
       const acc = this.accFor(p);
       const you = this.mine.has(p.id) && this.you ? this.you : null;
@@ -163,6 +193,7 @@ export class CitySim {
       if (!this.grid.has(k)) this.grid.set(k, []);
       this.grid.get(k)!.push(v);
     });
+    this.base = this.venues.length;
     // Accounts: residents live in buildings without shops, tourists sleep in hotels, commuters come in from Termini.
     const shopB = new Set(this.venues.map(v => v.b));
     const homes = D.b.map((_, i) => i).filter(i => !shopB.has(i));

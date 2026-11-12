@@ -31,3 +31,7 @@ export type QrInvoice = {
   response_code?: string; auth_code?: string; rrn?: string; who?: string; three_ds?: boolean;
 };
 export type Me = { name: string; who: string; balance: number; card_id: number | null; card_last4: string | null; payments: { id: number }[] };
+export type MyShop = {
+  id: number; b: number; x: number; y: number; cat: 'cafe' | 'food' | 'bar' | 'shop'; name: string; rione: string; price: 'low' | 'fair' | 'high';
+  owner: string; since: number; till_real: number; till_sim: number; payable: number; paid_total: number; cap: number; mdr: number;
+};

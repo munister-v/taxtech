@@ -267,3 +267,54 @@ a.cl-me:hover strong { color: #fff; }
 .cl .cl-top .cl-qrbtn:disabled { opacity: .4; cursor: default; transform: none; }
 .cl .cl-top .cl-qrbtn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 760px) { .cl .cl-top .cl-qrbtn span { display: none; } .cl .cl-top .cl-qrbtn { width: 36px; padding: 0; justify-content: center; margin-right: 0; } }
+
+/* Il tuo locale: client places on the map, the owner's till */
+.cl-shop { position: absolute; left: 0; top: 0; white-space: nowrap; opacity: 0; transition: opacity .4s ease; will-change: transform; pointer-events: none;
+  padding: 4px 9px 4px 20px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: #1a1406; background: #e9c46a;
+  box-shadow: 0 6px 18px -6px rgba(233,196,106,.8); }
+.cl-shop::before { content: ""; position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: #1a1406; }
+.cl-shop::after { content: ""; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #e9c46a; }
+.cl-shop.on { opacity: .92; }
+.cl-shop.mine { background: var(--y); box-shadow: 0 8px 24px -6px rgba(255,212,0,.95); }
+.cl-shop.mine::after { border-top-color: var(--y); }
+.cl-shop.mine.on { opacity: 1; }
+.cl-shop.draft { background: transparent; color: var(--y); box-shadow: inset 0 0 0 1.5px var(--y); animation: cl-shop-pulse 1.4s ease-in-out infinite; }
+.cl-shop.draft::before { background: var(--y); }
+.cl-shop.draft::after { border-top-color: var(--y); }
+@keyframes cl-shop-pulse { 50% { box-shadow: inset 0 0 0 1.5px var(--y), 0 0 0 6px rgba(255,212,0,.15); } }
+
+.cl .cl-top .cl-shopbtn { display: inline-flex; align-items: center; gap: 8px; height: 36px; max-width: 220px; padding: 0 14px 0 11px; margin-right: 4px; border: 0; border-radius: 10px; cursor: pointer;
+  font-size: 13.5px; font-weight: 600; line-height: 1; color: #ecebe6; background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(233,196,106,.45); transition: background .2s, color .2s; }
+.cl .cl-top .cl-shopbtn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cl .cl-top .cl-shopbtn:hover, .cl .cl-top .cl-shopbtn.on { background: rgba(233,196,106,.16); color: #e9c46a; }
+.cl .cl-top .cl-shopbtn.has { color: #e9c46a; }
+.cl .cl-top .cl-shopbtn:disabled { opacity: .4; cursor: default; }
+.cl .cl-top .cl-shopbtn svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 760px) { .cl .cl-top .cl-shopbtn span { display: none; } .cl .cl-top .cl-shopbtn { width: 36px; padding: 0; justify-content: center; margin-right: 0; } }
+
+.cl-claim { position: absolute; left: 50%; top: 74px; transform: translateX(-50%); z-index: 5; display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: 12px;
+  background: rgba(14,15,20,.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(255,212,0,.35); font-size: 13px; font-weight: 600; color: var(--y); animation: cl-in .3s ease; }
+
+.cl-v-own { margin: -6px 0 12px; font-size: 12px; color: #e9c46a; }
+.cl-draft-name { width: 100%; box-sizing: border-box; margin: 10px 0 12px; height: 44px; padding: 0 12px; border: 0; outline: 0; border-radius: 10px;
+  background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); color: #fff; font: inherit; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.cl-draft-name:focus { box-shadow: inset 0 0 0 1.5px var(--c, var(--y)); }
+.cl-draft-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.cl-draft-cats button { display: flex; align-items: center; justify-content: center; gap: 6px; height: 34px; border-radius: 9px; font-size: 12px !important; font-weight: 600 !important; color: var(--mut) !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.cl-draft-cats button i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.cl-draft-cats button.on { color: #fff !important; box-shadow: inset 0 0 0 1.5px var(--c); background: rgba(255,255,255,.05); }
+.cl-own-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; font-size: 12.5px; }
+.cl-own-row > span { color: var(--mut); }
+.cl-own-row > b { font-weight: 500; }
+.cl-seg { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: rgba(255,255,255,.05); }
+.cl-seg button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 11.5px !important; font-weight: 600 !important; color: var(--mut) !important; }
+.cl-seg button.on { background: rgba(255,255,255,.12); color: #fff !important; }
+.cl-draft .cl-ask { margin-top: 14px; }
+.cl-own { margin-top: 14px; padding: 12px; border-radius: 12px; background: rgba(233,196,106,.07); box-shadow: inset 0 0 0 1px rgba(233,196,106,.32); display: grid; }
+.cl-own-till { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cl-own-till span { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--mut); }
+.cl-own-till b { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.cl-own-till b small { margin-left: 4px; font-size: 11px; color: var(--mut); font-weight: 500; }
+.cl-own-till .cl-btn { height: 38px; }
+.cl-own .cl-own-row:first-of-type { margin-top: 12px; }
+.cl-own .cl-link { margin-top: 12px; }

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import qrcode from 'qrcode-generator';
 import romeUrl from './rome.json?url';
-import { CATS, CAT_COLOR, CitySim, type Cat, type CityData, type ServerPay, type ServerStats, type Tx, type Venue } from './citySim';
+import { CATS, CAT_COLOR, CitySim, type Cat, type CityData, type ServerPay, type ServerShop, type ServerStats, type Tx, type Venue } from './citySim';
 import type { SceneApi } from './cityScene';
 import { initialLandingLang, landingText, LANDING_LANGS, saveLandingLang, type LandingLang } from '../landingLang';
-import { api, returnHere, type ApiErr, type Me, type PayRes, type QrInvoice } from './cityApi';
+import { api, returnHere, type ApiErr, type Me, type MyShop, type PayRes, type QrInvoice } from './cityApi';
 import './city.css';
 
 // Roma Live (/roma). The city runs on the bank's server (server/backend/services/city_service.py) on Rome's real clock:
@@ -73,6 +73,11 @@ const CHIPS: Record<Cat, number[]> = {
   culture: [380, 720], money: [1000, 3000], health: [160, 420],
 };
 
+const SHOP_CATS: MyShop['cat'][] = ['cafe', 'food', 'bar', 'shop'];
+const PRICES: [MyShop['price'], string, string][] = [['low', 'Дешевше', 'Cheaper'], ['fair', 'Звичайно', 'Fair'], ['high', 'Дорожче', 'Pricier']];
+const OPEN_FEE = 2000;
+type Draft = { b: number; x: number; y: number; z: number; rione: string; name: string; cat: MyShop['cat']; price: MyShop['price']; busy?: boolean; err?: string };
+
 type Detail = { id: number; rev: number; n: number; hours: number[]; mix: Record<'res' | 'tou' | 'com' | 'user', number>; rank: number; of: number; last: ServerPay[] };
 type Tds = { venue: Venue; amount: number; challenge: string; otp: string; hint: string; phone?: string; busy?: boolean; err?: string };
 type Flash = { ok: boolean; text: string; sub?: string };
@@ -83,6 +88,7 @@ const Ico = {
   tag: <svg viewBox="0 0 24 24"><path d="M4 12V5h7l9 9-7 7-9-9Z" /><circle cx="8" cy="9" r="1.2" /></svg>,
   home: <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /><circle cx="12" cy="12" r="5" /></svg>,
   search: <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>,
+  store: <svg viewBox="0 0 24 24"><path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3M10 20v-5h4v5" /></svg>,
   qr: <svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4M8 8h3v3H8zM13 13h3v3h-3zM13 8h3M8 13v3h3" /></svg>,
 };
 
@@ -142,6 +148,14 @@ export default function CityLive() {
   const [qr, setQr] = useState<(QrInvoice & { url: string; at: number }) | null>(null);
   const [flash, setFlash] = useState<Flash | null>(null);
   const [panel, setPanel] = useState<'city' | 'feed' | null>(null);
+  // Il tuo locale: your own place on the map
+  const [myShop, setMyShop] = useState<MyShop | null | undefined>(undefined);
+  const [claiming, setClaiming] = useState(false);
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [shopBusy, setShopBusy] = useState(false);
+  const [shopsTick, setShopsTick] = useState(0);
+  const myShopRef = useRef<MyShop | null>(null);
+  myShopRef.current = myShop || null;
 
   useEffect(() => { document.title = 'Roma Live · TaxTech'; }, []);
 
@@ -156,6 +170,13 @@ export default function CityLive() {
       setOnline(!!stop);
       simRef.current = sim;
       apiRef.current = m.createCityScene(box.current, sim, { onPick: v => pickRef.current(v, false) });
+      // a sale in your own place: the till rings
+      const sceneTx = sim.onTx;
+      sim.onTx = tx => {
+        sceneTx?.(tx);
+        const mine = myShopRef.current;
+        if (mine && tx.ok && tx.venue.i === mine.id) sayRef.current({ ok: true, text: `${mine.name} · +${fmt(tx.amount * (1 - mine.mdr))} TAX`, sub: tx.acc.real ? `${tx.acc.id} · ${t0('клієнт TaxTech', 'TaxTech client')}` : tx.acc.id });
+      };
       setReady(true);
     }).catch(() => {});
     const iv = window.setInterval(() => setTick(x => x + 1), 1000);
@@ -163,6 +184,27 @@ export default function CityLive() {
   }, []);
 
   // who is looking: a signed-in client pays with their real account
+  const loadShops = () => api<ServerShop[]>('/api/city/shops').then(list => { simRef.current?.setShops(list); setShopsTick(x => x + 1); }).catch(() => {});
+  const loadMyShop = () => api<MyShop | null>('/api/city/shop').then(setMyShop).catch(() => setMyShop(null));
+  useEffect(() => {
+    if (!ready || !online) return;
+    loadShops();
+    const iv = window.setInterval(loadShops, 60000);
+    return () => clearInterval(iv);
+  }, [ready, online]);
+  useEffect(() => {
+    if (!me) return;
+    loadMyShop();
+    const iv = window.setInterval(() => { if (!document.hidden) loadMyShop(); }, 15000);
+    return () => clearInterval(iv);
+  }, [!!me]);
+  // the gold tags over client places, yours and the one being opened
+  useEffect(() => {
+    const s = simRef.current;
+    if (!s || !apiRef.current) return;
+    apiRef.current.setShops([...s.shops.values()], myShop?.id ?? null, draft ? { x: draft.x, y: draft.y, z: draft.z, name: draft.name.trim() || t('Твій заклад', 'Your place') } : null);
+  }, [shopsTick, myShop?.id, draft?.b, draft?.name, ready, lang]);
+
   const loadMe = () => api<Me>('/api/city/me').then(m => {
     setMe(m);
     const s = simRef.current;
@@ -189,7 +231,7 @@ export default function CityLive() {
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === 'INPUT') { if (e.key === 'Escape') { setSearching(false); setQ(''); } return; }
-      if (e.key === 'Escape') { pickRef.current(null); setPanel(null); setTds(null); }
+      if (e.key === 'Escape') { pickRef.current(null); setPanel(null); setTds(null); stopClaimRef.current(); }
       if (e.key === '/') { e.preventDefault(); setSearching(true); }
     };
     window.addEventListener('keydown', k);
@@ -229,7 +271,7 @@ export default function CityLive() {
     if (!ready || !s) return;
     const u = new URLSearchParams(location.search);
     const id = Number(u.get('venue'));
-    const v = u.has('venue') && Number.isInteger(id) ? s.venues[id] : null;
+    const v = u.has('venue') && Number.isInteger(id) ? s.at(id) || null : null;
     if (u.get('qr') === '1') quickQr(v);
     else if (v) pick(v);
     if (u.has('venue') || u.has('qr')) history.replaceState(null, '', location.pathname);
@@ -237,6 +279,64 @@ export default function CityLive() {
   const setLang = (l: LandingLang) => { setLangS(l); saveLandingLang(l); };
 
   const say = (f: Flash) => { setFlash(f); window.setTimeout(() => setFlash(x => (x === f ? null : x)), 3600); };
+  const sayRef = useRef(say);
+  sayRef.current = say;
+  const t0Ref = useRef(t);
+  t0Ref.current = t;
+  function t0(uk: string, en: string) { return t0Ref.current(uk, en); }
+
+  // ── Il tuo locale ──
+  const stopClaim = () => { setClaiming(false); setDraft(null); apiRef.current?.setClaim(null); };
+  const stopClaimRef = useRef(stopClaim);
+  stopClaimRef.current = stopClaim;
+  const onClaim = (b: number) => {
+    const s = simRef.current;
+    if (!s) return;
+    if (s.taken(b)) { sayRef.current({ ok: false, text: t0('Тут уже є заклад. Оберіть порожню будівлю', 'Taken. Choose an empty building') }); return; }
+    const [x, y] = s.centre(b);
+    setDraft(d => ({ b, x, y, z: s.heights[b] + 2, rione: s.rioneAt(x, y), name: d?.name || '', cat: d?.cat || 'cafe', price: d?.price || 'fair' }));
+    apiRef.current?.flyTo(x, y, 380);
+  };
+  const startClaim = () => {
+    if (myShop) { const v = simRef.current?.at(myShop.id); if (v) pick(v); return; }
+    pick(null); setPanel(null); setClaiming(true); setDraft(null);
+    apiRef.current?.setClaim(b => onClaim(b));
+  };
+  const openShop = async () => {
+    if (!draft || draft.busy) return;
+    setDraft({ ...draft, busy: true, err: undefined });
+    try {
+      const sh = await api<MyShop>('/api/city/shop', { b: draft.b, x: draft.x, y: draft.y, name: draft.name.trim(), cat: draft.cat, price: draft.price, rione: draft.rione });
+      setMyShop(sh);
+      stopClaim();
+      await loadShops();
+      const v = simRef.current?.at(sh.id);
+      if (v) pick(v);
+      say({ ok: true, text: `${sh.name} · ${t('відчинено', 'open')}`, sub: `${t('Ліцензія', 'Licence')} −${fmt(OPEN_FEE)} TAX` });
+      loadMe();
+    } catch (e) {
+      setDraft(d => (d ? { ...d, busy: false, err: (e as Error).message } : d));
+    }
+  };
+  const shopAction = async (path: string, body: unknown = {}) => {
+    if (shopBusy) return;
+    setShopBusy(true);
+    try {
+      const r = await api<MyShop | null>(path, body);
+      setMyShop(r);
+      return r;
+    } catch (e) { say({ ok: false, text: (e as Error).message }); }
+    finally { setShopBusy(false); }
+  };
+  const payout = async () => {
+    const before = myShop?.payable || 0;
+    if (await shopAction('/api/city/shop/payout')) { say({ ok: true, text: `${t('На рахунок', 'To your account')} +${fmt(before)} TAX`, sub: myShop?.name }); loadMe(); }
+  };
+  const closeShop = async () => {
+    if (!myShop || !window.confirm(`${myShop.name}\n\n${t('Закрити заклад? Каса піде на рахунок, ліцензія не повертається.', 'Close the place? The till goes to your account, the licence is not refunded.')}`)) return;
+    await shopAction('/api/city/shop/close');
+    pick(null); await loadShops(); loadMe();
+  };
 
   const pay = async (v: Venue, amount: number, tdsSession?: string) => {
     const s = simRef.current;
@@ -287,7 +387,7 @@ export default function CityLive() {
         if (!alive) return;
         setQr(o => (o && o.code === q.code ? { ...o, ...q } : o));
         if (q.status === 'paid' || q.status === 'declined') {
-          const s = simRef.current, v = s?.venues[q.venue];
+          const s = simRef.current, v = s?.at(q.venue);
           if (s && v && q.status === 'paid') {
             apiRef.current?.flyTo(v.x, v.y, 300);
             // the phone's payment flies in from the street in front of the place
@@ -337,6 +437,7 @@ export default function CityLive() {
         <button type="button" className="cl-x" aria-label={t('Закрити', 'Close')} onClick={() => pick(null)}>×</button>
         <span className="cl-v-kind"><i />{t(...CAT_NAME[sel.cat])}{sel.sub && sel.sub !== sel.cat ? ` · ${sel.sub.replace(/_/g, ' ')}` : ''}{sel.info.s ? ` · ${'★'.repeat(Math.min(5, parseInt(sel.info.s) || 0))}` : ''}</span>
         <h3>{sel.name}</h3>
+        {sel.own && <p className="cl-v-own">{myShop && sel.i === myShop.id ? t('Ваш заклад', 'Your place') : `${t('Власник', 'Owner')} ${sel.own.owner}`} · {t('з', 'since')} {new Date(sel.own.since * 1000).toLocaleDateString({ uk: 'uk-UA', en: 'en-GB', it: 'it-IT', de: 'de-DE', ru: 'ru-RU' }[lang] || 'en-GB', { day: 'numeric', month: 'short' })}</p>}
         <dl className="cl-v-facts">
           {sel.info.a && <div><dt>{t('Адреса', 'Address')}</dt><dd>{sel.info.a}</dd></div>}
           {sel.rione && <div><dt>{t('Район', 'Rione')}</dt><dd>{sel.rione}</dd></div>}
@@ -366,11 +467,24 @@ export default function CityLive() {
             {last.slice(0, 5).map(x => <li key={x.id} className={`${x.ok ? '' : 'no'}${x.mine ? ' mine' : x.real ? ' real' : ''}`}><span>{x.mine ? t('Ви', 'You') : x.who}</span><em>{x.ok ? '' : t(...REASON[x.r || 'limit'])}</em><b>{fmt(x.a)}</b></li>)}
           </ul>
         )}
-        <div className="cl-paymode" role="tablist">
+        {myShop && sel.i === myShop.id && (
+          <div className="cl-own">
+            <div className="cl-own-till">
+              <div><span>{t('Каса', 'Till')}</span><b>{fmt(myShop.till_real + myShop.till_sim)}<small>TAX</small></b></div>
+              <button type="button" className="cl-btn cl-btn-y" disabled={shopBusy || myShop.payable <= 0} onClick={payout}>{t('На рахунок', 'To account')} {myShop.payable > 0 ? fmt(myShop.payable) : ''}</button>
+            </div>
+            <div className="cl-own-row"><span>{t('Ціна', 'Prices')}</span>
+              <div className="cl-seg">{PRICES.map(([k, uk, en]) => <button key={k} type="button" className={myShop.price === k ? 'on' : ''} disabled={shopBusy} onClick={() => myShop.price !== k && shopAction('/api/city/shop/price', { price: k })}>{t(uk, en)}</button>)}</div>
+            </div>
+            <div className="cl-own-row"><span>{t('Виведено всього', 'Paid out')}</span><b>{fmt(myShop.paid_total)} TAX</b></div>
+            <button type="button" className="cl-link" onClick={closeShop}>{t('Закрити заклад', 'Close the place')}</button>
+          </div>
+        )}
+        {!(myShop && sel.i === myShop.id) && <div className="cl-paymode" role="tablist">
           <button type="button" role="tab" aria-selected={payMode === 'card'} className={payMode === 'card' ? 'on' : ''} onClick={() => { setPayMode('card'); setQr(null); }}>{t('Карткою', 'Card')}</button>
           <button type="button" role="tab" aria-selected={payMode === 'qr'} className={payMode === 'qr' ? 'on' : ''} onClick={() => { setPayMode('qr'); setAsk(null); setTds(null); }}>QR</button>
-        </div>
-        {payMode === 'qr' ? (
+        </div>}
+        {payMode === 'qr' || (myShop && sel.i === myShop.id) ? (
           qr && qr.venue === sel.i ? (
             <div className={`cl-qr is-${qr.status}`}>
               {qr.status === 'pending' || qr.status === 'processing' ? (
@@ -428,7 +542,7 @@ export default function CityLive() {
   })();
 
   return (
-    <div className={`cl${ready ? ' ready' : ''}${panel ? ' p-' + panel : ''}${sel ? ' has-sel' : ''}`}>
+    <div className={`cl${ready ? ' ready' : ''}${panel ? ' p-' + panel : ''}${sel || draft ? ' has-sel' : ''}`}>
       <div className="cl-map" ref={box} />
       {!ready && <div className="cl-load"><span>Roma</span><i /></div>}
 
@@ -443,6 +557,9 @@ export default function CityLive() {
         <div className="cl-top-r">
           <button type="button" className="cl-qrbtn" onClick={() => quickQr()} disabled={!ready || !online} title={t('Оплатити за QR-кодом', 'Pay by QR code')}>
             {Ico.qr}<span>{t('Оплатити за QR-кодом', 'Pay by QR code')}</span>
+          </button>
+          <button type="button" className={`cl-shopbtn${myShop ? ' has' : ''}${claiming ? ' on' : ''}`} onClick={() => (claiming ? stopClaim() : startClaim())} disabled={!ready || !online} title={myShop ? myShop.name : t('Відкрити свій заклад', 'Open your own place')}>
+            {Ico.store}<span>{myShop ? myShop.name : t('Свій заклад', 'Your place')}</span>
           </button>
           <div className={`cl-search${searching ? ' open' : ''}`}>
             <button type="button" className="cl-ib" aria-label={t('Знайти місце', 'Find a place')} onClick={() => setSearching(s => !s)}>{Ico.search}</button>
@@ -505,7 +622,31 @@ export default function CityLive() {
         </ul>
       </aside>
 
-      <div className="cl-card-wrap">{venueCard}</div>
+      <div className="cl-card-wrap">{draft ? (
+        <section className="cl-venue cl-draft" style={{ ['--c' as string]: CAT_COLOR[draft.cat] }}>
+          <button type="button" className="cl-x" aria-label={t('Скасувати', 'Cancel')} onClick={stopClaim}>×</button>
+          <span className="cl-v-kind"><i />{t('Новий заклад', 'New place')}{draft.rione ? ` · ${draft.rione}` : ''}</span>
+          <input className="cl-draft-name" autoFocus maxLength={40} value={draft.name} placeholder={t('Назва', 'Name')} onChange={e => setDraft({ ...draft, name: e.target.value, err: undefined })} spellCheck={false} />
+          <div className="cl-draft-cats">{SHOP_CATS.map(c => <button key={c} type="button" className={draft.cat === c ? 'on' : ''} style={{ ['--c' as string]: CAT_COLOR[c] }} onClick={() => setDraft({ ...draft, cat: c })}><i />{t(...CAT_NAME[c])}</button>)}</div>
+          <div className="cl-own-row"><span>{t('Ціна', 'Prices')}</span>
+            <div className="cl-seg">{PRICES.map(([k, uk, en]) => <button key={k} type="button" className={draft.price === k ? 'on' : ''} onClick={() => setDraft({ ...draft, price: k })}>{t(uk, en)}</button>)}</div>
+          </div>
+          <div className="cl-ask">
+            <div className="cl-ask-row"><span>{t('Ліцензія', 'Licence')}</span><b>{fmt(OPEN_FEE)} TAX</b></div>
+            {me && <div className="cl-ask-row"><span>{t('З рахунку', 'From')}</span><b>{me.card_last4 ? `•••• ${me.card_last4}` : me.who} · {fmt(me.balance)}</b></div>}
+            {draft.err && <p className="cl-err">{draft.err}</p>}
+            {me ? (
+              <div className="cl-ask-btns">
+                <button type="button" className="cl-btn cl-btn-glass" onClick={stopClaim}>{t('Скасувати', 'Cancel')}</button>
+                <button type="button" className="cl-btn cl-btn-y" disabled={draft.busy || draft.name.trim().length < 2} onClick={openShop}>{draft.busy ? '…' : t('Відчинити', 'Open the place')}</button>
+              </div>
+            ) : <a className="cl-btn cl-btn-y cl-wide" href="/#login" onClick={afterLogin}>{t('Увійти, щоб відчинити', 'Sign in to open')}</a>}
+          </div>
+        </section>
+      ) : venueCard}</div>
+      {claiming && !draft && (
+        <div className="cl-claim"><span>{t('Торкніться порожньої будівлі', 'Tap an empty building')}</span><button type="button" className="cl-link" onClick={stopClaim}>{t('Скасувати', 'Cancel')}</button></div>
+      )}
 
       <footer className="cl-bottom">
         <div className="cl-strip">

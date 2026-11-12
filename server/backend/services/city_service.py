@@ -39,6 +39,18 @@ MAX_CATCHUP = 24 * 3600    # seconds of city generated on one request, at most (
 CHUNK = 400                # rows per multi-row INSERT
 KEEP_DAYS = 2
 
+# Your own place ("Il tuo locale"): a client opens a café, trattoria, bar or shop in an empty building. It is a venue like
+# the others (id SHOP_BASE + its row id), the synthetic city walks in by the same gravity model, and the takings land in
+# the shop's till; the owner moves them to the account. Simulated takings are paid out up to SIM_DAILY_CAP a day, money
+# from real clients in full: the city cannot print TAX faster than that.
+SHOP_BASE = 100000
+SHOP_CATS = ('cafe', 'food', 'bar', 'shop')
+PRICE = {'low': .8, 'fair': 1.0, 'high': 1.35}
+OPEN_FEE = 2000.0
+SIM_DAILY_CAP = 3000.0
+SHOP_MDR = 0.015
+SHOP_DRAW = 2.0          # a new place is talked about: it is considered twice as often as an average one
+
 _lock = threading.Lock()
 _schema_ready = False
 _cache: dict[str, tuple[float, Any]] = {}
@@ -90,7 +102,7 @@ class _City:
                 return c
         return 'cafe'
 
-    def pick_venue(self, r: random.Random, x: float, y: float, cat: str, tourist: bool) -> int:
+    def pick_venue(self, r: random.Random, x: float, y: float, cat: str, tourist: bool, with_weight: bool = False):
         lst = self.by_cat[cat]
         walk = 520 if tourist else 340
         best, bw = lst[0], -1.0
@@ -100,7 +112,7 @@ class _City:
             w = self.pop[i] * math.exp(-math.hypot(v[0] - x, v[1] - y) / walk) * (.5 + r.random())
             if w > bw:
                 best, bw = i, w
-        return best
+        return (best, bw) if with_weight else best
 
     @staticmethod
     def amount(r: random.Random, cat: str) -> float:
@@ -167,7 +179,71 @@ def ensure_schema() -> None:
                 three_ds INTEGER NOT NULL DEFAULT 0,
                 paid_ts DOUBLE PRECISION
             )""")
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS city_shops (
+                id {pk},
+                user_id INTEGER NOT NULL,
+                name VARCHAR(40) NOT NULL,
+                cat VARCHAR(8) NOT NULL,
+                price VARCHAR(4) NOT NULL,
+                b INTEGER NOT NULL,
+                x REAL NOT NULL,
+                y REAL NOT NULL,
+                rione VARCHAR(40) NOT NULL DEFAULT '',
+                status VARCHAR(8) NOT NULL DEFAULT 'open',
+                created_ts DOUBLE PRECISION NOT NULL,
+                bal_real REAL NOT NULL DEFAULT 0,
+                bal_sim REAL NOT NULL DEFAULT 0,
+                paid_sim_day VARCHAR(10) NOT NULL DEFAULT '',
+                paid_sim REAL NOT NULL DEFAULT 0,
+                paid_total REAL NOT NULL DEFAULT 0
+            )""")
+        conn.execute('CREATE INDEX IF NOT EXISTS idx_city_shops_user ON city_shops(user_id, status)')
     _schema_ready = True
+
+
+# ── Places: an OpenStreetMap venue or a client's own shop ──────────────────────────────────────────────────────
+
+def is_shop(vid: int) -> bool:
+    return vid >= SHOP_BASE
+
+
+def shops(fresh: bool = False) -> dict[int, dict[str, Any]]:
+    """Open shops by venue id. Cached for a few seconds: the generator asks on every request."""
+    def load():
+        ensure_schema()
+        with get_connection() as conn:
+            rows = conn.execute("SELECT * FROM city_shops WHERE status = 'open' ORDER BY id").fetchall()
+        return {SHOP_BASE + int(r['id']): dict(r) for r in rows}
+    if fresh:
+        _cache.pop('shops', None)
+    return _cached('shops', 5.0, load)
+
+
+def place(vid: int) -> tuple[float, float, str, str, str] | None:
+    """x, y, category, name, rione of any place on the map"""
+    if is_shop(vid):
+        r = shops().get(vid)
+        return (float(r['x']), float(r['y']), r['cat'], r['name'], r['rione']) if r else None
+    v = city().venues
+    if 0 <= vid < len(v):
+        x, y, cat, name, rione = v[vid][:5]
+        return float(x), float(y), cat, name, rione
+    return None
+
+
+def credit_shop(conn, vid: int, amount: float, real: bool) -> None:
+    """A payment to a client's shop goes into its till, less the acquirer's fee"""
+    net = round(amount * (1 - SHOP_MDR), 2)
+    col = 'bal_real' if real else 'bal_sim'
+    conn.execute(f'UPDATE city_shops SET {col} = {col} + %s WHERE id = %s', (net, vid - SHOP_BASE))
+
+
+def payable(r: dict[str, Any], day: str | None = None) -> tuple[float, float]:
+    """What the owner can move to the account now: (from real clients, from the simulated city)"""
+    day = day or today()
+    left = SIM_DAILY_CAP - (float(r['paid_sim']) if r['paid_sim_day'] == day else 0.0)
+    return round(float(r['bal_real']), 2), round(max(0.0, min(float(r['bal_sim']), left)), 2)
 
 
 def rome_now(ts: float | None = None) -> datetime:
@@ -199,6 +275,7 @@ def advance(now: float | None = None, rng: random.Random | None = None) -> int:
     ensure_schema()
     now = time.time() if now is None else now
     c = city()
+    own = list(shops().items())
     with get_connection() as conn:
         row = conn.execute('SELECT last_ts FROM city_state WHERE id = 1').fetchone()
         if not row:
@@ -215,6 +292,7 @@ def advance(now: float | None = None, rng: random.Random | None = None) -> int:
         start = max(old, now - MAX_CATCHUP)
         r = rng or random.Random()
         rows: list[tuple] = []
+        till: dict[int, float] = {}
         t = start
         # a Poisson process whose rate follows the Roman day
         while True:
@@ -230,14 +308,30 @@ def advance(now: float | None = None, rng: random.Random | None = None) -> int:
                 rows += _fraud(r, min(t, now - 60), ai)
                 continue
             cat = c.pick_cat(r, h)
-            vi = c.pick_venue(r, hx, hy, cat, kind == 'tou')
-            amt = c.amount(r, cat)
+            vi, bw = c.pick_venue(r, hx, hy, cat, kind == 'tou', with_weight=True)
+            pf = 1.0
+            if own:
+                # a client's place is one more candidate, drawn about as often as SHOP_DRAW ordinary places
+                walk = 520 if kind == 'tou' else 340
+                p_in = min(1.0, 18 * SHOP_DRAW / max(1, len(c.by_cat[cat])))
+                for sid, sh in own:
+                    if sh['cat'] != cat or r.random() > p_in:
+                        continue
+                    f = PRICE.get(sh['price'], 1.0)
+                    w = (f ** -2.2) * math.exp(-math.hypot(float(sh['x']) - hx, float(sh['y']) - hy) / walk) * (.5 + r.random())
+                    if w > bw:
+                        vi, bw, pf = sid, w, f
+            amt = float(max(5, round(c.amount(r, cat) * pf / 5) * 5))
             ok, reason = True, None
             if r.random() < .004:
                 ok, reason = False, 'funds'
+            if ok and vi >= SHOP_BASE:
+                till[vi] = till.get(vi, 0.0) + amt
             rows.append(_tuple(t, vi, amt, ok, reason, kind, who, hx + r.uniform(-25, 25), hy + r.uniform(-25, 25)))
         rows.sort(key=lambda x: x[0])
         _bulk(conn, rows)
+        for vid, amt in till.items():
+            credit_shop(conn, vid, amt, real=False)
         n = len(rows)
         if r.random() < .02:
             conn.execute('DELETE FROM city_payments WHERE ts < %s', (now - KEEP_DAYS * 86400,))
@@ -260,7 +354,7 @@ def _fraud(r: random.Random, t: float, ai: int) -> list[tuple]:
 
 def record_user(conn, user_id: int, venue: int, amount: float, ok: bool, reason: str | None, who: str,
                 pos_id: int | None, at: tuple[float, float] | None) -> None:
-    v = city().venues[venue]
+    v = place(venue)
     fx, fy = at if at else (v[0] - 140, v[1] - 90)
     _insert(conn, time.time(), venue, amount, ok, reason, 'user', who, fx, fy, user_id, pos_id)
 
@@ -294,7 +388,9 @@ def stats(day: str | None = None) -> dict[str, Any]:
         for r in rows:
             s, k, vi = float(r['s'] or 0), int(r['n']), int(r['venue'])
             rev[vi] = [round(s), k]
-            by_cat[c.venues[vi][2]] += s
+            pl = place(vi)
+            if pl:
+                by_cat[pl[2]] += s
             vol += s
             n += k
         h24 = [0.0] * 24
@@ -342,8 +438,8 @@ def venue_detail(vi: int) -> dict[str, Any]:
         mix[str(r['kind'])] = int(r['n'])
     st = stats(day)
     mine = st['rev'].get(vi, [0, 0])
-    cat = c.venues[vi][2]
-    rank = 1 + sum(1 for j in c.by_cat[cat] if st['rev'].get(j, [0])[0] > mine[0]) if mine[1] else 0
-    v = c.venues[vi]
-    return {'id': vi, 'name': v[3], 'cat': cat, 'rione': v[4], 'rev': mine[0], 'n': mine[1], 'hours': h24, 'mix': mix,
-            'rank': rank, 'of': len(c.by_cat[cat]), 'last': [_pay_row(r) for r in last]}
+    x, y, cat, name, rione = place(vi)
+    rivals = c.by_cat[cat] + [sid for sid, sh in shops().items() if sh['cat'] == cat]
+    rank = 1 + sum(1 for j in rivals if j != vi and st['rev'].get(j, [0])[0] > mine[0]) if mine[1] else 0
+    return {'id': vi, 'name': name, 'cat': cat, 'rione': rione, 'rev': mine[0], 'n': mine[1], 'hours': h24, 'mix': mix,
+            'rank': rank, 'of': len(rivals), 'last': [_pay_row(r) for r in last], 'shop': is_shop(vi)}

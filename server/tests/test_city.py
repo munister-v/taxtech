@@ -177,3 +177,90 @@ def test_pay_page_serves_web_app_for_qr_codes(client, tmp_path, monkeypatch):
     assert b'id="root"' in client.get('/pay/Cdi9W7Yh3ha5').data
     long = client.get('/pay/' + 'x' * 32).data
     assert b'id="root"' not in long and b'taxpay/sessions' in long
+
+
+# ── Il tuo locale ──────────────────────────────────────────────────────────────────────────────────────────────
+
+def _busy_spot():
+    """A point in the thick of central Rome: next to the busiest cafés"""
+    c = cs.city()
+    v = c.venues[c.by_cat['cafe'][0]]
+    return float(v[0]) + 3, float(v[1]) + 3
+
+
+def _open(client, h, b, name='Caffè Prova', cat='cafe', price='fair'):
+    x, y = _busy_spot()
+    return client.post('/api/city/shop', json={'b': b, 'x': x, 'y': y, 'name': name, 'cat': cat, 'price': price, 'rione': 'Monti'}, headers=h)
+
+
+def test_open_shop_costs_a_licence_and_shows_on_everyones_map(client):
+    cs.ensure_schema()
+    h = _user(client, topup=5000)
+    before = _balance(client, h)
+    r = _open(client, h, b=900001)
+    d = r.get_json()['data']
+    assert r.status_code == 200 and d['name'] == 'Caffè Prova' and d['id'] >= cs.SHOP_BASE
+    assert abs(_balance(client, h) - (before - cs.OPEN_FEE)) < 0.01
+    shops = client.get('/api/city/shops').get_json()['data']
+    assert any(s['id'] == d['id'] and s['b'] == 900001 for s in shops)
+    assert client.get(f"/api/city/venue/{d['id']}").get_json()['data']['shop'] is True
+    # one place per client, one place per building
+    assert _open(client, h, b=900002).status_code == 400
+    assert _open(client, _user(client), b=900001).status_code == 400
+
+
+def test_open_shop_needs_the_fee_and_valid_fields(client):
+    poor = _user(client, topup=500)
+    assert _open(client, poor, b=900010).status_code == 402
+    h = _user(client)
+    assert _open(client, h, b=900011, name='x').status_code == 400
+    assert _open(client, h, b=900011, cat='stay').status_code == 400
+    assert client.post('/api/city/shop', json={'name': 'Bar'}).status_code in (401, 403)
+
+
+def test_the_city_walks_into_a_new_shop_and_the_owner_cashes_out(client):
+    cs.ensure_schema()
+    h = _user(client, topup=5000)
+    vid = _open(client, h, b=900020, name='Bar Prova', cat='cafe', price='low').get_json()['data']['id']
+    cs.shops(fresh=True)
+    t0 = time.time() + 30000
+    cs.advance(now=t0, rng=random.Random(7))           # the city catches up to the opening
+    cs.advance(now=t0 + 6 * 3600, rng=random.Random(8))
+    cs._cache.clear()
+    me = client.get('/api/city/shop', headers=h).get_json()['data']
+    assert me['till_sim'] > 0, 'simulated customers should have paid the new café'
+    from backend.database import get_connection
+    with get_connection() as conn:
+        n = conn.execute('SELECT COUNT(*) AS n FROM city_payments WHERE venue = %s AND ok = 1', (vid,)).fetchone()['n']
+    assert n > 0
+    assert client.get(f'/api/city/venue/{vid}').get_json()['data']['name'] == 'Bar Prova'
+    before = _balance(client, h)
+    r = client.post('/api/city/shop/payout', headers=h).get_json()
+    assert r['paid'] > 0 and r['paid'] <= cs.SIM_DAILY_CAP + me['till_real'] + 0.01
+    assert abs(_balance(client, h) - (before + r['paid'])) < 0.01
+    # the simulated part of the till is paid out at most SIM_DAILY_CAP a day
+    again = client.post('/api/city/shop/payout', headers=h)
+    if r['data']['till_sim'] > 0:
+        assert again.status_code == 400 or again.get_json()['paid'] <= 0.01
+
+
+def test_a_real_client_pays_a_shop_and_the_owner_cannot_pay_his_own(client):
+    owner = _user(client, topup=5000)
+    vid = _open(client, owner, b=900030, name='Trattoria Prova', cat='food').get_json()['data']['id']
+    assert client.post('/api/city/pay', json={'venue': vid, 'amount': 300}, headers=owner).status_code == 400
+    guest = _user(client, topup=3000)
+    d = client.post('/api/city/pay', json={'venue': vid, 'amount': 300}, headers=guest).get_json()['data']
+    assert d['approved'] is True and d['merchant'] == 'Roma · Trattoria Prova'
+    me = client.get('/api/city/shop', headers=owner).get_json()['data']
+    assert abs(me['till_real'] - 300 * (1 - cs.SHOP_MDR)) < 0.01
+    # QR for the shop works too
+    q = client.post('/api/city/qr', json={'venue': vid, 'amount': 120}).get_json()['data']
+    assert q['name'] == 'Trattoria Prova'
+    assert client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=owner).status_code == 400
+    assert client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=guest).get_json()['data']['status'] == 'paid'
+    # closing pays out what it may
+    before = _balance(client, owner)
+    c = client.post('/api/city/shop/close', headers=owner).get_json()
+    assert c['paid'] >= 300 * (1 - cs.SHOP_MDR) and _balance(client, owner) > before
+    assert client.get('/api/city/shop', headers=owner).get_json()['data'] is None
+    assert all(s['id'] != vid for s in client.get('/api/city/shops').get_json()['data'])
