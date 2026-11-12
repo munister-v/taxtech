@@ -2,6 +2,13 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Rome by QR code.": "Roma col QR code.",
+    "Again": "Ancora",
+    "Code expired": "Codice scaduto",
+    "Could not create a code": "Impossibile creare il codice",
+    "Pay in the app": "Paga nell’app",
+    "Scan with your phone camera or in the TaxTech app.": "Inquadra con la fotocamera del telefono o nell’app TaxTech.",
+    "Another place": "Un altro posto",
     "Open in the TaxTech app": "Apri nell’app TaxTech",
     "Card": "Carta",
     "Scan with a phone and confirm": "Inquadra col telefono e conferma",
@@ -205,6 +212,13 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Rome by QR code.": "Rom per QR-Code.",
+    "Again": "Noch einmal",
+    "Code expired": "Code abgelaufen",
+    "Could not create a code": "Code konnte nicht erstellt werden",
+    "Pay in the app": "In der App bezahlen",
+    "Scan with your phone camera or in the TaxTech app.": "Mit der Handykamera oder in der TaxTech-App scannen.",
+    "Another place": "Ein anderer Ort",
     "Open in the TaxTech app": "In der TaxTech-App öffnen",
     "Card": "Karte",
     "Scan with a phone and confirm": "Mit dem Handy scannen und bestätigen",
@@ -408,6 +422,13 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Rome by QR code.": "Рим по QR-коду.",
+    "Again": "Ещё раз",
+    "Code expired": "Код истёк",
+    "Could not create a code": "Не удалось создать код",
+    "Pay in the app": "Оплатить в приложении",
+    "Scan with your phone camera or in the TaxTech app.": "Отсканируйте камерой телефона или в приложении TaxTech.",
+    "Another place": "Другое место",
     "Open in the TaxTech app": "Открыть в приложении TaxTech",
     "Card": "Картой",
     "Scan with a phone and confirm": "Отсканируйте телефоном и подтвердите",

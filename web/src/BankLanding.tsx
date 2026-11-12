@@ -10,6 +10,7 @@ import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
 import { autoplay } from './autoplay';
 import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
+import QrRome from './QrRome';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
@@ -668,6 +669,9 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             </div>
           </div>
         </Lazy>
+
+        {/* ── Rome by QR code: a real invoice for a real place, paid from a phone, flying onto the map ── */}
+        <QrRome t={t} />
 
         {/* ── Saint Agnes as a lookbook: four pieces large, edge to edge; the back view on hover; brand, piece and price in TAX ── */}
         <section id="shop" className="sa">

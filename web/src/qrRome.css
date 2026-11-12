@@ -1,0 +1,72 @@
+/* Rome by QR code: the night map around a real café, a live invoice beside it, and the flight of the payment. */
+.qr { position: relative; padding: clamp(80px, 10vw, 140px) 0; background: #04060d; overflow: hidden; }
+.qr-in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
+
+.qr-map { position: relative; height: clamp(440px, 46vw, 620px); border-radius: 28px; overflow: hidden; background: #04060d;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.07);
+  -webkit-mask-image: radial-gradient(95% 90% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(95% 90% at 50% 45%, #000 60%, transparent 100%); }
+.qr-map canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.qr-pin { position: absolute; left: 50%; top: 42%; width: 0; height: 0; }
+.qr-pin i { position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #ffd400; opacity: 0; animation: qr-ring 2.6s cubic-bezier(.2,.7,.2,1) infinite; }
+.qr-pin i:nth-child(2) { animation-delay: .85s; }
+.qr-pin i:nth-child(3) { animation-delay: 1.7s; }
+@keyframes qr-ring { 0% { opacity: .9; transform: scale(.6); } 100% { opacity: 0; transform: scale(4.2); } }
+.qr-pin b { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: #ffd400; box-shadow: 0 0 0 4px rgba(255,212,0,.22), 0 0 24px rgba(255,212,0,.8); }
+.qr-pin span { position: absolute; left: 18px; top: -9px; white-space: nowrap; font-size: 13px; font-weight: 600; letter-spacing: -.01em; color: #fff; text-shadow: 0 0 6px #04060d, 0 0 12px #04060d; }
+
+/* the flight: from the phone at the bottom to the place, once the payment comes back */
+.qr-fly { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.qr-fly path { fill: none; stroke: #ffd400; stroke-width: 2.5px; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; filter: drop-shadow(0 0 6px rgba(255,212,0,.8)); }
+.qr.is-paid .qr-fly path { opacity: 1; animation: qr-fly 1.1s cubic-bezier(.5,0,.2,1) forwards, qr-fade 1.6s ease 2.2s forwards; }
+@keyframes qr-fly { to { stroke-dashoffset: 0; } }
+@keyframes qr-fade { to { opacity: .25; } }
+.qr.is-paid .qr-pin b { animation: qr-hit .7s cubic-bezier(.3,1.6,.5,1) 1s both; }
+@keyframes qr-hit { 0% { transform: scale(1); } 40% { transform: scale(2.2); box-shadow: 0 0 0 14px rgba(255,212,0,.25), 0 0 60px rgba(255,212,0,1); } 100% { transform: scale(1.15); } }
+.qr.is-paid .qr-pin i { animation-duration: 1.4s; animation-delay: 1s; border-width: 2px; }
+.qr.is-paid .qr-pin i:nth-child(2) { animation-delay: 1.25s; }
+.qr.is-paid .qr-pin i:nth-child(3) { animation-delay: 1.5s; }
+
+.qr-phone { position: absolute; left: 50%; bottom: -14px; width: 46px; height: 80px; translate: -50% 0; border-radius: 12px; background: #0b0c11;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35), 0 0 30px rgba(255,212,0,.15); }
+.qr-phone i { position: absolute; left: 50%; top: 6px; width: 14px; height: 4px; translate: -50% 0; border-radius: 3px; background: rgba(255,255,255,.3); }
+.qr.is-paid .qr-phone { box-shadow: inset 0 0 0 1.5px #ffd400, 0 0 34px rgba(255,212,0,.6); transition: box-shadow .3s; }
+
+.qr-side { display: flex; flex-direction: column; gap: 26px; }
+.bl .qr-side .bl-h { margin: 0; font-size: clamp(40px, 5vw, 72px); line-height: .98; letter-spacing: -.045em; }
+.qr-card { padding: 22px; border-radius: 26px; background: rgba(255,255,255,.045); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.qr-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.bl .qr-head h3, .bl .qr-done h3 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -.02em; color: #fff; }
+.qr-head p { margin: 4px 0 0; font-size: 13px; color: rgba(255,255,255,.5); }
+.qr-amt { flex: none; font-size: 26px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: #fff; white-space: nowrap; }
+.qr-amt small { font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--yellow, #ffd400); }
+.qr-code { display: grid; place-items: center; width: min(240px, 100%); aspect-ratio: 1; margin: 20px auto 0; padding: 10px; border-radius: 18px; background: #fff; box-shadow: 0 0 0 6px rgba(255,212,0,.12), 0 20px 50px -20px rgba(0,0,0,.8); transition: transform .3s; }
+.qr-code:hover { transform: scale(1.02); }
+.qr-code svg { width: 100%; height: 100%; display: block; }
+.qr-code.off { background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); color: rgba(255,255,255,.6); font-size: 14px; text-align: center; }
+.qr-spin { width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid rgba(255,212,0,.2); border-top-color: #ffd400; animation: qr-rot .8s linear infinite; }
+@keyframes qr-rot { to { transform: rotate(360deg); } }
+.bl .qr-open { display: flex; width: 100%; margin-top: 16px; }
+.qr-hint { margin: 16px 0 0; text-align: center; font-size: 13.5px; color: rgba(255,255,255,.55); }
+.qr-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.08); }
+.qr-foot span { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.5); }
+.qr-foot button { border: 0; background: none; padding: 4px 0; font: inherit; font-size: 14px; font-weight: 600; color: #ffd400; cursor: pointer; }
+.qr-foot button:disabled { opacity: .4; cursor: default; }
+
+.qr-done { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 0 4px; animation: qr-in .6s cubic-bezier(.2,.7,.2,1) 1.1s both; }
+@keyframes qr-in { from { opacity: 0; transform: translateY(10px); } }
+.qr-tick { display: grid; place-items: center; width: 66px; height: 66px; border-radius: 50%; background: #ffd400; color: #14120a; box-shadow: 0 0 40px rgba(255,212,0,.5); }
+.qr-tick svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.qr-done em { margin-top: 16px; font-style: normal; font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.qr-done .qr-amt { margin-top: 6px; font-size: 38px; }
+.qr-done h3 { margin-top: 8px !important; }
+.qr-done p { margin: 6px 0 0; font-size: 13.5px; color: rgba(255,255,255,.55); }
+.qr-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+
+@media (max-width: 860px) {
+  .qr-in { grid-template-columns: 1fr; }
+  .qr-side { order: -1; }
+  .qr-map { height: 380px; border-radius: 22px; }
+  .qr-code { width: min(200px, 70%); }
+}
+@media (prefers-reduced-motion: reduce) { .qr-pin i, .qr-fly path, .qr-pin b, .qr-done { animation: none !important; } .qr.is-paid .qr-fly path { stroke-dashoffset: 0; opacity: .6; } }
