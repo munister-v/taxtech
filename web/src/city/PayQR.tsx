@@ -138,6 +138,9 @@ export default function PayQR({ code }: { code: string }) {
           {err && <p className="pq-warn">{err}</p>}
         </section>
       )}
+      {/iPhone|iPad/.test(navigator.userAgent) && (step === 'review' || step === 'loading' || me === null) && (
+        <a className="pq-app" href={`taxtech://pay/${encodeURIComponent(code)}`}>{t('Відкрити в застосунку TaxTech', 'Open in the TaxTech app')}</a>
+      )}
       <footer className="pq-foot">{t('Навчальний банк · TAX не є грошима', 'Training bank · TAX is not money')}</footer>
     </div>
   );

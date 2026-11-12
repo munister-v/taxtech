@@ -16,6 +16,7 @@ struct OverviewView: View {
     @State private var showProfile = false
     @State private var showTerminal = false
     @State private var showFX = false
+    @State private var showScan = false
     @State private var selected: API.Transaction?
     @State private var hits: [API.Product] = []
     @State private var shown: Double = 0
@@ -35,7 +36,7 @@ struct OverviewView: View {
                 VStack(spacing: 0) {
                     hero
                     VStack(spacing: 12) {
-                        terminalTile.rise(3)
+                        HStack(spacing: 12) { terminalTile; scanTile }.rise(3)
                         activity.rise(4)
                         if !recipients.isEmpty { quickTransfer.rise(5) }
                         spending.rise(6)
@@ -66,6 +67,8 @@ struct OverviewView: View {
                 let env = ProcessInfo.processInfo.environment
                 if env["KOPIYKA_POS"] == "1" { showTerminal = true }
                 if env["KOPIYKA_FX"] == "1" { showFX = true }
+                if env["KOPIYKA_SCAN"] == "1" { showScan = true }
+                if let c = env["KOPIYKA_PAY"] { model.payCode = PayCode(code: c) }
             }
             #endif
             .refreshable { await load() }
@@ -77,6 +80,14 @@ struct OverviewView: View {
                 }
             }
             .fullScreenCover(isPresented: $showFX) { NavigationStack { AccountsView() } }
+            .fullScreenCover(isPresented: $showScan) {
+                QRScanView { code in
+                    showScan = false
+                    // let the scanner close before the invoice sheet comes up
+                    Task { try? await Task.sleep(for: .milliseconds(350)); model.payCode = PayCode(code: code) }
+                }
+            }
+            .onChange(of: model.syncTick) { _, _ in Task { await load() } }
             .fullScreenCover(isPresented: $showTerminal, onDismiss: { Task { await load() } }) { PosTerminalView() }
             .sheet(isPresented: $showProfile) { ProfileView().presentationDragIndicator(.visible) }
             .sheet(item: $selected) { tx in TransactionDetailView(tx: tx) }
@@ -204,6 +215,18 @@ struct OverviewView: View {
         }
         .buttonStyle(PressScale())
         .sensoryFeedback(.impact(weight: .light), trigger: bank.cards.count)
+    }
+
+    /// Сканер QR: оплата рахунку з екрана (карта Roma Live, магазин).
+    private var scanTile: some View {
+        Button { showScan = true } label: {
+            Image(systemName: "qrcode.viewfinder").font(Theme.ui(24, .semibold)).foregroundStyle(Theme.ink)
+                .frame(width: 80, height: 80)
+                .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: Theme.hairline))
+        }
+        .buttonStyle(PressScale())
+        .accessibilityLabel(Tx("Сканувати QR", "Scan QR", "Сканировать QR"))
     }
 
     /// Вхід у віртуальний POS-термінал.

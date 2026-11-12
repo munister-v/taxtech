@@ -1,4 +1,4 @@
-"NSCameraUsageDescription" = "Um einen Beleg zu fotografieren. Das Foto wird auf dem Telefon erkannt und nirgendwohin gesendet.";
+"NSCameraUsageDescription" = "Um einen Beleg zu fotografieren oder einen Zahlungs-QR-Code zu scannen. Das Bild wird auf dem Telefon erkannt und nirgendwohin gesendet.";
 "NSFaceIDUsageDescription" = "Um die Bank mit dem Gesicht statt per PIN zu entsperren.";
 "NSLocalNetworkUsageDescription" = "Um sich mit dem Lernserver im lokalen Netzwerk zu verbinden.";
 "CFBundleDisplayName" = "TaxTech";

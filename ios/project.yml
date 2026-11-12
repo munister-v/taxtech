@@ -42,19 +42,23 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         INFOPLIST_KEY_NSFaceIDUsageDescription: Щоб підтвердити особу в навчальній перевірці. Біометрія лишається в iPhone.
-        INFOPLIST_KEY_NSCameraUsageDescription: Щоб сфотографувати чек. Фото розпізнається на телефоні й нікуди не надсилається.
+        INFOPLIST_KEY_NSCameraUsageDescription: Щоб сфотографувати чек або відсканувати QR-код оплати. Зображення розпізнається на телефоні й нікуди не надсилається.
         INFOPLIST_KEY_NSFaceIDUsageDescription: Щоб відмикати банк обличчям замість PIN-коду.
         INFOPLIST_KEY_NSLocalNetworkUsageDescription: Щоб підключитися до навчального сервера в локальній мережі.
     entitlements:
       path: Kopiyka/Kopiyka.entitlements
       properties:
         com.apple.developer.applesignin: [Default]
+        com.apple.developer.associated-domains: [applinks:bank.munister.com.ua]
     info:
       path: Kopiyka/Info.plist
       properties:
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
         UIAppFonts: [Cousine-Regular.ttf, Cousine-Bold.ttf, Nunito.ttf]
+        CFBundleURLTypes:
+          - CFBundleURLName: com.eprisjournal.kopiyka.pay
+            CFBundleURLSchemes: [taxtech]
 
 schemes:
   Kopiyka:

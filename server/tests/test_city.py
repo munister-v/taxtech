@@ -160,3 +160,10 @@ def test_qr_no_funds_declines(client):
     q = _qr(client, 400, 'food')
     d = client.post(f"/api/city/qr/{q['code']}/confirm", json={}, headers=h).get_json()['data']
     assert d['status'] == 'declined' and d['response_code'] == '51'
+
+
+def test_apple_app_site_association(client):
+    r = client.get('/.well-known/apple-app-site-association')
+    assert r.status_code == 200 and r.mimetype == 'application/json'
+    d = r.get_json()['applinks']['details'][0]
+    assert d['appIDs'] == ['63PXV4HLQZ.com.eprisjournal.kopiyka'] and d['components'][0]['/'] == '/pay/*'

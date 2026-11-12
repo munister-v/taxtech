@@ -90,6 +90,15 @@ struct RootView: View {
             #endif
         }
         .fullScreenCover(isPresented: $showConsent) { ConsentView() }
+        // https://bank.munister.com.ua/pay/<code> (universal link) or taxtech://pay/<code>: the invoice opens in the app
+        .onOpenURL { url in
+            if let c = PayLink.code(from: url.absoluteString) { model.payCode = PayCode(code: c) }
+        }
+        // a PIN-locked bank shows the invoice only after it is unlocked
+        .sheet(item: Binding(get: { pinRequired && !model.bankUnlocked ? nil : model.payCode }, set: { model.payCode = $0 })) { p in
+            QRPayView(code: p.code) { model.syncTick += 1 }
+                .presentationDragIndicator(.visible)
+        }
     }
 }
 

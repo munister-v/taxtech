@@ -2,6 +2,7 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Open in the TaxTech app": "Apri nell’app TaxTech",
     "Card": "Carta",
     "Scan with a phone and confirm": "Inquadra col telefono e conferma",
     "Confirming…": "Conferma in corso…",
@@ -204,6 +205,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Open in the TaxTech app": "In der TaxTech-App öffnen",
     "Card": "Karte",
     "Scan with a phone and confirm": "Mit dem Handy scannen und bestätigen",
     "Confirming…": "Wird bestätigt…",
@@ -406,6 +408,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Open in the TaxTech app": "Открыть в приложении TaxTech",
     "Card": "Картой",
     "Scan with a phone and confirm": "Отсканируйте телефоном и подтвердите",
     "Confirming…": "Подтверждается…",

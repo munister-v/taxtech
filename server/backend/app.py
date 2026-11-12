@@ -238,6 +238,14 @@ def create_app() -> Flask:
     # Файли збірки віддаємо як є, решту шляхів (не /api) - index.html: маршрути вирішує застосунок.
     frontend = BASE_DIR / 'frontend'
 
+    # Universal links: iOS opens https://bank.munister.com.ua/pay/<code> (a Roma Live QR) in the TaxTech app
+    @app.get('/.well-known/apple-app-site-association')
+    def apple_app_site_association():
+        return jsonify({'applinks': {'details': [{
+            'appIDs': ['63PXV4HLQZ.com.eprisjournal.kopiyka'],
+            'components': [{'/': '/pay/*', 'comment': 'Roma Live QR invoices'}],
+        }]}})
+
     @app.get(prefix + '/' if prefix else '/')
     @app.get(prefix + '/<path:path>')
     def web_app(path: str = ''):

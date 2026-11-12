@@ -43,3 +43,4 @@
 .pq-wait i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,.12); border-top-color: #ffd400; animation: pq-spin .8s linear infinite; }
 @keyframes pq-spin { to { transform: rotate(360deg); } }
 .pq-foot { font-size: 11px; color: #3f3e3b; margin-top: 18px; }
+.pq-app { margin-top: 14px; font-size: 14px; color: #ffd400; text-decoration: none; }

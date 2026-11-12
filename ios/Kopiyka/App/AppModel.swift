@@ -33,6 +33,10 @@ final class AppModel {
     var signedIn: Bool { token != nil }
     /// Вкладка, на яку просять перейти з іншої (з досліду - до банку); RootView скидає її після переходу.
     var jumpTab: RootView.AppTab?
+    /// A QR invoice to pay (scanned, or opened from a /pay/<code> link); RootView presents it once the bank is unlocked.
+    var payCode: PayCode?
+    /// Bumped after a payment made outside the overview (QR), so the screens that show money reload.
+    var syncTick = 0
 
     /// Згода надсилати текст (уже без особистих даних) мовній моделі на сервері.
     /// Правило App Store 5.1.2: передачу даних сторонньому ІІ треба пояснити й отримати дозвіл.
@@ -179,3 +183,5 @@ enum Keychain {
         SecItemAdd(add as CFDictionary, nil)
     }
 }
+
+struct PayCode: Identifiable, Hashable { let code: String; var id: String { code } }
