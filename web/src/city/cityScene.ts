@@ -53,9 +53,36 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   scene.fog = new THREE.Fog(BG, 2400, 6800);
   const camera = new THREE.PerspectiveCamera(36, 1, 5, 24000);
   const uniforms = { uTime: { value: 0 }, uFogNear: { value: 2400 }, uFogFar: { value: 6800 }, uBg: { value: new THREE.Color(BG) }, uNight: { value: 1 } };
+  // ── Soft edge: the OSM extract is a rectangle; instead of a cut, the city sinks and dissolves into the night along a
+  // rounded (superellipse) outline. Shared by every material: buildings lower towards it, everything fades to the background.
+  const EDGE_H = new THREE.Vector2(2260, 1560);   // half-size of the extract in metres (bbox 12.452–12.501, 41.886–41.911)
+  const EDGE_GLSL = /* glsl */`
+    uniform vec2 uEdgeH;
+    float edgeFade(vec2 p) {
+      vec2 q = p / uEdgeH;
+      float a = atan(q.y, q.x);
+      // an ellipse with a slow, irregular wobble: reads as a vignette, not as the edge of a data extract
+      float r = length(q) * (1.0 + .06 * sin(3.0 * a + 1.3) + .035 * sin(7.0 * a + .4));
+      return 1.0 - smoothstep(.45, 1.0, r);
+    }`;
+  const edgeU = { uEdgeH: { value: EDGE_H } };
+  const edgeR = (x: number, y: number) => { const qx = x / EDGE_H.x, qy = y / EDGE_H.y, a = Math.atan2(qy, qx); return Math.hypot(qx, qy) * (1 + .06 * Math.sin(3 * a + 1.3) + .035 * Math.sin(7 * a + .4)); };
+  /** patch a built-in (basic/line) material so it fades into the fog colour towards the edge */
+  const edged = <M extends THREE.Material>(m: M): M => {
+    // fade by alpha over the clear colour (mixing towards fogColor here would land in the wrong colour space)
+    m.transparent = true;
+    m.depthWrite = false;
+    m.onBeforeCompile = sh => {
+      sh.uniforms.uEdgeH = edgeU.uEdgeH;
+      sh.vertexShader = 'varying vec2 vEdgeP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vEdgeP = (modelMatrix * vec4(transformed, 1.0)).xz;');
+      sh.fragmentShader = 'varying vec2 vEdgeP;\n' + EDGE_GLSL + sh.fragmentShader.replace('#include <fog_fragment>', '#include <fog_fragment>\n  gl_FragColor.a *= edgeFade(vEdgeP);');
+    };
+    return m;
+  };
+
   // the light follows Rome's clock: travertine by day, lit windows by night, dawn and dusk in between
   const BG_NIGHT = new THREE.Color(BG), BG_DAY = new THREE.Color(0x101219);
-  const GROUND_NIGHT = new THREE.Color(0x090a0f), GROUND_DAY = new THREE.Color(0x16171c);
+  const GROUND_NIGHT = new THREE.Color(BG), GROUND_DAY = new THREE.Color(0x101219);   // the ground is the sky: no slab under the city
   const nightAt = (h: number) => { const sm = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }; return 1 - sm(5.8, 8, h) + sm(18.6, 20.6, h); };
 
   // ── Heat: building turnover (eased), selection, has-places; venue selection ──
@@ -73,8 +100,9 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   vTex.needsUpdate = true;
 
   // ── Ground and filled areas ──
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), new THREE.MeshBasicMaterial({ color: 0x090a0f }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), edged(new THREE.MeshBasicMaterial({ color: BG, fog: true })));
   ground.rotation.x = -Math.PI / 2;
+  ground.visible = false;   // the clear colour is the ground; the plane is kept for picking places on the street
   scene.add(ground);
 
   const fill = (polys: number[][][], color: number, y: number) => {
@@ -87,7 +115,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    scene.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, fog: true })));
+    scene.add(new THREE.Mesh(g, edged(new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, fog: true }))));
   };
   const ribbon = (lines: number[][], half: number, color: number, y: number) => {
     const pos: number[] = [];
@@ -106,7 +134,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    scene.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, fog: true })));
+    scene.add(new THREE.Mesh(g, edged(new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, fog: true }))));
   };
   ribbon(D.river, 44, 0x0b1726, 0.2);
   fill(D.areas.water, 0x0b1726, 0.25);
@@ -119,7 +147,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     for (const l of lines) for (let i = 0; i < l.length - 2; i += 2) pos.push(l[i], y, -l[i + 1], l[i + 2], y, -l[i + 3]);
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    scene.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity, fog: true })));
+    scene.add(new THREE.LineSegments(g, edged(new THREE.LineBasicMaterial({ color, transparent: true, opacity, fog: true }))));
   };
   roadLayer(D.roads.foot, 0x262a35, 0.7, 0.5);
   roadLayer(D.roads.minor, 0x313644, 0.9, 0.6);
@@ -163,23 +191,27 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     g.setAttribute('wu', new THREE.BufferAttribute(U, 1));
     g.computeBoundingSphere();
     const mat = new THREE.ShaderMaterial({
-      uniforms: { ...uniforms, heat: { value: bTex } },
+      uniforms: { ...uniforms, ...edgeU, heat: { value: bTex } },
       side: THREE.DoubleSide,
       vertexShader: /* glsl */`
         attribute float bid; attribute float top; attribute float wu;
         uniform sampler2D heat;
-        varying vec3 vN; varying float vY; varying float vU; varying vec4 vHeat; varying float vDist; varying float vId;
+        varying vec3 vN; varying float vY; varying float vU; varying vec4 vHeat; varying float vDist; varying float vId; varying float vEdge;
+        ${EDGE_GLSL}
         void main() {
           int id = int(bid + .5);
           vHeat = texelFetch(heat, ivec2(id % ${TEX_W}, id / ${TEX_W}), 0);
           vN = normal; vY = position.y; vU = wu; vId = bid;
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vEdge = edgeFade(position.xz);
+          vec3 p = position;
+          p.y *= .15 + .85 * vEdge;      // the blocks get lower towards the edge
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
           vDist = -mv.z;
           gl_Position = projectionMatrix * mv;
         }`,
       fragmentShader: /* glsl */`
         uniform vec3 uBg; uniform float uFogNear; uniform float uFogFar; uniform float uNight;
-        varying vec3 vN; varying float vY; varying float vU; varying vec4 vHeat; varying float vDist; varying float vId;
+        varying vec3 vN; varying float vY; varying float vU; varying vec4 vHeat; varying float vDist; varying float vId; varying float vEdge;
         ${RAMP}
         float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
         void main() {
@@ -210,7 +242,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
           col *= light;
           col = pow(col, vec3(2.2));
           col = mix(col, pow(vec3(1.0, .78, .1), vec3(2.2)) * (roof > .5 ? 1.0 : .55), sel * .85);
-          col = mix(col, uBg, smoothstep(uFogNear, uFogFar, vDist));
+          col = mix(col, uBg, max(smoothstep(uFogNear, uFogFar, vDist), 1.0 - vEdge));
           gl_FragColor = vec4(col, 1.0);
           #include <colorspace_fragment>
         }`,
@@ -221,7 +253,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     const eg = new THREE.BufferGeometry();
     eg.setAttribute('position', new THREE.Float32BufferAttribute(edges, 3));
     // (not on the landing: fine lines under a moving camera shimmer)
-    if (!preview) scene.add(new THREE.LineSegments(eg, new THREE.LineBasicMaterial({ color: 0x5a5f70, transparent: true, opacity: 0.38, fog: true, depthWrite: false })));
+    if (!preview) scene.add(new THREE.LineSegments(eg, edged(new THREE.LineBasicMaterial({ color: 0x5a5f70, transparent: true, opacity: 0.38, fog: true, depthWrite: false }))));
   }
 
   // ── Places: a small dot on each roof, visible when close ──
@@ -238,19 +270,20 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     g.setAttribute('cat', new THREE.BufferAttribute(C, 1));
     g.setAttribute('vid', new THREE.BufferAttribute(I, 1));
     const m = new THREE.ShaderMaterial({
-      uniforms: { heat: { value: vTex }, cols: { value: catCols }, on: catOn, uScale: scaleU },
+      uniforms: { heat: { value: vTex }, cols: { value: catCols }, on: catOn, uScale: scaleU, ...edgeU },
       transparent: true, depthWrite: false,
       vertexShader: /* glsl */`
         attribute float cat; attribute float vid;
         uniform sampler2D heat; uniform vec3 cols[8]; uniform float on[8]; uniform float uScale;
         varying vec3 vC; varying float vA; varying float vSel;
+        ${EDGE_GLSL}
         void main() {
           int id = int(vid + .5); int c = int(cat + .5);
           vSel = texelFetch(heat, ivec2(id % ${TEX_W}, id / ${TEX_W}), 0).g;
           vC = cols[c];
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           float d = -mv.z;
-          vA = on[c] * (1.0 - smoothstep(700.0, 1500.0, d)) + vSel;
+          vA = on[c] * (1.0 - smoothstep(700.0, 1500.0, d)) * step(.15, edgeFade(position.xz)) + vSel;
           gl_PointSize = (vSel > .5 ? 16.0 : 6.0) * uScale * clamp(500.0 / d, .6, 1.6);
           gl_Position = projectionMatrix * mv;
         }`,
@@ -427,7 +460,6 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   let labelsOn = true;
 
   // ── Camera, controls, post ──
-  const [bx0, by0, bx1, by1] = D.bounds;
   const HOME = { t: new THREE.Vector3(preview ? 150 : 60, 0, preview ? 60 : 40), off: new THREE.Vector3(-760, preview ? 1350 : 1500, 1500) };
   camera.position.copy(HOME.t).add(HOME.off);
   camera.lookAt(HOME.t);
@@ -520,7 +552,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
       for (const L of labels) {
         if (L.k !== k) continue;
         let show = false;
-        if (want) {
+        if (want && edgeR(L.x, -L.y) < .78) {
           v3.set(L.x, L.z, -L.y).project(camera);
           if (used[k] < cap[k] && v3.z < 1 && v3.x > -.95 && v3.x < .95 && v3.y > -.9 && v3.y < .85) {
             const sx = (v3.x * .5 + .5) * W, sy = (-v3.y * .5 + .5) * H;
@@ -605,8 +637,8 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
       viewMoved = true;
       if (k >= 1) fly = null;
     } else if (!preview && !controls.autoRotate && performance.now() - lastUser > 30000 && !selV) controls.autoRotate = true;
-    controls.target.x = Math.max(bx0, Math.min(bx1, controls.target.x));
-    controls.target.z = Math.max(-by1, Math.min(-by0, controls.target.z));
+    // the camera's focus stays inside the part of the city that is drawn in full
+    { const r = edgeR(controls.target.x, controls.target.z); if (r > .62) { const k = .62 / r; controls.target.x *= k; controls.target.z *= k; } }
     controls.update(dt);
     renderer.render(scene, camera);
     // labels follow the camera; when it is still they are left alone
