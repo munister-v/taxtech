@@ -669,22 +669,30 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
           </div>
         </Lazy>
 
-        {/* ── Saint Agnes, small: four pieces in TAX and a link to the shop ── */}
-        <section id="shop" className="bl-shopmini">
-          <div className="bl-wrap">
-            <div className="bl-shopmini-head">
-              <h3>Saint Agnes</h3>
-              <a href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
-            </div>
-            <div className="bl-shopmini-row">
-              {shop.map(p => (
-                <a key={p.id} className="bl-shopmini-item" href={SHOP_URL} target="_blank" rel="noreferrer">
-                  <img src={p.image_url} alt="" loading="lazy" decoding="async" />
-                  <span>{p.title.replace(/\s*\([^)]*\)\s*$/, '')}</span>
-                  <b>{fmt(Number(p.price))} <small>TAX</small></b>
+        {/* ── Saint Agnes as a lookbook: four pieces large, edge to edge; the back view on hover; brand, piece and price in TAX ── */}
+        <section id="shop" className="sa">
+          <div className="bl-wrap sa-head">
+            <h2 className="bl-h">Saint Agnes</h2>
+            <a href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
+          </div>
+          <div className="sa-row">
+            {shop.map(p => {
+              const name = p.title.replace(/\s*\([^)]*\)\s*$/, '');
+              const brand = name.match(/((?:[A-Z0-9][A-Z0-9&.'-]+\s?)+)$/)?.[1].trim() || '';
+              const piece = name.slice(0, name.length - brand.length).replace(/^(Women's|Men's)\s+/i, '').trim();
+              return (
+                <a key={p.id} className="sa-item" href={SHOP_URL} target="_blank" rel="noreferrer">
+                  <span className="sa-ph">
+                    <img src={p.image_url} alt={name} loading="lazy" decoding="async" />
+                    {p.image_url && <img className="sa-back" src={p.image_url.replace(/\/1\.webp$/, '/2.webp')} alt="" loading="lazy" decoding="async" />}
+                  </span>
+                  <span className="sa-cap">
+                    <span><em>{brand}</em><b>{piece}</b></span>
+                    <u>{fmt(Number(p.price))} <small>TAX</small></u>
+                  </span>
                 </a>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </section>
 
