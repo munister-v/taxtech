@@ -2,6 +2,7 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Pay by QR code": "Paga con QR code",
     "Rome by QR code.": "Roma col QR code.",
     "Again": "Ancora",
     "Code expired": "Codice scaduto",
@@ -212,6 +213,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Pay by QR code": "Mit QR-Code bezahlen",
     "Rome by QR code.": "Rom per QR-Code.",
     "Again": "Noch einmal",
     "Code expired": "Code abgelaufen",
@@ -422,6 +424,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Pay by QR code": "Оплатить по QR-коду",
     "Rome by QR code.": "Рим по QR-коду.",
     "Again": "Ещё раз",
     "Code expired": "Код истёк",

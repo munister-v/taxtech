@@ -83,6 +83,7 @@ const Ico = {
   tag: <svg viewBox="0 0 24 24"><path d="M4 12V5h7l9 9-7 7-9-9Z" /><circle cx="8" cy="9" r="1.2" /></svg>,
   home: <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /><circle cx="12" cy="12" r="5" /></svg>,
   search: <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>,
+  qr: <svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4M8 8h3v3H8zM13 13h3v3h-3zM13 8h3M8 13v3h3" /></svg>,
 };
 
 // ── Landing preview ──
@@ -207,6 +208,32 @@ export default function CityLive() {
   };
   const pickRef = useRef(pick);
   pickRef.current = pick;
+
+  // Pay by QR, from the top bar: the place on screen (or a café of central Rome), the camera flies there and its
+  // card opens straight on a live code. The landing's "See it on the map" lands here as /roma?venue=<id>, and
+  // /roma?qr=1 opens on a code.
+  const QR_CAFES = [1205, 2556, 1295, 2139, 2270, 3281, 601];
+  const quickQr = (v?: Venue | null) => {
+    const s = simRef.current;
+    if (!s) return;
+    const w = v || sel || s.venues[QR_CAFES[Math.floor(Math.random() * QR_CAFES.length)]];
+    if (!w) return;
+    setPanel(null);
+    pick(w);
+    setPayMode('qr');
+    const chips = CHIPS[w.cat];
+    showQr(w, chips[Math.min(1, chips.length - 1)]);
+  };
+  useEffect(() => {
+    const s = simRef.current;
+    if (!ready || !s) return;
+    const u = new URLSearchParams(location.search);
+    const id = Number(u.get('venue'));
+    const v = u.has('venue') && Number.isInteger(id) ? s.venues[id] : null;
+    if (u.get('qr') === '1') quickQr(v);
+    else if (v) pick(v);
+    if (u.has('venue') || u.has('qr')) history.replaceState(null, '', location.pathname);
+  }, [ready]);
   const setLang = (l: LandingLang) => { setLangS(l); saveLandingLang(l); };
 
   const say = (f: Flash) => { setFlash(f); window.setTimeout(() => setFlash(x => (x === f ? null : x)), 3600); };
@@ -262,6 +289,7 @@ export default function CityLive() {
         if (q.status === 'paid' || q.status === 'declined') {
           const s = simRef.current, v = s?.venues[q.venue];
           if (s && v && q.status === 'paid') {
+            apiRef.current?.flyTo(v.x, v.y, 300);
             // the phone's payment flies in from the street in front of the place
             s.play({ id: -Date.now(), t: Date.now() / 1000, acc: { i: -1, id: q.who || 'TaxTech', kind: 'resident', hx: 0, hy: 0, x: 0, y: 0, lastT: 0, recent: [], bal: 0, real: true }, venue: v, amount: q.amount, ok: true, fx: v.x - 160, fy: v.y - 110, fz: 1 });
           }
@@ -413,6 +441,9 @@ export default function CityLive() {
           <i className="cl-busy" style={{ ['--b' as string]: busy.toFixed(2) }} />
         </div>
         <div className="cl-top-r">
+          <button type="button" className="cl-qrbtn" onClick={() => quickQr()} disabled={!ready || !online} title={t('Оплатити за QR-кодом', 'Pay by QR code')}>
+            {Ico.qr}<span>{t('Оплатити за QR-кодом', 'Pay by QR code')}</span>
+          </button>
           <div className={`cl-search${searching ? ' open' : ''}`}>
             <button type="button" className="cl-ib" aria-label={t('Знайти місце', 'Find a place')} onClick={() => setSearching(s => !s)}>{Ico.search}</button>
             {searching && <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder={t('Знайти місце', 'Find a place')} spellCheck={false} onBlur={() => !q && setSearching(false)} />}

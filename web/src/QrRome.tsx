@@ -195,7 +195,7 @@ export default function QrRome({ t }: { t: (uk: string, en: string) => string })
                 <h3>{inv.name}</h3>
                 <p>{inv.who || 'TaxTech'}{inv.auth_code ? ` · ${t('Код', 'Auth')} ${inv.auth_code}` : ''}{inv.three_ds ? ' · 3-D Secure' : ''}</p>
                 <div className="qr-acts">
-                  <a className="bl-pill" href="/roma">{t('Дивитися на карті', 'See it on the map')}</a>
+                  <a className="bl-pill" href={`/roma?venue=${s.v}`}>{t('Дивитися на карті', 'See it on the map')}</a>
                   <button type="button" className="bl-ghost" onClick={another}>{t('Ще раз', 'Again')}</button>
                 </div>
               </div>
