@@ -1,9 +1,5 @@
 import * as THREE from 'three';
 import { MapControls } from 'three/examples/jsm/controls/MapControls.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { CATS, CAT_COLOR, type CitySim, type Tx, type Venue } from './citySim';
 
 // The 3D city. Every OpenStreetMap building of central Rome (courtyards included) is extruded to its height. Roofs carry
@@ -41,8 +37,13 @@ const RAMP = /* glsl */`
 export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}): SceneApi {
   const D = sim.D;
   const preview = !!opts.preview;
-  const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // Native MSAA on the canvas, no post-processing: one pass, no float buffers. The resolution adapts to the frame time
+  // (see `adapt` in the loop): a Retina laptop starts at 1.5x and drops towards 1x if frames run long.
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: false });
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const DPR_MAX = Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 1.75);
+  let dpr = Math.min(DPR_MAX, 1.5);
+  renderer.setPixelRatio(dpr);
   renderer.setClearColor(BG, 1);
   el.appendChild(renderer.domElement);
   renderer.domElement.style.display = 'block';
@@ -211,6 +212,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
           col = mix(col, pow(vec3(1.0, .78, .1), vec3(2.2)) * (roof > .5 ? 1.0 : .55), sel * .85);
           col = mix(col, uBg, smoothstep(uFogNear, uFogFar, vDist));
           gl_FragColor = vec4(col, 1.0);
+          #include <colorspace_fragment>
         }`,
     });
     buildings = new THREE.Mesh(g, mat);
@@ -260,6 +262,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
           if (a < .02) discard;
           float rim = smoothstep(.55, .75, r);
           gl_FragColor = vec4(mix(vC, vec3(.02), rim * .8), a);
+          #include <colorspace_fragment>
         }`,
     });
     const pts = new THREE.Points(g, m);
@@ -300,7 +303,9 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   const arcMat = new THREE.ShaderMaterial({
     uniforms: arcU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: arcVS(false),
-    fragmentShader: /* glsl */`varying vec3 vC; varying float vA; void main() { if (vA < .01) discard; gl_FragColor = vec4(vC * vA, vA); }`,
+    fragmentShader: /* glsl */`varying vec3 vC; varying float vA; void main() { if (vA < .01) discard; gl_FragColor = vec4(vC * vA, vA);
+      #include <colorspace_fragment>
+    }`,
   });
   const arcs = new THREE.LineSegments(arcGeo, arcMat);
   arcs.frustumCulled = false;
@@ -315,7 +320,9 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   const heads = new THREE.Points(headGeo, new THREE.ShaderMaterial({
     uniforms: arcU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: arcVS(true),
-    fragmentShader: /* glsl */`varying vec3 vC; varying float vA; void main() { float r = length(gl_PointCoord - .5) * 2.0; float a = smoothstep(1.0, .2, r) * vA; if (a < .01) discard; gl_FragColor = vec4(mix(vC, vec3(1.0), smoothstep(.45, 0.0, r) * .6) * a, a); }`,
+    fragmentShader: /* glsl */`varying vec3 vC; varying float vA; void main() { float r = length(gl_PointCoord - .5) * 2.0; float a = smoothstep(1.0, .2, r) * vA; if (a < .01) discard; gl_FragColor = vec4(mix(vC, vec3(1.0), smoothstep(.45, 0.0, r) * .6) * a, a);
+      #include <colorspace_fragment>
+    }`,
   }));
   heads.frustumCulled = false;
   scene.add(heads);
@@ -344,6 +351,7 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
         float a = smoothstep(.08, 0.0, abs(r - .86)) * (1.0 - vAge);
         if (a < .01) discard;
         gl_FragColor = vec4(vC * a, a);
+        #include <colorspace_fragment>
       }`,
   }));
   rings.frustumCulled = false;
@@ -437,23 +445,21 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   controls.addEventListener('start', () => { lastUser = performance.now(); controls.autoRotate = false; fly = null; });
   controls.addEventListener('end', () => { lastUser = performance.now(); });
 
-  const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
-  const composer = new EffectComposer(renderer, rt);
-  composer.addPass(new RenderPass(scene, camera));
-  if (!preview) composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.4, 0.82));
-  composer.addPass(new OutputPass());
+  // something on screen changed: the camera moved, a payment is in flight, the heat is still easing
+  let wake = performance.now();
+  controls.addEventListener('change', () => { wake = performance.now(); viewMoved = true; });
+  let viewMoved = true;
 
   const resize = () => {
     const w = el.clientWidth, h = el.clientHeight;
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     renderer.domElement.style.width = w + 'px'; renderer.domElement.style.height = h + 'px';
-    composer.setPixelRatio(renderer.getPixelRatio());
-    composer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     scaleU.value = Math.min(1.4, Math.max(.7, h / 900)) * renderer.getPixelRatio() / 1.5;
     for (const L of labels) L.w = 0;
+    viewMoved = true; wake = performance.now();
   };
   const ro = new ResizeObserver(resize);
   ro.observe(el);
@@ -533,13 +539,31 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     }
   };
 
+  // Frame pacing: full rate while the camera moves or flies, 30 fps while payments play, 30 fps on the landing.
+  let lastDraw = 0, heatAcc = 0, lastLabels = 0;
+  const times: number[] = [];
+  const adapt = (ms: number) => {
+    // a rolling frame-cost window: too slow -> fewer pixels, plenty of headroom -> back up to the cap
+    times.push(ms);
+    if (times.length < 45) return;
+    const avg = times.reduce((a, b) => a + b, 0) / times.length;
+    times.length = 0;
+    const next = avg > 24 ? Math.max(1, dpr - .25) : avg < 17.5 ? Math.min(DPR_MAX, dpr + .25) : dpr;
+    if (next !== dpr) { dpr = next; renderer.setPixelRatio(dpr); resize(); }
+  };
+
   function loop(t: number) {
     raf = 0;
     if (!visible || document.hidden) return;
+    raf = requestAnimationFrame(loop);
+    const moving = !!fly || controls.autoRotate || t - wake < 400 || !!down;
+    const minGap = moving && !preview ? 0 : 1000 / 31;
+    if (t - lastDraw < minGap) return;
     const dt = Math.min(0.1, (t - last) / 1000);
     last = t;
+    const gap = t - lastDraw;
     uniforms.uTime.value = now();
-    if (frame % 60 === 0) {
+    if (frame % 120 === 0) {
       const forced = Number(new URLSearchParams(location.search).get('light'));   // ?light=13 shows 13:00 light
       const nt = nightAt(Number.isFinite(forced) && forced > 0 ? forced : sim.romeHour());
       uniforms.uNight.value = nt;
@@ -550,21 +574,26 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
     }
     sim.step(dt);
     flush();
-
     frame++;
-    if (frame % 30 === 1) { let m = 1; for (let i = 0; i < nb; i++) if (sim.bRev[i] > m) m = sim.bRev[i]; maxRev = Math.max(m, 20000); }
-    const lm = Math.log1p(maxRev), ease = 1 - Math.exp(-dt * 1.4);
-    const selB = selV ? selV.b : -1;
-    for (let i = 0; i < nb; i++) {
-      const r = sim.bRev[i];
-      const tgt = r > 0 ? 0.06 + 0.94 * Math.pow(Math.log1p(r) / lm, 2.4) : 0;
-      shown[i] += (tgt - shown[i]) * ease;
-      bHeat[i * 4] = shown[i] * 255;
-      bHeat[i * 4 + 2] = i === selB ? 255 : 0;
-      bHeat[i * 4 + 3] = hasVenue[i] ? 255 : 0;
+
+    // roof heat: eased on the CPU about 6 times a second, one texture upload each time
+    heatAcc += dt;
+    if (heatAcc > 0.16) {
+      if (frame % 30 === 1 || maxRev === 1) { let m = 1; for (let i = 0; i < nb; i++) if (sim.bRev[i] > m) m = sim.bRev[i]; maxRev = Math.max(m, 20000); }
+      const lm = Math.log1p(maxRev), ease = 1 - Math.exp(-heatAcc * 1.4);
+      const selB = selV ? selV.b : -1;
+      for (let i = 0; i < nb; i++) {
+        const r = sim.bRev[i];
+        const tgt = r > 0 ? 0.06 + 0.94 * Math.pow(Math.log1p(r) / lm, 2.4) : 0;
+        shown[i] += (tgt - shown[i]) * ease;
+        bHeat[i * 4] = shown[i] * 255;
+        bHeat[i * 4 + 2] = i === selB ? 255 : 0;
+        bHeat[i * 4 + 3] = hasVenue[i] ? 255 : 0;
+      }
+      bTex.needsUpdate = true;
+      heatAcc = 0;
     }
-    bTex.needsUpdate = true;
-    if (frame % 10 === 1) {
+    if (frame % 15 === 1) {
       for (let i = 0; i < sim.venues.length; i++) vHeat[i * 4 + 1] = selV && selV.i === i ? 255 : 0;
       vTex.needsUpdate = true;
     }
@@ -573,14 +602,18 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
       const k = Math.min(1, (performance.now() - fly.t0) / fly.dur), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
       controls.target.lerpVectors(fly.fromT, fly.toT, e);
       camera.position.lerpVectors(fly.fromP, fly.toP, e);
+      viewMoved = true;
       if (k >= 1) fly = null;
     } else if (!preview && !controls.autoRotate && performance.now() - lastUser > 30000 && !selV) controls.autoRotate = true;
     controls.target.x = Math.max(bx0, Math.min(bx1, controls.target.x));
     controls.target.z = Math.max(-by1, Math.min(-by0, controls.target.z));
     controls.update(dt);
-    composer.render();
-    placeLabels();
-    raf = requestAnimationFrame(loop);
+    renderer.render(scene, camera);
+    // labels follow the camera; when it is still they are left alone
+    if (viewMoved || t - lastLabels > 1500) { placeLabels(); viewMoved = false; lastLabels = t; }
+    lastDraw = t;
+    // GPU cost shows up as the gap between frames while drawing at full rate
+    if (!preview && moving && gap < 250) adapt(gap);
   }
   raf = requestAnimationFrame(loop);
 
@@ -594,17 +627,16 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
       sim.onTx = prevOnTx;
       controls.dispose();
       scene.traverse(o => { const m = o as THREE.Mesh; m.geometry?.dispose(); (m.material as THREE.Material | undefined)?.dispose?.(); });
-      bTex.dispose(); vTex.dispose(); rt.dispose();
-      composer.dispose();
+      bTex.dispose(); vTex.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       labelBox.remove();
     },
     flyTo,
-    select(v) { selV = v; frame = 0; },
+    select(v) { selV = v; frame = 0; wake = performance.now(); },
     setAuto(on) { controls.autoRotate = on; },
-    setCats(on) { catOn.value = CATS.map(c => (on[c] ? 1 : 0)); },
-    setLabels(on) { labelsOn = on; },
+    setCats(on) { catOn.value = CATS.map(c => (on[c] ? 1 : 0)); wake = performance.now(); },
+    setLabels(on) { labelsOn = on; viewMoved = true; },
     home() {
       fly = { t0: performance.now(), dur: 1600, fromT: controls.target.clone(), toT: HOME.t.clone(), fromP: camera.position.clone(), toP: HOME.t.clone().add(HOME.off) };
     },

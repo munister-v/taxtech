@@ -250,7 +250,9 @@ export default function CityLive() {
 
   const st = sim?.stats;
   const catTotal = st ? Math.max(1, ...CATS.map(c => st.byCat[c])) : 1;
-  const top = sim && st && st.n ? sim.top(6) : [];
+  const top = panel === 'city' && sim && st && st.n ? sim.top(6) : [];
+  let bMax = 20000;
+  if (sim) for (let i = 0; i < sim.bRev.length; i++) if (sim.bRev[i] > bMax) bMax = sim.bRev[i];
   const busy = sim ? sim.busy() : 0;
   const hour = sim?.hour();
 
@@ -415,7 +417,7 @@ export default function CityLive() {
         <div className="cl-legend" aria-hidden>
           <small>{t('Оборот будівлі', 'Building turnover')}</small>
           <i />
-          <div><span>0</span><span>{short(sim ? Math.max(20000, ...Array.from(sim.bRev)) : 0)}</span></div>
+          <div><span>0</span><span>{short(bMax)}</span></div>
         </div>
       </footer>
     </div>
