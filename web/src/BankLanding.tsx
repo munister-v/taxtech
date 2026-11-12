@@ -556,9 +556,6 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
             <div className="bl-hero-push" aria-hidden>
               <div className="bl-toast bl-push bl-toast-loop">{push('Roma · Colosseo', 850, 23150)}</div>
             </div>
-            <div className="bl-hero-pay" aria-hidden>
-              <div className="bl-hero-card"><Card finish="guilloche" /></div>
-            </div>
             <div className="bl-cue" aria-hidden><i /></div>
           </section>
 
@@ -586,15 +583,7 @@ export default function BankLanding({ onAuth }: { onAuth: (m: 'login' | 'registe
                     </div>
                   ))}
                 </div>
-                <div className="bl-rome-card"><Card finish="guilloche" /></div>
               </div>
-            </div>
-            <div className="bl-wrap bl-rome-bars" role="group" aria-label={t('Вечір у Римі', 'An evening in Rome')}>
-              {DAY.map((d, i) => (
-                <button key={d.img} type="button" className="bl-rome-bar" onClick={() => seekRome.current(i)} aria-label={t(d.place.uk, d.place.en)}>
-                  <u><i /></u><span>{t(d.place.uk, d.place.en)}</span>
-                </button>
-              ))}
             </div>
           </div>
         </section>
