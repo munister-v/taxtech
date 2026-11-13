@@ -16,17 +16,6 @@ import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 import './heroVit.css';
 
-// Roma Live on the landing: a still frame of the 3D city (the live scene, three.js and the 1.7 MB city file stay on /roma)
-// and the server's numbers for today, refreshed every 15 s while the tab is open.
-function CityStill() {
-  return (
-    <picture className="bl-city-still" aria-hidden>
-      <source media="(max-width: 600px)" srcSet="/landing/roma-live-m.webp" />
-      <img src="/landing/roma-live.webp" alt="" loading="lazy" decoding="async" />
-    </picture>
-  );
-}
-
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
 // guilloche rosette and engraved medallions as the app, the Rome card photos from web/public/cards/ and live
 // Saint Agnes products. Black and signal yellow like the app, a cream section like the shop.
@@ -495,7 +484,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
 
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#city', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#faq', t('Питання', 'Questions')], ['/blog', t('Блог', 'Blog')]];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#qr', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#faq', t('Питання', 'Questions')], ['/blog', t('Блог', 'Blog')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (
@@ -620,45 +609,29 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           })()}
         />
 
-        {/* ── About the project, with a compact author card ── */}
-        <section id="hello" className="bl-hello">
-          <div className="bl-wrap bl-hello-in">
-            <div className="bl-hello-text">
-              <h2 className="bl-h bl-rv">{t('Про проєкт', 'About the project')}</h2>
-              <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
-              <a className="bl-bcard bl-rv" href="/blog/how-i-built-my-own-bank">
-                <span className="bl-bcard-img"><img src="/blog/how-i-built-my-bank/cover-art.webp" alt="" width="1600" height="900" loading="lazy" decoding="async" /></span>
-                <span className="bl-bcard-t">
-                  <small>{t('Блог · Інженерія', 'Blog · Engineering')}</small>
-                  <b>How I Built My Own Bank</b>
-                  <i>{t('Читати статтю', 'Read the article')} →</i>
-                </span>
-              </a>
-            </div>
-            <aside className="bl-hello-card bl-rv">
-              <figure className="bl-hello-photo">
-                <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="160" height="160" loading="lazy" decoding="async" />
-              </figure>
-              <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-              <p className="bl-hello-role">{t('Продуктовий архітектор і розробник TaxTech', 'Product architect and developer of TaxTech')}</p>
-            </aside>
+        {/* ── Six faces: a 3D cover-flow of the card designs ── */}
+        <Lazy id="card" className="bl-sec bl-faces" h={[808, 606]}>
+          <div className="bl-faces-bg" aria-hidden>
+            {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={facesNear ? { backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` } : undefined} />)}
           </div>
-        </section>
+          <div className="bl-wrap bl-center">
+            <h2 className="bl-h bl-rv">{t('Шість облич Рима.', 'Six faces of Rome.')}</h2>
+            <div className="bl-rv">
+              <FaceFlow count={FINISHES.length} active={FINISHES.findIndex(f => f.id === finish)} onChange={i => setFinish(FINISHES[i].id)}
+                renderCard={i => <Card finish={FINISHES[i].id} />} labelPrev={t('Попередня картка', 'Previous card')} labelNext={t('Наступна картка', 'Next card')} />
+            </div>
+            <div className="bl-thumbs bl-rv" role="radiogroup" aria-label={t('Оздоблення', 'Design')}>
+              {FINISHES.map(f => (
+                <button key={f.id} type="button" role="radio" aria-checked={finish === f.id} aria-label={t(f.uk, f.en)} className={`bl-thumb${finish === f.id ? ' on' : ''}`} onClick={() => setFinish(f.id)}
+                  style={f.photo && facesNear ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeOpacity=".75" strokeWidth=".5" /></svg>}</button>
+              ))}
+            </div>
+            <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
+          </div>
+        </Lazy>
 
         {/* ── The app: real iOS screens in an iPhone frame on a light stage, Account | Card | QR ── */}
         <AppShowcase t={t} />
-
-        {/* ── Roma Live: the whole city paying, the real places of central Rome lit by their turnover; opens /roma ── */}
-        <Lazy id="city" className="bl-city" h={[920, 760]}>
-          <CityStill />
-          <div className="bl-city-shade" aria-hidden />
-          <div className="bl-wrap bl-city-in">
-            <h2 className="bl-h bl-h-xl bl-rv">{t('Рим наживо.', 'Rome, live.')}</h2>
-            <div className="bl-cta bl-rv">
-              <a className="bl-pill" href="/roma">{t('Відкрити карту', 'Open the map')}<i aria-hidden>→</i></a>
-            </div>
-          </div>
-        </Lazy>
 
         {/* ── Rome by QR code: a real invoice for a real place, paid from a phone, flying onto the map ── */}
         <QrRome t={t} />
@@ -706,26 +679,30 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           </div>
         </Lazy>
 
-        {/* ── Six faces: a 3D cover-flow of the card designs ── */}
-        <Lazy id="card" className="bl-sec bl-faces" h={[808, 606]}>
-          <div className="bl-faces-bg" aria-hidden>
-            {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={facesNear ? { backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` } : undefined} />)}
-          </div>
-          <div className="bl-wrap bl-center">
-            <h2 className="bl-h bl-rv">{t('Шість облич Рима.', 'Six faces of Rome.')}</h2>
-            <div className="bl-rv">
-              <FaceFlow count={FINISHES.length} active={FINISHES.findIndex(f => f.id === finish)} onChange={i => setFinish(FINISHES[i].id)}
-                renderCard={i => <Card finish={FINISHES[i].id} />} labelPrev={t('Попередня картка', 'Previous card')} labelNext={t('Наступна картка', 'Next card')} />
+        {/* ── About the project, with a compact author card ── */}
+        <section id="hello" className="bl-hello">
+          <div className="bl-wrap bl-hello-in">
+            <div className="bl-hello-text">
+              <h2 className="bl-h bl-rv">{t('Про проєкт', 'About the project')}</h2>
+              <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
+              <a className="bl-bcard bl-rv" href="/blog/how-i-built-my-own-bank">
+                <span className="bl-bcard-img"><img src="/blog/how-i-built-my-bank/cover-art.webp" alt="" width="1600" height="900" loading="lazy" decoding="async" /></span>
+                <span className="bl-bcard-t">
+                  <small>{t('Блог · Інженерія', 'Blog · Engineering')}</small>
+                  <b>How I Built My Own Bank</b>
+                  <i>{t('Читати статтю', 'Read the article')} →</i>
+                </span>
+              </a>
             </div>
-            <div className="bl-thumbs bl-rv" role="radiogroup" aria-label={t('Оздоблення', 'Design')}>
-              {FINISHES.map(f => (
-                <button key={f.id} type="button" role="radio" aria-checked={finish === f.id} aria-label={t(f.uk, f.en)} className={`bl-thumb${finish === f.id ? ' on' : ''}`} onClick={() => setFinish(f.id)}
-                  style={f.photo && facesNear ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeOpacity=".75" strokeWidth=".5" /></svg>}</button>
-              ))}
-            </div>
-            <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
+            <aside className="bl-hello-card bl-rv">
+              <figure className="bl-hello-photo">
+                <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="160" height="160" loading="lazy" decoding="async" />
+              </figure>
+              <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
+              <p className="bl-hello-role">{t('Продуктовий архітектор і розробник TaxTech', 'Product architect and developer of TaxTech')}</p>
+            </aside>
           </div>
-        </Lazy>
+        </section>
 
         {/* ── Final CTA: the Colosseum at blue hour ── */}
         <Lazy className="bl-scene bl-final" h={[900, 726]}>
