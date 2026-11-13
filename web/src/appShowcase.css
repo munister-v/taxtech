@@ -84,3 +84,14 @@
 /* calmer: no floating notifications or glow, the phones just breathe toward the pointer */
 .bl .as-phone { transform: rotateY(calc(var(--ry, 0deg) * .5)) rotateX(calc(var(--rx, 0deg) * .5)); }
 .bl .as-phone-2 { transform: rotateY(calc(var(--ry, 0deg) * .5)) rotateX(calc(var(--rx, 0deg) * .5)); opacity: 1; }
+
+/* centred composition: title, tabs, two phones side by side, store badge */
+.as-in { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 0; }
+.as-copy { display: contents; }
+.bl .as-h { order: 1; white-space: nowrap; font-size: clamp(40px, 6vw, 84px); }
+.as-pills { order: 3; margin: 28px 0 0; }
+.bl .as-pills { margin-left: 0; }
+.as-stage { order: 4; margin: 56px 0 0; justify-content: center; align-items: flex-start; }
+.bl .as-phone-2 { margin-top: 0; }
+.as-store { order: 5; align-items: center; margin-top: 64px; }
+@media (max-width: 1100px) { .bl .as-h { white-space: normal; } }
