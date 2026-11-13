@@ -189,3 +189,51 @@
 .tb-stats-flat { margin: 0; }
 
 .tb-stats + .tb-stats { margin-top: -28px; }
+
+/* ── editorial layout: serif text and headings, left-aligned header with a byline, contents rail, reading progress ── */
+.tb { --serif: Newsreader, 'Iowan Old Style', Georgia, serif; }
+.tb-progress { position: sticky; top: 60px; z-index: 9; height: 2px; background: transparent; }
+.tb-progress i { display: block; height: 100%; background: #111; transform: scaleX(0); transform-origin: 0 50%; }
+.tb-top { max-width: 1040px; margin: 0 auto; padding: clamp(40px, 6vw, 84px) 24px clamp(36px, 5vw, 60px); }
+.tb-kicker { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #b48a1e; }
+.tb .tb-h1 { max-width: 940px; margin: 20px 0 0; padding: 0; text-align: left; font-family: var(--serif); font-weight: 500; font-size: clamp(42px, 6.4vw, 84px); line-height: 1.02; letter-spacing: -.025em; text-wrap: balance; }
+.tb .tb-dek { max-width: 760px; margin: 28px 0 0; padding: 0; text-align: left; font-family: var(--serif); font-size: clamp(21px, 2.3vw, 27px); line-height: 1.42; color: rgba(17,17,17,.66); text-wrap: pretty; }
+.tb-by2 { display: flex; align-items: center; gap: 14px; margin-top: 36px; padding-top: 22px; border-top: 1px solid var(--line); max-width: 760px; }
+.tb-by2 img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.tb-by2 div { display: flex; flex-direction: column; gap: 2px; }
+.tb-by2 b { font-size: 15px; font-weight: 700; }
+.tb-by2 span { font-size: 13px; color: var(--mut); }
+.tb .tb-cover { max-width: 1280px; margin: 0 auto; padding: 0 24px; background: none; }
+.tb .tb-cover img { height: auto; aspect-ratio: 1600 / 830; object-fit: cover; border-radius: 4px; background: #050506; }
+.tb-layout { position: relative; margin-top: clamp(48px, 6vw, 84px); }
+.tb .tb-body { max-width: 728px; margin: 0 auto; }
+.tb .tb-p { font-family: var(--serif); font-size: 21px; line-height: 1.7; color: rgba(17,17,17,.88); letter-spacing: 0; text-wrap: pretty; }
+.tb .tb-body > .tb-p:first-child::first-letter { font-family: var(--serif); font-weight: 500; font-size: 92px; line-height: .78; margin: 8px 14px 0 0; }
+.tb .tb-h2 { counter-increment: h; position: relative; margin: 76px 0 24px; padding-top: 22px; border-top: 1px solid #111; font-family: var(--serif); font-weight: 500; font-size: clamp(30px, 3.4vw, 40px); line-height: 1.12; letter-spacing: -.02em; scroll-margin-top: 90px; }
+.tb .tb-h2::before { content: counter(h, decimal-leading-zero); display: block; margin-bottom: 10px; font-family: Nunito, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .18em; color: #b48a1e; }
+.tb .tb-body { counter-reset: h; }
+.tb .tb-ul li { font-family: var(--serif); font-size: 20px; }
+.tb .tb-quote p { font-family: var(--serif); font-weight: 400; }
+.tb .tb-fig figcaption { font-family: Nunito, sans-serif; font-size: 12.5px; letter-spacing: .02em; text-transform: none; color: rgba(17,17,17,.58); }
+.tb .tb-callout { font-family: var(--serif); }
+.tb-tags { display: none; }
+.tb .tb-wide { width: min(960px, 100vw - 48px); }
+.tb-toc { display: none; }
+@media (min-width: 1440px) {
+  .tb-toc { display: block; position: absolute; top: 0; bottom: 0; left: calc(50% - 364px - 64px - 210px); width: 210px; }
+  .tb-toc-in { position: sticky; top: 110px; display: flex; flex-direction: column; gap: 2px; }
+  .tb-toc span { margin-bottom: 12px; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--mut); }
+  .tb-toc a { display: flex; gap: 10px; padding: 7px 0; font-size: 13px; line-height: 1.35; color: rgba(17,17,17,.5); transition: color .2s; }
+  .tb-toc a em { font-style: normal; font-variant-numeric: tabular-nums; color: rgba(17,17,17,.3); }
+  .tb-toc a:hover, .tb-toc a.on { color: #111; }
+  .tb-toc a.on em { color: #b48a1e; }
+}
+@media (max-width: 760px) {
+  .tb-top { padding: 28px 16px 30px; }
+  .tb .tb-cover { padding: 0; }
+  .tb .tb-cover img { border-radius: 0; aspect-ratio: 16 / 10; }
+  .tb .tb-p { font-size: 19px; }
+  .tb .tb-body > .tb-p:first-child::first-letter { font-size: 74px; }
+  .tb .tb-h2 { margin-top: 56px; }
+  .tb-progress { top: 54px; }
+}

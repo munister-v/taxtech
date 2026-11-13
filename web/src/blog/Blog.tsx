@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { POSTS, postBySlug, type Block, type Post } from './posts';
 import { VIZ } from './Viz';
 import './blog.css';
@@ -6,7 +6,10 @@ import './blog.css';
 // The bank's journal: /blog lists the posts, /blog/<slug> is one article. Black on white in the EPRIS Daily manner
 // (Cousine for headings, Nunito for text), its own scroll box because the bank's body never scrolls.
 
-const FONTS = 'https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap';
+const FONTS = 'https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap';
+
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const words = (blocks: Block[]) => blocks.reduce((n, b) => n + ('p' in b ? b.p.split(/\s+/).length : 'ul' in b ? b.ul.join(' ').split(/\s+/).length : 'h2' in b ? b.h2.split(/\s+/).length : 0), 0);
 
 const day = (iso: string) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
 
@@ -63,13 +66,13 @@ function hl(code: string): ReactNode[] {
     const m = line.match(/^(.*?)(--.*|#.*)?$/) as RegExpMatchArray;
     const parts: ReactNode[] = [];
     m[1].split(/('[^']*'|\b\d+(?:\.\d+)?\b|\b[A-Za-z]+\b)/).forEach((tok, i) => {
-      if (/^'/.test(tok)) parts.push(<span key={i} className="s">{tok}</span>);
-      else if (/^\d/.test(tok)) parts.push(<span key={i} className="n">{tok}</span>);
-      else if (new RegExp(KW.source).test(tok) && /^[A-Za-z]+$/.test(tok) && tok === tok.toUpperCase()) parts.push(<span key={i} className="k">{tok}</span>);
-      else parts.push(tok);
+      if (/^'/.test(tok)) parts.push(<span key={`${li}-${i}`} className="s">{tok}</span>);
+      else if (/^\d/.test(tok)) parts.push(<span key={`${li}-${i}`} className="n">{tok}</span>);
+      else if (new RegExp(KW.source).test(tok) && /^[A-Za-z]+$/.test(tok) && tok === tok.toUpperCase()) parts.push(<span key={`${li}-${i}`} className="k">{tok}</span>);
+      else if (tok) parts.push(<span key={`${li}-${i}`}>{tok}</span>);
     });
-    if (m[2]) parts.push(<span key="c" className="c">{m[2]}</span>);
-    if (li < all.length - 1) parts.push('\n');
+    if (m[2]) parts.push(<span key={`${li}-c`} className="c">{m[2]}</span>);
+    if (li < all.length - 1) parts.push(<span key={`${li}-n`}>{'\n'}</span>);
     return parts;
   });
 }
@@ -79,7 +82,7 @@ function Body({ blocks }: { blocks: Block[] }) {
     <>
       {blocks.map((b, i) => {
         if ('p' in b) return <p key={i} className="tb-p">{b.p}</p>;
-        if ('h2' in b) return <h2 key={i} className="tb-h2">{b.h2}</h2>;
+        if ('h2' in b) return <h2 key={i} id={slug(b.h2)} className="tb-h2">{b.h2}</h2>;
         if ('quote' in b) return <blockquote key={i} className="tb-quote"><p>“{b.quote}”</p>{b.by && <cite>{b.by}</cite>}</blockquote>;
         if ('ul' in b) return <ul key={i} className="tb-ul">{b.ul.map((x, j) => <li key={j}>{x}</li>)}</ul>;
         if ('code' in b) return <pre key={i} className="tb-code"><code>{hl(b.code)}</code></pre>;
@@ -108,17 +111,48 @@ function Body({ blocks }: { blocks: Block[] }) {
 
 function Article({ post }: { post: Post }) {
   usePage(`${post.title} | TaxTech Blog`, post.dek);
+  const bar = useRef<HTMLDivElement>(null);
+  const [cur, setCur] = useState('');
+  const heads = post.body.filter((b): b is { h2: string } => 'h2' in b).map(b => b.h2);
+  const mins = Math.max(1, Math.round(words(post.body) / 220));
+  // reading progress and the section in view; the page scrolls inside .tb, not the window
+  useEffect(() => {
+    const sc = document.querySelector<HTMLElement>('.tb');
+    if (!sc) return;
+    const on = () => {
+      const max = sc.scrollHeight - sc.clientHeight;
+      if (bar.current) bar.current.style.transform = `scaleX(${max > 0 ? Math.min(1, sc.scrollTop / max) : 0})`;
+      let id = '';
+      for (const h of heads) { const el = document.getElementById(slug(h)); if (el && el.getBoundingClientRect().top < sc.clientHeight * 0.35) id = slug(h); }
+      setCur(id);
+    };
+    on();
+    sc.addEventListener('scroll', on, { passive: true });
+    return () => sc.removeEventListener('scroll', on);
+  }, [post]);
+  const go = (h: string) => (e: React.MouseEvent) => { e.preventDefault(); document.getElementById(slug(h))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
   return (
     <article className="tb-article">
-      <div className="tb-bar"><a className="tb-pill" href="/blog"><span aria-hidden>←</span> Back</a></div>
+      <div className="tb-progress" aria-hidden><i ref={bar} /></div>
+      <header className="tb-top">
+        <a className="tb-kicker" href="/blog">{post.section}</a>
+        <h1 className="tb-h1">{post.title}</h1>
+        <p className="tb-dek">{post.dek}</p>
+        <div className="tb-by2">
+          <img src="/landing/taxtech-general.webp" alt="" width="44" height="44" />
+          <div><b>Viacheslav Munister</b><span>{day(post.date)} · {mins} min read</span></div>
+        </div>
+      </header>
       <figure className="tb-cover">
         <img src={post.cover} alt={post.coverCap} fetchPriority="high" />
       </figure>
-      <div className="tb-meta"><span>{day(post.date)}</span><i /><span>Viacheslav Munister</span><i /><span className="tb-sec">{post.section}</span></div>
-      <h1 className="tb-h1">{post.title}</h1>
-      <p className="tb-dek">{post.dek}</p>
-      <ul className="tb-tags">{post.tags.map(t => <li key={t}>{t}</li>)}</ul>
-      <div className="tb-body"><Body blocks={post.body} /></div>
+      <div className="tb-layout">
+        <nav className="tb-toc" aria-label="Contents"><div className="tb-toc-in">
+          <span>Contents</span>
+          {heads.map((h, i) => <a key={h} href={`#${slug(h)}`} className={cur === slug(h) ? 'on' : ''} onClick={go(h)}><em>{String(i + 1).padStart(2, '0')}</em>{h}</a>)}
+        </div></nav>
+        <div className="tb-body"><Body blocks={post.body} /></div>
+      </div>
       <div className="tb-end">
         <span className="tb-end-mark"><Mark /></span>
         <p>Viacheslav Munister is the product architect and developer of TaxTech.</p>
