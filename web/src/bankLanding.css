@@ -1266,3 +1266,20 @@
 .bl-tx-dl dd { margin: 0; font-size: 14px; line-height: 1.5; color: rgba(246,239,224,.78); }
 .bl-link { display: inline-flex; align-items: center; margin-left: 18px; font-size: 14px; color: #d6a84a; }
 .bl-link:hover { text-decoration: underline; }
+
+/* Partner strip */
+.bl-partner { padding: 44px 0; background: #050505; border-top: 1px solid rgba(255,255,255,.08); }
+.bl-partner-in { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 28px; }
+.bl-partner-k { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+.bl-partner-n { font-size: clamp(22px, 3vw, 30px); font-weight: 600; letter-spacing: -.02em; color: #f6efe0; text-decoration: none; }
+.bl-partner-n i { font-style: normal; color: #d6a84a; }
+.bl-partner-d { font-size: 14px; color: rgba(255,255,255,.55); }
+
+/* Line T tile, calmer: the plain sentence leads, the two notes sit side by side */
+.bl-tx-dl { grid-template-columns: 1fr 1fr; gap: 6px 28px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.1); }
+.bl-tx-dl dt { margin: 0; font-size: 11px; letter-spacing: .14em; color: rgba(246,239,224,.45); }
+.bl-tx-dl dd { grid-row: 2; font-size: 14px; }
+.bl-tx-dl dt:nth-of-type(2), .bl-tx-dl dd:nth-of-type(2) { grid-column: 2; }
+.bl-tx-dl dt:nth-of-type(1), .bl-tx-dl dd:nth-of-type(1) { grid-column: 1; }
+.bl-tx-dl dt { grid-row: 1; }
+@media (max-width: 734px) { .bl-tx-dl { grid-template-columns: 1fr; } .bl-tx-dl dt, .bl-tx-dl dd { grid-column: 1 !important; grid-row: auto !important; } .bl-tx-dl dt { margin-top: 10px; } }

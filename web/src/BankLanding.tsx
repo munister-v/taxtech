@@ -682,33 +682,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         {/* ── Rome by QR code: a real invoice for a real place, paid from a phone, flying onto the map ── */}
         <QrRome t={t} />
 
-        {/* ── Saint Agnes as a lookbook: four pieces large, edge to edge; the back view on hover; brand, piece and price in TAX ── */}
-        <section id="shop" className="sa">
-          <div className="bl-wrap sa-head">
-            <h2 className="bl-h">Saint Agnes</h2>
-            <a href={SHOP_URL} target="_blank" rel="noreferrer">{t('До магазину', 'Visit the shop')}<i aria-hidden>→</i></a>
-          </div>
-          <div className="sa-row">
-            {shop.map(p => {
-              const name = p.title.replace(/\s*\([^)]*\)\s*$/, '');
-              const brand = name.match(/((?:[A-Z0-9][A-Z0-9&.'-]+\s?)+)$/)?.[1].trim() || '';
-              const piece = name.slice(0, name.length - brand.length).replace(/^(Women's|Men's)\s+/i, '').trim();
-              return (
-                <a key={p.id} className="sa-item" href={SHOP_URL} target="_blank" rel="noreferrer">
-                  <span className="sa-ph">
-                    <img src={p.image_url} alt={name} loading="lazy" decoding="async" />
-                    {p.image_url && <img className="sa-back" src={p.image_url.replace(/\/1\.webp$/, '/2.webp')} alt="" loading="lazy" decoding="async" />}
-                  </span>
-                  <span className="sa-cap">
-                    <span><em>{brand}</em><b>{piece}</b></span>
-                    <u>{fmt(Number(p.price))} <small>TAX</small></u>
-                  </span>
-                </a>
-              );
-            })}
-          </div>
-        </section>
-
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
           <div className="bl-wrap bl-lt-head">
@@ -805,6 +778,15 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
             </div>
           </div>
         </Lazy>
+
+        {/* ── Partner: Saint Agnes, one quiet line at the end ── */}
+        <section id="partner" className="bl-partner">
+          <div className="bl-wrap bl-partner-in">
+            <span className="bl-partner-k">{t('Партнер', 'Partner')}</span>
+            <a className="bl-partner-n" href={SHOP_URL} target="_blank" rel="noreferrer">Saint Agnes <i aria-hidden>→</i></a>
+            <span className="bl-partner-d">{t('Магазин одягу, де можна платити TAX карткою TaxTech.', 'A clothing shop where you can pay in TAX with the TaxTech card.')}</span>
+          </div>
+        </section>
 
         <section id="faq" className="bl-sec bl-sec-faq">
           <div className="bl-wrap bl-faq-wrap">

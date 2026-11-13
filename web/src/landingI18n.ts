@@ -2,6 +2,8 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Partner": "Partner",
+    "A clothing shop where you can pay in TAX with the TaxTech card.": "Un negozio di abbigliamento dove si paga in TAX con la carta TaxTech.",
     "How I built it — in the blog": "Come l’ho costruita — nel blog",
     "Protects against": "Protegge da",
     "How it works": "Come funziona",
@@ -267,6 +269,8 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Partner": "Partner",
+    "A clothing shop where you can pay in TAX with the TaxTech card.": "Ein Modeshop, in dem du mit der TaxTech-Karte in TAX zahlst.",
     "How I built it — in the blog": "Wie ich sie gebaut habe — im Blog",
     "Protects against": "Schützt vor",
     "How it works": "So funktioniert’s",
@@ -532,6 +536,8 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Partner": "Партнёр",
+    "A clothing shop where you can pay in TAX with the TaxTech card.": "Магазин одежды, где можно платить TAX картой TaxTech.",
     "How I built it — in the blog": "Как я создал банк — в блоге",
     "Protects against": "Защищает от",
     "How it works": "Как работает",
