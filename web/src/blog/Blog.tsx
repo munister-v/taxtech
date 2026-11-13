@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { POSTS, postBySlug, type Block, type Post } from './posts';
 import { VIZ } from './Viz';
 import './blog.css';
@@ -112,8 +112,6 @@ function Body({ blocks }: { blocks: Block[] }) {
 function Article({ post }: { post: Post }) {
   usePage(`${post.title} | TaxTech Blog`, post.dek);
   const bar = useRef<HTMLDivElement>(null);
-  const [cur, setCur] = useState('');
-  const heads = post.body.filter((b): b is { h2: string } => 'h2' in b).map(b => b.h2);
   const mins = Math.max(1, Math.round(words(post.body) / 220));
   // reading progress and the section in view; the page scrolls inside .tb, not the window
   useEffect(() => {
@@ -122,15 +120,11 @@ function Article({ post }: { post: Post }) {
     const on = () => {
       const max = sc.scrollHeight - sc.clientHeight;
       if (bar.current) bar.current.style.transform = `scaleX(${max > 0 ? Math.min(1, sc.scrollTop / max) : 0})`;
-      let id = '';
-      for (const h of heads) { const el = document.getElementById(slug(h)); if (el && el.getBoundingClientRect().top < sc.clientHeight * 0.35) id = slug(h); }
-      setCur(id);
     };
     on();
     sc.addEventListener('scroll', on, { passive: true });
     return () => sc.removeEventListener('scroll', on);
   }, [post]);
-  const go = (h: string) => (e: React.MouseEvent) => { e.preventDefault(); document.getElementById(slug(h))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
   return (
     <article className="tb-article">
       <div className="tb-progress" aria-hidden><i ref={bar} /></div>
@@ -147,10 +141,6 @@ function Article({ post }: { post: Post }) {
         <img src={post.cover} alt={post.coverCap} fetchPriority="high" />
       </figure>
       <div className="tb-layout">
-        <nav className="tb-toc" aria-label="Contents"><div className="tb-toc-in">
-          <span>Contents</span>
-          {heads.map((h, i) => <a key={h} href={`#${slug(h)}`} className={cur === slug(h) ? 'on' : ''} onClick={go(h)}><em>{String(i + 1).padStart(2, '0')}</em>{h}</a>)}
-        </div></nav>
         <div className="tb-body"><Body blocks={post.body} /></div>
       </div>
       <div className="tb-end">
