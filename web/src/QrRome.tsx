@@ -221,6 +221,7 @@ export default function QrRome({ t }: { t: (uk: string, en: string) => string })
               </>
             )}
           </div>
+          <a className="qr-map-link" href="/roma">{t('Відкрити карту Рима', 'Open the map of Rome')} <i aria-hidden>→</i></a>
         </div>
       </div>
     </section>

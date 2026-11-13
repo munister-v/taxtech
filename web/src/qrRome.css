@@ -70,3 +70,7 @@
   .qr-code { width: min(200px, 70%); }
 }
 @media (prefers-reduced-motion: reduce) { .qr-pin i, .qr-fly path, .qr-pin b, .qr-done { animation: none !important; } .qr.is-paid .qr-fly path { stroke-dashoffset: 0; opacity: .6; } }
+
+.qr-map-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 16px; font-weight: 600; color: #f6efe0; text-decoration: none; }
+.qr-map-link i { font-style: normal; transition: transform .2s; }
+.qr-map-link:hover i { transform: translateX(4px); }
