@@ -41,15 +41,15 @@ function Foot() {
   return (
     <footer className="tb-foot">
       <div className="tb-foot-in">
-        <a href="/" className="tb-lockup" aria-label="TaxTech, powered by Munister Bank">
+        <a href="/" className="tb-lockup" aria-label="TaxTech">
           <Mark />
-          <span><b>TaxTech</b><small>Powered by <em>MUNISTER BANK</em></small></span>
+          <span><b>TaxTech</b></span>
         </a>
         <nav>
           <a href="/">Bank</a><a href="/roma">Roma Live</a><a href="/blog">Blog</a>
           <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer">App Store</a>
         </nav>
-        <p>© {new Date().getFullYear()} TaxTech · Munister Bank</p>
+        <p>© {new Date().getFullYear()} TaxTech</p>
       </div>
     </footer>
   );
