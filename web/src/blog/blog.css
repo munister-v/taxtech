@@ -183,3 +183,5 @@
   .tb-bars li { grid-template-columns: 96px 1fr 30px; }
   .tb-table td:first-child { white-space: normal; }
 }
+
+.tb-live-note { font-family: Cousine, monospace; font-size: 12px; line-height: 1.6; color: rgba(17,17,17,.55); margin: 14px 0 0; max-width: 640px; }
