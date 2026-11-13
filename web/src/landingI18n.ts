@@ -2,6 +2,9 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Read the article": "Leggi l’articolo",
+    "About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.": "Circa 170 endpoint, un solo percorso di pagamento con undici controlli, un motore antifrode da 28 regole e sessioni pensate per resistere al furto.",
+    "Blog · Engineering": "Blog · Ingegneria",
     "Partner": "Partner",
     "A clothing shop where you can pay in TAX with the TaxTech card.": "Un negozio di abbigliamento dove si paga in TAX con la carta TaxTech.",
     "How I built it — in the blog": "Come l’ho costruita — nel blog",
@@ -269,6 +272,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Read the article": "Artikel lesen",
+    "About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.": "Rund 170 Endpunkte, ein Zahlungsweg mit elf Prüfungen, eine Betrugserkennung mit 28 Regeln und Sitzungen, die Diebstahl überstehen.",
+    "Blog · Engineering": "Blog · Technik",
     "Partner": "Partner",
     "A clothing shop where you can pay in TAX with the TaxTech card.": "Ein Modeshop, in dem du mit der TaxTech-Karte in TAX zahlst.",
     "How I built it — in the blog": "Wie ich sie gebaut habe — im Blog",
@@ -536,6 +542,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Read the article": "Читать статью",
+    "About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.": "Около 170 эндпоинтов, один путь платежа с одиннадцатью проверками, антифрод из 28 правил и сессии, рассчитанные на кражу.",
+    "Blog · Engineering": "Блог · Инженерия",
     "Partner": "Партнёр",
     "A clothing shop where you can pay in TAX with the TaxTech card.": "Магазин одежды, где можно платить TAX картой TaxTech.",
     "How I built it — in the blog": "Как я создал банк — в блоге",

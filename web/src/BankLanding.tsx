@@ -641,10 +641,15 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
             <div className="bl-hello-text">
               <h2 className="bl-h bl-rv">{t('Про проєкт', 'About the project')}</h2>
               <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
-              <div className="bl-cta bl-rv">
-                <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-                <a className="bl-link" href="/blog/how-i-built-my-own-bank">{t('Як я створив банк — у блозі', 'How I built it — in the blog')} →</a>
-              </div>
+              <a className="bl-bcard bl-rv" href="/blog/how-i-built-my-own-bank">
+                <span className="bl-bcard-img"><img src="/blog/how-i-built-my-bank/cover-art.webp" alt="" width="1600" height="900" loading="lazy" decoding="async" /></span>
+                <span className="bl-bcard-t">
+                  <small>{t('Блог · Інженерія', 'Blog · Engineering')}</small>
+                  <b>How I Built My Own Bank</b>
+                  <span>{t('170 ендпоінтів, один шлях платежу з одинадцятьма перевірками, антифрод із 28 правил і сесії, що чекають на крадіжку.', 'About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.')}</span>
+                  <i>{t('Читати статтю', 'Read the article')} →</i>
+                </span>
+              </a>
             </div>
             <aside className="bl-hello-card bl-rv">
               <figure className="bl-hello-photo">
