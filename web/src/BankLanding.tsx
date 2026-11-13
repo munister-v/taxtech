@@ -639,9 +639,13 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               <figure className="bl-hello-photo">
                 <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="160" height="160" loading="lazy" decoding="async" />
               </figure>
-              <div className="bl-hello-who">
-                <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-              </div>
+              <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
+              <p className="bl-hello-role">{t('Продуктовий архітектор і розробник TaxTech', 'Product architect and developer of TaxTech')}</p>
+              <dl className="bl-hello-facts">
+                <div><dt>{t('З березня', 'Since March')}</dt><dd>2026</dd></div>
+                <div><dt>{t('Ендпоінтів', 'Endpoints')}</dt><dd>170</dd></div>
+                <div><dt>{t('Тестів', 'Tests')}</dt><dd>226</dd></div>
+              </dl>
             </aside>
           </div>
         </section>

@@ -2,6 +2,10 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "Tests": "Test",
+    "Endpoints": "Endpoint",
+    "Since March": "Da marzo",
+    "Product architect and developer of TaxTech": "Product architect e sviluppatore di TaxTech",
     "Read the article": "Leggi l’articolo",
     "About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.": "Circa 170 endpoint, un solo percorso di pagamento con undici controlli, un motore antifrode da 28 regole e sessioni pensate per resistere al furto.",
     "Blog · Engineering": "Blog · Ingegneria",
@@ -272,6 +276,10 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "Tests": "Tests",
+    "Endpoints": "Endpunkte",
+    "Since March": "Seit März",
+    "Product architect and developer of TaxTech": "Produktarchitekt und Entwickler von TaxTech",
     "Read the article": "Artikel lesen",
     "About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.": "Rund 170 Endpunkte, ein Zahlungsweg mit elf Prüfungen, eine Betrugserkennung mit 28 Regeln und Sitzungen, die Diebstahl überstehen.",
     "Blog · Engineering": "Blog · Technik",
@@ -542,6 +550,10 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "Tests": "Тестов",
+    "Endpoints": "Эндпоинтов",
+    "Since March": "С марта",
+    "Product architect and developer of TaxTech": "Продуктовый архитектор и разработчик TaxTech",
     "Read the article": "Читать статью",
     "About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.": "Около 170 эндпоинтов, один путь платежа с одиннадцатью проверками, антифрод из 28 правил и сессии, рассчитанные на кражу.",
     "Blog · Engineering": "Блог · Инженерия",
