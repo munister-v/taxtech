@@ -631,7 +631,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
                 <span className="bl-bcard-t">
                   <small>{t('Блог · Інженерія', 'Blog · Engineering')}</small>
                   <b>How I Built My Own Bank</b>
-                  <span>{t('170 ендпоінтів, один шлях платежу з одинадцятьма перевірками, антифрод із 28 правил і сесії, що чекають на крадіжку.', 'About 170 endpoints, one payment path with eleven checkpoints, a 28-rule fraud engine and sessions built to survive theft.')}</span>
                   <i>{t('Читати статтю', 'Read the article')} →</i>
                 </span>
               </a>
@@ -642,7 +641,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               </figure>
               <div className="bl-hello-who">
                 <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-                <p className="bl-hello-bio">{t('Продуктовий архітектор і розробник TaxTech.', 'Product architect and developer of TaxTech.')}</p>
               </div>
             </aside>
           </div>
@@ -670,7 +668,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
           <div className="bl-wrap bl-lt-head">
             <h2 className="bl-h bl-rv">{t('Лінія T.', 'Line T.')}</h2>
-            <p className="bl-lt-intro bl-rv">{t('Кожен платіж сідає на станції I і їде всі дев’ять. Кожна станція — перевірка, яку сервер робить перед наступною.', 'Every payment boards at station I and rides all nine. Each station is a check the server runs before the next one.')}</p>
           </div>
           <div className="bl-lt-stage">
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
@@ -690,17 +687,11 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
                       <span className="bl-lt-num">{ROMAN[hood]}</span>
                       <i />
                       <span className="bl-lt-place">{HOOD_PLACES[hood].name}</span>
-                      <span className="bl-lt-of">{t('Станція', 'Station')} {hood + 1} {t('з', 'of')} {HOOD.length}</span>
                     </div>
                     <div className="bl-tx-body">
                       <h3>{t(x.uk[0], x.en[0])}</h3>
                       <p className="bl-tx-plain">{t(HOOD_WHY[x.kind].plain[0], HOOD_WHY[x.kind].plain[1])}</p>
-                      <dl className="bl-tx-dl">
-                        <dt>{t('Захищає від', 'Protects against')}</dt>
-                        <dd>{t(HOOD_WHY[x.kind].stops[0], HOOD_WHY[x.kind].stops[1])}</dd>
-                        <dt>{t('Як це працює', 'How it works')}</dt>
-                        <dd>{t(x.uk[1], x.en[1])}</dd>
-                      </dl>
+                      <p className="bl-tx-how">{t(x.uk[1], x.en[1])}</p>
                     </div>
                     <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
                       <Stage kind={x.kind} t={t} />

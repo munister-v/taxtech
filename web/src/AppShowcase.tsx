@@ -50,7 +50,6 @@ export default function AppShowcase({ t }: { t: (uk: string, en: string) => stri
       <div className="as-in">
         <div className="as-copy">
         <h2 className="as-h">{t('Усе в застосунку.', 'All in the app.')}</h2>
-        <p className="as-sub">{t('Рахунок, картки й оплата за QR — на iPhone.', 'Account, cards and QR payments on your iPhone.')}</p>
         <div className="as-pills" role="tablist">
           {TABS.map((x, i) => (
             <button key={x.id} type="button" role="tab" aria-selected={tab === i} className={tab === i ? 'on' : ''}
@@ -59,7 +58,6 @@ export default function AppShowcase({ t }: { t: (uk: string, en: string) => stri
         </div>
         <a className="as-store" href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer">
           <img src="/app-store-black.svg" alt="App Store" width="168" height="56" loading="lazy" decoding="async" />
-          <span>Tax Tech: Digital Finance Lab</span>
         </a>
         </div>
         <div className="as-stage">

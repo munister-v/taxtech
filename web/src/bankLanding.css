@@ -1296,3 +1296,16 @@
 .bl-bcard-t > span { font-size: 14px; line-height: 1.5; color: #a39d91; }
 .bl-bcard-t i { margin-top: 4px; font-style: normal; font-size: 13.5px; font-weight: 600; color: #f6efe0; }
 @media (max-width: 560px) { .bl-bcard { grid-template-columns: 1fr; gap: 14px; } .bl-bcard-img { min-height: 0; aspect-ratio: 16 / 9; } .bl-bcard-t { padding: 4px 6px 8px; } }
+
+/* Calmer Line T tile: one typeface (the page's own), one lead sentence, one note, one proof line */
+.bl-lt .bl-lt-num, .bl-lt .bl-lt-place, .bl-lt .bl-tilex-proof { font-family: inherit; }
+.bl-lt .bl-lt-num { font-weight: 300; letter-spacing: -.02em; }
+.bl-lt .bl-lt-place { font-size: 12px; font-weight: 600; letter-spacing: .16em; color: #8f897c; }
+.bl .bl-lt .bl-tilex h3 { font-weight: 700; letter-spacing: -.03em; }
+.bl .bl-lt .bl-tx-plain { margin: 12px 0 0; font-size: clamp(17px, 1.6vw, 20px); font-weight: 500; line-height: 1.4; color: #cfc8b8; }
+.bl .bl-lt .bl-tx-how { margin-top: 10px; max-width: 44ch; font-size: 14.5px; line-height: 1.55; color: #8f897c; }
+.bl .bl-lt .bl-tilex-proof { margin-top: 20px; padding-top: 14px; font-size: 12px; font-weight: 500; letter-spacing: .04em; color: #8f897c; }
+.bl .bl-lt .bl-tilex-proof::before { background: rgba(255,255,255,.12); }
+/* About: plain author line, a quieter blog card */
+.bl-bcard-t b { font-weight: 600; }
+.bl .bl-hello-card { background: none; box-shadow: none; padding: 0; }
