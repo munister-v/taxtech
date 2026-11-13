@@ -145,7 +145,10 @@
             h = vv || ih || ch;
           } else {
             // Browser mode: prefer visualViewport to track dynamic toolbars.
-            h = vv || ih || ch;
+            // Toolbars (Chrome iOS bottom bar) can overlay the page without shrinking
+            // visualViewport — take the smallest known height so the tab bar stays visible.
+            var c = [vv, ih, ch].filter(function (n) { return n > 0; });
+            h = c.length ? Math.min.apply(null, c) : 0;
           }
           if (h > 0) root.style.setProperty('--app-vh', h + 'px');
         }

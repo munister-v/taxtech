@@ -1321,3 +1321,11 @@
 .bl-hello-facts div { display: flex; flex-direction: column; gap: 6px; }
 .bl-hello-facts dd { margin: 0; order: 1; font-size: 26px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: #f6efe0; }
 @media (max-width: 860px) { .bl .bl-hello-card { order: 2; padding: 26px; } }
+/* mobile menu: fit short viewports (browser toolbars), scroll if still taller */
+.bl-sheet { height: 100dvh; overflow-y: auto; }
+@media (max-width: 700px) {
+  .bl-sheet { padding-top: calc(64px + env(safe-area-inset-top, 0px)); }
+  .bl-sheet-links a { padding: 12px 0; }
+  .bl-sheet-links span { font-size: 26px; }
+  .bl-sheet-foot { gap: 12px; margin-top: 16px; }
+}
