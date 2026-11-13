@@ -8,9 +8,9 @@ import './appShowcase.css';
 
 type Tab = { id: 'home' | 'card' | 'qr'; frames: string[] };
 const TABS: Tab[] = [
-  { id: 'home', frames: ['/landing/app-home.webp'] },
-  { id: 'card', frames: ['/landing/app-card-designs.webp'] },
-  { id: 'qr', frames: ['/landing/app-qr-confirm.webp', '/landing/app-qr-paid.webp'] },
+  { id: 'home', frames: ['/landing/app-s-home.webp'] },
+  { id: 'card', frames: ['/landing/app-s-card-designs.webp'] },
+  { id: 'qr', frames: ['/landing/app-s-qr-confirm.webp', '/landing/app-s-qr-paid.webp'] },
 ];
 const STEP = 4200;
 
@@ -43,7 +43,7 @@ export default function AppShowcase({ t }: { t: (uk: string, en: string) => stri
     return () => clearTimeout(id);
   }, [tab, seen, held]);
 
-  const label = (id: Tab['id']) => (id === 'home' ? t('Рахунок', 'Account') : id === 'card' ? t('Картка', 'Card') : 'QR');
+  const label = (id: Tab['id']) => (id === 'home' ? t('Рахунок', 'Account') : id === 'card' ? t('Картки', 'Cards') : 'QR');
 
   return (
     <section id="app" className="as" ref={box}>
