@@ -8,6 +8,7 @@ type AuthView = 'login' | 'register';
 const loadApp = () => import('./App.tsx');
 const CityLive = lazy(() => import('./city/CityLive'));
 const PayQR = lazy(() => import('./city/PayQR'));
+const Blog = lazy(() => import('./blog/Blog'));
 const App = lazy(() => loadApp().then(m => ({
   default: (p: { initialAuthView?: AuthView }) => <m.ErrorBoundary><m.default {...p} /></m.ErrorBoundary>,
 })));
@@ -30,6 +31,8 @@ function Root() {
   }, [view]);
   const payCode = location.pathname.match(/^\/pay\/([\w-]{6,24})\/?$/)?.[1];
   if (payCode) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#05060a' }} />}><PayQR code={payCode} /></Suspense>;
+  const blog = location.pathname.match(/^\/blog(?:\/([\w-]+))?\/?$/);
+  if (blog) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#fff' }} />}><Blog slug={blog[1]} /></Suspense>;
   if (/^\/roma\/?$/.test(location.pathname)) return <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#040507' }} />}><CityLive /></Suspense>;
   if (!view) return <BankLanding authed={hasToken()} onAuth={v => { if (v === 'app') history.replaceState(null, '', '/'); setView(v); }} />;
   return (

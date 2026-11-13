@@ -499,7 +499,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
 
   const cur = FINISHES.find(f => f.id === finish)!;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#city', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#faq', t('Питання', 'Questions')]];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#city', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#card', t('Картки', 'Cards')], ['#faq', t('Питання', 'Questions')], ['/blog', t('Блог', 'Blog')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (

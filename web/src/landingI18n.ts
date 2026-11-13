@@ -609,6 +609,7 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     "Under the hood": "Под капотом",
     "Under the hood.": "Под капотом.",
     "Questions": "Вопросы",
+    "Blog": "Блог",
     "Autumn at Saint Agnes.": "Осень в Saint Agnes.",
     "Priced in TAX. Paid through TaxPay in one tap.": "Цены в TAX. Оплата через TaxPay одним касанием.",
     "Credit": "Зачисление",
