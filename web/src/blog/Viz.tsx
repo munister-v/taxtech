@@ -21,6 +21,13 @@ export function Live() {
   return <div><div className="tb-stats">{LIVE.map(([n, l]) => <div key={l}><b>{n}</b><span>{l}</span></div>)}</div><p className="tb-live-note">Counted on the production database on 13 November 2026. It is a laboratory with a handful of real people; the large number is the Rome simulation, whose payments run through the same ledger code.</p></div>;
 }
 
+const LOAD: [string, string][] = [['670', 'accounts created'], ['3,000', 'transfer attempts'], ['1,553', 'went through'], ['1,447', 'stopped by fraud rules'], ['35', 'requests a second'], ['447 ms', 'median, p95 543 ms'], ['0', 'server errors'], ['0', 'negative balances'], ['669,000', 'TAX in, 669,000 TAX held']];
+export function Load() {
+  return <Fig cap="Load run on a throw-away copy of the database: two gunicorn workers on a laptop, 16 clients at once, random pairs of accounts">
+    <div className="tb-stats tb-stats-flat">{LOAD.map(([n, l]) => <div key={l}><b>{n}</b><span>{l}</span></div>)}</div>
+  </Fig>;
+}
+
 // six doors into one room
 export function Doors() {
   const doors = ['Card top-up', 'Card number', 'Account transfer', 'POS sale', 'City QR', 'Hosted checkout'];
@@ -223,4 +230,4 @@ export function Schema() {
   );
 }
 
-export const VIZ: Record<string, () => ReactNode> = { stats: Stats, live: Live, doors: Doors, states: States, pipeline: Pipeline, race: Race, rules: Rules, noisy: Noisy, sessions: Sessions, chain: Chain, ledger: Ledger, tests: Tests, modules: Modules, schema: Schema };
+export const VIZ: Record<string, () => ReactNode> = { stats: Stats, load: Load, live: Live, doors: Doors, states: States, pipeline: Pipeline, race: Race, rules: Rules, noisy: Noisy, sessions: Sessions, chain: Chain, ledger: Ledger, tests: Tests, modules: Modules, schema: Schema };
