@@ -2,6 +2,8 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "paid in Rome today": "pagati oggi a Roma",
+    "live": "live",
     "All in the app.": "Tutto nell’app.",
     "Account, cards and QR payments on your iPhone.": "Conto, carte e pagamenti QR sul tuo iPhone.",
     "Account": "Conto",
@@ -239,6 +241,8 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "paid in Rome today": "heute in Rom bezahlt",
+    "live": "live",
     "All in the app.": "Alles in der App.",
     "Account, cards and QR payments on your iPhone.": "Konto, Karten und QR-Zahlungen auf deinem iPhone.",
     "Account": "Konto",
@@ -476,6 +480,8 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "paid in Rome today": "оплачено в Риме сегодня",
+    "live": "онлайн",
     "All in the app.": "Всё в приложении.",
     "Account, cards and QR payments on your iPhone.": "Счёт, карты и оплата по QR — на iPhone.",
     "Account": "Счёт",

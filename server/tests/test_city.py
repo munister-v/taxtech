@@ -317,3 +317,12 @@ def test_live_reports_weather_and_events(client):
     d = client.get('/api/city/live?since=999999999').get_json()['data']
     assert {'t', 'rain', 'code'} <= set(d['weather'])
     assert isinstance(d['events'], list)
+
+
+def test_live_can_name_the_places(client):
+    cs.ensure_schema()
+    cs.advance(now=time.time() + 900, rng=random.Random(9))
+    d = client.get('/api/city/live?since=1&limit=5&names=1').get_json()['data']
+    assert 0 < len(d['payments']) <= 5
+    named = [p for p in d['payments'] if p['v'] < cs.SHOP_BASE]
+    assert named and all(p['n'] and 'r' in p and p['c'] in cs.CATS for p in named)

@@ -12,6 +12,7 @@ import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
 import QrRome from './QrRome';
 import AppShowcase from './AppShowcase';
+import { HeroFeed, HeroNumber, HeroPill, useHeroLive } from './HeroLive';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
@@ -369,6 +370,10 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
   const [city, setCity] = useState<CityStats | null>(null);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
   // Debit notification as the app sends it: icon, app name, "now", what was charged and what is left.
+  // the hero, alive: Rome's clock, the day's turnover and the city's real payments
+  const heroRef = useRef<HTMLElement | null>(null);
+  const { live: heroLive, queue: heroQueue, setQueue: setHeroQueue } = useHeroLive(heroRef);
+
   const push = (merchant: string, amount: number, bal: number) => (
     <>
       <span className="bl-push-ic" aria-hidden><img src="/icons/mark-white.svg" alt="" /></span>
@@ -549,17 +554,19 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         {/* ── Hero and the evening in Rome share one night map of Rome: streets from OpenStreetMap, a payment travels along them ── */}
         <div className="bl-cine">
           <div className="bl-cine-bg" aria-hidden><RomeMap /></div>
-          <section id="top" className="bl-hero">
+          <section id="top" className="bl-hero" ref={heroRef}>
             <div className="bl-wrap bl-hero-in">
+              <HeroPill live={heroLive} t={t} />
               <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(t('Платіть, як у Римі.', 'Pay like Rome.').split(' '))}</h1>
+              <HeroNumber live={heroLive} t={t} />
               <div className="bl-cta">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
                 <a className="bl-ghost" href="#inside">{t('Як це працює', 'How it works')}</a>
               </div>
             </div>
-            {/* The debit arrives the way a real one does: a banner from the top (top right on a desktop, like macOS) */}
+            {/* The city's real payments arrive the way a real debit does: banners from the top (top right on a desktop) */}
             <div className="bl-hero-push" aria-hidden>
-              <div className="bl-toast bl-push bl-toast-loop">{push('Roma · Colosseo', 850, 23150)}</div>
+              <HeroFeed queue={heroQueue} setQueue={setHeroQueue} t={t} />
             </div>
             <div className="bl-cue" aria-hidden><i /></div>
           </section>

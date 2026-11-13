@@ -521,6 +521,10 @@ def payments_since(since: int, limit: int = 400) -> list[dict[str, Any]]:
         if since <= 0:
             rows = conn.execute('SELECT * FROM city_payments WHERE ts > %s ORDER BY id DESC LIMIT %s', (time.time() - 45, limit)).fetchall()
             rows = list(reversed(rows))
+        elif limit < 400:
+            # a small window: the newest payments after `since` (a slow client does not replay the backlog)
+            rows = conn.execute('SELECT * FROM city_payments WHERE id > %s ORDER BY id DESC LIMIT %s', (since, limit)).fetchall()
+            rows = list(reversed(rows))
         else:
             rows = conn.execute('SELECT * FROM city_payments WHERE id > %s ORDER BY id LIMIT %s', (since, limit)).fetchall()
     return [_pay_row(r) for r in rows]
