@@ -60,6 +60,7 @@ def test_security_headers(client):
     h = client.get('/api/version').headers
     assert h['Strict-Transport-Security'].startswith('max-age=')
     assert "frame-ancestors 'none'" in h['Content-Security-Policy']
+    assert "form-action 'self'" in h['Content-Security-Policy']
     assert 'camera=()' in h['Permissions-Policy']
 
 

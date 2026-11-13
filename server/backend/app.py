@@ -126,8 +126,8 @@ def create_app() -> Flask:
         resp.headers.setdefault('X-Frame-Options', 'DENY')
         # the bank only lives on HTTPS (nginx redirects port 80); the browser should never try plain HTTP again
         resp.headers.setdefault('Strict-Transport-Security', 'max-age=31536000')
-        # no plugins, no foreign <base>, no framing; scripts/styles stay as they are (the built app needs no wider CSP)
-        resp.headers.setdefault('Content-Security-Policy', "object-src 'none'; base-uri 'self'; frame-ancestors 'none'")
+        # no plugins, no foreign <base>, no framing, forms may only post back to us (an injected form cannot send data away); scripts/styles stay as they are (the built app needs no wider CSP)
+        resp.headers.setdefault('Content-Security-Policy', "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests")
         resp.headers.setdefault('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=()')
         resp.headers.setdefault('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
         req_id = str(getattr(g, 'request_id', '') or '').strip()

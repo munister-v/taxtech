@@ -1,6 +1,9 @@
 import {StrictMode, Suspense, lazy, useEffect, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import BankLanding from './BankLanding';
+import { installFormGuard } from './formGuard';
+
+installFormGuard();
 
 // A logged-out visitor gets only the landing; the banking app (App.tsx, most of the bundle) loads in its own chunk,
 // fetched while the browser is idle or when the visitor taps log in / sign up.
