@@ -1256,3 +1256,21 @@
   .bl .sa-cap b, .sa-cap u { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .sa-ph img { transition: none; } }
+
+/* Lockup: the TaxTech name over a "Powered by MUNISTER BANK" line, as a bank sits under its group */
+.bl .bl-logo { align-items: center; gap: 11px; }
+.bl-lockup { display: flex; flex-direction: column; justify-content: center; gap: 3px; line-height: 1; white-space: nowrap; }
+.bl-lockup b { font-size: 16px; font-weight: 650; letter-spacing: -.02em; color: #f5f5f7; }
+.bl-lockup small { font-size: 8.5px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: #8e8e93; }
+.bl-lockup em { font-style: normal; font-weight: 700; color: #e9dcbc; }
+.bl .bl-foot-logo { gap: 14px; }
+.bl .bl-foot-logo .bl-lockup { gap: 5px; }
+.bl .bl-foot-logo .bl-lockup b { font-size: 24px; font-weight: 600; color: #f3ecdc; }
+.bl .bl-foot-logo .bl-lockup small { font-size: 10.5px; letter-spacing: .17em; }
+.bl .bl-foot-logo img { width: 30px; height: 34px; }
+@media (max-width: 560px) {
+  .bl .bl-logo { gap: 9px; letter-spacing: 0; }
+  .bl-lockup b { font-size: 15px; }
+  .bl-lockup small { font-size: 7.5px; letter-spacing: .13em; }
+  .bl .bl-foot-brand { flex-direction: column; align-items: flex-start; }
+}

@@ -513,7 +513,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
       <div className="bl" ref={rootRef}>
         <header className={`bl-nav${scrolled ? ' s' : ''}`}>
           <div className="bl-wrap bl-nav-in">
-            <a href="#top" className="bl-logo" aria-label="TaxTech"><img src="/icons/mark-white.svg" alt="TaxTech" /></a>
+            <a href="#top" className="bl-logo" aria-label="TaxTech, powered by Munister Bank"><img src="/icons/mark-white.svg" alt="" /><span className="bl-lockup" aria-hidden><b>TaxTech</b><small>Powered by <em>MUNISTER BANK</em></small></span></a>
             <nav className="bl-links" aria-label={t('Розділи', 'Sections')}>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>
             <div className="bl-nav-r">
               {langSwitch}
@@ -800,13 +800,13 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         <footer className="bl-foot">
           <div className="bl-wrap">
             <div className="bl-foot-brand">
-              <a href="#top" className="bl-foot-logo" aria-label="TaxTech"><img src="/icons/mark-white.svg" alt="" /><span>Tax<b>Tech</b></span></a>
+              <a href="#top" className="bl-foot-logo" aria-label="TaxTech, powered by Munister Bank"><img src="/icons/mark-white.svg" alt="" /><span className="bl-lockup" aria-hidden><b>TaxTech</b><small>Powered by <em>MUNISTER BANK</em></small></span></a>
               <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer" aria-label="App Store"><img className="bl-foot-badge" src="/app-store-black.svg" alt="App Store" width="150" height="50" loading="lazy" decoding="async" /></a>
             </div>
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
             <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
             <div className="bl-foot-row">
-              <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
+              <span>© {new Date().getFullYear()} TaxTech · Munister Bank</span>
               <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>
               {langSwitch}
             </div>
