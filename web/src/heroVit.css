@@ -4,7 +4,7 @@
   linear-gradient(180deg, #050506 0%, #050506 62%, rgba(5,5,6,0) 100%); }
 .bl .bl-hero-chrome .bl-hero-in, .bl .bl-hero-chrome .bl-cue { z-index: 2; }
 .bl .bl-hero-chrome .bl-cta { margin-top: 40px; }
-.bl .bl-hero-chrome h1 { text-shadow: none; }
+.bl .bl-hero-chrome h1 { text-shadow: none; font-size: clamp(52px, 7.4vw, 112px); }
 .bl .bl-vit { position: absolute; z-index: 1; margin: 0; right: max(5vw, 24px); top: 50%; height: min(92vh, 900px); aspect-ratio: 940 / 1304;
   translate: 0 calc(-50% + var(--hp, 0) * -50px); opacity: calc(1 - var(--hp, 0) * 1.1); pointer-events: none;
   -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%); mask-image: radial-gradient(closest-side, #000 55%, transparent 100%); }

@@ -555,7 +555,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
             {/* Leonardo's Vitruvian Man (public domain), drawn in light on the dark, behind the headline */}
             <figure className="bl-vit" aria-hidden><img src="/landing/vitruvian.webp" alt="" width="940" height="1304" fetchPriority="high" decoding="async" /></figure>
             <div className="bl-wrap bl-hero-in">
-              <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(t('Платіть, як у Римі.', 'Pay like Rome.').split(' '))}</h1>
+              <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(['TaxTech', 'Bank'])}</h1>
               <div className="bl-cta">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
               </div>
