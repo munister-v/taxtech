@@ -187,3 +187,5 @@
 .tb-live-note { font-family: Cousine, monospace; font-size: 12px; line-height: 1.6; color: rgba(17,17,17,.55); margin: 14px 0 0; max-width: 640px; }
 
 .tb-stats-flat { margin: 0; }
+
+.tb-stats + .tb-stats { margin-top: -28px; }

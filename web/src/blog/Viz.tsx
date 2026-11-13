@@ -15,10 +15,15 @@ export function Stats() {
   return <div className="tb-stats">{STATS.map(([n, l]) => <div key={l}><b>{n}</b><span>{l}</span></div>)}</div>;
 }
 
-// what the running system holds today (read-only counts from the live database, 13 Nov 2026)
-const LIVE: [string, string][] = [['11', 'registered users'], ['10', 'accounts'], ['6', 'cards'], ['64', 'account transactions'], ['28', 'POS sales'], ['212 634', 'simulated city payments'], ['188', 'audit lines']];
+// what the system holds: production counts (13 Nov 2026) and the load run on a throw-away copy
+const LIVE: [string, string][] = [['11', 'users in production'], ['64', 'account transactions'], ['212 634', 'simulated city payments']];
+const TESTED: [string, string][] = [['670', 'accounts in the load run'], ['3 000', 'transfers attempted'], ['1 553', 'completed in 86 s']];
 export function Live() {
-  return <div><div className="tb-stats">{LIVE.map(([n, l]) => <div key={l}><b>{n}</b><span>{l}</span></div>)}</div><p className="tb-live-note">Counted on the production database on 13 November 2026. It is a laboratory with a handful of real people; the large number is the Rome simulation, whose payments run through the same ledger code.</p></div>;
+  return <div>
+    <div className="tb-stats">{LIVE.map(([n, l]) => <div key={l}><b>{n}</b><span>{l}</span></div>)}</div>
+    <div className="tb-stats">{TESTED.map(([n, l]) => <div key={l}><b>{n}</b><span>{l}</span></div>)}</div>
+    <p className="tb-live-note">Top row: counted on the production database on 13 November 2026, a laboratory with a handful of real people; the large number is the Rome simulation, whose payments run through the same ledger code. Bottom row: a separate load run on a throw-away database, described below.</p>
+  </div>;
 }
 
 const LOAD: [string, string][] = [['670', 'accounts created'], ['3,000', 'transfer attempts'], ['1,553', 'went through'], ['1,447', 'stopped by fraud rules'], ['35', 'requests a second'], ['447 ms', 'median, p95 543 ms'], ['0', 'server errors'], ['0', 'negative balances'], ['669,000', 'TAX in, 669,000 TAX held']];
