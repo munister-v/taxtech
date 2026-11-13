@@ -640,7 +640,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               </figure>
               <div className="bl-hello-who">
                 <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-                <p className="bl-hello-bio">{t('Дослідник цифрової спадщини. Архітектура, міська культура, колективна пам’ять.', 'Digital heritage researcher. Architecture, urban culture, collective memory.')}</p>
+                <p className="bl-hello-bio">{t('Розробник TaxTech. Банківські системи, платіжна інфраструктура, iOS і веб.', 'TaxTech developer. Banking systems, payment infrastructure, iOS and web.')}</p>
               </div>
             </aside>
           </div>
