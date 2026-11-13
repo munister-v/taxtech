@@ -1339,3 +1339,4 @@
 .bl .bl-lt-st i { display: none; }
 .bl .bl-lt-st { gap: 16px; }
 @media (max-width: 860px) { .bl .bl-hello-card { padding: 0; } }
+.bl .bl-lt-st { display: none; }
