@@ -63,10 +63,6 @@ export default function AppShowcase({ t }: { t: (uk: string, en: string) => stri
         <div className="as-stage"
           onPointerMove={e => { const r = e.currentTarget.getBoundingClientRect(); e.currentTarget.style.setProperty('--ry', `${(((e.clientX - r.left) / r.width - .5) * 14).toFixed(1)}deg`); e.currentTarget.style.setProperty('--rx', `${(-((e.clientY - r.top) / r.height - .5) * 8).toFixed(1)}deg`); }}
           onPointerLeave={e => { e.currentTarget.style.removeProperty('--ry'); e.currentTarget.style.removeProperty('--rx'); }}>
-          <div className="as-glow" aria-hidden />
-          <div className="as-chip as-chip-a" aria-hidden><i>✓</i><span><b>Saint Agnes</b><small>−144.90 TAX</small></span></div>
-          <div className="as-chip as-chip-b" aria-hidden><i>❄</i><span><b>{t('Картку заморожено', 'Card frozen')}</b><small>•• 8632</small></span></div>
-          <div className="as-chip as-chip-c" aria-hidden><i>+</i><span><b>{t('Поповнення', 'Top up')}</b><small>+1 000 TAX</small></span></div>
           <div className="as-phone as-phone-2" aria-hidden>
             <div className="as-screen">
               {TABS.map((x, i) => x.frames.map((src, k) => (
