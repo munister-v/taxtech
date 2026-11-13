@@ -75,7 +75,7 @@
 .as-chip small { font-size: 12px; color: #6b6862; font-variant-numeric: tabular-nums; }
 .as-chip-a { left: -64px; top: 24%; animation-delay: -1s; }
 .as-chip-b { right: -52px; top: 46%; animation-delay: -3.5s; }
-.as-chip-c { left: 4%; bottom: 8%; animation-delay: -5s; }
+.as-chip-c { left: 2%; top: 2px; animation-delay: -5s; }
 @keyframes as-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -12px; } }
 @media (max-width: 1100px) { .as-chip-a { left: -20px; } .as-chip-b { right: -20px; } }
 @media (max-width: 560px) { .as-chip { padding: 8px 12px 8px 9px; } .as-chip i { width: 24px; height: 24px; font-size: 12px; } .as-chip b { font-size: 11.5px; } .as-chip small { font-size: 10.5px; } .as-chip-a { left: -6px; top: 16%; } .as-chip-b { right: -6px; top: 44%; } .as-chip-c { display: none; } .bl .as-phone { width: min(66vw, 290px); } }
