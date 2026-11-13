@@ -1,7 +1,8 @@
 // Landing copy for Italian, German and Russian, keyed by the English string used in BankLanding.tsx.
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
-  it: {
+  it: {    'Drag to look around · tap a place to pay': 'Trascina per guardare · tocca un posto per pagare',
+
     "Tests": "Test",
     "Endpoints": "Endpoint",
     "Since March": "Da marzo",
@@ -275,7 +276,8 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Marble': 'Marmo',
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
-  de: {
+  de: {    'Drag to look around · tap a place to pay': 'Ziehen zum Umschauen · Ort antippen zum Bezahlen',
+
     "Tests": "Tests",
     "Endpoints": "Endpunkte",
     "Since March": "Seit März",
@@ -549,7 +551,8 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'Marble': 'Marmor',
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
-  ru: {
+  ru: {    'Drag to look around · tap a place to pay': 'Крутите город · коснитесь места, чтобы заплатить',
+
     "Tests": "Тестов",
     "Endpoints": "Эндпоинтов",
     "Since March": "С марта",

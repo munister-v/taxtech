@@ -149,6 +149,15 @@ export default function CityLive() {
   const [q, setQ] = useState('');
   const [searching, setSearching] = useState(false);
   const [labels, setLabels] = useState(true);
+  // first visit: one quiet hint, gone after the first touch of the map or after 9 s
+  const [hint, setHint] = useState(() => { try { return !localStorage.getItem('roma-hint'); } catch { return true; } });
+  useEffect(() => {
+    if (!hint || !ready) return;
+    const done = () => { setHint(false); try { localStorage.setItem('roma-hint', '1'); } catch { /* private mode */ } };
+    const id = window.setTimeout(done, 9000);
+    window.addEventListener('pointerdown', done, { once: true });
+    return () => { clearTimeout(id); window.removeEventListener('pointerdown', done); };
+  }, [hint, ready]);
   const [me, setMe] = useState<Me | null | undefined>(undefined);  // undefined: still asking
   const [paying, setPaying] = useState(false);
   const [tds, setTds] = useState<Tds | null>(null);
@@ -681,6 +690,8 @@ export default function CityLive() {
       {claiming && !draft && (
         <div className="cl-claim"><span>{t('Торкніться порожньої будівлі', 'Tap an empty building')}</span><button type="button" className="cl-link" onClick={stopClaim}>{t('Скасувати', 'Cancel')}</button></div>
       )}
+
+      {hint && ready && <div className="cl-hint" aria-hidden>{t('Крутіть місто · торкніться місця, щоб заплатити', 'Drag to look around · tap a place to pay')}</div>}
 
       <footer className="cl-bottom">
         <div className="cl-strip">
