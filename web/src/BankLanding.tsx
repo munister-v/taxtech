@@ -645,7 +645,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
           <div className="bl-wrap bl-lt-head">
-            <h2 className="bl-h bl-rv">{t('Лінія T.', 'Line T.')}</h2>
+            <h2 className="bl-h bl-rv">{t('Під капотом.', 'Under the hood.')}</h2>
           </div>
           <div className="bl-lt-stage">
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
