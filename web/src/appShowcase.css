@@ -1,0 +1,46 @@
+/* The app on a light stage: one bright room in the dark landing, a real iPhone screen in a titanium frame */
+.as { position: relative; padding: clamp(72px, 9vw, 120px) 0 clamp(72px, 9vw, 120px); background: radial-gradient(70% 55% at 50% 62%, #ffffff 0%, #f1f0ec 55%, #e8e6e0 100%); color: #121212; overflow: hidden; }
+.as-in { width: min(1120px, calc(100% - 32px)); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(40px, 7vw, 110px); }
+.as-copy { display: flex; flex-direction: column; align-items: flex-start; }
+.bl .as-h { margin: 0; font-size: clamp(38px, 6.4vw, 76px); line-height: 1.02; font-weight: 600; letter-spacing: -.04em; color: #111; }
+.bl .as-sub { margin: 18px 0 0; max-width: 520px; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.5; color: #55534e; }
+
+.as-pills { display: flex; gap: 10px; margin-top: 34px; }
+.bl .as-pills button { height: 44px; padding: 0 22px; border-radius: 999px; border: 1.5px solid #1a1a1a; background: transparent; color: #1a1a1a; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background .25s, color .25s, transform .2s; }
+.bl .as-pills button:hover { transform: translateY(-1px); }
+.bl .as-pills button.on { background: #121212; color: #f4ecd9; }
+
+.as-stage { position: relative; margin-right: clamp(0px, 4vw, 60px); }
+.bl .as-phone { position: relative; width: clamp(240px, 21vw, 290px); aspect-ratio: 600 / 1304; padding: 11px; border-radius: 56px; box-sizing: content-box;
+  background: linear-gradient(145deg, #d9d6cf 0%, #8f8c86 22%, #e9e6df 48%, #77746e 74%, #c9c6bf 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55), inset 0 0 0 4px #161616, 0 50px 90px -30px rgba(40,32,18,.45), 0 22px 40px -22px rgba(0,0,0,.4); }
+.as-screen { position: relative; width: 100%; height: 100%; border-radius: 46px; overflow: hidden; background: #050505; }
+.as-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.015); transition: opacity .55s ease, transform .9s cubic-bezier(.2,.8,.2,1); }
+.as-screen img.on { opacity: 1; transform: none; }
+.as-btn { position: absolute; width: 3px; border-radius: 2px; background: linear-gradient(90deg, #6f6c66, #b9b6af); }
+.as-btn-a { left: -3px; top: 21%; height: 7%; }
+.as-btn-b { left: -3px; top: 30%; height: 7%; }
+.as-btn-c { right: -3px; top: 25%; height: 11%; }
+.as-floor { position: absolute; left: 50%; bottom: -26px; width: 78%; height: 26px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, rgba(40,30,15,.28), transparent); filter: blur(4px); }
+
+.as-store { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 46px; text-decoration: none; color: #6b6862; font-size: 13px; }
+.as-store img { display: block; height: 52px; width: auto; transition: transform .2s; }
+.as-store:hover img { transform: translateY(-2px); }
+
+@media (max-width: 820px) {
+  /* one column: title, pills, the phone, then the store badge */
+  .as-in { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 0; }
+  .as-copy { display: contents; }
+  .bl .as-h { order: 1; }
+  .bl .as-sub { order: 2; margin-left: auto; margin-right: auto; }
+  .as-pills { order: 3; }
+  .as-stage { order: 4; margin: 40px 0 0; }
+  .as-store { order: 5; align-items: center; margin-top: 56px; }
+}
+@media (max-width: 560px) {
+  .as-pills { gap: 8px; }
+  .bl .as-pills button { height: 40px; padding: 0 16px; font-size: 14px; }
+  .bl .as-phone { width: min(72vw, 290px); border-radius: 48px; padding: 9px; }
+  .as-screen { border-radius: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .as-screen img { transition: none; } }

@@ -11,6 +11,7 @@ import { autoplay } from './autoplay';
 import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
 import QrRome from './QrRome';
+import AppShowcase from './AppShowcase';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
@@ -643,17 +644,10 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               </div>
             </aside>
           </div>
-          <div className="bl-wrap">
-            <a className="bl-app bl-rv" href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer">
-              <div className="bl-app-text">
-                <h4>{t('Тепер в App Store.', 'Now on the App Store.')}</h4>
-                <p className="bl-app-name">Tax Tech: Digital Finance Lab</p>
-                <img className="bl-appbadge" src="/app-store-black.svg" alt="App Store" width="180" height="60" loading="lazy" decoding="async" />
-              </div>
-              <div className="bl-app-phone"><img src="/landing/app-home.webp" alt="" width="603" height="1100" loading="lazy" decoding="async" /></div>
-            </a>
-          </div>
         </section>
+
+        {/* ── The app: real iOS screens in an iPhone frame on a light stage, Account | Card | QR ── */}
+        <AppShowcase t={t} />
 
         {/* ── Roma Live: the whole city paying, the real places of central Rome lit by their turnover; opens /roma ── */}
         <Lazy id="city" className="bl-city" h={[920, 760]}>

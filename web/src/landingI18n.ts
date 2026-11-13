@@ -2,6 +2,9 @@
 // English and Ukrainian stay inline next to the markup; a missing key falls back to English.
 export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = {
   it: {
+    "All in the app.": "Tutto nell’app.",
+    "Account, cards and QR payments on your iPhone.": "Conto, carte e pagamenti QR sul tuo iPhone.",
+    "Account": "Conto",
     "Your place": "Il tuo locale",
     "Open your own place": "Apri il tuo locale",
     "Taken. Choose an empty building": "Occupato. Scegli un edificio libero",
@@ -236,6 +239,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · carta, conto e negozio in un’unica app',
   },
   de: {
+    "All in the app.": "Alles in der App.",
+    "Account, cards and QR payments on your iPhone.": "Konto, Karten und QR-Zahlungen auf deinem iPhone.",
+    "Account": "Konto",
     "Your place": "Dein Lokal",
     "Open your own place": "Eröffne dein Lokal",
     "Taken. Choose an empty building": "Belegt. Wähle ein leeres Gebäude",
@@ -470,6 +476,9 @@ export const LANDING_I18N: Record<'it' | 'de' | 'ru', Record<string, string>> = 
     'TaxTech · card, account and shop in one app': 'TaxTech · Karte, Konto und Shop in einer App',
   },
   ru: {
+    "All in the app.": "Всё в приложении.",
+    "Account, cards and QR payments on your iPhone.": "Счёт, карты и оплата по QR — на iPhone.",
+    "Account": "Счёт",
     "Your place": "Своё заведение",
     "Open your own place": "Открыть своё заведение",
     "Taken. Choose an empty building": "Занято. Выберите пустое здание",

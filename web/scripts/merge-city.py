@@ -88,6 +88,11 @@ def main(old_p, new_p, out_p):
     out = dict(B)
     # a kind of area the new dumps lack (a failed download) keeps the old one
     out['areas'] = {k: (B['areas'].get(k) or A['areas'].get(k, [])) for k in set(A['areas']) | set(B['areas'])}
+    # labels: the old extract's names stay (its rioni come from a richer query than the new dumps); a new label is
+    # added only when its name is new and, for a rione, when it lies outside the old bbox - otherwise a coarse new
+    # quarter (e.g. 'Trastevere' for the whole left bank) would win the nearest-rione lookup in the centre
+    names = {l[2] for l in A['labels']}
+    out['labels'] = list(A['labels']) + [l for l in B['labels'] if l[2] not in names and (l[3] != 0 or not in_old(l[0], l[1]))]
     out['b'] = blds
     out['v'] = venues
     xs = [B['bounds'][0], B['bounds'][2], A['bounds'][0], A['bounds'][2]]
