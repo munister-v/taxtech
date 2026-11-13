@@ -74,3 +74,9 @@
 .qr-map-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 22px; font-size: 16px; font-weight: 600; color: #f6efe0; text-decoration: none; }
 .qr-map-link i { font-style: normal; transition: transform .2s; }
 .qr-map-link:hover i { transform: translateX(4px); }
+
+/* calmer card: no frame, no glow ring, room between the code and its caption */
+.qr-card { background: none; box-shadow: none; padding: 8px 0; }
+.qr-code { box-shadow: none; margin-top: 28px; }
+.qr-hint { margin-top: 26px; }
+.qr-foot { border-top: 0; margin-top: 22px; padding-top: 0; }
