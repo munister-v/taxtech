@@ -343,3 +343,6 @@ a.cl-me:hover strong { color: #fff; }
 .cl-own-evt i { width: 6px; height: 6px; border-radius: 50%; background: rgba(236,235,230,.45); }
 .cl-own-evt.on i { background: #ff4fa3; }
 .cl-own-evt em { font-style: normal; color: var(--mut); font-size: 11px; }
+
+/* ?film=1: only the city (the landing's hero video is recorded from it) */
+.cl-film .cl-top, .cl-film .cl-bottom, .cl-film .cl-panel, .cl-film .cl-card-wrap, .cl-film .cl-labels, .cl-film .cl-claim { display: none !important; }

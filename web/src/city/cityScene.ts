@@ -486,6 +486,16 @@ export function createCityScene(el: HTMLElement, sim: CitySim, opts: Opts = {}):
   controls.autoRotateSpeed = preview ? 0.4 : 0.18;
   // the landing holds still: no rotation, nothing for the eye to chase
   controls.autoRotate = !preview;
+  // ?film=1: the camera for the landing's hero video (web/scripts/film-hero.mjs): lower and closer over the centre,
+  // a steady orbit. Nothing else changes.
+  const film = !preview && new URLSearchParams(location.search).get('film') === '1';
+  if (film) {
+    HOME.t.set(120, 0, 120);
+    camera.position.set(HOME.t.x - 620, 520, HOME.t.z + 980);
+    camera.lookAt(HOME.t);
+    controls.target.copy(HOME.t);
+    controls.autoRotateSpeed = 0.9;
+  }
   controls.zoomToCursor = true;
   controls.enabled = !preview;
   let lastUser = performance.now();

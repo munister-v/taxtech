@@ -21,6 +21,8 @@ const fmt = (n: number) => Math.round(n).toLocaleString('uk-UA').replace(/\s/g, 
 const short = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace('.', ',') + ' M' : n >= 1e4 ? Math.round(n / 1e3) + ' k' : fmt(n);
 
 const afterLogin = () => returnHere('/roma');
+// ?film=1: only the city, for recording the landing's hero video
+const FILM = typeof location !== 'undefined' && new URLSearchParams(location.search).get('film') === '1';
 
 type Live = { now: number; rome: string; hour: number; busy: number; day: string; stats: ServerStats; payments: ServerPay[]; last_id: number; weather?: Weather; events?: CityEvent[] };
 
@@ -559,7 +561,7 @@ export default function CityLive() {
   })();
 
   return (
-    <div className={`cl${ready ? ' ready' : ''}${panel ? ' p-' + panel : ''}${sel || draft ? ' has-sel' : ''}`}>
+    <div className={`cl${FILM ? ' cl-film' : ''}${ready ? ' ready' : ''}${panel ? ' p-' + panel : ''}${sel || draft ? ' has-sel' : ''}`}>
       <div className="cl-map" ref={box} />
       {!ready && <div className="cl-load"><span>Roma</span><i /></div>}
 
