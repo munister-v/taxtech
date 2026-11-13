@@ -12,10 +12,9 @@ import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
 import QrRome from './QrRome';
 import AppShowcase from './AppShowcase';
-import HeroChrome from './HeroChrome';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
-import './heroChrome.css';
+import './heroVit.css';
 
 type CityStats = { vol: number; n: number; clock: string; venues: number };
 // Roma Live on the landing: a still frame of the 3D city (the live scene, three.js and the 1.7 MB city file stay on /roma)
@@ -553,8 +552,8 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         <div className="bl-cine">
           <div className="bl-cine-bg" aria-hidden><RomeMap /></div>
           <section id="top" className="bl-hero bl-hero-chrome">
-            {/* The TaxTech mark in chrome, a gold TAX coin and a chrome sphere, turning in a studio light (HeroChrome) */}
-            <HeroChrome />
+            {/* Leonardo's Vitruvian Man (public domain), drawn in light on the dark, behind the headline */}
+            <figure className="bl-vit" aria-hidden><img src="/landing/vitruvian.webp" alt="" width="940" height="1304" fetchPriority="high" decoding="async" /></figure>
             <div className="bl-wrap bl-hero-in">
               <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(t('Платіть, як у Римі.', 'Pay like Rome.').split(' '))}</h1>
               <div className="bl-cta">
