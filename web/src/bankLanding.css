@@ -1329,3 +1329,13 @@
   .bl-sheet-links span { font-size: 26px; }
   .bl-sheet-foot { gap: 12px; margin-top: 16px; }
 }
+/* minimal: no boxes, outlines or dividers in About and the station label */
+.bl .bl-bcard { padding: 0; background: none; box-shadow: none; border-radius: 0; gap: 26px; }
+.bl .bl-bcard:hover { transform: none; box-shadow: none; }
+.bl .bl-bcard-img { border-radius: 14px; }
+.bl .bl-hello-card { padding: 0; background: none; box-shadow: none; border: 0; border-radius: 0; justify-content: flex-start; }
+.bl .bl-hello-in { align-items: start; }
+.bl .bl-hello-card .bl-hello-photo, .bl .bl-hello-card figure { margin: 0 0 20px; }
+.bl .bl-lt-st i { display: none; }
+.bl .bl-lt-st { gap: 16px; }
+@media (max-width: 860px) { .bl .bl-hello-card { padding: 0; } }
