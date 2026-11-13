@@ -43,17 +43,7 @@ def city_live():
     st = cs.stats()
     now = time.time()
     d = cs.rome_now(now)
-    try:
-        limit = max(1, min(400, int(request.args.get('limit') or 400)))
-    except ValueError:
-        limit = 400
-    pays = cs.payments_since(since, limit)
-    if request.args.get('names') == '1':
-        # the landing's live notifications: the place and its rione with each payment
-        for p in pays:
-            pl = cs.place(p['v'])
-            if pl:
-                p['n'], p['r'], p['c'] = pl[3], pl[4], pl[2]
+    pays = cs.payments_since(since)
     return jsonify({'ok': True, 'data': {
         'now': round(now, 2), 'rome': d.strftime('%H:%M'), 'hour': d.hour + d.minute / 60, 'day': st['day'],
         'busy': round(cs.busy(d.hour + d.minute / 60), 3),
