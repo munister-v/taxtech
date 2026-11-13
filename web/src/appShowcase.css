@@ -62,3 +62,21 @@
 .bl .as-phone-2 .as-screen img { transition-duration: .55s; }
 .bl .as-phone:not(.as-phone-2) { z-index: 1; }
 @media (max-width: 1100px) { .bl .as-phone-2 { display: none; } }
+
+/* wow: the pair of phones tilts toward the pointer, a warm glow behind, live-looking notifications drifting around */
+.as-stage { position: relative; perspective: 1400px; }
+.bl .as-phone { transform: rotateY(var(--ry, -6deg)) rotateX(var(--rx, 2deg)); transition: transform .5s cubic-bezier(.2,.7,.2,1); will-change: transform; width: clamp(250px, 23vw, 320px); }
+.bl .as-phone-2 { transform: rotateY(calc(var(--ry, -6deg) + 8deg)) rotateX(var(--rx, 2deg)); }
+.as-glow { position: absolute; left: 50%; top: 52%; width: 150%; aspect-ratio: 1; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(214,168,74,.42), rgba(214,168,74,.14) 55%, transparent 72%); filter: blur(10px); pointer-events: none; }
+.as-chip { position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 11px 16px 11px 12px; border-radius: 16px; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -16px rgba(40,30,10,.35); color: #111; animation: as-float 7s ease-in-out infinite; pointer-events: none; }
+.as-chip i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #111; color: #ffd400; font-style: normal; font-size: 15px; font-weight: 700; }
+.as-chip span { display: flex; flex-direction: column; gap: 1px; }
+.as-chip b { font-size: 13px; font-weight: 600; letter-spacing: -.01em; }
+.as-chip small { font-size: 12px; color: #6b6862; font-variant-numeric: tabular-nums; }
+.as-chip-a { left: -64px; top: 24%; animation-delay: -1s; }
+.as-chip-b { right: -52px; top: 46%; animation-delay: -3.5s; }
+.as-chip-c { left: 4%; bottom: 8%; animation-delay: -5s; }
+@keyframes as-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -12px; } }
+@media (max-width: 1100px) { .as-chip-a { left: -20px; } .as-chip-b { right: -20px; } }
+@media (max-width: 560px) { .as-chip { padding: 8px 12px 8px 9px; } .as-chip i { width: 24px; height: 24px; font-size: 12px; } .as-chip b { font-size: 11.5px; } .as-chip small { font-size: 10.5px; } .as-chip-a { left: -6px; top: 16%; } .as-chip-b { right: -6px; top: 44%; } .as-chip-c { display: none; } .bl .as-phone { width: min(66vw, 290px); } }
+@media (prefers-reduced-motion: reduce) { .as-chip { animation: none; } .bl .as-phone, .bl .as-phone-2 { transition: none; } }
