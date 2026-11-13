@@ -61,11 +61,20 @@ export default function AppShowcase({ t }: { t: (uk: string, en: string) => stri
         </a>
         </div>
         <div className="as-stage">
+          <div className="as-phone as-phone-2" aria-hidden>
+            <div className="as-screen">
+              {TABS.map((x, i) => x.frames.map((src, k) => (
+                <img key={src} src={src} fetchPriority="low" alt={''} width="600" height="1304" decoding="async"
+                  className={i === (tab + 1) % TABS.length && (k === 0) ? 'on' : ''} />
+              )))}
+            </div>
+            <i className="as-btn as-btn-a" aria-hidden /><i className="as-btn as-btn-b" aria-hidden /><i className="as-btn as-btn-c" aria-hidden />
+          </div>
           <div className="as-phone">
             <div className="as-screen">
               {TABS.map((x, i) => x.frames.map((src, k) => (
                 <img key={src} src={src} fetchPriority="low" alt={i === tab && k === frame ? label(x.id) : ''} width="600" height="1304" decoding="async"
-                  className={i === tab && (k === frame || (k === 0 && frame === 0)) ? 'on' : ''} />
+                  className={i === tab && (k === frame) ? 'on' : ''} />
               )))}
             </div>
             <i className="as-btn as-btn-a" aria-hidden /><i className="as-btn as-btn-b" aria-hidden /><i className="as-btn as-btn-c" aria-hidden />

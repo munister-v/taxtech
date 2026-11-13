@@ -303,6 +303,12 @@ function Card({ finish, n = '6595', name = 'DEMO USER' }: { finish: Finish; n?: 
 export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onAuth: (m: 'login' | 'register' | 'app') => void; authed?: boolean }) {
   const onAuth = (m: 'login' | 'register') => onAuthRaw(authed ? 'app' : m);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  // light deterrent only: no right-click menu or dragging on pictures (view-source and devtools cannot be blocked in a browser)
+  useEffect(() => {
+    const stop = (e: Event) => { if ((e.target as HTMLElement | null)?.closest?.('img, picture, canvas, svg')) e.preventDefault(); };
+    document.addEventListener('contextmenu', stop); document.addEventListener('dragstart', stop);
+    return () => { document.removeEventListener('contextmenu', stop); document.removeEventListener('dragstart', stop); };
+  }, []);
   const seekRome = useRef<(stop: number) => void>(() => {});
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
   const [scrolled, setScrolled] = useState(false);
