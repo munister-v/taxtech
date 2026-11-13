@@ -12,9 +12,10 @@ import { setRomeClock } from './romeClock';
 import FaceFlow from './FaceFlow';
 import QrRome from './QrRome';
 import AppShowcase from './AppShowcase';
+import HeroChrome from './HeroChrome';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
-import './heroFilm.css';
+import './heroChrome.css';
 
 type CityStats = { vol: number; n: number; clock: string; venues: number };
 // Roma Live on the landing: a still frame of the 3D city (the live scene, three.js and the 1.7 MB city file stay on /roma)
@@ -370,15 +371,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
   const [city, setCity] = useState<CityStats | null>(null);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
   // Debit notification as the app sends it: icon, app name, "now", what was charged and what is left.
-  // the hero film: start it even where autoplay is shy; a still frame for people who asked for less motion
-  const filmRef = useRef<HTMLVideoElement | null>(null);
-  useEffect(() => {
-    const v = filmRef.current;
-    if (!v) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { v.pause(); v.removeAttribute('autoplay'); return; }
-    v.muted = true;
-    v.play().catch(() => {});
-  }, []);
 
   const push = (merchant: string, amount: number, bal: number) => (
     <>
@@ -560,16 +552,9 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         {/* ── Hero and the evening in Rome share one night map of Rome: streets from OpenStreetMap, a payment travels along them ── */}
         <div className="bl-cine">
           <div className="bl-cine-bg" aria-hidden><RomeMap /></div>
-          <section id="top" className="bl-hero bl-hero-film">
-            {/* Night flight over Roma Live: the real 3D city of /roma, roofs lit by the day's payments, recorded as a short
-                loop (web/scripts/film-hero.mjs); a video, not the live scene, so the page scrolls freely from the first frame */}
-            <div className="bl-film" aria-hidden>
-              <video ref={filmRef} autoPlay muted loop playsInline preload="auto" poster="/landing/hero-roma.webp">
-                <source media="(max-width: 760px)" src="/landing/hero-roma-m.mp4" type="video/mp4" />
-                <source src="/landing/hero-roma.mp4" type="video/mp4" />
-              </video>
-              <i className="bl-film-shade" />
-            </div>
+          <section id="top" className="bl-hero bl-hero-chrome">
+            {/* The TaxTech mark in chrome, a gold TAX coin and a chrome sphere, turning in a studio light (HeroChrome) */}
+            <HeroChrome />
             <div className="bl-wrap bl-hero-in">
               <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(t('Платіть, як у Римі.', 'Pay like Rome.').split(' '))}</h1>
               <div className="bl-cta">
