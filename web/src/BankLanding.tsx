@@ -16,23 +16,9 @@ import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 import './heroVit.css';
 
-type CityStats = { vol: number; n: number; clock: string; venues: number };
 // Roma Live on the landing: a still frame of the 3D city (the live scene, three.js and the 1.7 MB city file stay on /roma)
 // and the server's numbers for today, refreshed every 15 s while the tab is open.
-function CityStill({ onStats }: { onStats: (s: CityStats) => void }) {
-  useEffect(() => {
-    let alive = true;
-    const pull = () => {
-      if (document.hidden) return;
-      fetch('/api/city/live?since=999999999').then(r => r.json()).then(j => {
-        const d = j?.data;
-        if (alive && d?.stats) onStats({ vol: d.stats.vol, n: d.stats.n, clock: d.rome, venues: 4551 });
-      }).catch(() => {});
-    };
-    pull();
-    const iv = window.setInterval(pull, 15000);
-    return () => { alive = false; window.clearInterval(iv); };
-  }, [onStats]);
+function CityStill() {
   return (
     <picture className="bl-city-still" aria-hidden>
       <source media="(max-width: 600px)" srcSet="/landing/roma-live-m.webp" />
@@ -379,7 +365,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
   }, [menu]);
   const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
-  const [city, setCity] = useState<CityStats | null>(null);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
   // Debit notification as the app sends it: icon, app name, "now", what was charged and what is left.
 
@@ -668,16 +653,10 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
 
         {/* ── Roma Live: the whole city paying, the real places of central Rome lit by their turnover; opens /roma ── */}
         <Lazy id="city" className="bl-city" h={[920, 760]}>
-          <CityStill onStats={setCity} />
+          <CityStill />
           <div className="bl-city-shade" aria-hidden />
           <div className="bl-wrap bl-city-in">
             <h2 className="bl-h bl-h-xl bl-rv">{t('Рим наживо.', 'Rome, live.')}</h2>
-            <dl className="bl-city-nums bl-rv">
-              <div><dt>{t('Оборот', 'Turnover')}</dt><dd>{city ? fmt(Math.round(city.vol)) : '—'} <small>TAX</small></dd></div>
-              <div><dt>{t('Платежі', 'Payments')}</dt><dd>{city ? fmt(city.n) : '—'}</dd></div>
-              <div><dt>{t('Місця', 'Places')}</dt><dd>{city ? fmt(city.venues) : '4 551'}</dd></div>
-              <div><dt>Roma</dt><dd>{city?.clock || '18:40'}</dd></div>
-            </dl>
             <div className="bl-cta bl-rv">
               <a className="bl-pill" href="/roma">{t('Відкрити карту', 'Open the map')}<i aria-hidden>→</i></a>
             </div>
