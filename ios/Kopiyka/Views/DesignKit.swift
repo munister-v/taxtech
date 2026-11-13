@@ -238,15 +238,27 @@ struct MoneyField: View {
 /// Порожній стан: великий знак TaxTech, заголовок і, якщо є, головна дія.
 struct BrandEmpty: View {
     let title: String
+    var detail: String?
+    var symbol: String?
     var action: String?
     var perform: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 16) {
-            MarkView(height: 84, color: Theme.accent)
-                .padding(22)
-                .background(Theme.surface, in: .circle)
+            ZStack {
+                Circle().fill(Theme.accent.opacity(0.10)).frame(width: 148, height: 148)
+                Circle().strokeBorder(Theme.accent.opacity(0.22), lineWidth: 1).frame(width: 148, height: 148)
+                if let symbol {
+                    Image(systemName: symbol).font(.system(size: 44, weight: .light)).foregroundStyle(Theme.accent)
+                } else {
+                    MarkView(height: 64, color: Theme.accent)
+                }
+            }
             Text(title).font(Theme.mono(style: .title3, .bold)).multilineTextAlignment(.center)
+            if let detail {
+                Text(detail).font(Theme.ui(style: .subheadline, .regular)).foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center).padding(.horizontal, 28)
+            }
             if let action, let perform {
                 Button(action, action: perform).buttonStyle(InkButton()).frame(maxWidth: 260)
             }

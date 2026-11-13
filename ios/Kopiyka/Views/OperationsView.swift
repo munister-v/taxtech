@@ -12,6 +12,7 @@ struct OperationsView: View {
     @State private var period = Period.month
     @State private var selected: API.Transaction?
     @State private var loaded = false
+    @State private var topUp = false
 
     enum Sort: String, CaseIterable { case newest = "Нові", oldest = "Старі", amount = "Сума"
         var label: String { Translator.text(rawValue, []) } }
@@ -269,7 +270,13 @@ struct OperationsView: View {
 
     @ViewBuilder private var history: some View {
         if loaded && items.isEmpty {
-            BrandEmpty(title: filter.search.isEmpty ? L("Операцій ще немає").s : L("Нічого не знайдено").s)
+            if filter.search.isEmpty && filter.direction == nil {
+                BrandEmpty(title: L("Операцій ще немає").s, detail: L("Поповніть рахунок, і тут з'являться покупки, перекази та графіки").s,
+                           symbol: "list.bullet.rectangle", action: L("Поповнити рахунок").s) { topUp = true }
+                    .sheet(isPresented: $topUp) { TopUpView { items = (try? await model.api.history(filter)) ?? []; summary = try? await model.api.analytics() } }
+            } else {
+                BrandEmpty(title: L("Нічого не знайдено").s, detail: L("Спробуйте інше слово або змініть фільтр").s, symbol: "magnifyingglass")
+            }
         } else {
             HStack(alignment: .firstTextBaseline) {
                 Text(L("Історія").s).font(Theme.mono(style: .title3, .bold))

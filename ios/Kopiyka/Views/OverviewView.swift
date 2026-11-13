@@ -389,7 +389,10 @@ struct OverviewView: View {
             }
             .padding(.horizontal, 20).padding(.top, 18).padding(.bottom, 4)
             if bank.loaded && bank.history.isEmpty {
-                Text(L("Операцій ще немає").s).foregroundStyle(.secondary).padding(18)
+                VStack(spacing: 6) {
+                    Text(L("Операцій ще немає").s).font(Theme.ui(style: .body, .semibold))
+                    Text(L("Перша операція з'явиться тут").s).font(Theme.ui(style: .footnote, .regular)).foregroundStyle(.secondary)
+                }.frame(maxWidth: .infinity).padding(22)
             } else {
                 ForEach(Array(bank.history.prefix(4).enumerated()), id: \.element.id) { i, tx in
                     Button { selected = tx } label: { ActivityRow(tx: tx).contentShape(.rect) }
