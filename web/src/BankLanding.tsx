@@ -741,7 +741,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           <div className="bl-wrap bl-partner-in">
             <span className="bl-partner-k">{t('Партнер', 'Partner')}</span>
             <a className="bl-partner-n" href={SHOP_URL} target="_blank" rel="noreferrer">Saint Agnes <i aria-hidden>→</i></a>
-            <span className="bl-partner-d">{t('Магазин одягу, де можна платити TAX карткою TaxTech.', 'A clothing shop where you can pay in TAX with the TaxTech card.')}</span>
           </div>
         </section>
 
