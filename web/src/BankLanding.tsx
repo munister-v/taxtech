@@ -640,7 +640,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               </figure>
               <div className="bl-hello-who">
                 <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-                <p className="bl-hello-bio">{t('Розробив TaxTech сам: від серверу й платіжного ядра до iOS-застосунку та сайту.', 'Built TaxTech alone: from the server and payment core to the iOS app and this site.')}</p>
+                <p className="bl-hello-bio">{t('Продуктовий архітектор і розробник TaxTech.', 'Product architect and developer of TaxTech.')}</p>
               </div>
             </aside>
           </div>
