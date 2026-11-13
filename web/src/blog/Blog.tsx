@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { POSTS, postBySlug, type Block, type Post } from './posts';
+import { VIZ } from './Viz';
 import './blog.css';
 
 // The bank's journal: /blog lists the posts, /blog/<slug> is one article. Black on white in the EPRIS Daily manner
@@ -55,6 +56,24 @@ function Foot() {
   );
 }
 
+// a small highlighter for the SQL and pseudo-code snippets: keywords, strings, numbers, comments
+const KW = /\b(UPDATE|SET|WHERE|AND|SELECT|FROM|INSERT|INTO|VALUES|RETURNING|IF|THEN|ELSE|NOT|NULL|new|processing|replay|conflict)\b/g;
+function hl(code: string): ReactNode[] {
+  return code.split('\n').flatMap((line, li, all) => {
+    const m = line.match(/^(.*?)(--.*|#.*)?$/) as RegExpMatchArray;
+    const parts: ReactNode[] = [];
+    m[1].split(/('[^']*'|\b\d+(?:\.\d+)?\b|\b[A-Za-z]+\b)/).forEach((tok, i) => {
+      if (/^'/.test(tok)) parts.push(<span key={i} className="s">{tok}</span>);
+      else if (/^\d/.test(tok)) parts.push(<span key={i} className="n">{tok}</span>);
+      else if (new RegExp(KW.source).test(tok) && /^[A-Za-z]+$/.test(tok) && tok === tok.toUpperCase()) parts.push(<span key={i} className="k">{tok}</span>);
+      else parts.push(tok);
+    });
+    if (m[2]) parts.push(<span key="c" className="c">{m[2]}</span>);
+    if (li < all.length - 1) parts.push('\n');
+    return parts;
+  });
+}
+
 function Body({ blocks }: { blocks: Block[] }) {
   return (
     <>
@@ -63,7 +82,13 @@ function Body({ blocks }: { blocks: Block[] }) {
         if ('h2' in b) return <h2 key={i} className="tb-h2">{b.h2}</h2>;
         if ('quote' in b) return <blockquote key={i} className="tb-quote"><p>“{b.quote}”</p>{b.by && <cite>{b.by}</cite>}</blockquote>;
         if ('ul' in b) return <ul key={i} className="tb-ul">{b.ul.map((x, j) => <li key={j}>{x}</li>)}</ul>;
-        if ('code' in b) return <pre key={i} className="tb-code"><code>{b.code}</code></pre>;
+        if ('code' in b) return <pre key={i} className="tb-code"><code>{hl(b.code)}</code></pre>;
+        if ('viz' in b) { const V = VIZ[b.viz]; return V ? <V key={i} /> : null; }
+        if ('table' in b) return (
+          <table key={i} className="tb-table"><thead><tr>{b.table.head.map(h => <th key={h}>{h}</th>)}</tr></thead>
+            <tbody>{b.table.rows.map((r, j) => <tr key={j}>{r.map((c, k) => <td key={k}>{c}</td>)}</tr>)}</tbody></table>
+        );
+        if ('callout' in b) return <aside key={i} className="tb-callout"><b>{b.callout[0]}</b>{b.callout[1]}</aside>;
         if ('phones' in b) return (
           <figure key={i} className="tb-fig tb-phones">
             <div>{b.phones.map(ph => <div key={ph.img} className="tb-phone"><img src={ph.img} alt={ph.cap} loading="lazy" decoding="async" /><span>{ph.cap}</span></div>)}</div>
