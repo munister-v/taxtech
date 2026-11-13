@@ -100,6 +100,18 @@ const HOOD: { kind: Kind; tint: string; uk: [string, string, string]; en: [strin
     uk: ['Квитанції з перевіркою', 'TT-XXXX-XXXX-XXXX — це 12 символів base32 від HMAC-SHA256 за видом, посиланням і власником. Без серверного ключа код не підробити, а публічна перевірка показує лише знеособлені реквізити.', 'HMAC-SHA256 · QR'],
     en: ['Verifiable receipts', 'TT-XXXX-XXXX-XXXX is 12 base32 characters of an HMAC-SHA256 over kind, reference and owner. Without the server key it cannot be forged, and the public check page shows masked details only.', 'HMAC-SHA256 · QR'] },
 ];
+// Why each station exists, in plain words: [uk, en] pairs for what it is and what it stops (it, de, ru live in landingI18n.ts).
+const HOOD_WHY: Record<Kind, { plain: [string, string]; stops: [string, string] }> = {
+  passkey: { plain: ["Пароль — це ваше обличчя.", "Your face is the password."], stops: ["Фішинг і викрадені паролі. Красти нічого: ключ не залишає телефон.", "Phishing and stolen passwords. There is nothing to steal: the key never leaves your phone."] },
+  tds: { plain: ["Одноразовий код перед великим платежем.", "A one-time code before a large payment."], stops: ["Викрадена картка чи сесія з великою покупкою. Код діє один раз і три хвилини.", "A stolen card or session making a big purchase. The code works once and lasts three minutes."] },
+  idem: { plain: ["Торкнувся двічі, заплатив раз.", "Tap twice, pay once."], stops: ["Подвійні списання через поганий зв’язок чи нервовий подвійний дотик. Повтор отримує першу відповідь.", "Double charges from a bad connection or a nervous double tap. A retry gets the first answer back."] },
+  fraud: { plain: ["Двадцять вісім правил читають переказ, перш ніж він піде.", "Twenty-eight rules read the transfer before it leaves."], stops: ["Шахрайство, грошові мули й дроблення переказів задля обходу лімітів. Критичний бал блокує переказ до руху коштів.", "Scams, money mules and transfers split to dodge limits. A critical score blocks it before any balance moves."] },
+  hold: { plain: ["Гроші відкладають, ще до того як їх витратять.", "Money is set aside before it is spent."], stops: ["Витрати грошей, які вже обіцяні, як при преавторизації в готелі. Невикористаний холд спливає сам.", "Spending money that is already promised, as with a hotel pre-authorisation. An unused hold expires on its own."] },
+  atomic: { plain: ["Перевірка балансу й списання — один крок.", "The balance check and the debit are one step."], stops: ["Два паралельні платежі, що витрачають одні й ті самі гроші. Рахунок не може піти в мінус.", "Two parallel payments spending the same money. An account can never go below zero."] },
+  ledger: { plain: ["Кожен переказ записано двічі: дебет і кредит.", "Every transfer is written twice, as a debit and a credit."], stops: ["Гроші, що з’являються чи зникають. Наприкінці дня обидві колонки мають збігатися.", "Money that appears or vanishes. At the end of the day both columns must match."] },
+  chain: { plain: ["Кожен запис несе відбиток попереднього.", "Each record carries the fingerprint of the one before."], stops: ["Тихе переписування історії. Зміни один рядок, і всі наступні ланки ламаються.", "Quietly rewriting history. Change one row and every later link breaks."] },
+  receipt: { plain: ["Квитанція, яку може перевірити будь-хто і не підробить ніхто.", "A receipt anyone can check and nobody can forge."], stops: ["Фальшиві квитанції й виписки. Код підписано ключем, який є лише на сервері.", "Fake receipts and statements. The code is signed with a key only the server holds."] },
+};
 const HOOD_PHOTO: Record<Kind, string> = {
   passkey: '/landing/rome-pantheon-night.webp', tds: '/cards/roma-aqueduct.webp', idem: '/landing/rome-forum-sunset.webp',
   fraud: '/cards/roma-pantheon.webp', hold: '/cards/roma-marble.webp', atomic: '/landing/rome-trevi-night.webp',
@@ -631,6 +643,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
               <div className="bl-cta bl-rv">
                 <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
+                <a className="bl-link" href="/blog/how-i-built-my-own-bank">{t('Як я створив банк — у блозі', 'How I built it — in the blog')} →</a>
               </div>
             </div>
             <aside className="bl-hello-card bl-rv">
@@ -700,6 +713,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
           <div className="bl-wrap bl-lt-head">
             <h2 className="bl-h bl-rv">{t('Лінія T.', 'Line T.')}</h2>
+            <p className="bl-lt-intro bl-rv">{t('Кожен платіж сідає на станції I і їде всі дев’ять. Кожна станція — перевірка, яку сервер робить перед наступною.', 'Every payment boards at station I and rides all nine. Each station is a check the server runs before the next one.')}</p>
           </div>
           <div className="bl-lt-stage">
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
@@ -719,10 +733,17 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
                       <span className="bl-lt-num">{ROMAN[hood]}</span>
                       <i />
                       <span className="bl-lt-place">{HOOD_PLACES[hood].name}</span>
+                      <span className="bl-lt-of">{t('Станція', 'Station')} {hood + 1} {t('з', 'of')} {HOOD.length}</span>
                     </div>
                     <div className="bl-tx-body">
                       <h3>{t(x.uk[0], x.en[0])}</h3>
-                      <p>{t(x.uk[1], x.en[1])}</p>
+                      <p className="bl-tx-plain">{t(HOOD_WHY[x.kind].plain[0], HOOD_WHY[x.kind].plain[1])}</p>
+                      <dl className="bl-tx-dl">
+                        <dt>{t('Захищає від', 'Protects against')}</dt>
+                        <dd>{t(HOOD_WHY[x.kind].stops[0], HOOD_WHY[x.kind].stops[1])}</dd>
+                        <dt>{t('Як це працює', 'How it works')}</dt>
+                        <dd>{t(x.uk[1], x.en[1])}</dd>
+                      </dl>
                     </div>
                     <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
                       <Stage kind={x.kind} t={t} />

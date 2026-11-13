@@ -1256,3 +1256,13 @@
   .bl .sa-cap b, .sa-cap u { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) { .sa-ph img { transition: none; } }
+
+/* Line T: plain-language tile, intro line, blog link */
+.bl-lt-intro { max-width: 520px; margin: 18px 0 0; font-size: clamp(14px, 1.5vw, 17px); line-height: 1.5; color: rgba(246,239,224,.82); text-shadow: 0 2px 24px rgba(0,0,0,.85); }
+.bl-lt-of { margin-left: auto; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(246,239,224,.55); }
+.bl-tx-plain { margin: 0 0 16px; font-size: clamp(17px, 1.7vw, 21px); line-height: 1.35; font-weight: 600; color: #f6efe0; }
+.bl-tx-dl { margin: 0; display: grid; gap: 4px; }
+.bl-tx-dl dt { margin-top: 10px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--tint, #d6a84a); }
+.bl-tx-dl dd { margin: 0; font-size: 14px; line-height: 1.5; color: rgba(246,239,224,.78); }
+.bl-link { display: inline-flex; align-items: center; margin-left: 18px; font-size: 14px; color: #d6a84a; }
+.bl-link:hover { text-decoration: underline; }

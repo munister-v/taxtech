@@ -62,6 +62,7 @@ function Body({ blocks }: { blocks: Block[] }) {
         if ('p' in b) return <p key={i} className="tb-p">{b.p}</p>;
         if ('h2' in b) return <h2 key={i} className="tb-h2">{b.h2}</h2>;
         if ('quote' in b) return <blockquote key={i} className="tb-quote"><p>“{b.quote}”</p>{b.by && <cite>{b.by}</cite>}</blockquote>;
+        if ('ul' in b) return <ul key={i} className="tb-ul">{b.ul.map((x, j) => <li key={j}>{x}</li>)}</ul>;
         if ('code' in b) return <pre key={i} className="tb-code"><code>{b.code}</code></pre>;
         if ('phones' in b) return (
           <figure key={i} className="tb-fig tb-phones">
