@@ -463,7 +463,7 @@ struct VirtualCardView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(l.name.isEmpty ? Brand.name : l.name)
-                        .font(Theme.mono(style: .title3, .semibold))
+                        .font(Theme.ui(21, .heavy)).tracking(-0.3)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                     if !l.name.isEmpty {

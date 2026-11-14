@@ -201,7 +201,11 @@ struct CardSurface: View, Equatable {
         let c = look.color
         switch look.material {
         case .solid:
-            c.base
+            ZStack {
+                c.base
+                RadialGradient(colors: [.white.opacity(c.isLight ? 0.35 : 0.10), .clear], center: .topLeading, startRadius: 0, endRadius: 360)
+                LinearGradient(colors: [.clear, .black.opacity(c.isLight ? 0.10 : 0.35)], startPoint: .center, endPoint: .bottomTrailing)
+            }
         case .gradient:
             LinearGradient(colors: [c.partner, c.base], startPoint: .topTrailing, endPoint: .bottomLeading)
                 .overlay(RadialGradient(colors: [c.partner.opacity(0.7), .clear], center: .bottomTrailing,
@@ -469,10 +473,9 @@ struct HoloSheen: View {
         case .gradient: 0.14
         case .solid: 0.06
         }
-        AngularGradient(colors: [.pink, .orange, .yellow, .green, .cyan, .blue, .purple, .pink],
-                        center: UnitPoint(x: 0.5 + x * 0.6, y: 0.5 + y * 0.6),
-                        angle: .degrees(x * 120 + y * 60))
-            .opacity(strength)
+        RadialGradient(colors: [Color(red: 1, green: 0.96, blue: 0.88), .clear],
+                       center: UnitPoint(x: 0.25 + x * 0.6, y: 0.1 + y * 0.6), startRadius: 0, endRadius: 320)
+            .opacity(strength * 1.6)
             .blendMode(look.color.isLight ? .multiply : .overlay)
             .allowsHitTesting(false)
             .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.85), value: x)
