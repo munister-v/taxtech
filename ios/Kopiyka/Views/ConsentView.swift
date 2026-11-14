@@ -100,7 +100,7 @@ struct ConsentView: View {
                 fact("slider.horizontal.3", L("Згоду можна змінити").s,
                      L("Налаштування, експертний режим, журнал рішень.").s)
             }
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
+            .background(Theme.frost, in: .rect(cornerRadius: 24, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: Theme.hairline))
             Spacer(minLength: 0)
         }

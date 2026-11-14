@@ -107,8 +107,7 @@ struct MoreHub: View {
             }
             .padding(16)
             .safeAreaInset(edge: .bottom, spacing: 0) { limitStrip }
-            .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(Theme.line, lineWidth: Theme.hairline))
+            .glass(24)
             .foregroundStyle(Theme.ink)
         }
         .buttonStyle(PressScale())
@@ -142,14 +141,14 @@ struct MoreHub: View {
         VStack(spacing: 12) {
             if Build.shop {
                 hero(title: "SAINT AGNES", sub: Tx("Магазин · оплата в TAX", "Shop · pay in TAX", "Магазин · оплата в TAX"), symbol: "bag.fill",
-                     colors: [Color(white: 0.20), Color(white: 0.07)]) { shop = true }
+                     colors: [Color(white: 0.17), Color(white: 0.06)]) { shop = true }
             }
             HStack(spacing: 12) {
                 hero(title: Tx("Термінал", "Terminal", "Терминал"), sub: "POS · 3-D Secure", symbol: "wave.3.right", compact: true,
                      colors: [Theme.goldLight, Theme.gold], dark: true) { terminal = true }
                 if model.expert {
                     hero(title: "Studio", sub: Tx("Лабораторія", "Lab", "Лаборатория"), symbol: "flask.fill", compact: true,
-                         colors: [Color(white: 0.28), Color(white: 0.08)]) { lab = true }
+                         colors: [Color(white: 0.17), Color(white: 0.06)]) { lab = true }
                 }
             }
         }
@@ -160,9 +159,13 @@ struct MoreHub: View {
         Button(action: action) {
             ZStack(alignment: .bottomLeading) {
                 LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .overlay(alignment: .topTrailing) {
+                        if !dark { SoftOrb(color: Theme.accent.opacity(0.22), radius: 50, blur: 70).offset(x: 80, y: -90) }
+                    }
                 Image(systemName: symbol)
                     .font(Theme.ui(compact ? 54 : 84, .ultraLight))
-                    .foregroundStyle((dark ? Color.black : Color.white).opacity(0.22))
+                    .foregroundStyle(dark ? AnyShapeStyle(Color.black.opacity(0.22))
+                                     : AnyShapeStyle(LinearGradient(colors: [Theme.goldLight.opacity(0.75), Theme.gold.opacity(0.18)], startPoint: .top, endPoint: .bottom)))
                     .padding(18)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 VStack(alignment: .leading, spacing: 4) {
@@ -175,8 +178,7 @@ struct MoreHub: View {
             .frame(maxWidth: .infinity)
             .frame(height: compact ? 112 : 124)
             .clipShape(.rect(cornerRadius: 26, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: 1))
-            .shadow(color: colors[0].opacity(0.25), radius: 18, y: 10)
+            .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).strokeBorder(Theme.rim, lineWidth: 0.8))
         }
         .buttonStyle(PressScale())
     }

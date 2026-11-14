@@ -114,8 +114,10 @@ private struct OverviewPart: View {
                     Surface {
                         Chart(byMonth, id: \.month) { m in
                             BarMark(x: .value(L("Місяць").s, m.month, unit: .month), y: .value(L("Сума").s, m.sum))
-                                .foregroundStyle(m.month == byMonth.last?.month ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.ink.opacity(0.78)))
-                                .cornerRadius(4)
+                                .foregroundStyle(m.month == byMonth.last?.month
+                                    ? AnyShapeStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+                                    : AnyShapeStyle(Theme.ink.opacity(0.55)))
+                                .cornerRadius(7)
                         }
                         .chartXAxis {
                             AxisMarks(values: .stride(by: .month)) {

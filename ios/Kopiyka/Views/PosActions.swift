@@ -104,7 +104,7 @@ struct PosCaptureSheet: View {
         Button { text = value.formatted(.number.precision(.fractionLength(0...2)).grouping(.never).locale(Locale(identifier: "en_US_POSIX"))) } label: {
             Text(tip ? "\(L("Чайові").s) \(title)" : title).font(Theme.ui(style: .footnote, .medium))
                 .padding(.horizontal, 12).frame(height: 34)
-                .background(abs(amount - value) < 0.005 ? AnyShapeStyle(Theme.accent.opacity(0.22)) : AnyShapeStyle(.ultraThinMaterial), in: .capsule)
+                .background(abs(amount - value) < 0.005 ? AnyShapeStyle(Theme.accent.opacity(0.22)) : AnyShapeStyle(Theme.frost), in: .capsule)
         }
         .buttonStyle(PressScale())
     }

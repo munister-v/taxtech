@@ -171,10 +171,10 @@ struct LaunchSplash: View {
                 finished()
                 return
             }
-            withAnimation(.spring(response: 0.55, dampingFraction: 0.62)) { markIn = true }
-            try? await Task.sleep(for: .milliseconds(650))
-            withAnimation(.easeIn(duration: 0.5)) { open = true }
-            try? await Task.sleep(for: .milliseconds(480))
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) { markIn = true }
+            try? await Task.sleep(for: .milliseconds(380))
+            withAnimation(.easeIn(duration: 0.34)) { open = true }
+            try? await Task.sleep(for: .milliseconds(320))
             finished()
         }
     }

@@ -28,19 +28,44 @@ extension Theme {
     }
 
     /// Текст інтерфейсу фіксованого розміру.
-    static func ui(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font { Font(nunito(size, weight)) }
+    static func ui(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        FontCache.shared.font("u", size, wght(weight)) { Font(nunito(size, weight)) }
+    }
 
     /// Текстовий стиль, що слухає Dynamic Type.
     static func ui(style: UIFont.TextStyle, _ weight: Font.Weight = .regular) -> Font {
         let base = UIFont.preferredFont(forTextStyle: style).pointSize
-        return Font(UIFontMetrics(forTextStyle: style).scaledFont(for: nunito(base, weight)))
+        return FontCache.shared.font("U" + style.rawValue + "\(UIFontMetrics(forTextStyle: style).scaledValue(for: 100))", base, wght(weight)) {
+            Font(UIFontMetrics(forTextStyle: style).scaledFont(for: nunito(base, weight)))
+        }
     }
 
     /// Cousine: хеші, суми, заголовки.
-    static func mono(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font { Font(cousine(size, weight)) }
+    static func mono(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        FontCache.shared.font("m", size, wght(weight)) { Font(cousine(size, weight)) }
+    }
 
     static func mono(style: UIFont.TextStyle, _ weight: Font.Weight = .regular) -> Font {
         let base = UIFont.preferredFont(forTextStyle: style).pointSize
-        return Font(UIFontMetrics(forTextStyle: style).scaledFont(for: cousine(base, weight)))
+        return FontCache.shared.font("M" + style.rawValue + "\(UIFontMetrics(forTextStyle: style).scaledValue(for: 100))", base, wght(weight)) {
+            Font(UIFontMetrics(forTextStyle: style).scaledFont(for: cousine(base, weight)))
+        }
+    }
+}
+
+/// Готові шрифти за ключем. Кожен екран просить їх сотні разів за один прохід body, а збирати UIFont
+/// із дескриптора щоразу - зайва робота.
+final class FontCache: @unchecked Sendable {
+    static let shared = FontCache()
+    private var store: [String: Font] = [:]
+    private let lock = NSLock()
+
+    func font(_ kind: String, _ size: CGFloat, _ weight: CGFloat, make: () -> Font) -> Font {
+        let key = "\(kind)|\(size)|\(weight)"
+        lock.lock(); defer { lock.unlock() }
+        if let f = store[key] { return f }
+        let f = make()
+        store[key] = f
+        return f
     }
 }

@@ -149,11 +149,11 @@ struct CircleAction: View {
                         if primary {
                             Circle().fill(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
                         } else {
-                            Circle().fill(.ultraThinMaterial)
+                            Circle().fill(Theme.frost)
                         }
                     }
                     .overlay(Circle().strokeBorder(.white.opacity(primary ? 0.35 : 0.14), lineWidth: Theme.hairline))
-                    .shadow(color: primary ? Theme.accent.opacity(0.45) : .clear, radius: 14, y: 6)
+                    .background { if primary { SoftOrb(color: Theme.accent.opacity(0.30), radius: 26, blur: 16).offset(y: 6) } }
                     .foregroundStyle(primary ? Theme.onAccent : Theme.ink)
                 Text(title)
                     .font(Theme.ui(style: .caption1, .medium))
@@ -398,17 +398,14 @@ struct GuillocheBadge: View {
         ZStack {
             RoundedRectangle(cornerRadius: r, style: .continuous)
                 .fill(LinearGradient(colors: [tint.opacity(onDark ? 0.34 : 0.22), tint.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
-            RoundedRectangle(cornerRadius: r, style: .continuous).fill(.ultraThinMaterial.opacity(0.5))
-            Canvas { ctx, sz in
-                var c = ctx; c.opacity = 0.28
-                Engraving.rosette(in: &c, center: CGPoint(x: sz.width * 0.5, y: sz.height * 0.5), radius: sz.width * 0.62,
-                                  curves: 14, lobes: 7, color: tint, width: 0.35)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
+            RoundedRectangle(cornerRadius: r, style: .continuous).fill(Theme.frost.opacity(0.5))
+            // розетка з кешу: одна картинка на розмір, а не тисячі відрізків на кожен значок у списку
+            Image(uiImage: RosetteCache.image(side: size)).renderingMode(.template)
+                .foregroundStyle(tint.opacity(0.28))
+                .clipShape(RoundedRectangle(cornerRadius: r, style: .continuous))
             Image(systemName: symbol)
                 .font(Theme.ui(size * 0.4, .semibold))
                 .foregroundStyle(onDark ? AnyShapeStyle(.white) : AnyShapeStyle(LinearGradient(colors: [hi, tint], startPoint: .top, endPoint: .bottom)))
-                .shadow(color: tint.opacity(0.55), radius: size * 0.18)
         }
         .overlay(RoundedRectangle(cornerRadius: r, style: .continuous)
             .strokeBorder(LinearGradient(colors: [.white.opacity(0.4), tint.opacity(0.25), .white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.9))
@@ -460,6 +457,47 @@ struct LeaderRow: View {
 private struct HeroGlass: ViewModifier {
     let on: Bool
     func body(content: Content) -> some View {
-        if on { content.glass(24) } else { content }
+        if on {
+            // тихе золоте світіння в куті: головна цифра екрана лежить на власній панелі, а не на черговій картці
+            content
+                .background(alignment: .topTrailing) {
+                    SoftOrb(color: Theme.accent.opacity(0.16), radius: 60, blur: 70).offset(x: 70, y: -80)
+                }
+                .clipShape(.rect(cornerRadius: 24, style: .continuous))
+                .glass(24)
+        } else { content }
+    }
+}
+
+
+/// Розетка гільйошу для значків: малюється раз на розмір і далі живе готовою картинкою.
+@MainActor
+enum RosetteCache {
+    private static var store: [Int: UIImage] = [:]
+
+    static func image(side: CGFloat) -> UIImage {
+        let key = Int((side * 10).rounded())
+        if let hit = store[key] { return hit }
+        let size = CGSize(width: side, height: side)
+        let img = UIGraphicsImageRenderer(size: size).image { r in
+            let cg = r.cgContext
+            let c = CGPoint(x: side / 2, y: side / 2), radius = side * 0.62
+            let curves = 14, lobes = 7, steps = 240
+            let depth = 0.26, second = 0.07
+            cg.setStrokeColor(UIColor.white.cgColor)
+            cg.setLineWidth(0.35)
+            for k in 0..<curves {
+                let phase = Double(k) / Double(curves) * .pi * 2
+                for i in 0...steps {
+                    let t = Double(i) / Double(steps) * .pi * 2
+                    let rr = radius * (1 - depth - second + depth * cos(Double(lobes) * t + phase) + second * cos(Double(lobes * 2) * t - phase))
+                    let pt = CGPoint(x: c.x + rr * cos(t), y: c.y + rr * sin(t))
+                    if i == 0 { cg.move(to: pt) } else { cg.addLine(to: pt) }
+                }
+                cg.strokePath()
+            }
+        }.withRenderingMode(.alwaysTemplate)
+        store[key] = img
+        return img
     }
 }

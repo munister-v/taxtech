@@ -118,13 +118,12 @@ extension View {
 
     /// Скляний круг для кнопок на шапці.
     func glassCircle() -> some View {
-        background(.ultraThinMaterial, in: .circle)
+        background(Theme.frost, in: .circle)
             .overlay(Circle().strokeBorder(LinearGradient(colors: [.white.opacity(0.32), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
-            .shadow(color: .black.opacity(0.25), radius: 8, y: 3)
     }
 
     func glassCapsule() -> some View {
-        background(.ultraThinMaterial, in: .capsule)
+        background(Theme.frost, in: .capsule)
             .overlay(Capsule().strokeBorder(LinearGradient(colors: [.white.opacity(0.32), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
     }
 }
@@ -140,9 +139,9 @@ struct AuroraField: View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
             ZStack {
-                SoftOrb(color: Theme.auraGold.opacity(0.55), radius: w * 0.42, blur: 70)
+                SoftOrb(color: Theme.auraGold.opacity(0.46), radius: w * 0.42, blur: 90)
                     .position(x: w * (p ? 0.44 : 0.16), y: h * (q ? 0.32 : 0.12))
-                SoftOrb(color: Theme.auraCool.opacity(0.55), radius: w * 0.40, blur: 70)
+                SoftOrb(color: Theme.auraCool.opacity(0.50), radius: w * 0.40, blur: 90)
                     .position(x: w * (q ? 0.64 : 0.92), y: h * (p ? 0.42 : 0.22))
                 SoftOrb(color: Theme.auraBronze.opacity(0.22), radius: w * 0.45, blur: 70)
                     .position(x: w * (p ? 0.50 : 0.74), y: h * (q ? 0.0 : 0.16))

@@ -10,7 +10,6 @@ struct OverviewView: View {
     @State private var points: [API.BalancePoint] = []
     @State private var recipients: [API.Recipient] = []
     @State private var unread = 0
-    @State private var hidden = false
     @State private var sheet: Sheet?
     @State private var prefill = ""
     @State private var showProfile = false
@@ -19,10 +18,8 @@ struct OverviewView: View {
     @State private var showScan = false
     @State private var selected: API.Transaction?
     @State private var hits: [API.Product] = []
-    @State private var shown: Double = 0
-    @State private var drawn: CGFloat = 0
     @State private var ringIn = false
-    @State private var edge: CGFloat = 0
+    @State private var edge = ScrollEdge()
     let open: (RootView.AppTab) -> Void
 
     enum Sheet: String, Identifiable {
@@ -58,10 +55,10 @@ struct OverviewView: View {
             .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
                 // крок 0.05: тіло головної не перераховується на кожен піксель прокрутки
                 let e = (min(max(y / 70, 0), 1) * 20).rounded() / 20
-                if e != edge { edge = e }
+                if e != edge.value { edge.value = e }
             }
             .screenBackground()
-            .statusScrim(edge)
+            .overlay(alignment: .top) { EdgeScrim(edge: edge) }
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
             #if DEBUG
@@ -148,17 +145,7 @@ struct OverviewView: View {
             .rise(0)
 
             VStack(spacing: 8) {
-                Button { withAnimation(.snappy) { hidden.toggle() } } label: {
-                    HeroAmount(value: shown, hidden: hidden)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(hidden ? L("Показати баланс").s : L("Сховати баланс").s)
-                .redacted(reason: bank.loaded ? [] : .placeholder)
-                .onChange(of: bank.account?.balance) { _, v in
-                    guard let v else { return }
-                    withAnimation(.smooth(duration: 1.1)) { shown = v }
-                }
-                .sensoryFeedback(.success, trigger: shown > 0)
+                HeroBalance(balance: bank.account?.balance, loaded: bank.loaded)
             }
             .padding(.top, 30)
             .frame(maxWidth: .infinity)
@@ -212,8 +199,8 @@ struct OverviewView: View {
             }
             .padding(.top, CGFloat(max(deck.count - 1, 0)) * 16)
             .background(alignment: .bottom) {
-                Ellipse().fill(Theme.accent.opacity(0.32)).blur(radius: 40)
-                    .frame(width: 240, height: 60).offset(y: 34)
+                SoftOrb(color: Theme.accent.opacity(0.30), radius: 110, blur: 44)
+                    .scaleEffect(y: 0.26).frame(width: 240, height: 60).offset(y: 34)
             }
         }
         .buttonStyle(PressScale())
@@ -225,8 +212,7 @@ struct OverviewView: View {
         Button { showScan = true } label: {
             Image(systemName: "qrcode.viewfinder").font(Theme.ui(24, .semibold)).foregroundStyle(Theme.ink)
                 .frame(width: 80, height: 80)
-                .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: Theme.hairline))
+                .glass(24)
         }
         .buttonStyle(PressScale())
         .accessibilityLabel(Tx("Сканувати QR", "Scan QR", "Сканировать QR"))
@@ -248,8 +234,7 @@ struct OverviewView: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).strokeBorder(.white.opacity(0.12), lineWidth: Theme.hairline))
+            .glass(24)
         }
         .buttonStyle(PressScale())
     }
@@ -427,7 +412,8 @@ struct OverviewView: View {
                     HStack(alignment: .bottom, spacing: 3) {
                         ForEach(Array(days.enumerated()), id: \.offset) { i, v in
                             Capsule()
-                                .fill(i == days.count - 1 ? Theme.accent : Theme.ink.opacity(v > 0 ? 0.85 : 0.1))
+                                .fill(i == days.count - 1 ? AnyShapeStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+                                      : AnyShapeStyle(Theme.ink.opacity(v > 0 ? 0.62 : 0.1)))
                                 .frame(height: max(4, barHeight * CGFloat(ringIn ? v / top : 0.05)))
                                 .frame(maxWidth: .infinity)
                         }
@@ -485,7 +471,7 @@ struct OverviewView: View {
                     ProductArt(product: p, size: 50, height: 176, showsLabel: false)
                     Text(Self.compact(p.price)).font(Theme.ui(style: .footnote, .bold)).monospacedDigit()
                         .padding(.horizontal, 10).frame(height: 28)
-                        .background(.ultraThinMaterial, in: .capsule)
+                        .background(Theme.frost, in: .capsule)
                         .padding(10)
                 }
             }
@@ -496,6 +482,38 @@ struct OverviewView: View {
     /// Сума без копійок для вузьких місць.
     static func compact(_ v: Double) -> String {
         v.formatted(.number.precision(.fractionLength(0)).locale(Lang.current.locale)) + " TAX"
+    }
+}
+
+/// Наскільки прокручено головну. Окремий об'єкт: його читає лише затемнення під годинником, тож прокрутка
+/// не перераховує весь екран.
+@MainActor @Observable
+final class ScrollEdge { var value: CGFloat = 0 }
+
+private struct EdgeScrim: View {
+    let edge: ScrollEdge
+    var body: some View { Color.clear.frame(height: 0).frame(maxWidth: .infinity).statusScrim(edge.value) }
+}
+
+/// Баланс у шапці з власним станом: лічильник біжить сам і не чіпає решту головної.
+private struct HeroBalance: View {
+    let balance: Double?
+    let loaded: Bool
+    @State private var shown: Double = 0
+    @State private var hidden = false
+
+    var body: some View {
+        Button { withAnimation(.snappy) { hidden.toggle() } } label: {
+            HeroAmount(value: shown, hidden: hidden)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(hidden ? L("Показати баланс").s : L("Сховати баланс").s)
+        .redacted(reason: loaded ? [] : .placeholder)
+        .onChange(of: balance, initial: true) { _, v in
+            guard let v else { return }
+            withAnimation(.smooth(duration: 0.9)) { shown = v }
+        }
+        .sensoryFeedback(.success, trigger: shown > 0)
     }
 }
 
@@ -514,11 +532,8 @@ struct Card<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.surface, in: .rect(cornerRadius: 24, style: .continuous))
-            .background(LinearGradient(colors: [.white.opacity(0.07), .clear], startPoint: .top, endPoint: .center),
-                        in: .rect(cornerRadius: 24, style: .continuous))
             .clipShape(.rect(cornerRadius: 24, style: .continuous))
-            .goldEdge(24)
+            .glass(24)
             .contentShape(.rect(cornerRadius: 24, style: .continuous))
     }
 }
@@ -590,7 +605,7 @@ struct HeroAmount: View {
             if hidden {
                 Text("••••••").font(Theme.mono(44, .bold))
             } else {
-                Text(parts.first ?? s).font(Theme.mono(56, .bold)).tracking(-2)
+                Text(Digits.tight(parts.first ?? s, size: 56, tracking: -2)).font(Theme.mono(56, .bold))
                 if parts.count > 1, parts[1] != "00" {
                     Text("\(sep)\(parts[1])").font(Theme.mono(24, .bold)).opacity(0.55)
                 }
@@ -602,6 +617,26 @@ struct HeroAmount: View {
         .lineLimit(1)
         .minimumScaleFactor(0.5)
         .contentTransition(.numericText(value: value))
+    }
+}
+
+/// Великі числа моноширинним шрифтом: роздільник розрядів займає цілу клітинку й рве число навпіл.
+/// Тут він підтягується до сусідніх цифр, а самі цифри лишаються рівними колонками.
+enum Digits {
+    static func tight(_ s: String, size: CGFloat, tracking: CGFloat = 0) -> AttributedString {
+        var out = AttributedString()
+        let chars = Array(s)
+        for (i, ch) in chars.enumerated() {
+            var run = AttributedString(String(ch))
+            let isSep = !ch.isNumber
+            let beforeSep = i + 1 < chars.count && !chars[i + 1].isNumber
+            let pull = ch.isWhitespace ? size * 0.34 : size * 0.15
+            if isSep { run.kern = tracking - pull }
+            else if beforeSep { run.kern = tracking - (chars[i + 1].isWhitespace ? size * 0.10 : size * 0.13) }
+            else { run.kern = tracking }
+            out.append(run)
+        }
+        return out
     }
 }
 
@@ -621,7 +656,7 @@ struct BigAmount: View {
             if hidden {
                 Text("••••••").font(Theme.ui(size, .semibold))
             } else {
-                Text(parts.first ?? s).font(.display(size)).tracking(-size * 0.025)
+                Text(Digits.tight(parts.first ?? s, size: size, tracking: -size * 0.025)).font(.display(size))
                 if parts.count > 1, parts[1] != "00" {
                     Text("\(sep)\(parts[1])").font(Theme.ui(size * 0.5, .regular)).foregroundStyle(.secondary)
                 }

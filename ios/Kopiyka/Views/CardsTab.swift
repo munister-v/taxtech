@@ -74,8 +74,8 @@ struct CardsTab: View {
     private var glow: some View {
         let (a, b) = Self.tints(card?.look.color ?? .graphite)
         return ZStack {
-            Ellipse().fill(a.opacity(0.55)).frame(width: 340, height: 260).blur(radius: 70).offset(x: -70, y: 130)
-            Ellipse().fill(b.opacity(0.28)).frame(width: 260, height: 180).blur(radius: 80).offset(x: 110, y: 170)
+            SoftOrb(color: a.opacity(0.55), radius: 150, blur: 70).scaleEffect(y: 0.76).offset(x: -70, y: 130)
+            SoftOrb(color: b.opacity(0.28), radius: 110, blur: 80).scaleEffect(y: 0.7).offset(x: 110, y: 170)
         }
         .animation(.smooth(duration: 0.6), value: card?.look.color)
         .allowsHitTesting(false)
@@ -313,7 +313,7 @@ struct RoundActionLabel: View {
                 .font(Theme.ui(21, .semibold))
                 .frame(width: 58, height: 58)
                 .foregroundStyle(on ? Theme.onAccent : Theme.ink)
-                .background(on ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(.ultraThinMaterial), in: .circle)
+                .background(on ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.frost), in: .circle)
                 .overlay(Circle().strokeBorder(LinearGradient(colors: [.white.opacity(on ? 0 : 0.3), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
             Text(title).font(Theme.ui(style: .caption1, .semibold)).lineLimit(1).minimumScaleFactor(0.75)
                 .contentTransition(.opacity)

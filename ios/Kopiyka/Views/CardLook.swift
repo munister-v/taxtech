@@ -155,9 +155,11 @@ extension API.Card {
 // MARK: Малювання
 
 /// Тло картки: матеріал, колір і візерунок, без тексту.
-struct CardSurface: View {
+struct CardSurface: View, Equatable {
     let look: CardLook
     var corner: CGFloat = 18
+
+    nonisolated static func == (a: CardSurface, b: CardSurface) -> Bool { a.look == b.look && a.corner == b.corner }
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
@@ -191,6 +193,8 @@ struct CardSurface: View {
             }
         }
         .clipShape(shape)
+        // десяток шарів із гравюрою, зерном і шліфуванням зводимо в одну текстуру: далі картку лише пересувають
+        .drawingGroup()
     }
 
     @ViewBuilder private var fill: some View {
@@ -214,7 +218,7 @@ struct CardSurface: View {
             ZStack {
                 LinearGradient(colors: [c.base.opacity(0.98), c.partner.opacity(0.62)],
                                startPoint: .topLeading, endPoint: .bottomTrailing)
-                Rectangle().fill(.ultraThinMaterial).opacity(0.22)
+                Rectangle().fill(.white.opacity(0.05))
             }
         }
     }
@@ -454,7 +458,6 @@ struct HoloSheen: View {
         AngularGradient(colors: [.pink, .orange, .yellow, .green, .cyan, .blue, .purple, .pink],
                         center: UnitPoint(x: 0.5 + x * 0.6, y: 0.5 + y * 0.6),
                         angle: .degrees(x * 120 + y * 60))
-            .blur(radius: 18)
             .opacity(strength)
             .blendMode(look.color.isLight ? .multiply : .overlay)
             .allowsHitTesting(false)

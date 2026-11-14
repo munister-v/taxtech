@@ -111,7 +111,7 @@ struct PosTerminalView: View {
                                 Label(m.name, systemImage: m.symbol).font(Theme.ui(style: .subheadline, .medium))
                                     .padding(.horizontal, 14).frame(height: 38)
                                     .foregroundStyle(merchant == m ? Theme.onAccent : Theme.ink)
-                                    .background(merchant == m ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(.ultraThinMaterial), in: .capsule)
+                                    .background(merchant == m ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.frost), in: .capsule)
                             }
                             .buttonStyle(PressScale())
                         }
@@ -158,7 +158,7 @@ struct PosTerminalView: View {
                 .buttonStyle(PressScale())
             }
         }
-        .padding(3).background(.ultraThinMaterial, in: .capsule)
+        .padding(3).background(Theme.frost, in: .capsule)
     }
 
     private var keypad: some View {
@@ -170,7 +170,7 @@ struct PosTerminalView: View {
                         if k == "⌫" { Image(systemName: "delete.left") } else { Text(k) }
                     }
                     .font(Theme.mono(26, .bold)).frame(maxWidth: .infinity).frame(height: 58)
-                    .background(.ultraThinMaterial, in: .rect(cornerRadius: 18, style: .continuous))
+                    .background(Theme.frost, in: .rect(cornerRadius: 18, style: .continuous))
                 }
                 .buttonStyle(PressScale())
                 .sensoryFeedback(.selection, trigger: digits)
@@ -296,7 +296,7 @@ struct PosTerminalView: View {
                     if i < 3 { Rule().padding(.leading, 60) }
                 }
             }
-            .background(.ultraThinMaterial, in: .rect(cornerRadius: 24, style: .continuous))
+            .background(Theme.frost, in: .rect(cornerRadius: 24, style: .continuous))
             Spacer(minLength: 0)
         }
     }
@@ -336,7 +336,7 @@ struct PosTerminalView: View {
                 .buttonStyle(.plain)
             }
             TextField("000000", text: $otp).keyboardType(.numberPad).font(Theme.mono(32, .bold)).monospacedDigit()
-                .padding(16).background(.ultraThinMaterial, in: .rect(cornerRadius: 16, style: .continuous))
+                .padding(16).background(Theme.frost, in: .rect(cornerRadius: 16, style: .continuous))
             if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Button(L("Підтвердити").s) {
                 Task {

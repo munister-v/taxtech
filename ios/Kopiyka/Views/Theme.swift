@@ -42,6 +42,15 @@ enum Theme {
                                          startPoint: .top, endPoint: .bottom)
     /// Золота волоскова рамка поверхні: світліша зверху-ліворуч, тихіша в середині.
     static let edge = LinearGradient(colors: [.white.opacity(0.1), .white.opacity(0.1)], startPoint: .top, endPoint: .bottom)
+    /// Плита: єдина поверхня всіх карток і панелей. Суцільна заливка замість розмиття тла - її не треба
+    /// перераховувати на кожен кадр прокрутки.
+    static let plate = LinearGradient(colors: [Color(UIColor(hex: 0x211F1B)).opacity(0.94), Color(UIColor(hex: 0x141311)).opacity(0.94)],
+                                      startPoint: .top, endPoint: .bottom)
+    /// Кромка плити: світліша зверху-ліворуч, майже зникає внизу.
+    static let rim = LinearGradient(colors: [.white.opacity(0.20), .white.opacity(0.07), .white.opacity(0.03)],
+                                    startPoint: .topLeading, endPoint: .bottomTrailing)
+    /// Напівпрозора підкладка кнопок і плиток на місці колишнього матеріалу.
+    static let frost = Color(UIColor(white: 0.62, alpha: 0.16))
 
     static func balance(_ size: CGFloat = 46) -> Font {
         Theme.mono(size, .bold)
@@ -68,16 +77,10 @@ extension View {
 
     /// Скляна панель: матеріал, світлий торець зверху, тонка лінія, м'яка тінь.
     func glass(_ radius: CGFloat = 22) -> some View {
-        background {
-            RoundedRectangle(cornerRadius: radius, style: .continuous).fill(.ultraThinMaterial)
-            RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Theme.surface.opacity(0.55))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .strokeBorder(LinearGradient(colors: [Color.white.opacity(0.28), Color.white.opacity(0.10), Color.white.opacity(0.05)],
-                                             startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.9)
-        }
-        .shadow(color: .black.opacity(0.28), radius: 18, y: 8)
+        background(Theme.plate, in: .rect(cornerRadius: radius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(Theme.rim, lineWidth: 0.8)
+            }
     }
 
     /// Контент, що з'їжджає вгору, розчиняється під годинником, а не налазить на нього.
@@ -160,26 +163,25 @@ struct Surface<Content: View>: View {
 /// Тло під склом: темна основа з двома розмитими золотими й бірюзовими плямами.
 struct GlassAura: View {
     var style: BackdropStyle = .logo
-    @Environment(\.accessibilityReduceMotion) private var reduce
-    @State private var drift = false
-
     var body: some View {
+        // тло нерухоме й зведене в одну текстуру: воно лежить під кожним екраном, тож не має коштувати нічого
         ZStack {
             Theme.bg
             GeometryReader { g in
                 let w = g.size.width, h = g.size.height
-                SoftOrb(color: Theme.auraGold.opacity(0.30), radius: w * 0.45, blur: 90)
-                    .position(x: w * (drift ? 0.30 : 0.0), y: w * (drift ? 0.15 : 0.40))
-                SoftOrb(color: Theme.auraCool.opacity(0.55), radius: w * 0.40, blur: 100)
-                    .position(x: w * (drift ? 0.65 : 0.95), y: h * (drift ? 0.30 : 0.55) + w * 0.40)
-                SoftOrb(color: Theme.auraBronze.opacity(0.22), radius: w * 0.30, blur: 90)
-                    .position(x: w * (drift ? 0.60 : 0.20), y: h * (drift ? 0.62 : 0.35) + w * 0.30)
+                SoftOrb(color: Theme.auraGold.opacity(0.24), radius: w * 0.42, blur: 110)
+                    .position(x: w * 0.10, y: w * 0.22)
+                SoftOrb(color: Theme.auraCool.opacity(0.42), radius: w * 0.40, blur: 120)
+                    .position(x: w * 0.92, y: h * 0.46 + w * 0.40)
+                SoftOrb(color: Theme.auraBronze.opacity(0.14), radius: w * 0.30, blur: 100)
+                    .position(x: w * 0.30, y: h * 0.58 + w * 0.30)
             }
-            // гравюра нерухома: растеризуємо її окремо, щоб дрейф плям її не перемальовував
-            LogoBackdrop(style: style).drawingGroup()
+            LogoBackdrop(style: style)
+            // глибина: низ екрана темніший, картки на ньому читаються чіткіше
+            LinearGradient(colors: [.clear, Theme.bg.opacity(0.55)], startPoint: .center, endPoint: .bottom)
         }
+        .drawingGroup()
         .allowsHitTesting(false)
-        .drift(reduce: reduce, $drift, 14)
     }
 }
 
@@ -281,7 +283,7 @@ struct InkButton: ButtonStyle {
                     .brightness(configuration.isPressed ? -0.08 : 0)
             }
             .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 0.8).mask(LinearGradient(colors: [.white, .clear], startPoint: .top, endPoint: .bottom)))
-            .shadow(color: Theme.accent.opacity(enabled ? 0.38 : 0), radius: configuration.isPressed ? 6 : 16, y: configuration.isPressed ? 2 : 7)
+            .shadow(color: Theme.accent.opacity(enabled ? 0.28 : 0), radius: configuration.isPressed ? 4 : 10, y: configuration.isPressed ? 2 : 5)
             .scaleEffect(configuration.isPressed ? 0.975 : 1)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
             .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, new in new }
@@ -297,7 +299,7 @@ struct LineButton: ButtonStyle {
             .foregroundStyle(Theme.ink)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 15)
-            .background(.ultraThinMaterial, in: .capsule)
+            .background(Theme.frost, in: .capsule)
             .overlay(Capsule().strokeBorder(LinearGradient(colors: [.white.opacity(0.28), .white.opacity(0.06)], startPoint: .top, endPoint: .bottom), lineWidth: 0.9))
             .scaleEffect(configuration.isPressed ? 0.975 : 1)
             .opacity(configuration.isPressed ? 0.8 : 1)
@@ -335,8 +337,7 @@ struct ActionBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .background(Theme.surface, in: .rect(cornerRadius: Theme.corner, style: .continuous))
-        .goldEdge(Theme.corner)
+        .glass(Theme.corner)
         .sensoryFeedback(.selection, trigger: items.count)
     }
 }
@@ -437,7 +438,7 @@ struct VirtualCardView: View {
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: corner, style: .continuous)
         ZStack {
-            CardSurface(look: resolved, corner: corner)
+            CardSurface(look: resolved, corner: corner).equatable()
             if !compact { HoloSheen(look: resolved).clipShape(shape) }
             if !compact { face }
             if frozen {
@@ -539,8 +540,8 @@ struct LogoBackdrop: View {
                     Engraving.rosette(in: &q, center: CGPoint(x: size.width * 0.05, y: size.height * 0.78),
                                       radius: size.width * 0.62, curves: 36, lobes: 9, color: gold)
                 }
-                mark(w * 1.1, 0.075).rotationEffect(.degrees(-14)).position(x: w * 0.9, y: h * 0.72)
-                mark(w * 0.42, 0.14, tint: gold).rotationEffect(.degrees(12)).position(x: w * 0.12, y: h * 0.2)
+                mark(w * 1.1, 0.05).rotationEffect(.degrees(-14)).position(x: w * 0.9, y: h * 0.72)
+                mark(w * 0.42, 0.07, tint: gold).rotationEffect(.degrees(12)).position(x: w * 0.12, y: h * 0.2)
             case .orbit:
                 Canvas { ctx, size in
                     let c = CGPoint(x: size.width * 0.5, y: size.height * 0.34)

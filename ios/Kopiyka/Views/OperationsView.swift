@@ -51,7 +51,8 @@ struct OperationsView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                // лінива колонка: з історії на сотні операцій малюється лише те, що на екрані
+                LazyVStack(alignment: .leading, spacing: 24) {
                     header
                     search
                     TextTabs(items: [(String?.none, L("Усі").s), (String?.some("in"), L("Надходження").s), (String?.some("out"), L("Витрати").s)],
@@ -189,8 +190,10 @@ struct OperationsView: View {
                 } else {
                     Chart(byBucket, id: \.day) { b in
                         BarMark(x: .value(L("Коли").s, b.day, unit: period.unit), y: .value(L("Сума").s, b.sum))
-                            .foregroundStyle(b.day == byBucket.last?.day ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(Theme.ink.opacity(0.78)))
-                            .cornerRadius(3)
+                            .foregroundStyle(b.day == byBucket.last?.day
+                                ? AnyShapeStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+                                : AnyShapeStyle(Theme.ink.opacity(0.55)))
+                            .cornerRadius(5)
                     }
                     .chartYAxis(.hidden)
                     // шкала від початку періоду до сьогодні: один день не розтягується на всю картку
@@ -210,7 +213,11 @@ struct OperationsView: View {
     }
 
     /// Палітра видів витрат: перший - фірмовий жовтий, далі спокійні, але розрізнені кольори.
-    static let palette: [Color] = [Theme.accent, .orange, .blue, .purple, .teal, .pink, .green, .gray]
+    static let palette: [Color] = [
+        Theme.accent, Color(red: 0.78, green: 0.50, blue: 0.33), Color(red: 0.45, green: 0.58, blue: 0.80),
+        Color(red: 0.62, green: 0.55, blue: 0.78), Color(red: 0.42, green: 0.68, blue: 0.66), Color(red: 0.80, green: 0.56, blue: 0.60),
+        Color(red: 0.60, green: 0.70, blue: 0.48), Color(white: 0.55),
+    ]
 
     @ViewBuilder private func byType(_ s: API.Analytics) -> some View {
         let out = s.byType.filter { $0.direction == "out" && $0.total > 0 }.sorted { $0.total > $1.total }
