@@ -67,7 +67,7 @@ struct AvatarView: View {
         .id(rev)
         .frame(width: size, height: size)
         .clipShape(.circle)
-        .overlay(Circle().strokeBorder(Theme.gold.opacity(0.55), lineWidth: max(1, size * 0.015)))
+        .overlay(Circle().strokeBorder(.white.opacity(0.12), lineWidth: 0.5))
     }
 
     private var palette: AvatarStyle.Palette {
@@ -81,14 +81,12 @@ struct AvatarView: View {
 
     /// Вигляд за замовчуванням: темний медальйон, тонке золоте кільце й ініціали золотом - без візерунка під літерами.
     private var signature: some View {
+        // как в Revolut и Monobank: ровный тёплый круг и инициалы, без колец и узора
         ZStack {
-            RadialGradient(colors: [Color(white: 0.20), Color(white: 0.05)], center: UnitPoint(x: 0.35, y: 0.25),
-                           startRadius: 0, endRadius: size * 0.75)
-            Circle().strokeBorder(LinearGradient(colors: [Theme.goldLight, Theme.gold.opacity(0.25)], startPoint: .top, endPoint: .bottom),
-                                  lineWidth: max(1, size * 0.03))
-                .padding(size * 0.09)
-            Text(initials).font(Theme.ui(size * 0.36, .bold)).tracking(size * 0.01)
-                .foregroundStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+            LinearGradient(colors: [Color(red: 0.93, green: 0.82, blue: 0.62), Color(red: 0.76, green: 0.60, blue: 0.38)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            Text(initials).font(Theme.ui(size * 0.38, .bold))
+                .foregroundStyle(Color(red: 0.20, green: 0.14, blue: 0.06))
         }
     }
 

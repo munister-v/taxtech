@@ -64,7 +64,7 @@ struct AuthView: View {
                 Text("ma verifica.")
                     .foregroundStyle(Theme.goldFill)
             }
-            .font(Theme.ui(44, .medium)).tracking(-1)
+            .font(Theme.ui(44, .bold)).tracking(-1.4)
             .lineLimit(1).minimumScaleFactor(0.7)
             .padding(.top, 30)
             .rise(2)
@@ -88,12 +88,12 @@ struct AuthView: View {
                     Task { await finishApple(result) }
                 }
                 .signInWithAppleButtonStyle(.white)
-                .frame(height: 54)
+                .frame(height: 56)
                 .clipShape(.capsule)
                 .disabled(working)
 
                 Button(L("Увійти телефоном або поштою").s) { signingIn = true }
-                    .buttonStyle(InkButton())
+                    .buttonStyle(LineButton())
 
                 Button { signingUp = true } label: {
                     (Text(L("Немає акаунта? ").s).foregroundStyle(.white.opacity(0.6)) + Text(L("Створити").s).fontWeight(.semibold).foregroundStyle(Theme.goldLight))
@@ -107,7 +107,7 @@ struct AuthView: View {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 12)
-        .background { WelcomeBackdrop() }
+        .background { GateBackdrop().ignoresSafeArea() }
         .animation(.smooth(duration: 0.2), value: status)
         .sheet(isPresented: $signingIn) { SignInSheet() }
         .sheet(isPresented: $signingUp) { SignUpFlow() }

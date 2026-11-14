@@ -119,7 +119,6 @@ struct SandboxGate: View {
     @Environment(AppModel.self) private var model
     @State private var signIn = false
     @State private var policy = false
-    @State private var float = false
 
     var body: some View {
         ZStack {
@@ -135,19 +134,16 @@ struct SandboxGate: View {
                 Spacer(minLength: 0)
                 fan
                     .padding(.horizontal, 6)
-                    .offset(y: float ? -5 : 5)
-                    .animation(.easeInOut(duration: 3.4).repeatForever(autoreverses: true), value: float)
                     .rise(1)
                 Spacer(minLength: 0)
                 Text(Brand.name)
-                    .font(.display(64, .semibold)).tracking(-2.4)
-                    .foregroundStyle(LinearGradient(colors: [Color(red: 1.0, green: 0.90, blue: 0.68), Color(red: 0.86, green: 0.66, blue: 0.34)],
-                                                    startPoint: .top, endPoint: .bottom))
-                    .frame(maxWidth: .infinity)
+                    .font(Theme.ui(52, .bold)).tracking(-1.6)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .rise(2)
                 VStack(spacing: 12) {
                     Button(L("Увійти").s) { signIn = true }
-                        .buttonStyle(InkButton())
+                        .buttonStyle(WhitePill())
                     VStack(spacing: 4) {
                         Text(L("Токен TAX - навчальна одиниця, а не гроші.").s)
                             .font(Theme.ui(style: .caption1)).foregroundStyle(.tertiary).multilineTextAlignment(.center)
@@ -160,53 +156,49 @@ struct SandboxGate: View {
             }
             .padding(.horizontal, Theme.gutter)
         }
-        .onAppear { float = true }
         .fullScreenCover(isPresented: $signIn) { AuthView(onClose: { signIn = false }) }
         .sheet(isPresented: $policy) { PrivacyPolicyView() }
     }
 
-    /// Три картки віялом: золота, графітова й чорна спереду, під ними золоте сяйво.
+    /// Колода рівно, як на головній: чорна картка спереду, за нею графіт і золото визирають зверху.
     private var fan: some View {
         ZStack {
-            Ellipse().fill(Color(red: 1.0, green: 0.25, blue: 0.2).opacity(0.5)).blur(radius: 55)
-                .frame(width: 280, height: 80).offset(y: 135)
             GateCard(look: CardLook(material: .metal, color: .gold, pattern: .guilloche), phase: 0.0)
-                .scaleEffect(0.8).rotationEffect(.degrees(-14)).offset(x: -28, y: -68)
-            GateCard(look: CardLook(material: .glass, color: .graphite, pattern: .microprint), phase: 0.33)
-                .scaleEffect(0.86).rotationEffect(.degrees(-6)).offset(x: -10, y: -30)
-                .shadow(color: .black.opacity(0.45), radius: 16, y: 10)
-            GateCard(look: CardLook(material: .metal, color: .black, pattern: .guilloche), phase: 0.66, glow: true)
-                .tilt(cornerRadius: 20)
-                .scaleEffect(0.93).rotationEffect(.degrees(3)).offset(x: 6, y: 20)
-                .shadow(color: Color(red: 1.0, green: 0.2, blue: 0.2).opacity(0.45), radius: 34, y: 18)
+                .padding(.horizontal, 28).offset(y: -40).brightness(-0.22)
+            GateCard(look: CardLook(material: .metal, color: .graphite, pattern: .lines), phase: 0.33)
+                .padding(.horizontal, 14).offset(y: -20).brightness(-0.1)
+            GateCard(look: CardLook(material: .metal, color: .black, pattern: .guilloche, emblem: .seal), phase: 0.66, glow: true)
+                .shadow(color: .black.opacity(0.55), radius: 24, y: 16)
         }
-        .frame(height: 330)
+        .padding(.top, 40)
+        .background {
+            SoftOrb(color: Theme.accent.opacity(0.30), radius: 130, blur: 60).scaleEffect(y: 0.3).offset(y: 130)
+                .allowsHitTesting(false)
+        }
     }
 }
 
-/// Тло входу: майже чорне бордо, повільні багряні й золоті плями, знизу темніє під кнопку.
+/// Тло входу: та сама ніч, що в застосунку - золото зверху-ліворуч, глибокий синій праворуч, низ темніє під кнопки.
 struct GateBackdrop: View {
-    @Environment(\.accessibilityReduceMotion) private var reduce
-    @State private var p = false
-    @State private var q = false
-
     var body: some View {
         ZStack {
-            Color(red: 0.05, green: 0.01, blue: 0.02)
+            Theme.bg
             GeometryReader { g in
                 let w = g.size.width, h = g.size.height
-                SoftOrb(color: Color(red: 0.86, green: 0.07, blue: 0.17).opacity(0.85), radius: w * 0.62, blur: 80)
-                    .position(x: w * (p ? 0.42 : 0.14), y: h * (q ? 0.29 : 0.11))
-                SoftOrb(color: Color(red: 0.52, green: 0.03, blue: 0.16).opacity(0.75), radius: w * 0.55, blur: 80)
-                    .position(x: w * (q ? 0.74 : 1.0), y: h * (p ? 0.49 : 0.31))
-                SoftOrb(color: Color(red: 0.98, green: 0.62, blue: 0.24).opacity(0.40), radius: w * 0.26, blur: 80)
-                    .position(x: w * (p ? 0.82 : 0.54), y: h * (q ? 0.21 : 0.03))
+                SoftOrb(color: Theme.auraGold.opacity(0.42), radius: w * 0.55, blur: 120).position(x: w * 0.12, y: h * 0.16)
+                SoftOrb(color: Theme.auraCool.opacity(0.60), radius: w * 0.55, blur: 130).position(x: w * 0.98, y: h * 0.40)
+                SoftOrb(color: Theme.auraBronze.opacity(0.20), radius: w * 0.35, blur: 100).position(x: w * 0.40, y: h * 0.52)
+                Canvas { ctx, size in
+                    var r = ctx; r.opacity = 0.16
+                    Engraving.rings(in: &r, center: CGPoint(x: size.width * 0.5, y: size.height * 0.36),
+                                    from: size.width * 0.3, to: size.width * 1.1, count: 18, color: Theme.auraGold)
+                }
             }
-            LinearGradient(stops: [.init(color: .clear, location: 0.35), .init(color: Color(red: 0.03, green: 0.0, blue: 0.01), location: 0.70)],
+            LinearGradient(stops: [.init(color: .clear, location: 0.45), .init(color: Theme.bg, location: 0.78)],
                            startPoint: .top, endPoint: .bottom)
         }
+        .drawingGroup()
         .accessibilityHidden(true)
-        .drift(reduce: reduce, $p, 9, $q, 7)
     }
 }
 
@@ -241,5 +233,20 @@ struct GateCard: View {
                 .overlay(shape.strokeBorder(LinearGradient(colors: [Color(red: 1, green: 0.85, blue: 0.55).opacity(0.7), .white.opacity(0.05), Color(red: 1, green: 0.7, blue: 0.3).opacity(0.4)],
                                                            startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1))
         }
+    }
+}
+
+/// Головна кнопка на темному вході: біла капсула з чорним текстом, як у Revolut.
+struct WhitePill: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.ui(17, .bold))
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity).frame(height: 56)
+            .background(.white, in: .capsule)
+            .opacity(configuration.isPressed ? 0.85 : 1)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .sensoryFeedback(.impact(weight: .light), trigger: configuration.isPressed) { _, new in new }
     }
 }
