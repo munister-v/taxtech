@@ -81,7 +81,12 @@ struct OperationsView: View {
             .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task(id: "\(filter.search)|\(filter.direction ?? "")") {
-                try? await Task.sleep(for: .milliseconds(250))
+                if !loaded, let hit = model.api.cached("transactions/history", as: [API.Transaction].self) {
+                    items = hit
+                    loaded = true
+                }
+                // пауза потрібна лише пошуку: перше завантаження й перемикання вкладок не чекають
+                if !filter.search.isEmpty { try? await Task.sleep(for: .milliseconds(250)) }
                 guard !Task.isCancelled else { return }
                 items = (try? await model.api.history(filter)) ?? []
                 loaded = true
@@ -276,7 +281,9 @@ struct OperationsView: View {
     // MARK: Історія
 
     @ViewBuilder private var history: some View {
-        if loaded && items.isEmpty {
+        if !loaded {
+            Surface { ForEach(0..<6, id: \.self) { _ in SkeletonRow() } }
+        } else if items.isEmpty {
             if filter.search.isEmpty && filter.direction == nil {
                 BrandEmpty(title: L("Операцій ще немає").s, detail: L("Поповніть рахунок, і тут з'являться покупки, перекази та графіки").s,
                            symbol: "list.bullet.rectangle", action: L("Поповнити рахунок").s) { topUp = true }
@@ -327,6 +334,6 @@ struct OperationsView: View {
 
     private func row(_ tx: API.Transaction) -> some View {
         Button { selected = tx } label: { ActivityRow(tx: tx).contentShape(.rect) }
-            .buttonStyle(.plain)
+            .buttonStyle(RowPress())
     }
 }

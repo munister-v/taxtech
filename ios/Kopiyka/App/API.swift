@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 /// Клієнт навчального сервера (`server/`). Значення, а не клас: його копію безпечно
@@ -89,13 +90,7 @@ struct API: Sendable {
 
         var isIncome: Bool { direction == "in" }
         /// Сервер пише час у UTC без зони: «2026-10-26 06:48:41».
-        var date: Date {
-            let f = DateFormatter()
-            f.locale = Locale(identifier: "en_US_POSIX")
-            f.timeZone = TimeZone(identifier: "UTC")
-            f.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            return f.date(from: String(createdAt.prefix(19))) ?? .distantPast
-        }
+        var date: Date { ServerDate.time(createdAt) }
     }
 
     struct Card: Decodable, Sendable, Identifiable {
@@ -231,6 +226,116 @@ struct API: Sendable {
                 .flatMap { ($0["error"] as? String) ?? ($0["message"] as? String) }
             throw Failure(message: message ?? L("Сервер відповів кодом \(status)").s)
         }
-        return try decoder.decode(T.self, from: data)
+        let value = try decoder.decode(T.self, from: data)
+        // відповіді головного екрана лишаємо на диску: наступний запуск показує їх одразу, а мережа лише оновлює
+        if r.httpMethod == "GET", let url = r.url, ResponseCache.keeps(url) { ResponseCache.shared.put(url, token, data) }
+        return value
+    }
+
+    /// Остання збережена відповідь на GET-запит, якщо вона є. Мережі не чіпає.
+    func cached<T: Decodable>(_ path: String, as type: T.Type = T.self) -> T? {
+        guard let url = request(path, method: "GET").url, let data = ResponseCache.shared.get(url, token) else { return nil }
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return (try? decoder.decode(Wrapped<T>.self, from: data))?.data
+    }
+}
+
+/// Час сервера «2026-11-27 10:38:31» (UTC). Розбір рядка коштує дорого, а дату операції питають на кожне
+/// порівняння під час сортування, тож форматер один і кожен рядок розбирається раз.
+enum ServerDate {
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var times: [String: Date] = [:]
+    nonisolated(unsafe) private static var days: [String: Date] = [:]
+    nonisolated(unsafe) private static let timeFormat: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return f
+    }()
+    nonisolated(unsafe) private static let dayFormat: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    static func time(_ s: String) -> Date {
+        lock.lock(); defer { lock.unlock() }
+        if let d = times[s] { return d }
+        let d = timeFormat.date(from: String(s.prefix(19))) ?? .distantPast
+        if times.count > 4000 { times.removeAll(keepingCapacity: true) }
+        times[s] = d
+        return d
+    }
+
+    /// «2026-10-27…» → початок дня в поясі телефона.
+    static func day(_ s: String) -> Date? {
+        let key = String(s.prefix(10))
+        lock.lock(); defer { lock.unlock() }
+        if let d = days[key] { return d }
+        guard let d = dayFormat.date(from: key) else { return nil }
+        if days.count > 4000 { days.removeAll(keepingCapacity: true) }
+        days[key] = d
+        return d
+    }
+
+    static func isoDay(_ d: Date) -> String {
+        lock.lock(); defer { lock.unlock() }
+        return dayFormat.string(from: d)
+    }
+}
+
+/// Останні відповіді сервера для головного екрана: у пам'яті й у теці кешу, під ключем сесії.
+/// Файли захищені, поки телефон заблокований, і стираються при виході.
+final class ResponseCache: @unchecked Sendable {
+    static let shared = ResponseCache()
+    private let lock = NSLock()
+    private var memory: [String: Data] = [:]
+    private let dir: URL = {
+        let d = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appending(path: "home", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
+        return d
+    }()
+
+    private static let paths: Set<String> = [
+        "/api/accounts/main", "/api/cards", "/api/transactions/history", "/api/auth/me",
+        "/api/analytics/summary", "/api/analytics/balance-history", "/api/analytics/top-recipients",
+    ]
+
+    /// Лише запити без пошуку й фільтрів: відповіді на кожне набране слово на диск не йдуть.
+    static func keeps(_ url: URL) -> Bool {
+        paths.contains(url.path) && (url.query == nil || url.path.hasSuffix("balance-history"))
+    }
+
+    private func key(_ url: URL, _ token: String?) -> String {
+        let raw = Data(((token ?? "") + "|" + url.absoluteString).utf8)
+        return SHA256.hash(data: raw).map { String(format: "%02x", $0) }.joined()
+    }
+
+    func put(_ url: URL, _ token: String?, _ data: Data) {
+        guard token != nil else { return }
+        let k = key(url, token)
+        lock.lock(); memory[k] = data; lock.unlock()
+        let file = dir.appending(path: k)
+        Task.detached(priority: .utility) { try? data.write(to: file, options: [.atomic, .completeFileProtection]) }
+    }
+
+    func get(_ url: URL, _ token: String?) -> Data? {
+        guard token != nil else { return nil }
+        let k = key(url, token)
+        lock.lock(); defer { lock.unlock() }
+        if let d = memory[k] { return d }
+        guard let d = try? Data(contentsOf: dir.appending(path: k)) else { return nil }
+        memory[k] = d
+        return d
+    }
+
+    func clear() {
+        lock.lock(); memory.removeAll(); lock.unlock()
+        for f in (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? [] {
+            try? FileManager.default.removeItem(at: f)
+        }
     }
 }

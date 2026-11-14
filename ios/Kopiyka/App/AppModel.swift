@@ -131,6 +131,7 @@ final class AppModel {
         token = nil
         bankUnlocked = false
         Keychain.write("sandboxToken", nil)
+        ResponseCache.shared.clear()
     }
 
     func run<Input: Sendable, Output: Sendable>(

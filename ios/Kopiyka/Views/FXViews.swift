@@ -27,7 +27,7 @@ struct AccountsView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(Tx("Усього в еквіваленті", "Total in TAX", "Всего в эквиваленте")).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                         HStack(alignment: .firstTextBaseline, spacing: 6) {
-                            Text(Format.amount(data.totalTax)).font(Theme.mono(40, .bold)).minimumScaleFactor(0.5).lineLimit(1)
+                            Text(Digits.tight(Format.amount(data.totalTax), size: 40)).font(Theme.mono(40, .bold)).minimumScaleFactor(0.5).lineLimit(1)
                             Text("TAX").font(Theme.mono(16, .bold)).foregroundStyle(Theme.accent)
                         }
                     }
@@ -140,7 +140,7 @@ struct AccountCard: View {
                     Text(symbol(account.currency)).font(Theme.mono(22, .bold)).foregroundStyle(Theme.gold.opacity(0.9))
                 }
                 Spacer(minLength: 14)
-                Text(Format.amount(account.balance)).font(Theme.mono(30, .bold)).minimumScaleFactor(0.6).lineLimit(1)
+                Text(Digits.tight(Format.amount(account.balance), size: 30)).font(Theme.mono(30, .bold)).minimumScaleFactor(0.6).lineLimit(1)
                 if large {
                     let g = account.ibanPretty.split(separator: " ").map(String.init)
                     let half = (g.count + 1) / 2

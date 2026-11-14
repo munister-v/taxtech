@@ -179,7 +179,7 @@ struct QRPayView: View {
                 .padding(.top, 28)
             Text(q.name).font(.display(30, .medium)).tracking(-0.6).padding(.top, 6)
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(Format.amount(q.amount)).font(Theme.mono(46, .bold)).monospacedDigit()
+                Text(Digits.tight(Format.amount(q.amount), size: 46)).font(Theme.mono(46, .bold)).monospacedDigit()
                 Text("TAX").font(Theme.ui(style: .subheadline, .semibold)).foregroundStyle(.secondary)
             }
             .padding(.vertical, 18)

@@ -156,6 +156,7 @@ struct Surface<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) { content }
+            .clipShape(.rect(cornerRadius: 22, style: .continuous))
             .glass(22)
     }
 }

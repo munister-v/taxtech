@@ -137,22 +137,14 @@ enum BankText {
     /// «2026-11-27» чи «2026-11-27 10:38:31» → «27 листопада 2026».
     static func date(_ s: String?) -> String {
         guard let s, s.count >= 10 else { return "-" }
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.dateFormat = "yyyy-MM-dd"
-        guard let d = f.date(from: String(s.prefix(10))) else { return s }
+        guard let d = ServerDate.day(s) else { return s }
         // без «р.»: «27 жовтня 2026»
         return d.formatted(.dateTime.day().month(.wide).locale(Lang.current.locale)) + " "
             + String(Calendar.current.component(.year, from: d))
     }
 
     /// «2026-10-27» → дата; nil, якщо рядок не схожий на день.
-    static func day(_ s: String) -> Date? {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.dateFormat = "yyyy-MM-dd"
-        return f.date(from: String(s.prefix(10)))
-    }
+    static func day(_ s: String) -> Date? { ServerDate.day(s) }
 
     /// «Травень 2027» - без «р.» і без розділювача тисяч у році.
     static func monthYear(_ d: Date) -> String {
@@ -170,10 +162,5 @@ enum BankText {
         return day.formatted(.dateTime.day().month(.wide).locale(Lang.current.locale))
     }
 
-    static func isoDay(_ d: Date) -> String {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: d)
-    }
+    static func isoDay(_ d: Date) -> String { ServerDate.isoDay(d) }
 }

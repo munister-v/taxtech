@@ -12,6 +12,13 @@ final class BankModel {
     var loaded = false
 
     func load(_ api: API) async {
+        // перший показ - із того, що лишилось від минулого запуску: екран не чекає мережі
+        if !loaded, let a: API.Account = api.cached("accounts/main") {
+            account = a
+            cards = (api.cached("cards", as: [API.Card].self) ?? []).filter { !$0.isClosed }
+            history = api.cached("transactions/history", as: [API.Transaction].self) ?? []
+            loaded = true
+        }
         // усі шість запитів ідуть разом: один мережевий цикл замість чотирьох поспіль
         async let a = api.account()
         async let c = api.cards()

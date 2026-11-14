@@ -94,19 +94,24 @@ struct OverviewView: View {
     }
 
     private func load() async {
+        if me == nil {
+            me = model.api.cached("auth/me")
+            summary = model.api.cached("analytics/summary")
+            recipients = model.api.cached("analytics/top-recipients", as: [API.Recipient].self) ?? []
+        }
         async let b: Void = bank.load(model.api)
         async let m = model.api.me()
         async let s = model.api.analytics()
         async let p = model.api.balanceHistory(days: 30)
         async let r = model.api.topRecipients()
         async let u = model.api.unreadCount()
-        me = try? await m
-        summary = try? await s
+        if let v = try? await m { me = v }
+        if let v = try? await s { summary = v }
         // дні до першого поповнення - майже нулі, вони тільки стискають графік
         let raw = (try? await p) ?? []
         let peak = raw.map(\.balance).max() ?? 0
         points = Array(raw.drop { $0.balance < peak * 0.05 })
-        recipients = (try? await r) ?? []
+        if let v = try? await r { recipients = v }
         unread = (try? await u) ?? 0
         await b
         if Build.shop, hits.isEmpty {
@@ -373,7 +378,10 @@ struct OverviewView: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 20).padding(.top, 18).padding(.bottom, 4)
-            if bank.loaded && bank.history.isEmpty {
+            if !bank.loaded {
+                ForEach(0..<3, id: \.self) { _ in SkeletonRow() }
+                Spacer().frame(height: 6)
+            } else if bank.history.isEmpty {
                 VStack(spacing: 6) {
                     Text(L("Операцій ще немає").s).font(Theme.ui(style: .body, .semibold))
                     Text(L("Перша операція з'явиться тут").s).font(Theme.ui(style: .footnote, .regular)).foregroundStyle(.secondary)
@@ -381,7 +389,7 @@ struct OverviewView: View {
             } else {
                 ForEach(Array(bank.history.prefix(4).enumerated()), id: \.element.id) { i, tx in
                     Button { selected = tx } label: { ActivityRow(tx: tx).contentShape(.rect) }
-                        .buttonStyle(PressScale())
+                        .buttonStyle(RowPress())
                     if i < min(bank.history.count, 4) - 1 { Rule().padding(.leading, 68) }
                 }
                 Spacer().frame(height: 6)
@@ -566,14 +574,14 @@ struct ActivityRow: View {
         HStack(spacing: 14) {
             TxGlyph(tx: tx)
             VStack(alignment: .leading, spacing: 3) {
-                Text(row.title).font(Theme.ui(style: .body, .medium)).lineLimit(2)
+                Text(row.title).font(Theme.ui(style: .body, .medium)).lineLimit(1).minimumScaleFactor(0.9)
                 Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Lang.current.locale)))
                     .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
                 Text((tx.isIncome ? "+" : "−") + Format.amount(tx.amount))
-                    .font(Theme.ui(20, .semibold)).monospacedDigit()
+                    .font(Theme.ui(18, .semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
                     .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
                 Text("TAX").font(Theme.ui(style: .caption2, .semibold)).foregroundStyle(.secondary)
@@ -589,6 +597,41 @@ extension OverviewView {
     /// Сума з копійками лише коли вони є.
     static func compactCents(_ v: Double) -> String {
         Format.short(v)
+    }
+}
+
+/// Рядок під пальцем: тихе підсвічування замість стискання - список не «дихає» від кожного дотику.
+struct RowPress: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(Color.white.opacity(configuration.isPressed ? 0.07 : 0))
+            .animation(.easeOut(duration: configuration.isPressed ? 0.05 : 0.25), value: configuration.isPressed)
+    }
+}
+
+/// Заглушка рядка операції, поки дані в дорозі: ті самі розміри, що в справжнього рядка, тож список не стрибає.
+struct SkeletonRow: View {
+    @Environment(\.accessibilityReduceMotion) private var reduce
+    @State private var dim = false
+
+    var body: some View {
+        HStack(spacing: 14) {
+            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Theme.frost).frame(width: 46, height: 46)
+            VStack(alignment: .leading, spacing: 8) {
+                Capsule().fill(Theme.frost).frame(width: 150, height: 12)
+                Capsule().fill(Theme.frost.opacity(0.6)).frame(width: 96, height: 10)
+            }
+            Spacer()
+            Capsule().fill(Theme.frost).frame(width: 60, height: 14)
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+        .opacity(dim ? 0.45 : 1)
+        .onAppear {
+            guard !reduce else { return }
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { dim = true }
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -628,8 +671,12 @@ enum Digits {
         let chars = Array(s)
         for (i, ch) in chars.enumerated() {
             var run = AttributedString(String(ch))
-            let isSep = !ch.isNumber
-            let beforeSep = i + 1 < chars.count && !chars[i + 1].isNumber
+            let between: (Int) -> Bool = { j in
+                j > 0 && j + 1 < chars.count && chars[j - 1].isNumber && chars[j + 1].isNumber
+                    && (chars[j].isWhitespace || ",.'’".contains(chars[j]))
+            }
+            let isSep = between(i)
+            let beforeSep = between(i + 1)
             let pull = ch.isWhitespace ? size * 0.34 : size * 0.15
             if isSep { run.kern = tracking - pull }
             else if beforeSep { run.kern = tracking - (chars[i + 1].isWhitespace ? size * 0.10 : size * 0.13) }
