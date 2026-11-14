@@ -121,7 +121,7 @@ struct CardLook: Codable, Equatable, Sendable {
     /// Старі дизайни (`design`) у новій мові - щоб картки без власного вигляду теж мали чип, візерунок і матеріал.
     init(legacy design: CardDesign) {
         switch design {
-        case .dark: self.init(material: .metal, color: .black, pattern: .guilloche, emblem: .seal)
+        case .dark: self.init(material: .solid, color: .black, pattern: .none, emblem: .mark)
         case .slate: self.init(material: .metal, color: .graphite, pattern: .lines)
         case .navy: self.init(material: .metal, color: .navy, pattern: .lines)
         case .forest: self.init(material: .solid, color: .white, pattern: .mark)
@@ -426,7 +426,21 @@ struct CardPreset: Identifiable {
     let look: CardLook
     var id: String { title }
 
-    static let all: [CardPreset] = [
+    /// Однотонні: чистий колір, без візерунка, лише знак у куті - як справжні банківські картки.
+    static let solids: [CardPreset] = [
+        CardPreset(title: Tx("Чорна", "Black", "Чёрная"), look: CardLook(material: .solid, color: .black, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Графіт", "Graphite", "Графит"), look: CardLook(material: .solid, color: .graphite, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Біла", "White", "Белая"), look: CardLook(material: .solid, color: .white, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Нічна", "Midnight", "Ночная"), look: CardLook(material: .solid, color: .navy, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Смарагд", "Emerald", "Изумруд"), look: CardLook(material: .solid, color: .emerald, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Бордо", "Bordeaux", "Бордо"), look: CardLook(material: .solid, color: .burgundy, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Фіалка", "Violet", "Фиалка"), look: CardLook(material: .solid, color: .violet, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Пісок", "Sand", "Песок"), look: CardLook(material: .solid, color: .sand, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Чорний метал", "Black metal", "Чёрный металл"), look: CardLook(material: .metal, color: .black, pattern: .none, emblem: .mark)),
+        CardPreset(title: Tx("Золото", "Gold", "Золото"), look: CardLook(material: .metal, color: .gold, pattern: .none, emblem: .mark)),
+    ]
+
+    static let all: [CardPreset] = solids + [
         CardPreset(title: L("Обсидіан").s, look: CardLook(material: .metal, color: .black, pattern: .guilloche, emblem: .seal)),
         CardPreset(title: L("Шампань").s, look: CardLook(material: .metal, color: .gold, pattern: .microprint, emblem: .seal)),
         CardPreset(title: L("Аврора").s, look: CardLook(material: .gradient, color: .violet, pattern: .waves, emblem: .mark)),
