@@ -121,7 +121,7 @@ struct CardLook: Codable, Equatable, Sendable {
     /// Старі дизайни (`design`) у новій мові - щоб картки без власного вигляду теж мали чип, візерунок і матеріал.
     init(legacy design: CardDesign) {
         switch design {
-        case .dark: self.init(material: .solid, color: .black, pattern: .guilloche)
+        case .dark: self.init(material: .metal, color: .black, pattern: .guilloche, emblem: .seal)
         case .slate: self.init(material: .metal, color: .graphite, pattern: .lines)
         case .navy: self.init(material: .metal, color: .navy, pattern: .lines)
         case .forest: self.init(material: .solid, color: .white, pattern: .mark)
@@ -286,7 +286,7 @@ struct CardPatternLayer: View {
                 var row = 0
                 while y < size.height {
                     let text = Text(line).font(Theme.mono(5, .medium))
-                        .foregroundStyle(ink.opacity(0.13))
+                        .foregroundStyle(ink.opacity(0.07))
                     ctx.draw(text, at: CGPoint(x: row.isMultiple(of: 2) ? 0 : -18, y: y), anchor: .topLeading)
                     y += 7
                     row += 1

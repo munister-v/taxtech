@@ -57,7 +57,7 @@ struct OverviewView: View {
                 let e = (min(max(y / 70, 0), 1) * 20).rounded() / 20
                 if e != edge.value { edge.value = e }
             }
-            .screenBackground()
+            .screenBackground(.clean)
             .overlay(alignment: .top) { EdgeScrim(edge: edge) }
             .toolbar(.hidden, for: .navigationBar)
             .task { await load() }
@@ -151,12 +151,20 @@ struct OverviewView: View {
 
             VStack(spacing: 8) {
                 HeroBalance(balance: bank.account?.balance, loaded: bank.loaded)
+                if let m = summary?.currentMonth, m.totalIn > 0 || m.totalOut > 0 {
+                    HStack(spacing: 8) {
+                        monthPill("arrow.down.left", Self.compact(m.totalIn), tint: Theme.accent)
+                        monthPill("arrow.up.right", Self.compact(m.totalOut), tint: Theme.ink.opacity(0.7))
+                    }
+                    .transition(.opacity)
+                }
             }
-            .padding(.top, 30)
+            .padding(.top, 26)
             .frame(maxWidth: .infinity)
+            .animation(.smooth, value: summary?.currentMonth.totalOut)
             .rise(1)
 
-            heroCard.padding(.top, 30).rise(2)
+            heroCard.padding(.top, 24).rise(2)
 
             HStack(alignment: .top, spacing: 0) {
                 CircleAction(title: L("Поповнити").s, symbol: "plus", primary: true) { sheet = .topUp }
@@ -164,14 +172,16 @@ struct OverviewView: View {
                 CircleAction(title: L("На картку").s, symbol: "creditcard") { sheet = .byCard }
                 CircleAction(title: L("Податки").s, symbol: "percent") { open(.taxes) }
             }
-            .padding(.vertical, 14)
-            .glass(30)
-            .padding(.top, 26)
-            .padding(.bottom, 8)
+            .padding(.top, 28)
+            .padding(.bottom, 10)
             .rise(3)
         }
         .padding(.horizontal, Theme.gutter)
-        .background(alignment: .top) { AuroraField().frame(height: 560).offset(y: -60) }
+        .background(alignment: .top) {
+            let (warm, cool) = CardsTab.tints(bank.primaryCard?.look.color ?? .graphite)
+            AuroraField(warm: warm, cool: cool).frame(height: 620).offset(y: -80)
+                .animation(.smooth(duration: 0.6), value: bank.primaryCard?.look.color)
+        }
     }
 
     /// Головна картка великою: решта колоди визирає з-за неї. Торкання відкриває «Carte».
@@ -204,8 +214,8 @@ struct OverviewView: View {
             }
             .padding(.top, CGFloat(max(deck.count - 1, 0)) * 16)
             .background(alignment: .bottom) {
-                SoftOrb(color: Theme.accent.opacity(0.30), radius: 110, blur: 44)
-                    .scaleEffect(y: 0.26).frame(width: 240, height: 60).offset(y: 34)
+                SoftOrb(color: CardsTab.tints(bank.primaryCard?.look.color ?? .graphite).0.opacity(0.42), radius: 120, blur: 50)
+                    .scaleEffect(y: 0.26).frame(width: 240, height: 60).offset(y: 36)
             }
         }
         .buttonStyle(PressScale())

@@ -481,7 +481,7 @@ struct VirtualCardView: View {
             Spacer(minLength: 6)
             // тиснений номер: світла кромка зверху-ліворуч і тінь знизу-праворуч
             Text(number)
-                .font(Theme.mono(style: .title3, .medium))
+                .font(Theme.ui(21, .bold)).tracking(1.6).monospacedDigit()
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
                 .shadow(color: .white.opacity(l.color.isLight ? 0.55 : 0.28), radius: 0, x: -0.6, y: -0.6)
@@ -521,7 +521,7 @@ struct NetworkMark: View {
 }
 
 
-enum BackdropStyle { case logo, orbit, grid, hatch }
+enum BackdropStyle { case logo, orbit, grid, hatch, clean }
 
 /// Графіка у стилі логотипу за склом: у кожного розділу своя конструкція.
 struct LogoBackdrop: View {
@@ -532,6 +532,13 @@ struct LogoBackdrop: View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
             switch style {
+            case .clean:
+                // головна: лише тонкі кільця в куті, без знаків - там говорять баланс і картка
+                Canvas { ctx, size in
+                    var r = ctx; r.opacity = 0.20
+                    Engraving.rings(in: &r, center: CGPoint(x: size.width * 1.02, y: size.height * 0.16),
+                                    from: 50, to: size.width * 0.9, count: 16, color: gold)
+                }
             case .logo:
                 Canvas { ctx, size in
                     var r = ctx; r.opacity = 0.26

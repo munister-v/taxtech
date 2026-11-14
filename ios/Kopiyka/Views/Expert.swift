@@ -131,6 +131,9 @@ extension View {
 /// Живий фон шапки: три м'які плями тепла дрейфують по чорному.
 /// Плями - готові радіальні градієнти без фільтра розмиття: їх малюють раз, далі GPU лише зсуває шари.
 struct AuroraField: View {
+    /// Два кольори світіння; на головній їх задає вибрана картка.
+    var warm: Color = Theme.auraGold
+    var cool: Color = Theme.auraCool
     @Environment(\.accessibilityReduceMotion) private var reduce
     @State private var p = false
     @State private var q = false
@@ -139,9 +142,9 @@ struct AuroraField: View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
             ZStack {
-                SoftOrb(color: Theme.auraGold.opacity(0.46), radius: w * 0.42, blur: 90)
+                SoftOrb(color: warm.opacity(0.46), radius: w * 0.42, blur: 90)
                     .position(x: w * (p ? 0.44 : 0.16), y: h * (q ? 0.32 : 0.12))
-                SoftOrb(color: Theme.auraCool.opacity(0.50), radius: w * 0.40, blur: 90)
+                SoftOrb(color: cool.opacity(0.50), radius: w * 0.40, blur: 90)
                     .position(x: w * (q ? 0.64 : 0.92), y: h * (p ? 0.42 : 0.22))
                 SoftOrb(color: Theme.auraBronze.opacity(0.22), radius: w * 0.45, blur: 70)
                     .position(x: w * (p ? 0.50 : 0.74), y: h * (q ? 0.0 : 0.16))

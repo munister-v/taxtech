@@ -20,12 +20,12 @@ struct RootView: View {
             } else {
             TabView(selection: $selection) {
                 if model.signedIn {
-                    Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
-                    Tab(AppTab.operations.title, systemImage: "list.bullet.rectangle", value: AppTab.operations) { bank { OperationsView() } }
+                    Tab(AppTab.overview.title, systemImage: "house", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
+                    Tab(AppTab.operations.title, systemImage: "arrow.left.arrow.right", value: AppTab.operations) { bank { OperationsView() } }
                     Tab(AppTab.cards.title, systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
-                    Tab(AppTab.taxes.title, systemImage: "percent", value: AppTab.taxes) { bank { TaxesView() } }
+                    Tab(AppTab.taxes.title, systemImage: "building.columns", value: AppTab.taxes) { bank { TaxesView() } }
                     if Build.shop || model.expert {
-                        Tab(Tx("Ще", "More", "Ещё"), systemImage: "ellipsis", value: AppTab.more) { bank { MoreHub(jump: $moreJump) } }
+                        Tab(Tx("Ще", "More", "Ещё"), systemImage: "square.grid.2x2", value: AppTab.more) { bank { MoreHub(jump: $moreJump) } }
                     }
                 } else {
                     Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }

@@ -62,9 +62,10 @@ enum Appearance {
         UINavigationBar.appearance().compactAppearance = bar
 
         let item = UITabBarItemAppearance()
-        if let f = UIFont(name: "Nunito-Regular", size: 10) {
-            item.normal.titleTextAttributes = [.font: f]
-            item.selected.titleTextAttributes = [.font: f]
+        if let base = UIFont(name: "Nunito-Regular", size: 10.5) {
+            let semi = UIFont(descriptor: base.fontDescriptor.addingAttributes([UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [0x77676874: 650]]), size: 10.5)
+            item.normal.titleTextAttributes = [.font: semi]
+            item.selected.titleTextAttributes = [.font: semi]
         }
         let tab = UITabBarAppearance()
         tab.configureWithDefaultBackground()

@@ -75,7 +75,24 @@ struct AvatarView: View {
         return saved >= 0 && saved < AvatarStyle.palettes.count ? AvatarStyle.palettes[saved] : AvatarStyle.palettes[AvatarStyle.auto(for: initials)]
     }
 
-    private var generated: some View {
+    @ViewBuilder private var generated: some View {
+        if palette.id == 9 { signature } else { patterned }
+    }
+
+    /// Вигляд за замовчуванням: темний медальйон, тонке золоте кільце й ініціали золотом - без візерунка під літерами.
+    private var signature: some View {
+        ZStack {
+            RadialGradient(colors: [Color(white: 0.20), Color(white: 0.05)], center: UnitPoint(x: 0.35, y: 0.25),
+                           startRadius: 0, endRadius: size * 0.75)
+            Circle().strokeBorder(LinearGradient(colors: [Theme.goldLight, Theme.gold.opacity(0.25)], startPoint: .top, endPoint: .bottom),
+                                  lineWidth: max(1, size * 0.03))
+                .padding(size * 0.09)
+            Text(initials).font(Theme.ui(size * 0.36, .bold)).tracking(size * 0.01)
+                .foregroundStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
+        }
+    }
+
+    private var patterned: some View {
         let p = palette
         return ZStack {
             LinearGradient(colors: [p.a, p.b], startPoint: .topLeading, endPoint: .bottomTrailing)
