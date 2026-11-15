@@ -189,3 +189,13 @@
 .tb-stats-flat { margin: 0; }
 
 .tb-stats + .tb-stats { margin-top: -28px; }
+
+/* number tables stay inside the column on a phone: equal columns that may shrink, digits sized to the narrowest cell */
+.tb-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tb-stats div { min-width: 0; }
+.tb-stats span { overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+  .tb-stats div { padding: 18px 4px; }
+  .tb-stats b { font-size: clamp(19px, 6.1vw, 30px); }
+  .tb-stats span { font-size: 9.5px; letter-spacing: .1em; }
+}
