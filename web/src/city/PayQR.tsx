@@ -28,6 +28,8 @@ export default function PayQR({ code }: { code: string }) {
 
   useEffect(() => { document.title = 'TaxTech · Pay'; }, []);
   useEffect(() => {
+    // tell the screen that shows the code that a phone has it open (fire and forget)
+    fetch(`/api/city/qr/${encodeURIComponent(code)}/seen`, { method: 'POST' }).catch(() => {});
     api<QrInvoice>(`/api/city/qr/${encodeURIComponent(code)}`).then(q => {
       setInv(q); setLeft(q.expires_in);
       setStep(q.status === 'pending' ? 'review' : q.status === 'paid' || q.status === 'declined' ? 'done' : 'closed');

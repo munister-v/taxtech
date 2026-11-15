@@ -90,11 +90,15 @@ def city_me():
 def city_pay():
     cs.ensure_schema()
     data = request.get_json(silent=True) or {}
-    try:
-        vid = int(data.get('venue'))
-        amount = round(float(data.get('amount') or 0), 2)
-    except (TypeError, ValueError):
-        return api_error('venue and amount are required')
+    if data.get('venue') == 'random':
+        # any real place of the centre, with a bill typical for its kind (the landing shows a new one every time)
+        vid, amount = cs.random_place()
+    else:
+        try:
+            vid = int(data.get('venue'))
+            amount = round(float(data.get('amount') or 0), 2)
+        except (TypeError, ValueError):
+            return api_error('venue and amount are required')
     v = cs.place(vid)
     if v is None or amount <= 0 or amount > 30000:
         return api_error('venue and amount from 0.01 to 30000 are required')
@@ -136,7 +140,7 @@ def _qr_row(r) -> dict:
     status = r['status']
     if status == 'pending' and now > float(r['expires_ts']):
         status = 'expired'
-    out = {'code': r['code'], 'venue': int(r['venue']), 'name': v[3], 'cat': v[2], 'rione': v[4], 'amount': float(r['amount']),
+    out = {'code': r['code'], 'venue': int(r['venue']), 'name': v[3], 'cat': v[2], 'rione': v[4], 'x': v[0], 'y': v[1], 'amount': float(r['amount']),
            'status': status, 'expires_in': max(0, int(float(r['expires_ts']) - now)), 'sca': float(r['amount']) >= 1000}
     if status in ('paid', 'declined'):
         out.update({'response_code': r['response_code'], 'auth_code': r['auth_code'], 'rrn': r['rrn'], 'who': r['who'],
@@ -148,16 +152,25 @@ def _qr_load(conn, code: str):
     return conn.execute('SELECT * FROM city_qr WHERE code = %s', (code[:24],)).fetchone()
 
 
+def _qr_seen(conn, code: str) -> bool:
+    """A phone has opened the invoice (the pay page tells us), so the screen that shows the code can say "scanned"."""
+    return conn.execute('SELECT 1 FROM city_qr_seen WHERE code = %s', (code[:24],)).fetchone() is not None
+
+
 @city_bp.post('/city/qr')
 @rate_limit(20, 600, key_func=lambda: f"city-qr:{_client_ip()}")
 def qr_create():
     cs.ensure_schema()
     data = request.get_json(silent=True) or {}
-    try:
-        vid = int(data.get('venue'))
-        amount = round(float(data.get('amount') or 0), 2)
-    except (TypeError, ValueError):
-        return api_error('venue and amount are required')
+    if data.get('venue') == 'random':
+        # any real place of the centre, with a bill typical for its kind (the landing shows a new one every time)
+        vid, amount = cs.random_place()
+    else:
+        try:
+            vid = int(data.get('venue'))
+            amount = round(float(data.get('amount') or 0), 2)
+        except (TypeError, ValueError):
+            return api_error('venue and amount are required')
     if cs.place(vid) is None or amount <= 0 or amount > 30000:
         return api_error('venue and amount from 0.01 to 30000 are required')
     code = secrets.token_urlsafe(9)
@@ -174,9 +187,24 @@ def qr_get(code: str):
     cs.ensure_schema()
     with get_connection() as conn:
         r = _qr_load(conn, code)
+        seen = bool(r) and _qr_seen(conn, code)
     if not r:
         return api_error('Not found', 404)
-    return jsonify({'ok': True, 'data': _qr_row(r)})
+    return jsonify({'ok': True, 'data': {**_qr_row(r), 'seen': seen}})
+
+
+@city_bp.post('/city/qr/<code>/seen')
+@rate_limit(60, 600, key_func=lambda: f"city-qr-seen:{_client_ip()}")
+def qr_seen(code: str):
+    """The pay page opened on a phone: remember it once. No auth - it reveals nothing and changes no money."""
+    cs.ensure_schema()
+    with get_connection() as conn:
+        r = _qr_load(conn, code)
+        if not r:
+            return api_error('Not found', 404)
+        if r['status'] == 'pending' and not _qr_seen(conn, code):
+            conn.execute('INSERT INTO city_qr_seen(code, ts) VALUES (%s, %s)', (r['code'], time.time()))
+    return jsonify({'ok': True, 'data': {**_qr_row(r), 'seen': True}})
 
 
 @city_bp.post('/city/qr/<code>/cancel')

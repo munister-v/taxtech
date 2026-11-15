@@ -317,3 +317,24 @@ def test_live_reports_weather_and_events(client):
     d = client.get('/api/city/live?since=999999999').get_json()['data']
     assert {'t', 'rain', 'code'} <= set(d['weather'])
     assert isinstance(d['events'], list)
+
+
+def test_qr_random_place_is_a_real_named_place_of_the_centre(client):
+    seen = set()
+    for _ in range(12):
+        q = client.post('/api/city/qr', json={'venue': 'random'}).get_json()['data']
+        assert q['name'] and 20 <= q['amount'] <= 950 and not q['sca']
+        assert -2200 <= q['x'] <= 2200 and -1700 <= q['y'] <= 1500
+        assert cs.place(q['venue']) is not None
+        seen.add(q['venue'])
+    assert len(seen) > 3   # not a fixed short list
+
+
+def test_qr_seen_is_reported_once_the_pay_page_opens(client):
+    q = client.post('/api/city/qr', json={'venue': 'random'}).get_json()['data']
+    assert client.get(f"/api/city/qr/{q['code']}").get_json()['data']['seen'] is False
+    assert client.post(f"/api/city/qr/{q['code']}/seen").get_json()['data']['seen'] is True
+    assert client.post(f"/api/city/qr/{q['code']}/seen").status_code == 200   # twice is fine
+    g = client.get(f"/api/city/qr/{q['code']}").get_json()['data']
+    assert g['seen'] is True and g['status'] == 'pending'
+    assert client.post('/api/city/qr/nope/seen').status_code == 404

@@ -90,3 +90,37 @@
 .bl .qr-btns button:hover, .bl .qr-btns a:hover { background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); }
 .bl .qr-btns button:disabled { opacity: .4; cursor: default; }
 .bl .qr-btns button:focus-visible, .bl .qr-btns a:focus-visible { outline: 2px solid #ffd400; outline-offset: 3px; }
+
+/* scanned: a phone has the invoice open. The code steps back, a line sweeps it, the phone on the map lights up
+   and a dashed line runs from it to the place while the payer confirms. */
+.qr-code { position: relative; overflow: hidden; }
+.qr-code svg { transition: opacity .4s ease, filter .4s ease; }
+.qr.is-scanned .qr-code > svg { opacity: .16; filter: blur(1.5px); }
+.qr-scan { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; justify-items: center; gap: 12px; animation: qr-in .45s cubic-bezier(.2,.7,.2,1) both; }
+.qr-scan::before { content: ""; position: absolute; left: 9%; right: 9%; top: 12%; height: 2px; border-radius: 2px; background: #ffb800; box-shadow: 0 0 14px 2px rgba(255,184,0,.75); animation: qr-sweep 1.5s ease-in-out infinite alternate; }
+@keyframes qr-sweep { to { top: 88%; } }
+.qr-scan b { display: grid; place-items: center; width: 68px; height: 68px; border-radius: 50%; background: #0b0c11; box-shadow: 0 0 0 0 rgba(11,12,17,.35); animation: qr-pulse 1.5s ease-out infinite; }
+@keyframes qr-pulse { to { box-shadow: 0 0 0 18px rgba(11,12,17,0); } }
+.qr-scan svg { width: 30px; height: 30px; fill: none; stroke: #ffd400; stroke-width: 1.8; stroke-linecap: round; }
+.qr-scan em { font-style: normal; font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: #0b0c11; }
+.qr.is-scanned .qr-phone { box-shadow: inset 0 0 0 1.5px #ffd400, 0 0 34px rgba(255,212,0,.6); transition: box-shadow .3s; }
+.qr.is-scanned .qr-fly path { opacity: .7; stroke-width: 2px; stroke-dasharray: .018 .03; stroke-dashoffset: 0; animation: qr-march .9s linear infinite; }
+@keyframes qr-march { to { stroke-dashoffset: -.048; } }
+.qr.is-scanned .qr-pin i { animation-duration: 1.3s; }
+
+/* paid: after the line lands, a wave of light rolls out from the place across the whole map, and the tick is drawn */
+.qr-wave { position: absolute; left: 50%; top: 42%; width: 0; height: 0; pointer-events: none; }
+.qr-wave i { position: absolute; left: -40px; top: -40px; width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffd400; opacity: 0; box-shadow: 0 0 40px rgba(255,212,0,.5), inset 0 0 30px rgba(255,212,0,.25); animation: qr-wave 2.2s cubic-bezier(.15,.6,.2,1) 1s both; }
+.qr-wave i:nth-child(2) { animation-delay: 1.25s; }
+.qr-wave i:nth-child(3) { animation-delay: 1.5s; }
+@keyframes qr-wave { 0% { opacity: .95; transform: scale(.2); } 100% { opacity: 0; transform: scale(11); } }
+.qr.is-paid .qr-map canvas { animation: qr-lift 2.4s ease 1s both; }
+@keyframes qr-lift { 0%, 100% { filter: none; } 22% { filter: brightness(1.7) saturate(1.3); } }
+.qr-tick { animation: qr-pop .6s cubic-bezier(.3,1.5,.5,1) 1.15s both; }
+@keyframes qr-pop { from { transform: scale(.4); opacity: 0; } }
+.qr-tick svg path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: qr-draw .45s ease-out 1.55s forwards; }
+@keyframes qr-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .qr-scan::before, .qr-scan b, .qr-wave i, .qr.is-paid .qr-map canvas, .qr-tick, .qr.is-scanned .qr-fly path { animation: none !important; }
+  .qr-tick svg path { stroke-dashoffset: 0; animation: none; }
+}

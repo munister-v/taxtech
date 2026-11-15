@@ -271,6 +271,7 @@ def ensure_schema() -> None:
                 three_ds INTEGER NOT NULL DEFAULT 0,
                 paid_ts DOUBLE PRECISION
             )""")
+        conn.execute('CREATE TABLE IF NOT EXISTS city_qr_seen (code VARCHAR(24) PRIMARY KEY, ts DOUBLE PRECISION NOT NULL)')
         conn.execute(f"""
             CREATE TABLE IF NOT EXISTS city_shops (
                 id {pk},
@@ -322,6 +323,25 @@ def place(vid: int) -> tuple[float, float, str, str, str] | None:
         x, y, cat, name, rione = v[vid][:5]
         return float(x), float(y), cat, name, rione
     return None
+
+
+# The landing draws its street map around the place, and that map covers the centre: stay inside it with a margin.
+_CENTRE = (-2200.0, 2200.0, -1700.0, 1500.0)   # x0, x1, y0, y1 in metres from the map origin
+
+
+def random_place() -> tuple[int, float]:
+    """A random named place of the centre and a bill typical for its kind, kept under the 3-D Secure threshold"""
+    v = city().venues
+    x0, x1, y0, y1 = _CENTRE
+    for _ in range(200):
+        vid = random.randrange(len(v))
+        x, y, cat, name = v[vid][:4]
+        if name and x0 <= float(x) <= x1 and y0 <= float(y) <= y1:
+            bill = TICKET.get(cat, (200, .5))[0] * random.uniform(.6, 1.3)
+            if bill > 950:                                   # shops and hotels: a smaller purchase, still under 3-D Secure
+                bill = random.uniform(350, 950)
+            return vid, float(max(20, round(bill / 5) * 5))
+    return 0, 100.0
 
 
 def credit_shop(conn, vid: int, amount: float, real: bool) -> None:
