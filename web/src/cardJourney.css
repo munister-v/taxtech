@@ -1,0 +1,74 @@
+/* Card journey: the pinned top of the landing. A tall section, a stage that sticks for its whole height,
+   one WebGL card on it and three chapters of text that cross-fade with the scroll (--hero, --tap, --looks are set from JS).
+   The light around the card takes the colour of the card (--tint). */
+@property --tint { syntax: '<color>'; inherits: true; initial-value: #d6a84a; }
+
+.bl .cj { position: relative; height: 460svh; background: #050506; scroll-margin-top: 0; }
+.bl .cj-anchor { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; }
+.bl .cj-stage { position: sticky; top: 0; height: 100svh; min-height: 520px; overflow: hidden; --hero: 1; --tap: 0; --looks: 0; transition: --tint .7s ease; isolation: isolate; }
+
+.bl .cj-glow { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(44% 40% at 50% 40%, color-mix(in srgb, var(--tint) 26%, transparent), transparent 72%),
+    radial-gradient(90% 60% at 50% 108%, color-mix(in srgb, var(--tint) 9%, transparent), transparent 70%); }
+.bl .cj-rose { position: absolute; z-index: 0; left: 50%; top: 40%; width: max(118vmin, 720px); height: max(118vmin, 720px); translate: -50% -50%; color: var(--tint); opacity: .17; pointer-events: none;
+  animation: cj-turn 260s linear infinite;
+  -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent 96%); mask-image: radial-gradient(closest-side, #000 30%, transparent 96%); }
+@keyframes cj-turn { to { rotate: 360deg; } }
+
+.bl .cj-gl { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; pointer-events: none; opacity: 0; transition: opacity .9s ease; }
+.bl .cj-gl-on .cj-gl { opacity: 1; }
+.bl .cj-flat { position: absolute; z-index: 1; left: 50%; top: 38%; width: min(84vw, 460px); translate: -50% -50%; }
+
+.bl .cj-ch { position: absolute; z-index: 2; pointer-events: none; }
+.bl .cj-ch:not([inert]) { pointer-events: auto; }
+
+/* hero: the name and one button under the card */
+.bl .cj-hero { left: 0; right: 0; bottom: clamp(34px, 8.5vh, 84px); display: grid; justify-items: center; gap: clamp(20px, 3.4vh, 34px); text-align: center;
+  opacity: var(--hero); translate: 0 calc((1 - var(--hero)) * -46px); }
+.bl .cj-hero h1 { font-size: clamp(54px, 8.4vw, 116px); line-height: 1; letter-spacing: -0.045em; text-shadow: 0 4px 40px rgba(5,5,6,.9); }
+.bl .cj-w { display: inline-block; margin: 0 .12em; animation: cj-word .7s cubic-bezier(.2,.7,.2,1) calc(.1s + var(--i, 0) * .08s) both; }
+.bl .cj-goldw { background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 52%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bl .cj-hero .bl-pill { animation: cj-word .7s cubic-bezier(.2,.7,.2,1) .34s both; }
+@keyframes cj-word { from { opacity: 0; transform: translateY(.3em); } to { opacity: 1; transform: none; } }
+
+/* tap: two words on the left, the terminal on the right */
+.bl .cj-tap { left: max(22px, calc((100vw - 1120px) / 2 + 22px)); top: 50%; width: min(46vw, 560px); translate: 0 calc(-50% + (1 - var(--tap)) * 40px); opacity: var(--tap); }
+.bl .cj-tap h2 { font-size: clamp(60px, 8.6vw, 132px); line-height: .98; letter-spacing: -0.05em; }
+.bl .cj-tap h2 span { display: block; }
+.bl .cj-paidw { color: var(--yellow); opacity: 0; transform: translateY(.22em); transition: opacity .45s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.bl .cj-paid .cj-paidw { opacity: 1; transform: none; }
+.bl .cj-toast { margin-top: clamp(22px, 4vh, 40px); opacity: 0; transform: translateY(14px) scale(.97); transform-origin: 0 50%; transition: opacity .4s ease .15s, transform .6s cubic-bezier(.2,.8,.2,1) .15s; }
+.bl .cj-paid .cj-toast { opacity: 1; transform: none; }
+.bl .cj-toast .bl-toast { position: static; transform: none; translate: none; opacity: 1; animation: none; left: auto; top: auto; }
+
+/* looks: the title above the card, the name and the colours under it */
+.bl .cj-looks { inset: 0; opacity: var(--looks); }
+.bl .cj-looks h2 { position: absolute; left: 0; right: 0; top: clamp(76px, 12vh, 128px); text-align: center; font-size: clamp(36px, 5vw, 60px); line-height: 1.06; letter-spacing: -0.035em; translate: 0 calc((1 - var(--looks)) * 30px); }
+.bl .cj-pick { position: absolute; left: 0; right: 0; bottom: clamp(30px, 7.5vh, 76px); display: grid; justify-items: center; gap: 18px; translate: 0 calc((1 - var(--looks)) * -30px); }
+.bl .cj-name { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: #fff; animation: cj-word .5s cubic-bezier(.2,.7,.2,1) both; }
+.bl .cj-sw { display: flex; gap: 14px; padding: 10px 14px; border-radius: 980px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.bl .cj-sw button { position: relative; width: 34px; height: 34px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); transition: transform .2s; }
+.bl .cj-sw button::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; box-shadow: 0 0 0 2px transparent; transition: box-shadow .2s; }
+.bl .cj-sw button.on::after { box-shadow: 0 0 0 2px var(--yellow); }
+.bl .cj-sw button:hover { transform: scale(1.1); }
+.bl .cj-sw button:focus-visible { outline: 2px solid #fff; outline-offset: 6px; }
+
+@media (max-width: 860px) {
+  .bl .cj-tap { left: 0; right: 0; top: clamp(84px, 13vh, 130px); width: auto; padding: 0 22px; text-align: center; translate: 0 calc((1 - var(--tap)) * 30px); }
+  .bl .cj-tap h2 { font-size: clamp(52px, 15.5vw, 84px); }
+  .bl .cj-toast { display: flex; justify-content: center; margin-top: 18px; transform-origin: 50% 50%; }
+}
+@media (max-width: 600px) {
+  .bl .cj-hero h1 { font-size: clamp(50px, 16vw, 76px); }
+  .bl .cj-hero .cj-w { display: block; margin: 0; }
+  .bl .cj-hero { bottom: clamp(30px, 6vh, 56px); }
+  .bl .cj-rose { top: 37%; opacity: .2; }
+  .bl .cj-sw { gap: 8px; padding: 9px 12px; }
+  .bl .cj-sw button { width: 32px; height: 32px; }
+  .bl .cj-sw button::after { inset: -4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bl .cj-rose, .bl .cj-w, .bl .cj-hero .bl-pill, .bl .cj-name { animation: none; }
+  .bl .cj-stage { transition: none; }
+}

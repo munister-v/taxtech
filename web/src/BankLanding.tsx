@@ -2,19 +2,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
 import FireScene from './FireScene';
-import TapScene from './TapScene';
-import RomeMap from './RomeMap';
 import HoodMap, { HOOD_PLACES, HOOD_DWELL } from './HoodMap';
 import HoodPlatform, { type PlatPhase } from './HoodPlatform';
-import { armSound, chime, onSound, soundOn, toggleSound } from './paySound';
-import { autoplay } from './autoplay';
-import { setRomeClock } from './romeClock';
-import FaceFlow from './FaceFlow';
+import { armSound, onSound, soundOn, toggleSound } from './paySound';
 import QrRome from './QrRome';
 import AppShowcase from './AppShowcase';
+import CardJourney from './CardJourney';
 import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
-import './heroVit.css';
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
 // guilloche rosette and engraved medallions as the app, the Rome card photos from web/public/cards/ and live
@@ -27,14 +22,6 @@ const SHOP_PICKS = ['munister-81921', 'munister-83171', 'munister-81907', 'munis
 
 // Card designs: the guilloche default plus the Rome photographs the app offers under "Вигляд".
 type Finish = 'guilloche' | 'colosseum-night' | 'pantheon' | 'forum' | 'aqueduct' | 'marble';
-// One evening in Rome, told by the scroll: the clock runs from CLOCK_FROM to CLOCK_TO while the photographs change.
-const CLOCK_FROM = 18 * 60 + 30, CLOCK_TO = 23 * 60 + 55;
-const DAY = [
-  { img: '/landing/rome-forum-sunset.webp', pos: '50% 62%', place: { uk: 'Римський форум', en: 'Roman Forum' }, what: { uk: 'Аперитив', en: 'Aperitivo' }, merchant: 'Foro Romano', amount: 850, bal: 23150 },
-  { img: '/landing/rome-pantheon-night.webp', pos: '50% 38%', place: { uk: 'Пантеон', en: 'Pantheon' }, what: { uk: 'Вечеря', en: 'Dinner' }, merchant: 'Pantheon', amount: 3200, bal: 19950 },
-  { img: '/landing/rome-trevi-night.webp', pos: '50% 28%', place: { uk: 'Фонтан Треві', en: 'Trevi Fountain' }, what: { uk: 'Джелато', en: 'Gelato' }, merchant: 'Fontana di Trevi', amount: 180, bal: 19770 },
-];
-
 const FINISHES: { id: Finish; uk: string; en: string; photo?: string }[] = [
   { id: 'guilloche', uk: 'Гільйош', en: 'Guilloche' },
   { id: 'colosseum-night', uk: 'Колізей вночі', en: 'Colosseum by night', photo: '/cards/roma-colosseum-night.webp' },
@@ -309,7 +296,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
     document.addEventListener('contextmenu', stop); document.addEventListener('dragstart', stop);
     return () => { document.removeEventListener('contextmenu', stop); document.removeEventListener('dragstart', stop); };
   }, []);
-  const seekRome = useRef<(stop: number) => void>(() => {});
   const [lang, setLang] = useState<LandingLang>(initialLandingLang);
   const [scrolled, setScrolled] = useState(false);
   const [sound, setSound] = useState(false);
@@ -332,7 +318,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
   const [hoodEl, setHoodEl] = useState<HTMLDivElement | null>(null); // the section mounts lazily, so the clock waits for it
   const hoodRefCb = useCallback((el: HTMLDivElement | null) => { hoodRef.current = el; setHoodEl(el); }, []);
   // the faces and station sections mount only when near, so their photos may load as soon as they exist
-  const facesNear = true, hoodNear = true;
+  const hoodNear = true;
   const hoodIdle = useRef<{ since: number; going?: boolean; hold?: boolean }>({ since: Date.now() });
   // The train runs the line by itself while the map is on screen: it stands HOOD_DWELL at each station and goes on to the next.
   // The clock stops while the map is off screen or the pointer is over the card being read.
@@ -358,7 +344,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
     window.addEventListener('keydown', onKey);
     return () => { root.style.overflow = ''; window.removeEventListener('keydown', onKey); };
   }, [menu]);
-  const [finish, setFinish] = useState<Finish>('guilloche');
   const [shop, setShop] = useState<ShopItem[]>([]);
   const t = (uk: string, en: string) => landingText(lang, uk, en);
   // Debit notification as the app sends it: icon, app name, "now", what was charged and what is left.
@@ -388,47 +373,11 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
     const io = revealObserver(root);
     root.querySelectorAll('.bl-rv').forEach(el => io.observe(el));
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const rome = root.querySelector<HTMLElement>('.bl-rome');
-    const romeLayers = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome-layer'));
-    const romeItems = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome [data-i].bl-rome-item'));
-    const romeBars = Array.from(root.querySelectorAll<HTMLElement>('.bl-rome-bar'));
-    const clockEl = root.querySelector<HTMLElement>('.bl-rome-time');
-    const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
     let photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo'));
     const refreshPhotos = () => { photos = Array.from(root.querySelectorAll<HTMLElement>('.bl-photo, .bl-paystage-photo, .bl-hero-photo')); onScroll(); };
     root.addEventListener('bl-mounted', refreshPhotos);
     const hero = root.querySelector<HTMLElement>('.bl-hero');
     let raf = 0;
-    // The evening in Rome plays by itself once it is on screen; the page scrolls like any other page.
-    let lastClock = '', lastStop = -1;
-    const n = DAY.length;
-    const renderRome = (p: number, g: number) => {
-      if (!rome) return;
-      const s = p * n;
-      // Each new stop on the evening is a payment: the terminal chimes (once the visitor has turned sound on).
-      const stop = p > 0 && p < 1 ? Math.min(n - 1, Math.floor(s)) : -1;
-      if (stop > lastStop && stop >= 0) chime(0.55);
-      lastStop = stop;
-      rome.style.setProperty('--ry', `${((p - 0.5) * 52).toFixed(2)}deg`);
-      romeLayers.forEach((el, i) => {
-        el.style.setProperty('--o', (i === 0 ? 1 : clamp((s - (i - 0.35)) / 0.7)).toFixed(3));
-        el.style.setProperty('--z', (1.05 + clamp(s - i, -0.35, 1.35) * 0.1).toFixed(3));
-      });
-      romeItems.forEach(el => {
-        const i = Number(el.dataset.i);
-        const d = i === 0 && s < 0.5 ? 0 : i === n - 1 && s > n - 0.5 ? 0 : Math.abs(s - (i + 0.5));
-        el.style.setProperty('--a', clamp(1 - d * 2.4).toFixed(3));
-      });
-      romeBars.forEach((el, i) => el.style.setProperty('--f', clamp(s - i).toFixed(3)));
-      if (clockEl) {
-        const m = Math.round(CLOCK_FROM + p * (CLOCK_TO - CLOCK_FROM));
-        const txt = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-        if (txt !== lastClock) { clockEl.textContent = txt; lastClock = txt; }
-      }
-      setRomeClock(p, g);
-    };
-    const romePlay = rome ? autoplay(rome, { duration: n * 3800, delay: 350, enter: 0.6, leave: 'up', still, onFrame: renderRome }) : null;
-    seekRome.current = i => romePlay?.seek((i + 0.5) / n);
     // Photos drift slower than the page (parallax), the hero lets go as you leave it.
     // Each frame reads every box first and only then writes, so the browser lays the page out once per frame.
     const frame = () => {
@@ -467,8 +416,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
     if (fine && !still && hero) { hero.addEventListener('pointermove', tilt); hero.addEventListener('pointerleave', untilt); }
     return () => {
       root.removeEventListener('bl-mounted', refreshPhotos);
-      romePlay?.dispose();
-      seekRome.current = () => {};
       root.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       if (raf) cancelAnimationFrame(raf);
@@ -488,7 +435,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
       .catch(() => {});
   }, []);
 
-  const cur = FINISHES.find(f => f.id === finish)!;
+  const payAmount = Number(shop[0]?.price) || 14490;
 
   const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#qr', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#faq', t('Питання', 'Questions')], ['/blog', t('Блог', 'Blog')]];
   const langSwitch = (
@@ -540,101 +487,10 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           </div>
         )}
 
-        {/* ── Hero and the evening in Rome share one night map of Rome: streets from OpenStreetMap, a payment travels along them ── */}
-        <div className="bl-cine">
-          <div className="bl-cine-bg" aria-hidden><RomeMap /></div>
-          <section id="top" className="bl-hero bl-hero-chrome">
-            {/* Leonardo's Vitruvian Man (public domain), drawn in light on the dark, behind the headline */}
-            <figure className="bl-vit" aria-hidden><img src="/landing/vitruvian.webp" alt="" width="940" height="1304" fetchPriority="high" decoding="async" /></figure>
-            <div className="bl-wrap bl-hero-in">
-              <h1>{(ws => ws.map((w, i) => <span key={i} className={`bl-w${i === ws.length - 1 ? ' bl-gold' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>))(['TaxTech', 'Bank'])}</h1>
-              <div className="bl-cta">
-                <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-              </div>
-            </div>
-            <div className="bl-cue" aria-hidden><i /></div>
-          </section>
-
-        {/* ── One evening in Rome: the scroll runs the clock, the photographs change, the card pays ── */}
-        <section id="pay" className="bl-rome">
-          <div className="bl-rome-stage">
-            <div className="bl-rome-shade" aria-hidden />
-            <div className="bl-wrap bl-rome-in">
-              <div className="bl-rome-left">
-                <div className="bl-rome-time" aria-hidden>18:30</div>
-                <div className="bl-rome-where">
-                  {DAY.map((d, i) => (
-                    <div key={d.img} data-i={i} className="bl-rome-item" style={{ ['--a' as string]: i === 0 ? 1 : 0 }}>
-                      <h2>{t(d.place.uk, d.place.en)}</h2>
-                      <p>{t(d.what.uk, d.what.en)}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bl-rome-right">
-                <div className="bl-rome-toasts">
-                  {DAY.map((d, i) => (
-                    <div key={d.img} data-i={i} className="bl-rome-item bl-toast bl-push" style={{ ['--a' as string]: i === 0 ? 1 : 0 }}>
-                      {push(`${d.merchant} · ${t(d.what.uk, d.what.en)}`, d.amount, d.bal)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        </div>
-
-        {/* ── Tap. Paid.: the camera pushes in on the terminal, the tap rings out ── */}
-        <TapScene
-          src="/landing/pay-tap.webp"
-          tapText={t('Дотик.', 'Tap.')}
-          paidText={t('Оплачено.', 'Paid.')}
-          toast={(
-            <div className="bl-toast bl-push bl-toast-pay">{push('Saint Agnes', Number(shop[0]?.price) || 14490, 24000 - (Number(shop[0]?.price) || 14490))}</div>
-          )}
-          receipt={(() => {
-            const amt = Number(shop[0]?.price) || 14490;
-            return (
-              <div className="bl-rcpt">
-                <div className="bl-rcpt-head"><img src="/icons/mark-white.svg" alt="" /><span>TaxTech</span><em>{t('Квитанція', 'Receipt')}</em></div>
-                <div className="bl-rcpt-row"><span>Saint Agnes</span></div>
-                <div className="bl-rcpt-sum"><span>TAX</span><b className="bl-count" data-v={amt}>{fmt(amt)}</b></div>
-                <div className="bl-rcpt-dash" />
-                <div className="bl-rcpt-code">
-                  <svg viewBox="0 0 11 11" shapeRendering="crispEdges">
-                    {[[0, 0], [7, 0], [0, 7]].map(([x, y]) => <path key={x + '' + y} d={`M${x} ${y}h4v4h-4zM${x + 1} ${y + 1}v2h2v-2z`} fillRule="evenodd" />)}
-                    {QR_CELLS.map(([c, r]) => <rect key={c + '-' + r} x={c} y={r} width="1" height="1" />)}
-                  </svg>
-                  <div><b>TT-7K2M-9QDA-X4RP</b><span>HMAC-SHA256</span></div>
-                </div>
-                <span className="bl-rcpt-stamp">{t('СПЛАЧЕНО', 'PAID')}</span>
-              </div>
-            );
-          })()}
-        />
-
-        {/* ── Six faces: a 3D cover-flow of the card designs ── */}
-        <Lazy id="card" className="bl-sec bl-faces" h={[808, 606]}>
-          <div className="bl-faces-bg" aria-hidden>
-            {FINISHES.map(f => <i key={f.id} className={f.id === finish ? 'on' : ''} style={facesNear ? { backgroundImage: `url(${f.photo || '/cards/roma-colosseum-night.webp'})` } : undefined} />)}
-          </div>
-          <div className="bl-wrap bl-center">
-            <h2 className="bl-h bl-rv">{t('Шість облич Рима.', 'Six faces of Rome.')}</h2>
-            <div className="bl-rv">
-              <FaceFlow count={FINISHES.length} active={FINISHES.findIndex(f => f.id === finish)} onChange={i => setFinish(FINISHES[i].id)}
-                renderCard={i => <Card finish={FINISHES[i].id} />} labelPrev={t('Попередня картка', 'Previous card')} labelNext={t('Наступна картка', 'Next card')} />
-            </div>
-            <div className="bl-thumbs bl-rv" role="radiogroup" aria-label={t('Оздоблення', 'Design')}>
-              {FINISHES.map(f => (
-                <button key={f.id} type="button" role="radio" aria-checked={finish === f.id} aria-label={t(f.uk, f.en)} className={`bl-thumb${finish === f.id ? ' on' : ''}`} onClick={() => setFinish(f.id)}
-                  style={f.photo && facesNear ? { backgroundImage: `url(${f.photo})` } : undefined}>{!f.photo && <svg viewBox="0 0 100 100" aria-hidden><path d={CARD_ROSETTE} fill="none" stroke="#ffd400" strokeOpacity=".75" strokeWidth=".5" /></svg>}</button>
-              ))}
-            </div>
-            <p className="bl-dot-name" key={finish}>{t(cur.uk, cur.en)}</p>
-          </div>
-        </Lazy>
+        {/* ── One 3D card for the whole top of the page: hero, the tap on a terminal, the looks of the card ── */}
+        <CardJourney t={t} rosette={CARD_ROSETTE} amount={fmt(payAmount)} onOpen={() => onAuth('register')}
+          fallback={<Card finish="guilloche" />}
+          toast={<div className="bl-toast bl-push">{push('Saint Agnes', payAmount, 24000 - payAmount)}</div>} />
 
         {/* ── The app: real iOS screens in an iPhone frame on a light stage, Account | Card | QR ── */}
         <AppShowcase t={t} />
