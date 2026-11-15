@@ -47,8 +47,10 @@
 .bl .as { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.7) 22%, rgba(0,0,0,.74) 78%, #000 100%), url(/landing/cine-colosseum.webp) center 62% / cover no-repeat #000; color: #fff; }
 .bl .as .as-h { color: #fff; }
 .bl .as .as-sub, .bl .as .as-store { color: rgba(255,255,255,.7); }
-.bl .as .as-pills button { border-color: rgba(255,255,255,.7); color: #fff; }
-.bl .as .as-pills button.on { background: #fff; color: #111; border-color: #fff; }
+.bl .as .as-pills button { color: rgba(255,255,255,.6); background: none; outline: 0; }
+.bl .as .as-pills button:hover { color: #fff; }
+.bl .as .as-pills button.on { color: #fff; background: none; box-shadow: inset 0 -2px 0 #fff; }
+.bl .as .as-pills button:focus-visible { outline: 2px solid #ffd400; outline-offset: 3px; border-radius: 6px; }
 
 /* ── About under the metro platform: one centred column - a paragraph, the article, the author ── */
 .bl .ah { display: grid; justify-items: center; gap: clamp(28px, 4vw, 44px); padding-bottom: clamp(72px, 9vw, 120px); text-align: center; }

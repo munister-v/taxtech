@@ -211,17 +211,18 @@ export default function QrRome({ t }: { t: (uk: string, en: string) => string })
                   )}
                 </a>
                 {state === 'open' && touch && <a className="bl-pill qr-open" href={url}>{t('Сплатити в застосунку', 'Pay in the app')}</a>}
-                <p className="qr-hint">{t('Скануйте камерою телефону або в застосунку TaxTech.', 'Scan with your phone camera or in the TaxTech app.')}</p>
                 <div className="qr-foot">
                   <span>{state === 'open' ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : ''}</span>
-                  <button type="button" onClick={state === 'open' || state === 'wait' ? another : () => fresh(spot)} disabled={busy}>
-                    {state === 'open' || state === 'wait' ? t('Інше місце', 'Another place') : t('Новий код', 'New code')}
-                  </button>
+                  <div className="qr-btns">
+                    <button type="button" onClick={state === 'open' || state === 'wait' ? another : () => fresh(spot)} disabled={busy}>
+                      {state === 'open' || state === 'wait' ? t('Інше місце', 'Another place') : t('Новий код', 'New code')}
+                    </button>
+                    <a href="/roma">{t('Відкрити карту Рима', 'Open the map of Rome')}</a>
+                  </div>
                 </div>
               </>
             )}
           </div>
-          <a className="qr-map-link" href="/roma">{t('Відкрити карту Рима', 'Open the map of Rome')} <i aria-hidden>→</i></a>
         </div>
       </div>
     </section>

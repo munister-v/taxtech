@@ -80,3 +80,13 @@
 .qr-code { box-shadow: none; margin-top: 28px; }
 .qr-hint { margin-top: 26px; }
 .qr-foot { border-top: 0; margin-top: 22px; padding-top: 0; }
+
+/* under the code: the timer, then two equal buttons, all on the axis of the code */
+.qr-foot { flex-direction: column; gap: 16px; margin-top: 20px; }
+.qr-foot span { min-height: 16px; }
+.qr-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.bl .qr-btns button, .bl .qr-btns a { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border-radius: 999px; font-size: 15px; font-weight: 600; color: #fff; white-space: nowrap;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.26); transition: background .2s, box-shadow .2s; }
+.bl .qr-btns button:hover, .bl .qr-btns a:hover { background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); }
+.bl .qr-btns button:disabled { opacity: .4; cursor: default; }
+.bl .qr-btns button:focus-visible, .bl .qr-btns a:focus-visible { outline: 2px solid #ffd400; outline-offset: 3px; }
