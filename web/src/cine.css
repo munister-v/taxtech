@@ -50,5 +50,5 @@
 .bl .as .as-pills button { border-color: rgba(255,255,255,.7); color: #fff; }
 .bl .as .as-pills button.on { background: #fff; color: #111; border-color: #fff; }
 
-/* ── About on a photograph ── */
-.bl .bl-hello { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.74) 26%, rgba(0,0,0,.78) 72%, #000 100%), url(/landing/cine-tiber.webp) center 40% / cover no-repeat #000; }
+/* ── About sits under the metro platform, in the same section ── */
+.bl .bl-hello.bl-hello-in-hood { padding: clamp(8px, 2vw, 24px) 0 clamp(72px, 9vw, 120px); background: none; }

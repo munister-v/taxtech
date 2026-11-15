@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
-import HoodMap, { HOOD_PLACES, HOOD_DWELL } from './HoodMap';
+import { HOOD_PLACES, HOOD_DWELL } from './HoodMap';
 import HoodPlatform, { type PlatPhase } from './HoodPlatform';
 import { armSound, onSound, soundOn, toggleSound } from './paySound';
 import QrRome from './QrRome';
@@ -315,24 +315,22 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
   const [hoodEl, setHoodEl] = useState<HTMLDivElement | null>(null); // the section mounts lazily, so the clock waits for it
   const hoodRefCb = useCallback((el: HTMLDivElement | null) => { hoodRef.current = el; setHoodEl(el); }, []);
   // the faces and station sections mount only when near, so their photos may load as soon as they exist
-  const hoodNear = true;
-  const hoodIdle = useRef<{ since: number; going?: boolean; hold?: boolean }>({ since: Date.now() });
-  // The train runs the line by itself while the map is on screen: it stands HOOD_DWELL at each station and goes on to the next.
-  // The clock stops while the map is off screen or the pointer is over the card being read.
+  // The train runs the line by itself while the platform is on screen: it stands at a station, leaves, and rolls in at the next.
   useEffect(() => {
-    const el = hoodEl?.querySelector('.hm');
+    const el = hoodEl;
     if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let seen = false;
-    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; }, { threshold: 0.5 });
+    let seen = false, arrive = 0;
+    const io = new IntersectionObserver(([e]) => { seen = e.isIntersecting; }, { threshold: 0.35 });
     io.observe(el);
+    const RIDE = 6500;
     const id = window.setInterval(() => {
-      const q = hoodIdle.current;
-      if (!seen || q.hold) { q.since += 300; return; }
-      if (!q.going && Date.now() - q.since > HOOD_DWELL) setHoodTo(h => (h + 1) % HOOD.length);
-    }, 300);
-    return () => { io.disconnect(); window.clearInterval(id); };
+      if (!seen || arrive) return;
+      setHoodTo(h => (h + 1) % HOOD.length);
+      setHoodGo(true); platDepart(RIDE);
+      arrive = window.setTimeout(() => { arrive = 0; setHood(h => (h + 1) % HOOD.length); setHoodGo(false); }, RIDE);
+    }, HOOD_DWELL + RIDE);
+    return () => { io.disconnect(); window.clearInterval(id); window.clearTimeout(arrive); };
   }, [hoodEl]);
-  const pickHood = (i: number) => setHoodTo(i);
   useEffect(() => {
     const root = rootRef.current;
     if (!menu || !root) return;
@@ -498,53 +496,16 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         <CinePlate src="/landing/cine-dome.webp" pos="50% 46%" title={t('Збудовано надовго.', 'Built to last.')} />
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
-        <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
+        <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1100, 1100]}>
           <div className="bl-wrap bl-lt-head">
             <h2 className="bl-h bl-rv">{t('Під капотом.', 'Under the hood.')}</h2>
           </div>
-          <div className="bl-lt-stage">
+          <div className="bl-lt-stage" ref={hoodRefCb}>
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
           </div>
-          <div className="bl-wrap">
-            <div className="bl-hood bl-rv" ref={hoodRefCb}>
-              <HoodMap titles={HOOD.map(x => t(x.uk[0], x.en[0]))} shown={hood} target={hoodTo} onSelect={pickHood}
-                onDepart={ms => { hoodIdle.current.going = true; setHoodGo(true); platDepart(ms); }}
-                onArrive={i => { hoodIdle.current.going = false; hoodIdle.current.since = Date.now(); setHood(i); setHoodGo(false); }} />
-              {(() => {
-                const x = HOOD[hood];
-                return (
-                  <article key={x.kind} className={`bl-tilex in${hoodGo ? ' go' : ''}`} style={{ ['--tint' as string]: x.tint }} aria-live="polite"
-                    onPointerEnter={() => { hoodIdle.current.hold = true; hoodRef.current?.classList.add('hold'); }}
-                    onPointerLeave={() => { hoodIdle.current.hold = false; hoodRef.current?.classList.remove('hold'); }}>
-                    <div className="bl-lt-st" aria-hidden>
-                      <span className="bl-lt-num">{ROMAN[hood]}</span>
-                      <i />
-                      <span className="bl-lt-place">{HOOD_PLACES[hood].name}</span>
-                    </div>
-                    <div className="bl-tx-body">
-                      <h3>{t(x.uk[0], x.en[0])}</h3>
-                      <p className="bl-tx-plain">{t(HOOD_WHY[x.kind].plain[0], HOOD_WHY[x.kind].plain[1])}</p>
-                      <p className="bl-tx-how">{t(x.uk[1], x.en[1])}</p>
-                    </div>
-                    <div className="bl-tx-art" style={hoodNear ? { ['--photo' as string]: `url(${HOOD_PHOTO[x.kind]})` } : undefined}>
-                      <Stage kind={x.kind} t={t} />
-                    </div>
-                    <span className="bl-tilex-proof">{t(x.uk[2], x.en[2])}</span>
-                  </article>
-                );
-              })()}
-            </div>
-            <div className="bl-cta bl-center bl-rv">
-              <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-            </div>
-          </div>
-        </Lazy>
-
-        {/* ── About the project, with a compact author card ── */}
-        <section id="hello" className="bl-hello">
+          <div id="hello" className="bl-hello bl-hello-in-hood">
           <div className="bl-wrap bl-hello-in">
             <div className="bl-hello-text">
-              <h2 className="bl-h bl-rv">{t('Про проєкт', 'About the project')}</h2>
               <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
               <a className="bl-bcard bl-rv" href="/blog/how-i-built-my-own-bank">
                 <span className="bl-bcard-img"><img src="/blog/how-i-built-my-bank/cover-art.webp" alt="" width="1600" height="900" loading="lazy" decoding="async" /></span>
@@ -563,7 +524,9 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               <p className="bl-hello-role">{t('Продуктовий архітектор і розробник TaxTech', 'Product architect and developer of TaxTech')}</p>
             </aside>
           </div>
-        </section>
+          </div>
+        </Lazy>
+
 
         <CinePlate tall src="/landing/cine-oculus.webp" pos="50% 30%" title={t('Плати як у Римі.', 'Pay like Rome.')}>
           <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
@@ -573,7 +536,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         <section id="partner" className="bl-partner">
           <div className="bl-wrap bl-partner-in">
             <span className="bl-partner-k">{t('Партнер', 'Partner')}</span>
-            <a className="bl-partner-n" href={SHOP_URL} target="_blank" rel="noreferrer">Saint Agnes <i aria-hidden>→</i></a>
+            <a className="bl-partner-n" href={SHOP_URL} target="_blank" rel="noreferrer">Saint Agnes</a>
           </div>
         </section>
 
@@ -595,7 +558,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer" aria-label="App Store"><img className="bl-foot-badge" src="/app-store-black.svg" alt="App Store" width="150" height="50" loading="lazy" decoding="async" /></a>
             </div>
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
-            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · Unsplash: Vincenzo Godono, Giorgio Lazzari, Nicolas Hoizey, Evan Qu, Mathew Schwartz, David Köhler, iam_os · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
+            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · Unsplash: Vincenzo Godono, Nicolas Hoizey, Evan Qu, Mathew Schwartz, David Köhler · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
             <div className="bl-foot-row">
               <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
               <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>
