@@ -487,7 +487,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         {/* ── Cinematic stills of Rome lead the page; the sections sit between them ── */}
         <CineHero cta={t('Відкрити рахунок', 'Open an account')} onOpen={() => onAuth('register')} />
 
-        <CinePlate id="pay" tall src="/landing/pay-tap.webp" pos="50% 58%" mark="II" place="Contactless · TaxPay" title={`${t('Дотик.', 'Tap.')} ${t('Оплачено.', 'Paid.')}`} />
+        <CinePlate id="pay" tall src="/landing/pay-tap.webp" pos="50% 58%" title={`${t('Дотик.', 'Tap.')} ${t('Оплачено.', 'Paid.')}`} />
 
         {/* ── The app: real iOS screens in an iPhone frame on a light stage, Account | Card | QR ── */}
         <AppShowcase t={t} />
@@ -495,7 +495,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
         {/* ── Rome by QR code: a real invoice for a real place, paid from a phone, flying onto the map ── */}
         <QrRome t={t} />
 
-        <CinePlate src="/landing/cine-dome.webp" pos="50% 46%" mark="III" place="Pantheon · 126 d.C." title={t('Збудовано надовго.', 'Built to last.')} />
+        <CinePlate src="/landing/cine-dome.webp" pos="50% 46%" title={t('Збудовано надовго.', 'Built to last.')} />
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
@@ -565,7 +565,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           </div>
         </section>
 
-        <CinePlate tall src="/landing/cine-oculus.webp" pos="50% 30%" mark="IV" place="Pantheon · Oculus" title={t('Плати як у Римі.', 'Pay like Rome.')}>
+        <CinePlate tall src="/landing/cine-oculus.webp" pos="50% 30%" title={t('Плати як у Римі.', 'Pay like Rome.')}>
           <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
         </CinePlate>
 
