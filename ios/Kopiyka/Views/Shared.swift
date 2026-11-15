@@ -7,6 +7,8 @@ struct RootView: View {
     @State private var showConsent = false
     @State private var selection = AppTab.overview
     @State private var pinRequired = false
+    @State private var pinKnown = false          // the server has said whether this account has a PIN
+    @State private var invoice: PayCode?         // the invoice on screen; model.payCode is the one still waiting
     @State private var splash = true
     @State private var moreJump: MoreHub.Jump?
 
@@ -46,6 +48,8 @@ struct RootView: View {
         .overlay { if splash { LaunchSplash { splash = false } } }
         .task(id: model.signedIn) {
             pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? false) : false
+            pinKnown = true
+            showInvoiceIfReady()
         }
         .onChange(of: model.jumpTab) { _, tab in
             guard let tab else { return }
@@ -66,6 +70,8 @@ struct RootView: View {
         .onChange(of: phase) { _, p in
             // з фону банк знову просить PIN
             guard p == .background else { return }
+            // an open invoice goes back to waiting: it must not sit on top of the PIN screen when the app returns
+            if let invoice, pinRequired { model.payCode = invoice; self.invoice = nil }
             model.bankUnlocked = false
             Task { pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? pinRequired) : false }
         }
@@ -94,8 +100,15 @@ struct RootView: View {
         .onOpenURL { url in
             if let c = PayLink.code(from: url.absoluteString) { model.payCode = PayCode(code: c) }
         }
-        // a PIN-locked bank shows the invoice only after it is unlocked
-        .sheet(item: Binding(get: { pinRequired && !model.bankUnlocked ? nil : model.payCode }, set: { model.payCode = $0 })) { p in
+        // The invoice waits in model.payCode until the screen can take it: the splash is gone, the consent sheet is closed,
+        // the PIN question is answered and the bank is unlocked. It used to be bound straight to the sheet, and on a cold
+        // start the sheet came up before the PIN was known, was taken down a moment later, and took the code with it.
+        .onChange(of: model.payCode) { _, _ in showInvoiceIfReady() }
+        .onChange(of: model.bankUnlocked) { _, _ in showInvoiceIfReady() }
+        .onChange(of: pinRequired) { _, _ in showInvoiceIfReady() }
+        .onChange(of: splash) { _, _ in showInvoiceIfReady() }
+        .onChange(of: showConsent) { _, _ in showInvoiceIfReady() }
+        .sheet(item: $invoice) { p in
             QRPayView(code: p.code) { model.syncTick += 1 }
                 .presentationDragIndicator(.visible)
         }
@@ -103,6 +116,13 @@ struct RootView: View {
 }
 
 extension RootView {
+    func showInvoiceIfReady() {
+        guard let code = model.payCode, invoice == nil, pinKnown, !splash, !showConsent else { return }
+        if pinRequired && !model.bankUnlocked { return }
+        model.payCode = nil
+        invoice = code
+    }
+
     /// Банк відкривається кодом, якщо він задан; лабораторія кодом не закрита.
     @ViewBuilder func bank<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         if pinRequired && !model.bankUnlocked { PinLockView() } else { content() }
