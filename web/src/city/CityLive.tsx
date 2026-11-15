@@ -314,6 +314,24 @@ export default function CityLive() {
   const stopClaim = () => { setClaiming(false); setDraft(null); apiRef.current?.setClaim(null); };
   const stopClaimRef = useRef(stopClaim);
   stopClaimRef.current = stopClaim;
+
+  // On a phone the Back button closes what is open (a place, a panel, a new-place draft) instead of leaving the map.
+  const anyOpen = !!(sel || panel || draft || claiming);
+  const backRef = useRef(false);
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 820px)').matches) return;
+    if (anyOpen && !backRef.current) { backRef.current = true; history.pushState({ romaOpen: 1 }, ''); }
+    else if (!anyOpen && backRef.current) { backRef.current = false; history.back(); }
+  }, [anyOpen]);
+  useEffect(() => {
+    const pop = () => {
+      if (!backRef.current) return;
+      backRef.current = false;
+      pickRef.current(null); setPanel(null); stopClaimRef.current();
+    };
+    window.addEventListener('popstate', pop);
+    return () => window.removeEventListener('popstate', pop);
+  }, []);
   const onClaim = (b: number) => {
     const s = simRef.current;
     if (!s) return;
@@ -508,6 +526,7 @@ export default function CityLive() {
             <button type="button" className="cl-link" onClick={closeShop}>{t('Закрити заклад', 'Close the place')}</button>
           </div>
         )}
+        <div className="cl-v-pay">
         {!(myShop && sel.i === myShop.id) && <div className="cl-paymode" role="tablist">
           <button type="button" role="tab" aria-selected={payMode === 'card'} className={payMode === 'card' ? 'on' : ''} onClick={() => { setPayMode('card'); setQr(null); }}>{t('Карткою', 'Card')}</button>
           <button type="button" role="tab" aria-selected={payMode === 'qr'} className={payMode === 'qr' ? 'on' : ''} onClick={() => { setPayMode('qr'); setAsk(null); setTds(null); }}>QR</button>
@@ -565,6 +584,7 @@ export default function CityLive() {
         ) : me === null ? (
           <a className="cl-btn cl-btn-y cl-wide" href="/#login" onClick={afterLogin}>{t('Увійти, щоб платити', 'Sign in to pay')}</a>
         ) : null}
+        </div>
       </section>
     );
   })();
@@ -609,6 +629,7 @@ export default function CityLive() {
       </header>
 
       <aside className="cl-panel cl-panel-l" aria-hidden={panel !== 'city'}>
+        <button type="button" className="cl-x cl-panel-x" aria-label={t('Закрити', 'Close')} onClick={() => setPanel(null)}>×</button>
         <div className="cl-kpis">
           <div><span>{t('Оборот', 'Turnover')}</span><b>{short(st?.vol || 0)}<small>TAX</small></b></div>
           <div><span>{t('Платежі', 'Payments')}</span><b>{fmt(st?.n || 0)}</b></div>
@@ -653,6 +674,7 @@ export default function CityLive() {
       </aside>
 
       <aside className="cl-panel cl-panel-r" aria-hidden={panel !== 'feed'}>
+        <button type="button" className="cl-x cl-panel-x" aria-label={t('Закрити', 'Close')} onClick={() => setPanel(null)}>×</button>
         <h4><i className="cl-dot" />{t('Наживо', 'Live')}</h4>
         <ul className="cl-feed">
           {(sim?.feed || []).slice(0, 16).map(x => (

@@ -84,7 +84,8 @@
 .cl-panel-l { left: 14px; translate: -12px 0; }
 .cl-panel-r { right: 14px; width: 330px; translate: 12px 0; }
 .cl.p-city .cl-panel-l, .cl.p-feed .cl-panel-r { opacity: 1; pointer-events: auto; translate: 0 0; }
-.cl-panel > h4:first-child { margin-top: 0; }
+.cl-panel > h4:first-child, .cl-panel > .cl-x + h4 { margin-top: 0; }
+.cl-panel-x { display: none; }
 .cl-dot { width: 6px; height: 6px; border-radius: 50%; background: #ff3b47; }
 .cl-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
 .cl-kpis span, .cl-v-kpi span { display: block; font-size: 10.5px; color: var(--mut); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 3px; }
@@ -195,7 +196,14 @@
   .cl-panel, .cl-card-wrap { top: auto; bottom: 62px; left: 10px; right: 10px; width: auto; max-height: 60svh; }
   .cl-panel { translate: 0 12px; }
   .cl.p-city .cl-panel-l, .cl.p-feed .cl-panel-r { translate: 0 0; }
-  .cl-card-wrap { max-height: 64svh; }
+  .cl-card-wrap { max-height: 72svh; }
+  /* phone: the close button stays in the corner while the card scrolls, and paying comes before the statistics */
+  .cl-venue { display: flex; flex-direction: column; }
+  .cl-venue > * { flex: none; }
+  .cl-venue > .cl-x, .cl-panel > .cl-x { display: block; position: sticky; top: 0; order: -3; z-index: 2; width: 44px; height: 44px; margin: -10px -10px -34px auto; border-radius: 12px; font-size: 22px !important; color: #fff !important; background: rgba(13,14,19,.92) !important; box-shadow: inset 0 0 0 1px var(--line); }
+  .cl-venue > .cl-v-kind, .cl-venue > h3, .cl-venue > .cl-v-own, .cl-venue > .cl-draft-name { order: -2; }
+  .cl-venue > .cl-v-pay { order: -1; margin-bottom: 16px; }
+  .cl-venue h3 { margin-right: 44px; }
   .cl.has-sel .cl-strip { display: none; }
   .cl-bottom { left: 10px; right: 10px; bottom: 10px; }
   .cl-strip { gap: 12px; padding: 0 12px; }
