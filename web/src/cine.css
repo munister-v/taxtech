@@ -51,4 +51,4 @@
 .bl .as .as-pills button.on { background: #fff; color: #111; border-color: #fff; }
 
 /* ── About sits under the metro platform, in the same section ── */
-.bl .bl-hello.bl-hello-in-hood { padding: clamp(8px, 2vw, 24px) 0 clamp(72px, 9vw, 120px); background: none; }
+.bl .bl-hello.bl-hello-in-hood { padding: clamp(8px, 2vw, 24px) 0 clamp(72px, 9vw, 120px); background: none; border-top: 0; }
