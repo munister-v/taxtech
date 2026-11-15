@@ -17,7 +17,7 @@ export const LOOKS: Look[] = [
 
 /** Where each chapter sits on the scroll, as a share of the pinned track. */
 export const T = {
-  heroOut: [0.05, 0.2], tapIn: [0.24, 0.38], approach: [0.4, 0.6], pay: 0.6, tapOut: [2, 3],
+  heroOut: [0.02, 0.1], tapIn: [0.14, 0.3], approach: [0.3, 0.5], pay: 0.5, tapOut: [2, 3],
   looksIn: [2, 3], looks: [2, 3],
 } as const;
 

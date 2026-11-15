@@ -1,0 +1,54 @@
+/* Cinematic layer: the hero (ROMA cut out of black, the city inside the letters) and the wide stills between sections. */
+
+/* ── hero: a full-screen still, like the plates below ── */
+.bl .ch { position: relative; height: 100svh; min-height: 560px; overflow: hidden; background: #000; scroll-margin-top: 0; }
+.bl .ch-reel { position: absolute; inset: 0; }
+.bl .ch-reel i { position: absolute; inset: -4%; background-size: cover; background-position: center; opacity: 0;
+  animation: ch-reel 32s linear calc(var(--i) * 8s) infinite; }
+.bl .ch-reel i:first-child { opacity: 1; animation-name: ch-reel-first; }
+@keyframes ch-reel { 0% { opacity: 0; transform: scale(1.02); } 5% { opacity: 1; } 25% { opacity: 1; } 31% { opacity: 0; transform: scale(1.1); } 100% { opacity: 0; transform: scale(1.1); } }
+@keyframes ch-reel-first { 0% { opacity: 1; transform: scale(1.02); } 25% { opacity: 1; } 31% { opacity: 0; transform: scale(1.1); } 94% { opacity: 0; transform: scale(1.02); } 100% { opacity: 1; transform: scale(1.02); } }
+.bl .ch-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.05) 34%, rgba(0,0,0,.18) 56%, rgba(0,0,0,.86) 100%); }
+.bl .ch-title { position: absolute; left: 0; right: 0; bottom: clamp(84px, 15vh, 150px); display: grid; justify-items: center; gap: clamp(20px, 3.4vh, 34px); text-align: center; padding: 0 22px;
+  animation: ch-up .9s cubic-bezier(.2,.7,.2,1) .15s both; }
+@keyframes ch-up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+.bl .ch-title h1 { font-size: clamp(54px, 8.4vw, 116px); line-height: 1; letter-spacing: -0.045em; text-shadow: 0 4px 44px rgba(0,0,0,.7); }
+.bl .ch-gold { background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 52%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bl .ch-cap { position: absolute; left: 0; right: 0; bottom: clamp(22px, 4vh, 40px); margin: 0; }
+@media (max-width: 700px) {
+  .bl .ch-title h1 { font-size: clamp(50px, 16vw, 76px); }
+  .bl .ch-title h1 span { display: block; }
+}
+@media (prefers-reduced-motion: reduce) { .bl .ch-reel i, .bl .ch-title { animation: none; } }
+
+/* ── plates ── */
+.bl .cp { position: relative; padding: clamp(26px, 5vh, 56px) 0 clamp(18px, 3vh, 30px); background: #000; --k: 0; }
+.bl .cp-frame { position: relative; height: min(82svh, 45vw); min-height: 300px; overflow: hidden; background: #0a0a0b; }
+.bl .cp-tall .cp-frame { height: min(92svh, 56vw); }
+.bl .cp-img { position: absolute; inset: -14% 0; background-size: cover; transform: translate3d(0, calc(var(--k) * -9%), 0) scale(calc(1.08 - var(--k) * .04)); will-change: transform;
+  opacity: 0; transition: opacity 1.2s ease; }
+.bl .cp.in .cp-img { opacity: 1; }
+.bl .cp-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.2) 0%, rgba(0,0,0,.05) 40%, rgba(0,0,0,.7) 100%); }
+.bl .cp-text { position: absolute; left: 0; right: 0; bottom: clamp(30px, 8vh, 84px); display: grid; justify-items: center; gap: clamp(18px, 3vh, 30px); padding: 0 22px; text-align: center; }
+.bl .cp-text h2 { font-size: clamp(44px, 7.4vw, 104px); line-height: 1; letter-spacing: -0.045em; text-shadow: 0 4px 44px rgba(0,0,0,.6); }
+.bl .cp-cap { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: clamp(14px, 2.4vh, 24px); padding: 0 22px;
+  font-size: 12.5px; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,255,255,.78); text-align: center; }
+.bl .cp-cap span:first-child { color: var(--gold-l); }
+.bl .cp-cap i { flex: none; width: 34px; height: 1px; background: rgba(255,255,255,.3); }
+
+@media (max-width: 700px) {
+  .bl .cp-frame, .bl .cp-tall .cp-frame { height: 68svh; }
+  .bl .cp-cap { font-size: 11px; letter-spacing: .2em; gap: 10px; }
+  .bl .cp-cap i { width: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .bl .cp-img { transform: none; } }
+
+/* ── the app: the same dark room, on the Colosseum at blue hour ── */
+.bl .as { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.7) 22%, rgba(0,0,0,.74) 78%, #000 100%), url(/landing/cine-colosseum.webp) center 62% / cover no-repeat #000; color: #fff; }
+.bl .as .as-h { color: #fff; }
+.bl .as .as-sub, .bl .as .as-store { color: rgba(255,255,255,.7); }
+.bl .as .as-pills button { border-color: rgba(255,255,255,.7); color: #fff; }
+.bl .as .as-pills button.on { background: #fff; color: #111; border-color: #fff; }
+
+/* ── About on a photograph ── */
+.bl .bl-hello { background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.74) 26%, rgba(0,0,0,.78) 72%, #000 100%), url(/landing/cine-tiber.webp) center 40% / cover no-repeat #000; }

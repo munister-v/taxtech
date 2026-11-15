@@ -6,7 +6,7 @@ import HoodPlatform, { type PlatPhase } from './HoodPlatform';
 import { armSound, onSound, soundOn, toggleSound } from './paySound';
 import QrRome from './QrRome';
 import AppShowcase from './AppShowcase';
-import CardJourney from './CardJourney';
+import { CineHero, CinePlate } from './Cine';
 import './bankLanding.css';
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
@@ -484,16 +484,18 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           </div>
         )}
 
-        {/* ── One 3D card for the whole top of the page: hero, the tap on a terminal, the looks of the card ── */}
-        <CardJourney t={t} rosette={CARD_ROSETTE} amount={fmt(payAmount)} onOpen={() => onAuth('register')}
-          fallback={<Card finish="guilloche" />}
-          toast={<div className="bl-toast bl-push">{push('Saint Agnes', payAmount, 24000 - payAmount)}</div>} />
+        {/* ── Cinematic stills of Rome lead the page; the sections sit between them ── */}
+        <CineHero cta={t('Відкрити рахунок', 'Open an account')} onOpen={() => onAuth('register')} />
+
+        <CinePlate id="pay" tall src="/landing/pay-tap.webp" pos="50% 58%" mark="II" place="Contactless · TaxPay" title={`${t('Дотик.', 'Tap.')} ${t('Оплачено.', 'Paid.')}`} />
 
         {/* ── The app: real iOS screens in an iPhone frame on a light stage, Account | Card | QR ── */}
         <AppShowcase t={t} />
 
         {/* ── Rome by QR code: a real invoice for a real place, paid from a phone, flying onto the map ── */}
         <QrRome t={t} />
+
+        <CinePlate src="/landing/cine-dome.webp" pos="50% 46%" mark="III" place="Pantheon · 126 d.C." title={t('Збудовано надовго.', 'Built to last.')} />
 
         {/* ── Under the hood: how the bank is built, straight from the server code ── */}
         <Lazy id="inside" className="bl-sec bl-inside bl-lt" h={[1527, 1568]}>
@@ -563,6 +565,10 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           </div>
         </section>
 
+        <CinePlate tall src="/landing/cine-oculus.webp" pos="50% 30%" mark="IV" place="Pantheon · Oculus" title={t('Плати як у Римі.', 'Pay like Rome.')}>
+          <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
+        </CinePlate>
+
         {/* ── Partner: Saint Agnes, one quiet line at the end ── */}
         <section id="partner" className="bl-partner">
           <div className="bl-wrap bl-partner-in">
@@ -589,7 +595,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
               <a href="https://apps.apple.com/ua/app/tax-tech-digital-finance-lab/id6830268604" target="_blank" rel="noreferrer" aria-label="App Store"><img className="bl-foot-badge" src="/app-store-black.svg" alt="App Store" width="150" height="50" loading="lazy" decoding="async" /></a>
             </div>
             <p className="bl-legal">{t('TaxTech є навчальним банком лабораторії цифрових фінансів. TAX є віртуальним токеном: він не є грошима чи електронними грошима й не обмінюється на гривню чи іншу валюту. Справжніх платежів, карток і рахунків немає; номери карток починаються з 0000. Платформа не сертифікована EMVCo, PCI DSS чи FIDO. Face ID є торговельною маркою Apple Inc.', 'TaxTech is the training bank of a digital-finance lab. TAX is a virtual token: it is not money or e-money and cannot be exchanged for hryvnia or any other currency. There are no real payments, cards or accounts; card numbers start with 0000. The platform is not certified by EMVCo, PCI DSS or FIDO. Face ID is a trademark of Apple Inc.')}</p>
-            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
+            <p className="bl-credits">{t('Фото', 'Photos')}: <a href="https://commons.wikimedia.org/wiki/File:Early_morning_Colosseo_-_Flickr_-_radkuch.13.jpg" target="_blank" rel="noreferrer">Radek Kucharski</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_trough_the_arches_of_the_Colosseum,_Rome.jpg" target="_blank" rel="noreferrer">Quentin Lowagie</a> (CC BY 4.0) · <a href="https://commons.wikimedia.org/wiki/File:Sunset_over_Roman_Forum_(45485877135).jpg" target="_blank" rel="noreferrer">Sonse</a> (CC BY 2.0) · <a href="https://commons.wikimedia.org/wiki/File:Pantheon_-_Rome_at_night.jpg" target="_blank" rel="noreferrer">DeveshT</a> (CC0) · <a href="https://commons.wikimedia.org/wiki/File:Trevi_Fountain_Long_Exposure.jpg" target="_blank" rel="noreferrer">miketnorton</a> (CC BY 2.0) · <a href="https://unsplash.com/photos/payment-is-being-made-with-a-credit-card-AAYpF9Vx7Ek" target="_blank" rel="noreferrer">SumUp / Unsplash</a> · Unsplash: Vincenzo Godono, Giorgio Lazzari, Nicolas Hoizey, Evan Qu, Mathew Schwartz, David Köhler, iam_os · {t('Карта', 'Map')}: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap</a></p>
             <div className="bl-foot-row">
               <span>© {new Date().getFullYear()} TaxTech &amp; Munister</span>
               <nav>{nav.map(([h, x]) => <a key={h} href={h}>{x}</a>)}</nav>

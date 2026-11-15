@@ -10,13 +10,14 @@ import './cardJourney.css';
 
 type Chapter = 'hero' | 'tap';
 
-export default function CardJourney({ t, rosette, amount, toast, fallback, onOpen }: {
+export default function CardJourney({ t, rosette, amount, toast, fallback, onOpen, backdrop }: {
   t: (uk: string, en: string) => string;
   rosette: string;
   amount: string;
   toast: React.ReactNode;
   fallback: React.ReactNode;
   onOpen: () => void;
+  backdrop?: string;   // a photograph behind the scene: the card then plays without its own hero
 }) {
   const secRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -80,15 +81,16 @@ export default function CardJourney({ t, rosette, amount, toast, fallback, onOpe
   const cur = LOOKS[0];
 
   return (
-    <section id="top" className="cj" ref={secRef}>
-      <span id="pay" className="cj-anchor" style={anchor(T.pay + 0.12)} />
+    <section id={backdrop ? 'pay' : 'top'} className={`cj${backdrop ? ' cj-bare' : ''}`} ref={secRef}>
+      {!backdrop && <span id="pay" className="cj-anchor" style={anchor(T.pay + 0.12)} />}
       <div className={`cj-stage cj-gl-${gl}${paid ? ' cj-paid' : ''}`} ref={stageRef} style={{ ['--tint' as string]: cur.tint }}>
+        {backdrop && <div className="cj-back" aria-hidden style={{ backgroundImage: `url(${backdrop})` }} />}
         <div className="cj-glow" aria-hidden />
         <svg className="cj-rose" viewBox="0 0 100 100" aria-hidden><path d={rosette} fill="none" stroke="currentColor" strokeWidth=".12" /></svg>
         <canvas className="cj-gl" ref={glRef} aria-hidden />
         {gl === 'off' && <div className="cj-flat" aria-hidden>{fallback}</div>}
 
-        <div className="cj-ch cj-hero" inert={chapter !== 'hero'}>
+        <div className="cj-ch cj-hero" inert={chapter !== 'hero' || !!backdrop}>
           <h1>{['TaxTech', 'Bank'].map((w, i) => <span key={w} className={`cj-w${i ? ' cj-goldw' : ''}`} style={{ ['--i' as string]: i }}>{w}</span>)}</h1>
           <button type="button" className="bl-pill" onClick={onOpen}>{t('Відкрити рахунок', 'Open an account')}</button>
         </div>
