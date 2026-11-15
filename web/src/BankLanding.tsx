@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FAQ } from './landingFaq';
 import { LandingLangContext, LANDING_LANGS, initialLandingLang, landingText, saveLandingLang, type LandingLang } from './landingLang';
-import FireScene from './FireScene';
 import HoodMap, { HOOD_PLACES, HOOD_DWELL } from './HoodMap';
 import HoodPlatform, { type PlatPhase } from './HoodPlatform';
 import { armSound, onSound, soundOn, toggleSound } from './paySound';
 import QrRome from './QrRome';
 import AppShowcase from './AppShowcase';
 import CardJourney from './CardJourney';
-import { SUN_SPOTS } from './fireData';
 import './bankLanding.css';
 
 // Logged-out landing. It shows the product itself: real iPhone screens of the app (web/public/landing/), the same
@@ -313,7 +311,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
     setPlat('out');
     platT.current.push(window.setTimeout(() => setPlat('left'), 1500), window.setTimeout(() => setPlat('at'), Math.max(1800, ms - 2600)));
   };
-  const [holder, setHolder] = useState('');
   const hoodRef = useRef<HTMLDivElement | null>(null);
   const [hoodEl, setHoodEl] = useState<HTMLDivElement | null>(null); // the section mounts lazily, so the clock waits for it
   const hoodRefCb = useCallback((el: HTMLDivElement | null) => { hoodRef.current = el; setHoodEl(el); }, []);
@@ -565,32 +562,6 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
             </aside>
           </div>
         </section>
-
-        {/* ── Final CTA: the Colosseum at blue hour ── */}
-        <Lazy className="bl-scene bl-final" h={[900, 726]}>
-          <FireScene className="bl-photo bl-photo-final" src="/landing/colosseum-sun.webp" ratio={1.504} focusX={0.12} focusY={0.5} spots={SUN_SPOTS} embers={16} />
-          <div className="bl-wrap bl-center">
-            <h2 className="bl-h bl-h-xl bl-rv">{t('Ваша картка чекає.', 'Your card is waiting.')}</h2>
-            <div className="bl-final-card bl-rv"
-              onPointerMove={e => {
-                const r = e.currentTarget.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
-                e.currentTarget.classList.add('on');
-                e.currentTarget.style.setProperty('--ry', `${(x * 22).toFixed(1)}deg`);
-                e.currentTarget.style.setProperty('--rx', `${(-y * 18).toFixed(1)}deg`);
-                e.currentTarget.style.setProperty('--sx', `${(x * 90).toFixed(0)}%`);
-              }}
-              onPointerLeave={e => { e.currentTarget.classList.remove('on'); ['--rx', '--ry', '--sx'].forEach(k => e.currentTarget.style.removeProperty(k)); }}>
-              <div className="bl-final-tilt"><Card finish="guilloche" name={holder.trim().toUpperCase() || t('ВАШЕ ІМʼЯ', 'YOUR NAME')} /></div>
-            </div>
-            <label className="bl-final-name bl-rv">
-              <input value={holder} maxLength={22} autoComplete="off" spellCheck={false} placeholder={t('Ваше імʼя', 'Your name')} aria-label={t('Імʼя на картці', 'Name on the card')} onChange={e => setHolder(e.target.value)} />
-            </label>
-            <div className="bl-cta bl-rv">
-              <button type="button" className="bl-pill" onClick={() => onAuth('register')}>{t('Відкрити рахунок', 'Open an account')}</button>
-              <button type="button" className="bl-ghost" onClick={() => onAuth('login')}>{t('Увійти', 'Sign in')}</button>
-            </div>
-          </div>
-        </Lazy>
 
         {/* ── Partner: Saint Agnes, one quiet line at the end ── */}
         <section id="partner" className="bl-partner">
