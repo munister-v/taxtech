@@ -1,11 +1,11 @@
 /* Card journey: the pinned top of the landing. A tall section, a stage that sticks for its whole height,
-   one WebGL card on it and three chapters of text that cross-fade with the scroll (--hero, --tap, --looks are set from JS).
+   one WebGL card on it and two chapters of text that cross-fade with the scroll (--hero and --tap are set from JS).
    The light around the card takes the colour of the card (--tint). */
 @property --tint { syntax: '<color>'; inherits: true; initial-value: #d6a84a; }
 
-.bl .cj { position: relative; height: 460svh; background: #050506; scroll-margin-top: 0; }
+.bl .cj { position: relative; height: 300svh; background: #050506; scroll-margin-top: 0; }
 .bl .cj-anchor { position: absolute; left: 0; width: 1px; height: 1px; pointer-events: none; }
-.bl .cj-stage { position: sticky; top: 0; height: 100svh; min-height: 520px; overflow: hidden; --hero: 1; --tap: 0; --looks: 0; transition: --tint .7s ease; isolation: isolate; }
+.bl .cj-stage { position: sticky; top: 0; height: 100svh; min-height: 520px; overflow: hidden; --hero: 1; --tap: 0; transition: --tint .7s ease; isolation: isolate; }
 
 .bl .cj-glow { position: absolute; inset: 0; z-index: 0; pointer-events: none;
   background:
@@ -42,18 +42,6 @@
 .bl .cj-paid .cj-toast { opacity: 1; transform: none; }
 .bl .cj-toast .bl-toast { position: static; transform: none; translate: none; opacity: 1; animation: none; left: auto; top: auto; }
 
-/* looks: the title above the card, the name and the colours under it */
-.bl .cj-looks { inset: 0; opacity: var(--looks); }
-.bl .cj-looks h2 { position: absolute; left: 0; right: 0; top: clamp(76px, 12vh, 128px); text-align: center; font-size: clamp(36px, 5vw, 60px); line-height: 1.06; letter-spacing: -0.035em; translate: 0 calc((1 - var(--looks)) * 30px); }
-.bl .cj-pick { position: absolute; left: 0; right: 0; bottom: clamp(30px, 7.5vh, 76px); display: grid; justify-items: center; gap: 18px; translate: 0 calc((1 - var(--looks)) * -30px); }
-.bl .cj-name { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: #fff; animation: cj-word .5s cubic-bezier(.2,.7,.2,1) both; }
-.bl .cj-sw { display: flex; gap: 14px; padding: 10px 14px; border-radius: 980px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-.bl .cj-sw button { position: relative; width: 34px; height: 34px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); transition: transform .2s; }
-.bl .cj-sw button::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; box-shadow: 0 0 0 2px transparent; transition: box-shadow .2s; }
-.bl .cj-sw button.on::after { box-shadow: 0 0 0 2px var(--yellow); }
-.bl .cj-sw button:hover { transform: scale(1.1); }
-.bl .cj-sw button:focus-visible { outline: 2px solid #fff; outline-offset: 6px; }
-
 @media (max-width: 860px) {
   .bl .cj-tap { left: 0; right: 0; top: clamp(84px, 13vh, 130px); width: auto; padding: 0 22px; text-align: center; translate: 0 calc((1 - var(--tap)) * 30px); }
   .bl .cj-tap h2 { font-size: clamp(52px, 15.5vw, 84px); }
@@ -64,11 +52,8 @@
   .bl .cj-hero .cj-w { display: block; margin: 0; }
   .bl .cj-hero { bottom: clamp(30px, 6vh, 56px); }
   .bl .cj-rose { top: 37%; opacity: .2; }
-  .bl .cj-sw { gap: 8px; padding: 9px 12px; }
-  .bl .cj-sw button { width: 32px; height: 32px; }
-  .bl .cj-sw button::after { inset: -4px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .bl .cj-rose, .bl .cj-w, .bl .cj-hero .bl-pill, .bl .cj-name { animation: none; }
+  .bl .cj-rose, .bl .cj-w, .bl .cj-hero .bl-pill { animation: none; }
   .bl .cj-stage { transition: none; }
 }

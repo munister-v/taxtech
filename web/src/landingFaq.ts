@@ -59,11 +59,11 @@ export const FAQ: FaqGroup[] = [
       {
         q: f('Які в мене картки і чи можна змінити вигляд?', 'What cards do I get, and can I change the design?', 'Che carte ricevo e posso cambiare il design?', 'Welche Karten bekomme ich, und kann ich das Design ändern?', 'Какие у меня карты и можно ли сменить вид?'),
         a: f(
-          `Картки віртуальні, без пластику. Для кожної можна обрати вигляд: суцільний колір або фото Рима, як у розділі «Вісім облич». Картка має чип, номер із 0000 на початку й працює для оплати в Saint Agnes через TaxPay та для переказів між клієнтами.`,
-          `Cards are virtual, with no plastic. For each one you can pick a look: a solid colour or a Rome photograph, as in the “Eight faces” section. A card has a chip, a number that starts with 0000 and works for payments in Saint Agnes through TaxPay and for transfers between customers.`,
-          `Le carte sono virtuali, senza plastica. Per ognuna puoi scegliere l’aspetto: un colore pieno o una fotografia di Roma, come nella sezione «Otto volti». La carta ha un chip, un numero che inizia con 0000 e serve per pagare in Saint Agnes tramite TaxPay e per i bonifici tra clienti.`,
-          `Die Karten sind virtuell, ohne Plastik. Für jede kannst du das Aussehen wählen: eine Farbe oder ein Rom-Foto, wie im Abschnitt „Acht Gesichter“. Die Karte hat einen Chip, eine Nummer mit 0000 am Anfang und dient zum Bezahlen bei Saint Agnes über TaxPay sowie für Überweisungen zwischen Kunden.`,
-          `Карты виртуальные, без пластика. Для каждой можно выбрать вид: сплошной цвет или фото Рима, как в разделе «Восемь лиц». У карты есть чип, номер с 0000 в начале, и она работает для оплаты в Saint Agnes через TaxPay и для переводов между клиентами.`,
+          `Картки віртуальні, без пластику. Для кожної можна обрати вигляд: суцільний колір або фото Рима. Картка має чип, номер із 0000 на початку й працює для оплати в Saint Agnes через TaxPay та для переказів між клієнтами.`,
+          `Cards are virtual, with no plastic. For each one you can pick a look: a solid colour or a Rome photograph. A card has a chip, a number that starts with 0000 and works for payments in Saint Agnes through TaxPay and for transfers between customers.`,
+          `Le carte sono virtuali, senza plastica. Per ognuna puoi scegliere l’aspetto: un colore pieno o una fotografia di Roma. La carta ha un chip, un numero che inizia con 0000 e serve per pagare in Saint Agnes tramite TaxPay e per i bonifici tra clienti.`,
+          `Die Karten sind virtuell, ohne Plastik. Für jede kannst du das Aussehen wählen: eine Farbe oder ein Rom-Foto. Die Karte hat einen Chip, eine Nummer mit 0000 am Anfang und dient zum Bezahlen bei Saint Agnes über TaxPay sowie für Überweisungen zwischen Kunden.`,
+          `Карты виртуальные, без пластика. Для каждой можно выбрать вид: сплошной цвет или фото Рима. У карты есть чип, номер с 0000 в начале, и она работает для оплаты в Saint Agnes через TaxPay и для переводов между клиентами.`,
         ),
       },
       {

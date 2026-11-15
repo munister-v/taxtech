@@ -437,7 +437,7 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
 
   const payAmount = Number(shop[0]?.price) || 14490;
 
-  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#card', t('Картки', 'Cards')], ['#qr', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#faq', t('Питання', 'Questions')], ['/blog', t('Блог', 'Blog')]];
+  const nav: [string, string][] = [['#pay', t('Оплата', 'Pay')], ['#qr', 'Roma Live'], ['#inside', t('Технології', 'Tech')], ['#faq', t('Питання', 'Questions')], ['/blog', t('Блог', 'Blog')]];
   const langSwitch = (
     <div className="bl-lang" role="group" aria-label={t('Мова', 'Language')}>
       {LANDING_LANGS.map(l => (

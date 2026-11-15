@@ -76,7 +76,7 @@ function paintLook(look: Look, mark: HTMLImageElement | null, photo: HTMLImageEl
     g.addColorStop(0, look.a); g.addColorStop(1, look.b);
     c.fillStyle = g; c.fillRect(0, 0, TW, TH);
     const glow = c.createRadialGradient(TW * 0.74, TH * 0.44, 0, TW * 0.74, TH * 0.44, TW * 0.46);
-    glow.addColorStop(0, look.line + '2e'); glow.addColorStop(1, look.line + '00');
+    glow.addColorStop(0, look.line + '14'); glow.addColorStop(1, look.line + '00');
     c.fillStyle = glow; c.fillRect(0, 0, TW, TH);
   }
   o.fillStyle = polish(look.rough, look.metal); o.fillRect(0, 0, TW, TH);
@@ -165,7 +165,7 @@ function paintTerminal(amount: string) {
 export async function createJourney(cv: HTMLCanvasElement, opts: Opts): Promise<JourneyApi> {
   const renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 0.95;
   const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -174,8 +174,8 @@ export async function createJourney(cv: HTMLCanvasElement, opts: Opts): Promise<
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 60);
   camera.position.set(0, 0, CAM_Z);
 
-  const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(-3, 5, 8); scene.add(key);
-  const rim = new THREE.PointLight(0xffd9a0, 46, 0, 2); scene.add(rim);
+  const key = new THREE.DirectionalLight(0xffffff, 1.0); key.position.set(-3, 5, 8); scene.add(key);
+  const rim = new THREE.PointLight(0xffd9a0, 12, 0, 2); scene.add(rim);
 
   // ── card
   const rosette = new Path2D(opts.rosette);
@@ -187,7 +187,7 @@ export async function createJourney(cv: HTMLCanvasElement, opts: Opts): Promise<
     faces[i] = { map: tex(a, true, aniso), orm: tex(ov, false, aniso) };
   };
   LOOKS.forEach((_, i) => makeFace(i, null));
-  const faceMat = new THREE.MeshPhysicalMaterial({ map: faces[0].map, roughnessMap: faces[0].orm, metalnessMap: faces[0].orm, roughness: 1, metalness: 1, clearcoat: 0.55, clearcoatRoughness: 0.22, envMapIntensity: 0.8 });
+  const faceMat = new THREE.MeshPhysicalMaterial({ map: faces[0].map, roughnessMap: faces[0].orm, metalnessMap: faces[0].orm, roughness: 1, metalness: 1, clearcoat: 0.55, clearcoatRoughness: 0.22, envMapIntensity: 0.5 });
   const edgeMat = new THREE.MeshStandardMaterial({ color: LOOKS[0].b, roughness: 0.3, metalness: 0.9 });
   const card = new THREE.Mesh(slab(CW, CH, CR, CT), [faceMat, edgeMat]);
   scene.add(card);
@@ -197,8 +197,8 @@ export async function createJourney(cv: HTMLCanvasElement, opts: Opts): Promise<
     shown = i;
     const f = faces[i], l = LOOKS[i];
     faceMat.map = f.map; faceMat.roughnessMap = f.orm; faceMat.metalnessMap = f.orm;
-    faceMat.clearcoat = l.photo ? 0.3 : parseInt(l.ink.slice(1, 3), 16) < 0x80 ? 0.2 : 0.55; faceMat.envMapIntensity = l.photo ? 0.3 : 0.8;
-    key.intensity = l.photo ? 0.55 : 1.5; rim.intensity = l.photo ? 7 : 46;
+    faceMat.clearcoat = l.photo ? 0.3 : parseInt(l.ink.slice(1, 3), 16) < 0x80 ? 0.2 : 0.55; faceMat.envMapIntensity = l.photo ? 0.3 : 0.5;
+    key.intensity = l.photo ? 0.55 : 1.0; rim.intensity = l.photo ? 5 : 12;
     edgeMat.color.set(l.photo ? '#141416' : l.b).lerp(new THREE.Color(l.a), 0.35);
     rim.color.set(l.tint);
     opts.onLook(i);
@@ -293,7 +293,7 @@ export async function createJourney(cv: HTMLCanvasElement, opts: Opts): Promise<
       (m.material as THREE.MeshBasicMaterial).opacity = (1 - t) * (1 - t) * 0.85;
     });
 
-    rim.position.set(Math.cos(time * 0.5) * 4.2 + v.x, Math.sin(time * 0.37) * 2.4 + v.y + 1, 3.4);
+    rim.position.set(Math.cos(time * 0.5) * 4.2 + v.x, Math.sin(time * 0.37) * 2.4 + v.y + 1, 4.6);
     renderer.render(scene, camera);
     if (vis) raf = requestAnimationFrame(frame);
   };
