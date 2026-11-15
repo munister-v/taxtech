@@ -503,27 +503,16 @@ export default function BankLanding({ onAuth: onAuthRaw, authed = false }: { onA
           <div className="bl-lt-stage" ref={hoodRefCb}>
             <HoodPlatform phase={plat} going={hoodGo} roman={ROMAN[hood]} name={HOOD_PLACES[hood].name} next={HOOD_PLACES[hoodTo].name} nextRoman={ROMAN[hoodTo]} rose={CARD_ROSETTE} />
           </div>
-          <div id="hello" className="bl-hello bl-hello-in-hood">
-          <div className="bl-wrap bl-hello-in">
-            <div className="bl-hello-text">
-              <p className="bl-hello-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
-              <a className="bl-bcard bl-rv" href="/blog/how-i-built-my-own-bank">
-                <span className="bl-bcard-img"><img src="/blog/how-i-built-my-bank/cover-art.webp" alt="" width="1600" height="900" loading="lazy" decoding="async" /></span>
-                <span className="bl-bcard-t">
-                  <small>{t('Блог · Інженерія', 'Blog · Engineering')}</small>
-                  <b>How I Built My Own Bank</b>
-                  <i>{t('Читати статтю', 'Read the article')} →</i>
-                </span>
-              </a>
-            </div>
-            <aside className="bl-hello-card bl-rv">
-              <figure className="bl-hello-photo">
-                <img src="/landing/taxtech-general.webp" alt={t('В’ячеслав Муністер', 'Viacheslav Munister')} width="160" height="160" loading="lazy" decoding="async" />
-              </figure>
-              <h3>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</h3>
-              <p className="bl-hello-role">{t('Продуктовий архітектор і розробник TaxTech', 'Product architect and developer of TaxTech')}</p>
-            </aside>
-          </div>
+          <div id="hello" className="bl-wrap ah">
+            <p className="ah-lead bl-rv">{t('TaxTech — лабораторний банк із відкритою будовою. Картка, переказ, антифрод, подвійний запис і хеш-ланцюг працюють по-справжньому, на токені TAX.', 'TaxTech is a laboratory bank with an open build. The card, transfers, fraud checks, double-entry ledger and hash chain all work for real, on the TAX token.')}</p>
+            <a className="ah-art bl-rv" href="/blog/how-i-built-my-own-bank">
+              <img src="/blog/how-i-built-my-bank/cover-art.webp" alt="" width="1600" height="900" loading="lazy" decoding="async" />
+              <b>How I Built My Own Bank</b>
+            </a>
+            <p className="ah-by bl-rv">
+              <img src="/landing/taxtech-general.webp" alt="" width="160" height="160" loading="lazy" decoding="async" />
+              <span>{t('В’ячеслав Муністер', 'Viacheslav Munister')}</span>
+            </p>
           </div>
         </Lazy>
 
