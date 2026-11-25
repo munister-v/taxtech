@@ -137,7 +137,7 @@ struct VerifySeal: View {
             VStack(spacing: 4) {
                 Text(L("Код документа").s).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(.secondary)
                 Text(doc.code)
-                    .font(Theme.code(style: .title3).weight(.semibold)).tracking(1.2)
+                    .font(Theme.mono(style: .title3).weight(.bold)).tracking(1.2)
                     .textSelection(.enabled).minimumScaleFactor(0.7).lineLimit(1)
             }
             Text(L("Наведіть камеру на QR або введіть код на сторінці перевірки: вона звіряє документ із реєстром і не показує особистих даних.").s)
@@ -291,7 +291,7 @@ struct DocumentRow: View {
                            tint: doc.isReceipt ? Theme.income : Theme.accent, size: 46)
             VStack(alignment: .leading, spacing: 3) {
                 Text(Translator.server(doc.title)).font(Theme.ui(style: .body, .medium)).lineLimit(2).minimumScaleFactor(0.85)
-                Text(doc.code).font(Theme.code(12)).foregroundStyle(.secondary)
+                Text(doc.code).font(Theme.mono(12)).foregroundStyle(.secondary)
                     .lineLimit(1).minimumScaleFactor(0.7)
             }
             Spacer(minLength: 6)

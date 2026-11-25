@@ -99,7 +99,7 @@ struct MoreHub: View {
             HStack(spacing: 14) {
                 AvatarView(initials: initials, size: 58)
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(name.isEmpty ? "TaxTech" : name).font(Theme.mono(style: .title3, .semibold)).lineLimit(1)
+                    Text(name.isEmpty ? "TaxTech" : name).font(Theme.ui(style: .title3, .bold)).lineLimit(1)
                     KYCBadge(verified: kyc.level == .verified)
                 }
                 Spacer()
@@ -187,7 +187,7 @@ struct MoreHub: View {
 
     private func section(_ title: String, _ tiles: [AnyView]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(Theme.mono(style: .title3, .semibold)).tracking(-0.3)
+            Text(title).font(Theme.ui(style: .title3, .bold)).tracking(-0.3)
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                 ForEach(Array(tiles.enumerated()), id: \.offset) { $1 }
             }

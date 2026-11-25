@@ -308,7 +308,7 @@ struct KYCView: View {
     private var done: some View {
         VStack(spacing: 18) {
             IDCredential(state: state, verified: true).padding(.top, 12)
-            Text(Tx("Особу підтверджено", "Identity verified", "Личность подтверждена")).font(Theme.mono(22, .bold))
+            Text(Tx("Особу підтверджено", "Identity verified", "Личность подтверждена")).font(Theme.ui(22, .bold))
             AMLGauge(risk: state.risk)
             VStack(spacing: 0) {
                 Line2(Tx("Імʼя", "Name", "Имя"), state.fullName)

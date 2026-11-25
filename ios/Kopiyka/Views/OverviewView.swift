@@ -727,10 +727,9 @@ enum Digits {
             }
             let isSep = between(i)
             let beforeSep = between(i + 1)
-            // шрифт із пропорційними знаками: розділювач уже вузький, тягнути його до цифр не треба
-            let pull = ch.isWhitespace ? size * 0.12 : 0
+            let pull = ch.isWhitespace ? size * 0.34 : size * 0.15
             if isSep { run.kern = tracking - pull }
-            else if beforeSep, chars[i + 1].isWhitespace { run.kern = tracking - size * 0.04 }
+            else if beforeSep { run.kern = tracking - (chars[i + 1].isWhitespace ? size * 0.10 : size * 0.13) }
             else { run.kern = tracking }
             out.append(run)
         }
@@ -754,7 +753,7 @@ struct BigAmount: View {
             if hidden {
                 Text("••••••").font(Theme.ui(size, .semibold))
             } else {
-                Text(Digits.tight(parts.first ?? s, size: size, tracking: -size * 0.008)).font(.display(size))
+                Text(Digits.tight(parts.first ?? s, size: size, tracking: -size * 0.025)).font(Theme.mono(size, .bold))
                 if parts.count > 1, parts[1] != "00" {
                     Text("\(sep)\(parts[1])").font(Theme.ui(size * 0.5, .regular)).foregroundStyle(.secondary)
                 }

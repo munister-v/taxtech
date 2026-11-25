@@ -757,7 +757,7 @@ struct CartView: View {
                         }
                         .padding(.top, 4)
 
-                        Text(L("Доставка").s).font(Theme.mono(style: .title3, .bold)).padding(.top, 6)
+                        Text(L("Доставка").s).font(Theme.ui(style: .title3, .bold)).padding(.top, 6)
                         Surface {
                             VStack(spacing: 0) {
                                 field(L("Ім'я та прізвище").s, text: $name, content: .name, error: nameError)
@@ -870,7 +870,7 @@ struct ThreeDSView: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 18) {
                 MarkView(height: 32)
-                Text(L("Підтвердження оплати").s).font(Theme.mono(style: .title2, .semibold))
+                Text(L("Підтвердження оплати").s).font(Theme.ui(style: .title2, .bold))
                 Surface {
                     Line2(L("Отримувач").s, merchant)
                     Rule()

@@ -85,7 +85,7 @@ struct PosTerminalView: View {
             }
             .buttonStyle(PressScale())
             Spacer()
-            Text(L("Термінал").s).font(Theme.mono(style: .headline, .bold))
+            Text(L("Термінал").s).font(Theme.ui(style: .headline, .bold))
             Spacer()
             if phase == .entry {
                 Button { showMerchant = true } label: {
@@ -335,7 +335,7 @@ struct PosTerminalView: View {
                 }
                 .buttonStyle(.plain)
             }
-            TextField("000000", text: $otp).keyboardType(.numberPad).font(Theme.code(32, .semibold))
+            TextField("000000", text: $otp).keyboardType(.numberPad).font(Theme.mono(32, .bold)).monospacedDigit()
                 .padding(16).background(Theme.frost, in: .rect(cornerRadius: 16, style: .continuous))
             if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Button(L("Підтвердити").s) {

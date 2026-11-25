@@ -280,7 +280,7 @@ private struct TopupView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(Tx("Вхідний переказ", "Incoming transfer", "Входящий перевод")).font(Theme.mono(20, .bold))
+            Text(Tx("Вхідний переказ", "Incoming transfer", "Входящий перевод")).font(Theme.ui(20, .bold))
             Text(Tx("Навчальне зарахування, ніби прийшов \(account.currency == "EUR" ? "SEPA" : "SWIFT")-переказ на ваш IBAN.",
                     "A training credit, as if a \(account.currency == "EUR" ? "SEPA" : "SWIFT") transfer arrived at your IBAN.",
                     "Учебное зачисление, будто пришёл \(account.currency == "EUR" ? "SEPA" : "SWIFT")-перевод на ваш IBAN."))
@@ -423,7 +423,7 @@ struct ExchangeView: View {
     private func receipt(_ q: API.FXQuote) -> some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.seal.fill").font(Theme.ui(56)).foregroundStyle(Theme.goldFill).padding(.top, 30)
-            Text(Tx("Обмін виконано", "Exchange completed", "Обмен выполнен")).font(Theme.mono(22, .bold))
+            Text(Tx("Обмін виконано", "Exchange completed", "Обмен выполнен")).font(Theme.ui(22, .bold))
             Surface {
                 line(Tx("Списано", "Paid", "Списано"), amount(q.fromAmount, q.from))
                 Rule()

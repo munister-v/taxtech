@@ -275,7 +275,7 @@ struct BlockTitle: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(text).font(Theme.mono(19, .bold))
+            Text(text).font(Theme.ui(19, .bold))
             Spacer()
             if let trailing {
                 Text(trailing).font(Theme.ui(style: .subheadline, .semibold)).foregroundStyle(.secondary).monospacedDigit()

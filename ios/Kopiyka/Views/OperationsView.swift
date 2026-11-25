@@ -337,7 +337,7 @@ struct OperationsView: View {
             }
         } else {
             HStack(alignment: .firstTextBaseline) {
-                Text(L("Історія").s).font(Theme.mono(style: .title3, .bold))
+                Text(L("Історія").s).font(Theme.ui(style: .title3, .bold))
                 let net = items.reduce(0) { $0 + ($1.isIncome ? $1.amount : -$1.amount) }
                 Text("\(items.count)").foregroundStyle(.secondary).monospacedDigit()
                 Text((net >= 0 ? "+" : "−") + OverviewView.compactCents(abs(net)))

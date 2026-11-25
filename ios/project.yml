@@ -55,6 +55,7 @@ targets:
       properties:
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+        UIAppFonts: [Cousine-Regular.ttf, Cousine-Bold.ttf, Nunito.ttf]
         CFBundleURLTypes:
           - CFBundleURLName: com.eprisjournal.kopiyka.pay
             CFBundleURLSchemes: [taxtech]

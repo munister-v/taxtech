@@ -256,7 +256,7 @@ struct BrandEmpty: View {
                     MarkView(height: 64, color: Theme.accent)
                 }
             }
-            Text(title).font(Theme.mono(style: .title3, .bold)).multilineTextAlignment(.center)
+            Text(title).font(Theme.ui(style: .title3, .bold)).multilineTextAlignment(.center)
             if let detail {
                 Text(detail).font(Theme.ui(style: .subheadline, .regular)).foregroundStyle(.secondary)
                     .multilineTextAlignment(.center).padding(.horizontal, 28)
