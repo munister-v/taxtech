@@ -116,6 +116,7 @@ struct OverviewView: View {
         if let v = try? await r { recipients = v }
         unread = (try? await u) ?? 0
         await b
+        model.serverTrouble = bank.error != nil
         if Build.shop, hits.isEmpty {
             hits = ((try? await model.api.catalog(search: "", page: 1, sort: "stock", perPage: 40))?.items ?? [])
                 .filter { ["HOT", "TOP", "NEW"].contains($0.badge ?? "") }
@@ -551,7 +552,9 @@ private struct HeroBalance: View {
                 Button(L("Скопіювати баланс").s, systemImage: "doc.on.doc") { model.copy(Format.amount(balance)) }
             }
         }
-        .accessibilityLabel(hidden ? L("Показати баланс").s : L("Сховати баланс").s)
+        .accessibilityLabel(Tx("Баланс", "Balance", "Баланс"))
+        .accessibilityValue(hidden ? Tx("Сховано", "Hidden", "Скрыто") : Format.money(balance ?? 0))
+        .accessibilityHint(hidden ? L("Показати баланс").s : L("Сховати баланс").s)
         .redacted(reason: loaded ? [] : .placeholder)
         .onChange(of: balance, initial: true) { _, v in
             guard let v else { return }
@@ -635,6 +638,8 @@ struct ActivityRow: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(row.title), \(tx.spokenAmount), " + tx.date.formatted(.dateTime.day().month(.wide).hour().minute().locale(Lang.current.locale)))
     }
 }
 

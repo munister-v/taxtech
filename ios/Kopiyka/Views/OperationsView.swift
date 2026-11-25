@@ -93,7 +93,7 @@ struct OperationsView: View {
                 // пауза потрібна лише пошуку: перше завантаження й перемикання вкладок не чекають
                 if !filter.search.isEmpty { try? await Task.sleep(for: .milliseconds(250)) }
                 guard !Task.isCancelled else { return }
-                items = (try? await model.api.history(filter)) ?? []
+                if let fresh = try? await model.api.history(filter) { items = fresh } else if !loaded { items = [] }
                 loaded = true
             }
             .task {
@@ -103,8 +103,11 @@ struct OperationsView: View {
                 insights = (try? await i) ?? []
             }
             .refreshable {
-                items = (try? await model.api.history(filter)) ?? []
-                summary = try? await model.api.analytics()
+                if let fresh = try? await model.api.history(filter) { items = fresh }
+                if let s = try? await model.api.analytics() { summary = s }
+            }
+            .onChange(of: model.syncTick) { _, _ in
+                Task { if let fresh = try? await model.api.history(filter) { items = fresh } }
             }
             .sheet(item: $selected) { tx in TransactionDetailView(tx: tx) }
         }
@@ -327,13 +330,28 @@ struct OperationsView: View {
                            symbol: "list.bullet.rectangle", action: L("Поповнити рахунок").s) { topUp = true }
                     .sheet(isPresented: $topUp) { TopUpView { items = (try? await model.api.history(filter)) ?? []; summary = try? await model.api.analytics() } }
             } else {
-                BrandEmpty(title: L("Нічого не знайдено").s, detail: L("Спробуйте інше слово або змініть фільтр").s, symbol: "magnifyingglass")
+                BrandEmpty(title: L("Нічого не знайдено").s, detail: L("Спробуйте інше слово або змініть фільтр").s, symbol: "magnifyingglass",
+                           action: Tx("Скинути пошук", "Clear search", "Сбросить поиск")) {
+                    withAnimation(.snappy) { filter.search = ""; filter.direction = nil }
+                }
             }
         } else {
             HStack(alignment: .firstTextBaseline) {
                 Text(L("Історія").s).font(Theme.mono(style: .title3, .bold))
+                let net = items.reduce(0) { $0 + ($1.isIncome ? $1.amount : -$1.amount) }
                 Text("\(items.count)").foregroundStyle(.secondary).monospacedDigit()
+                Text((net >= 0 ? "+" : "−") + OverviewView.compactCents(abs(net)))
+                    .font(Theme.ui(style: .footnote, .semibold)).monospacedDigit()
+                    .foregroundStyle(net >= 0 ? Theme.income : Theme.expense)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background((net >= 0 ? Theme.income : Theme.expense).opacity(0.14), in: .capsule)
                 Spacer()
+                if let csv = StatementCSV.file(for: items) {
+                    ShareLink(item: csv) {
+                        Image(systemName: "square.and.arrow.up").font(Theme.ui(style: .subheadline, .medium)).foregroundStyle(Theme.ink)
+                    }
+                    .accessibilityLabel(Tx("Виписка CSV", "Statement CSV", "Выписка CSV"))
+                }
                 Menu {
                     Picker(L("Сортування").s, selection: $sort) {
                         ForEach(Sort.allCases, id: \.self) { Text($0.label).tag($0) }

@@ -43,6 +43,14 @@ final class AppModel {
     @ObservationIgnored var toastTask: Task<Void, Never>?
     /// Повторне торкання вибраної вкладки.
     var retap: TabRetap?
+    /// Є зв'язок (слухає систему) і чи відповів сервер на останнє оновлення.
+    var online: Bool { NetworkMonitor.shared.online }
+    var serverTrouble = false
+    /// Скільки секунд у фоні банк ще лишається відкритим: 0 - зачиняється одразу.
+    var lockDelay: Int = UserDefaults.standard.integer(forKey: "lockDelay") {
+        didSet { UserDefaults.standard.set(lockDelay, forKey: "lockDelay") }
+    }
+    @ObservationIgnored var leftAt: Date?
 
     /// Згода надсилати текст (уже без особистих даних) мовній моделі на сервері.
     /// Правило App Store 5.1.2: передачу даних сторонньому ІІ треба пояснити й отримати дозвіл.

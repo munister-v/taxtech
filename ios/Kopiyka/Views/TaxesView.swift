@@ -54,8 +54,15 @@ struct TaxesView: View {
             .task {
                 async let h = model.api.history(API.HistoryFilter())
                 async let d = model.api.deposits()
-                income = (try? await h) ?? []
-                deposits = (try? await d) ?? []
+                if let v = try? await h { income = v }
+                if let v = try? await d { deposits = v }
+            }
+            .refreshable {
+                if let v = try? await model.api.history(API.HistoryFilter()) { income = v }
+                if let v = try? await model.api.deposits() { deposits = v }
+            }
+            .onChange(of: model.syncTick) { _, _ in
+                Task { if let v = try? await model.api.history(API.HistoryFilter()) { income = v } }
             }
             .sheet(isPresented: $editingRates) { RatesView(tax: tax) }
         }

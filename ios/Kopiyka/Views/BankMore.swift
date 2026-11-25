@@ -513,6 +513,24 @@ struct SecurityView: View {
                     }
                     if hasPin {
                         Rule()
+                        HStack {
+                            Text(Tx("Автоблокування", "Auto-lock", "Автоблокировка"))
+                            Spacer()
+                            Picker("", selection: Binding(get: { model.lockDelay }, set: { model.lockDelay = $0 })) {
+                                ForEach(AutoLock.options, id: \.seconds) { Text($0.title).tag($0.seconds) }
+                            }
+                            .labelsHidden().tint(Theme.accent)
+                        }
+                        .padding(.horizontal, 16).padding(.vertical, 8)
+                        Rule()
+                        Button {
+                            model.bankUnlocked = false
+                        } label: {
+                            Label(Tx("Заблокувати зараз", "Lock now", "Заблокировать сейчас"), systemImage: "lock.fill")
+                                .frame(maxWidth: .infinity, alignment: .leading).padding(16).contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        Rule()
                         Button {
                             Task {
                                 if await screen.run({ try await model.api.clearPin() }) { model.biometricsEnabled = false }

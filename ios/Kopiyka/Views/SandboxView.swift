@@ -51,6 +51,7 @@ struct TransferView: View {
     let balance: Double
     var startByCard = false
     var startRecipient = ""
+    var startAmount: Double?
     let done: () async -> Void
 
     @State private var recipient = ""
@@ -64,6 +65,7 @@ struct TransferView: View {
     @State private var outcome: String?
     @State private var error: String?
     @State private var busy = false
+    @State private var confirming = false
 
     var body: some View {
         NavigationStack {
@@ -75,9 +77,23 @@ struct TransferView: View {
                             .font(Theme.balance(48))
                             .multilineTextAlignment(.center)
                             .monospacedDigit()
-                        Text(L("Доступно \(Format.money(balance))").s)
-                            .font(Theme.ui(style: .footnote))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(insufficient ? Theme.alert : Theme.ink)
+                        HStack(spacing: 10) {
+                            if insufficient {
+                                Text(Tx("Недостатньо коштів", "Not enough funds", "Недостаточно средств"))
+                                    .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.alert)
+                            } else {
+                                Text(L("Доступно \(Format.money(balance))").s)
+                                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+                            }
+                            if balance > 0, amount != maxAmount {
+                                Button(Tx("Усе", "Max", "Всё")) { amount = maxAmount }
+                                    .font(Theme.ui(style: .footnote, .bold)).foregroundStyle(Theme.accent)
+                                    .padding(.horizontal, 10).padding(.vertical, 4)
+                                    .background(Theme.accent.opacity(0.14), in: .capsule)
+                                    .buttonStyle(.plain)
+                            }
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -95,6 +111,11 @@ struct TransferView: View {
                         .keyboardType(byCard ? .numberPad : .default)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
+                    if case .bad = recipientState {
+                        Text(byCard ? Tx("Номер картки - 16 цифр", "A card number has 16 digits", "Номер карты - 16 цифр")
+                                    : Tx("Рахунок виглядає так: KP-100003", "An account looks like KP-100003", "Счёт выглядит так: KP-100003"))
+                            .font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert)
+                    }
                     TextField(L("Призначення").s, text: $note)
                     if !contacts.isEmpty || !templates.isEmpty {
                         Menu(L("Обрати зі збережених").s) {
@@ -155,8 +176,10 @@ struct TransferView: View {
                                 Text(L("Переказ із критичним ризиком не надсилається.").s)
                                     .foregroundStyle(.secondary)
                             } else {
-                                Button(L("Надіслати \(Format.money(amount ?? 0))").s) { Task { await send() } }
-                                    .disabled(busy)
+                                Button(L("Надіслати \(Format.money(amount ?? 0))").s) {
+                                    if needsConfirm { confirming = true } else { Task { await send() } }
+                                }
+                                .disabled(busy)
                             }
                         }
                     }
@@ -166,10 +189,22 @@ struct TransferView: View {
                 if let error { Section { Text(error).foregroundStyle(.secondary) } }
             }
             .labForm()
+            .alert(Tx("Надіслати \(Format.money(amount ?? 0))?", "Send \(Format.money(amount ?? 0))?", "Отправить \(Format.money(amount ?? 0))?"),
+                   isPresented: $confirming) {
+                Button(Tx("Надіслати", "Send", "Отправить")) { Task { await send() } }
+                Button(Tx("Скасувати", "Cancel", "Отмена"), role: .cancel) {}
+            } message: {
+                Text(Tx("Одержувач: \(recipient). Велика сума: перевірте реквізити, повернути переказ не вийде.",
+                        "To: \(recipient). This is a large amount: check the details, a transfer cannot be taken back.",
+                        "Получатель: \(recipient). Крупная сумма: проверьте реквизиты, вернуть перевод не получится."))
+            }
+            .sensoryFeedback(.success, trigger: outcome) { _, new in new?.hasPrefix(L("Надіслано").s) == true }
+            .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
             .task {
                 if recipient.isEmpty {
                     byCard = startByCard
                     recipient = startRecipient
+                    if amount == nil { amount = startAmount }
                 }
                 await loadSaved()
             }
@@ -182,7 +217,14 @@ struct TransferView: View {
     }
 
     private var overLimit: Bool { (amount ?? 0) > KYCLimits.transfer }
-    private var valid: Bool { (amount ?? 0) > 0 && recipient.count >= 4 && !overLimit }
+    private var insufficient: Bool { (amount ?? 0) > balance + 0.004 }
+    private var maxAmount: Double { (min(balance, KYCLimits.transfer) * 100).rounded(.down) / 100 }
+    private var recipientState: RecipientCheck.Result { RecipientCheck.check(recipient, byCard: byCard) }
+    /// Від 5 000 або половини балансу переказ просить окремого підтвердження.
+    private var needsConfirm: Bool { (amount ?? 0) >= 5_000 || ((amount ?? 0) >= 500 && (amount ?? 0) >= balance * 0.5) }
+    private var valid: Bool {
+        (amount ?? 0) > 0 && recipient.count >= 4 && !overLimit && !insufficient && recipientState == .ok
+    }
 
     private func loadSaved() async {
         contacts = (try? await model.api.contacts()) ?? []

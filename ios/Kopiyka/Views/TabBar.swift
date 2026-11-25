@@ -51,6 +51,7 @@ struct FloatingTabBar: View {
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 4)
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         .sensoryFeedback(.selection, trigger: selection)
     }
 

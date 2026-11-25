@@ -103,10 +103,7 @@ extension View {
 
     /// Скляна панель: матеріал, світлий торець зверху, тонка лінія, м'яка тінь.
     func glass(_ radius: CGFloat = 22) -> some View {
-        background(Theme.plate, in: .rect(cornerRadius: radius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(Theme.rim, lineWidth: 0.8)
-            }
+        modifier(GlassPanel(radius: radius))
     }
 
     /// Контент, що з'їжджає вгору, розчиняється під годинником, а не налазить на нього.
@@ -620,5 +617,24 @@ struct LogoBackdrop: View {
     private func mark(_ size: CGFloat, _ opacity: Double, tint: Color = .white) -> some View {
         Image("Mark").renderingMode(.template).resizable().scaledToFit()
             .frame(width: size).foregroundStyle(tint.opacity(opacity))
+    }
+}
+
+
+/// Панель зі скла. Коли в системі ввімкнено «Вищу контрастність», контур стає чітким і світлішим.
+private struct GlassPanel: ViewModifier {
+    let radius: CGFloat
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    func body(content: Content) -> some View {
+        content
+            .background(Theme.plate, in: .rect(cornerRadius: radius, style: .continuous))
+            .overlay {
+                if contrast == .increased {
+                    RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(.white.opacity(0.55), lineWidth: 1.2)
+                } else {
+                    RoundedRectangle(cornerRadius: radius, style: .continuous).strokeBorder(Theme.rim, lineWidth: 0.8)
+                }
+            }
     }
 }

@@ -217,7 +217,7 @@ struct API: Sendable {
     }
 
     func send<T: Decodable>(_ r: URLRequest) async throws -> T {
-        let (data, response) = try await URLSession.shared.data(for: r)
+        let (data, response) = try await Self.fetch(r)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -230,6 +230,15 @@ struct API: Sendable {
         // відповіді головного екрана лишаємо на диску: наступний запуск показує їх одразу, а мережа лише оновлює
         if r.httpMethod == "GET", let url = r.url, ResponseCache.keeps(url) { ResponseCache.shared.put(url, token, data) }
         return value
+    }
+
+    /// Читання повторюємо один раз, якщо зв'язок урвався або сервер не вклався в час: запис не чіпаємо, щоб не задвоїти.
+    private static func fetch(_ r: URLRequest) async throws -> (Data, URLResponse) {
+        do { return try await URLSession.shared.data(for: r) } catch let e as URLError where r.httpMethod == "GET"
+            && [.timedOut, .networkConnectionLost, .cannotConnectToHost].contains(e.code) {
+            try await Task.sleep(for: .milliseconds(700))
+            return try await URLSession.shared.data(for: r)
+        }
     }
 
     /// Остання збережена відповідь на GET-запит, якщо вона є. Мережі не чіпає.

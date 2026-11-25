@@ -12,6 +12,7 @@ struct TransactionDetailView: View {
     @State private var preview: URL?
     @State private var copied = false
     @State private var document: API.DocumentRecord?
+    @State private var again: Double?
 
     /// Підсумок операції для «Поділитися»: без номерів рахунків і персональних даних.
     private var shareText: String {
@@ -43,7 +44,13 @@ struct TransactionDetailView: View {
                         VStack(spacing: 0) {
                             LeaderRow(title: L("Вид").s, value: BankText.type(tx.txType))
                             LeaderRow(title: L("Коли").s, value: tx.date.formatted(Date.FormatStyle(date: .long, time: .shortened).locale(Lang.current.locale)))
-                            if let r = tx.relatedAccount { LeaderRow(title: tx.isIncome ? L("Від").s : L("Кому").s, value: r) }
+                            if let r = tx.relatedAccount {
+                                LeaderRow(title: tx.isIncome ? L("Від").s : L("Кому").s, value: r)
+                                    .contentShape(.rect)
+                                    .onTapGesture { model.copy(r) }
+                                    .accessibilityHint(Tx("Торкніться, щоб скопіювати", "Tap to copy", "Нажмите, чтобы скопировать"))
+                                    .accessibilityAddTraits(.isButton)
+                            }
                             LeaderRow(title: L("Номер операції").s, value: "№ " + String(format: "%08d", tx.id))
                         }
                         .padding(.horizontal, -18)
@@ -62,6 +69,15 @@ struct TransactionDetailView: View {
                     }
                     .buttonStyle(InkButton())
                     .disabled(screen.busy)
+
+                    if !tx.isIncome, tx.txType == "transfer", tx.relatedAccount != nil {
+                        Button {
+                            Task { again = (try? await model.api.account().balance) ?? 0 }
+                        } label: {
+                            Label(Tx("Надіслати ще раз", "Send again", "Отправить ещё раз"), systemImage: "arrow.triangle.2.circlepath")
+                        }
+                        .buttonStyle(LineButton())
+                    }
 
                     if let document {
                         Surface { VerifySeal(doc: document).padding(18) }
@@ -114,6 +130,9 @@ struct TransactionDetailView: View {
             .task { document = try? await model.api.receiptDocument(tx.id) }
         }
         .quickLookPreview($preview)
+        .sheet(isPresented: Binding(get: { again != nil }, set: { if !$0 { again = nil } })) {
+            TransferView(balance: again ?? 0, startRecipient: tx.relatedAccount ?? "", startAmount: tx.amount) {}
+        }
         .presentationDetents([.medium, .large])
     }
 }

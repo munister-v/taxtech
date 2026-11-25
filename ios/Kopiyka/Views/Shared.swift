@@ -16,6 +16,7 @@ struct RootView: View {
     @State private var keyboard = false
     @State private var barHidden = false
     @State private var retapCount = 0
+    @State private var recording = false
 
     enum AppTab: Hashable { case lab, overview, operations, cards, taxes, shop, more }
 
@@ -31,6 +32,13 @@ struct RootView: View {
             return t
         }
         return [.init(tab: .overview, symbol: "square.stack.3d.up")] + (model.expert ? [.init(tab: .lab, symbol: "flask")] : [])
+    }
+
+    /// Банк знову просить PIN. Відкритий рахунок на оплату повертається в чергу: він не має висіти поверх екрана PIN.
+    private func lockBank() {
+        if let invoice, pinRequired { model.payCode = invoice; self.invoice = nil }
+        model.bankUnlocked = false
+        Task { pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? pinRequired) : false }
     }
 
     /// The bar stays away from the PIN screen and the keyboard.
@@ -132,13 +140,32 @@ struct RootView: View {
             if !on && selection == .lab { selection = .overview }
         }
         .onChange(of: phase) { _, p in
-            // з фону банк знову просить PIN
-            guard p == .background else { return }
-            // an open invoice goes back to waiting: it must not sit on top of the PIN screen when the app returns
-            if let invoice, pinRequired { model.payCode = invoice; self.invoice = nil }
-            model.bankUnlocked = false
-            Task { pinRequired = model.signedIn ? ((try? await model.api.hasPin()) ?? pinRequired) : false }
+            switch p {
+            case .background:
+                model.leftAt = .now
+                // без затримки банк зачиняється одразу; із затримкою - коли застосунок повернеться пізніше
+                if model.lockDelay == 0 { lockBank() }
+            case .active:
+                let away = model.leftAt.map { Date.now.timeIntervalSince($0) } ?? 0
+                model.leftAt = nil
+                if model.lockDelay > 0, away >= Double(model.lockDelay) { lockBank() }
+                // з фону після хвилини картина могла застаріти: оновлюємо без жесту
+                if away > 60, model.signedIn { model.syncTick += 1 }
+            default: break
+            }
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIScreen.capturedDidChangeNotification)) { _ in recording = ScreenCapture.isOn }
+        .onAppear { recording = ScreenCapture.isOn }
+        .overlay(alignment: .top) { if model.signedIn { ConnectionBanner() } }
+        .animation(.smooth, value: model.online)
+        .animation(.smooth, value: model.serverTrouble)
+        // перемикач програм і запис екрана бачать завісу, а не суму
+        .overlay {
+            if model.signedIn && (phase != .active || recording) {
+                PrivacyShield(recording: recording && phase == .active).transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.12), value: phase)
         .onAppear {
             #if DEBUG
             // simctl launch з SIMCTL_CHILD_KOPIYKA_TAB=operations|cards|taxes|shop

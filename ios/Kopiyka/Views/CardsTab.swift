@@ -9,6 +9,7 @@ struct CardsTab: View {
     @State private var monthOut: Double?
     @State private var index = 0
     @State private var revealed: API.Revealed?
+    @Environment(\.scenePhase) private var phase
     @State private var requisites: API.Revealed?
     @State private var issuing = false
     @State private var reordering = false
@@ -49,6 +50,13 @@ struct CardsTab: View {
             .task { await load() }
             .refreshable { await load() }
             .onChange(of: index) { revealed = nil }
+            // номер і CVV на екрані - не довше хвилини й не в тлі
+            .onChange(of: phase) { _, p in if p != .active { revealed = nil; requisites = nil } }
+            .task(id: revealed?.cardNumber) {
+                guard revealed != nil else { return }
+                try? await Task.sleep(for: .seconds(20))
+                if !Task.isCancelled { withAnimation(.smooth) { revealed = nil } }
+            }
             .sheet(isPresented: $issuing) { IssueCardView { await load() } }
             .sheet(isPresented: $reordering) {
                 CardReorderSheet(cards: cards) { new in
@@ -168,6 +176,11 @@ struct CardsTab: View {
                         .animation(.spring(response: 0.6, dampingFraction: 0.78), value: revealed?.cardNumber)
                         .tilt()
                         .onTapGesture { if i == index { toggleReveal(c) } }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(spoken(c, at: i))
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityHint(Tx("Показати реквізити", "Show details", "Показать реквизиты"))
+                        .accessibilityAction { if i == index { toggleReveal(c) } }
                         .contextMenu {
                             if cards.count > 1 {
                                 if i > 0 { Button(L("На початок").s, systemImage: "arrow.up.to.line") { moveCard(c, to: 0) } }
@@ -247,6 +260,16 @@ struct CardsTab: View {
             cards = CardOrder.shared.sorted(cards)
             index = cards.firstIndex { $0.id == c.id } ?? index
         }
+    }
+
+    /// Підпис картки для VoiceOver: назва, останні цифри, стан, місце в колоді.
+    private func spoken(_ c: API.Card, at i: Int) -> String {
+        var parts: [String] = [c.look.name.isEmpty ? L("Картка").s : c.look.name]
+        parts.append("•• " + String(c.maskedNumber.suffix(4)))
+        if c.isBlocked { parts.append(L("Заморожена").s) }
+        if c.isPrimary { parts.append(L("Головна").s) }
+        parts.append("\(i + 1) / \(cards.count)")
+        return parts.joined(separator: ", ")
     }
 
     private func toggleReveal(_ c: API.Card) {
