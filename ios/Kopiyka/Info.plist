@@ -34,11 +34,5 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Cousine-Regular.ttf</string>
-		<string>Cousine-Bold.ttf</string>
-		<string>Nunito.ttf</string>
-	</array>
 </dict>
 </plist>

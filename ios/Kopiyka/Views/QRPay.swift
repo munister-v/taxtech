@@ -303,7 +303,7 @@ struct QRPayView: View {
                 }
                 .buttonStyle(.plain)
             }
-            TextField("000000", text: $otp).keyboardType(.numberPad).textContentType(.oneTimeCode).font(Theme.mono(32, .bold)).monospacedDigit()
+            TextField("000000", text: $otp).keyboardType(.numberPad).textContentType(.oneTimeCode).font(Theme.code(32, .semibold))
                 .padding(16).background(.ultraThinMaterial, in: .rect(cornerRadius: 16, style: .continuous))
             if let error { Text(error).font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert) }
             Button(L("Підтвердити").s) {

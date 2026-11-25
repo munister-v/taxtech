@@ -63,7 +63,7 @@ struct CardRequisitesView: View {
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(f.title).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
-                                    Text(f.shown).font(Theme.mono(f.key == "number" ? 19 : 16, .bold)).lineLimit(1).minimumScaleFactor(0.6)
+                                    Text(f.shown).font(Theme.code(f.key == "number" ? 19 : 16, .semibold)).lineLimit(1).minimumScaleFactor(0.6)
                                 }
                                 Spacer()
                                 Image(systemName: copiedKey == f.key ? "checkmark.circle.fill" : "doc.on.doc")

@@ -45,28 +45,26 @@ final class Expense {
     }
 }
 
-/// Заголовки навігації й таб-бар шрифтами EPRIS.
+/// Заголовки навігації (New York) і таб-бар (SF Pro).
 @MainActor
 enum Appearance {
     static func apply() {
         let bar = UINavigationBarAppearance()
         bar.configureWithTransparentBackground()
-        if let large = UIFont(name: "Cousine-Bold", size: 30) {
-            bar.largeTitleTextAttributes = [.font: UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: large), .foregroundColor: UIColor(Theme.ink)]
+        func serif(_ size: CGFloat) -> UIFont {
+            let base = UIFont.systemFont(ofSize: size, weight: .semibold)
+            return base.fontDescriptor.withDesign(.serif).map { UIFont(descriptor: $0, size: size) } ?? base
         }
-        if let inline = UIFont(name: "Cousine-Bold", size: 16) {
-            bar.titleTextAttributes = [.font: UIFontMetrics(forTextStyle: .headline).scaledFont(for: inline), .foregroundColor: UIColor(Theme.ink)]
-        }
+        bar.largeTitleTextAttributes = [.font: UIFontMetrics(forTextStyle: .largeTitle).scaledFont(for: serif(32)), .foregroundColor: UIColor(Theme.ink)]
+        bar.titleTextAttributes = [.font: UIFontMetrics(forTextStyle: .headline).scaledFont(for: serif(17)), .foregroundColor: UIColor(Theme.ink)]
         UINavigationBar.appearance().standardAppearance = bar
         UINavigationBar.appearance().scrollEdgeAppearance = bar
         UINavigationBar.appearance().compactAppearance = bar
 
         let item = UITabBarItemAppearance()
-        if let base = UIFont(name: "Nunito-Regular", size: 10.5) {
-            let semi = UIFont(descriptor: base.fontDescriptor.addingAttributes([UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [0x77676874: 650]]), size: 10.5)
-            item.normal.titleTextAttributes = [.font: semi]
-            item.selected.titleTextAttributes = [.font: semi]
-        }
+        let semi = UIFont.systemFont(ofSize: 10.5, weight: .semibold)
+        item.normal.titleTextAttributes = [.font: semi]
+        item.selected.titleTextAttributes = [.font: semi]
         let tab = UITabBarAppearance()
         tab.configureWithDefaultBackground()
         tab.stackedLayoutAppearance = item

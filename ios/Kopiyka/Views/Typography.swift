@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Шрифти EPRIS: Nunito для тексту й інтерфейсу, Cousine для заголовків, чисел і коду.
+/// Шрифти: SF Pro для тексту й інтерфейсу, New York (із засічками) для заголовків і сум, SF Mono для хешів і кодів.
 extension Theme {
     private static func wght(_ w: Font.Weight) -> CGFloat {
         switch w {
@@ -16,15 +16,43 @@ extension Theme {
         }
     }
 
+    private static func uiWeight(_ w: Font.Weight) -> UIFont.Weight {
+        switch w {
+        case .ultraLight: .ultraLight
+        case .thin: .thin
+        case .light: .light
+        case .medium: .medium
+        case .semibold: .semibold
+        case .bold: .bold
+        case .heavy: .heavy
+        case .black: .black
+        default: .regular
+        }
+    }
+
+    /// Текст інтерфейсу: системний SF Pro. Нейтральний і дорогий, на великих розмірах сам перемикається на Display.
     private static func nunito(_ size: CGFloat, _ weight: Font.Weight) -> UIFont {
-        guard let base = UIFont(name: "Nunito-Regular", size: size) else { return .systemFont(ofSize: size) }
-        let d = base.fontDescriptor.addingAttributes([UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [0x77676874: wght(weight)]])
+        .systemFont(ofSize: size, weight: uiWeight(weight))
+    }
+
+    /// Заголовки й суми: New York, системний шрифт із засічками. Жирне тут важке, тож усе від 600 - напівжирне.
+    private static func cousine(_ size: CGFloat, _ weight: Font.Weight) -> UIFont {
+        let w: UIFont.Weight = wght(weight) >= 600 ? .semibold : (wght(weight) >= 500 ? .medium : .regular)
+        let base = UIFont.systemFont(ofSize: size, weight: w)
+        guard let d = base.fontDescriptor.withDesign(.serif) else { return base }
         return UIFont(descriptor: d, size: size)
     }
 
-    private static func cousine(_ size: CGFloat, _ weight: Font.Weight) -> UIFont {
-        let bold = wght(weight) >= 600
-        return UIFont(name: bold ? "Cousine-Bold" : "Cousine-Regular", size: size) ?? .monospacedSystemFont(ofSize: size, weight: bold ? .bold : .regular)
+    /// Хеші, коди, реквізити: справжній моноширинний.
+    static func code(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+        FontCache.shared.font("c", size, wght(weight)) { Font(UIFont.monospacedSystemFont(ofSize: size, weight: uiWeight(weight))) }
+    }
+
+    static func code(style: UIFont.TextStyle, _ weight: Font.Weight = .regular) -> Font {
+        let base = UIFont.preferredFont(forTextStyle: style).pointSize
+        return FontCache.shared.font("C" + style.rawValue + "\(UIFontMetrics(forTextStyle: style).scaledValue(for: 100))", base, wght(weight)) {
+            Font(UIFontMetrics(forTextStyle: style).scaledFont(for: UIFont.monospacedSystemFont(ofSize: base, weight: uiWeight(weight))))
+        }
     }
 
     /// Текст інтерфейсу фіксованого розміру.

@@ -88,7 +88,7 @@ struct TransactionDetailView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(L("Хеш запису").s).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                                 Text(h.prefix(32) + "\n" + h.suffix(32))
-                                    .font(Theme.mono(style: .footnote)).textSelection(.enabled)
+                                    .font(Theme.code(style: .footnote)).textSelection(.enabled)
                                 Button(copied ? L("Скопійовано").s : L("Скопіювати хеш").s) {
                                     UIPasteboard.general.string = h
                                     copied = true
