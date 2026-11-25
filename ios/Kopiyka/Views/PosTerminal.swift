@@ -444,7 +444,7 @@ struct PosTerminalView: View {
     }
 
     private func load() async {
-        cards = ((try? await model.api.cards()) ?? []).filter { !$0.isClosed }.sorted { $0.isPrimary && !$1.isPrimary }
+        cards = CardOrder.shared.sorted(((try? await model.api.cards()) ?? []).filter { !$0.isClosed })
         history = (try? await model.api.posPayments()) ?? []
     }
 }

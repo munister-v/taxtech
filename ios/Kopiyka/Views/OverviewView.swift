@@ -33,7 +33,7 @@ struct OverviewView: View {
                 VStack(spacing: 0) {
                     hero
                     VStack(spacing: 12) {
-                        HStack(spacing: 12) { terminalTile; scanTile }.rise(3)
+                        terminalTile.rise(3)
                         activity.rise(4)
                         if !recipients.isEmpty { quickTransfer.rise(5) }
                         spending.rise(6)
@@ -186,7 +186,7 @@ struct OverviewView: View {
 
     /// Головна картка великою: решта колоди визирає з-за неї. Торкання відкриває «Carte».
     private var heroCard: some View {
-        let deck = Array(bank.cards.filter { !$0.isClosed }.sorted { $0.isPrimary && !$1.isPrimary }.prefix(3))
+        let deck = Array(CardOrder.shared.sorted(bank.cards.filter { !$0.isClosed }).prefix(3))
         return Button { open(.cards) } label: {
             ZStack {
                 if deck.isEmpty {

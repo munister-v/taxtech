@@ -452,7 +452,11 @@ struct VirtualCardView: View {
         }
         .aspectRatio(1.586, contentMode: .fit)
         .clipShape(shape)
-        .shadow(color: .black.opacity(compact ? 0.12 : 0.28), radius: compact ? 4 : 16, y: compact ? 2 : 10)
+        // торець пластику: нижче лицьового боку видно темну смужку завтовшки в картку
+        .background { shape.fill(resolved.color.base.mix(with: .black, by: resolved.color.isLight ? 0.38 : 0.55)).offset(y: compact ? 0.8 : 2) }
+        // дві тіні: тісна від контакту й широка від висоти
+        .shadow(color: .black.opacity(compact ? 0.3 : 0.45), radius: compact ? 1.2 : 2.5, y: compact ? 1 : 2)
+        .shadow(color: .black.opacity(compact ? 0.14 : 0.34), radius: compact ? 4 : 22, y: compact ? 2 : 16)
     }
 
     private var corner: CGFloat { compact ? 8 : 18 }
@@ -495,6 +499,7 @@ struct VirtualCardView: View {
             }
             .font(Theme.ui(style: .caption1, .medium))
             .opacity(0.85)
+            .shadow(color: .black.opacity(l.color.isLight ? 0.18 : 0.4), radius: 0.4, x: 0.5, y: 0.7)
             .padding(.top, 10)
         }
         .padding(20)

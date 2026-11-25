@@ -11,8 +11,42 @@ struct RootView: View {
     @State private var invoice: PayCode?         // the invoice on screen; model.payCode is the one still waiting
     @State private var splash = true
     @State private var moreJump: MoreHub.Jump?
+    @State private var visited: Set<AppTab> = []
+    @State private var showScan = false
+    @State private var keyboard = false
 
     enum AppTab: Hashable { case lab, overview, operations, cards, taxes, shop, more }
+
+    private var tabs: [FloatingTabBar.Item] {
+        if model.signedIn {
+            var t: [FloatingTabBar.Item] = [
+                .init(tab: .overview, symbol: "house"),
+                .init(tab: .operations, symbol: "arrow.left.arrow.right"),
+                .init(tab: .cards, symbol: "creditcard"),
+                .init(tab: .taxes, symbol: "building.columns"),
+            ]
+            if Build.shop || model.expert { t.append(.init(tab: .more, symbol: "square.grid.2x2")) }
+            return t
+        }
+        return [.init(tab: .overview, symbol: "square.stack.3d.up")] + (model.expert ? [.init(tab: .lab, symbol: "flask")] : [])
+    }
+
+    /// The bar stays away from the PIN screen and the keyboard.
+    private var barVisible: Bool {
+        !keyboard && !(model.signedIn && pinRequired && !model.bankUnlocked)
+    }
+
+    @ViewBuilder private func content(for tab: AppTab) -> some View {
+        switch tab {
+        case .overview: if model.signedIn { bank { OverviewView { selection = $0 } } } else { SandboxGate() }
+        case .operations: bank { OperationsView() }
+        case .cards: bank { CardsTab() }
+        case .taxes: bank { TaxesView() }
+        case .more: bank { MoreHub(jump: $moreJump) }
+        case .lab: LabHome()
+        case .shop: EmptyView()
+        }
+    }
 
     var body: some View {
         Group {
@@ -20,26 +54,33 @@ struct RootView: View {
                 // без входу вкладка одна: окрема панель з єдиним «Home» лише заважає, тож TabView не показуємо
                 SandboxGate()
             } else {
-            TabView(selection: $selection) {
-                if model.signedIn {
-                    Tab(AppTab.overview.title, systemImage: "house", value: AppTab.overview) { bank { OverviewView { selection = $0 } } }
-                    Tab(AppTab.operations.title, systemImage: "arrow.left.arrow.right", value: AppTab.operations) { bank { OperationsView() } }
-                    Tab(AppTab.cards.title, systemImage: "creditcard", value: AppTab.cards) { bank { CardsTab() } }
-                    Tab(AppTab.taxes.title, systemImage: "building.columns", value: AppTab.taxes) { bank { TaxesView() } }
-                    if Build.shop || model.expert {
-                        Tab(Tx("Ще", "More", "Ещё"), systemImage: "square.grid.2x2", value: AppTab.more) { bank { MoreHub(jump: $moreJump) } }
+            ZStack {
+                ForEach(tabs) { item in
+                    if visited.contains(item.tab) || item.tab == selection {
+                        content(for: item.tab)
+                            .opacity(item.tab == selection ? 1 : 0)
+                            .allowsHitTesting(item.tab == selection)
+                            .accessibilityHidden(item.tab != selection)
                     }
-                } else {
-                    Tab(AppTab.overview.title, systemImage: "square.stack.3d.up", value: AppTab.overview) { SandboxGate() }
-                }
-                if model.expert && !model.signedIn {
-                    Tab("Studio", systemImage: "flask", value: AppTab.lab) { LabHome() }
                 }
             }
-            .tint(Theme.tint)
-            .toolbarVisibility(model.signedIn || model.expert ? .automatic : .hidden, for: .tabBar)
-            .tabBarMinimizeBehavior(.onScrollDown)
-            // на «Огляді» темна шапка сама під статус-баром, світла смуга там зайва
+            .animation(.easeInOut(duration: 0.18), value: selection)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if barVisible {
+                    FloatingTabBar(items: tabs, selection: $selection, onScan: model.signedIn ? { showScan = true } : nil)
+                        .background(alignment: .bottom) { TabBarBackdrop() }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .modifier(KeyboardWatcher(shown: $keyboard))
+            .onChange(of: selection, initial: true) { _, t in visited.insert(t) }
+            .fullScreenCover(isPresented: $showScan) {
+                QRScanView { code in
+                    showScan = false
+                    // let the scanner close before the invoice sheet comes up
+                    Task { try? await Task.sleep(for: .milliseconds(350)); model.payCode = PayCode(code: code) }
+                }
+            }
             .overlay(alignment: .top) { if selection != .overview && selection != .lab && selection != .more { TopFade() } }
             }
         }

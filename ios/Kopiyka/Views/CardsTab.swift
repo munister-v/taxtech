@@ -11,6 +11,7 @@ struct CardsTab: View {
     @State private var revealed: API.Revealed?
     @State private var requisites: API.Revealed?
     @State private var issuing = false
+    @State private var reordering = false
     @State private var designing: API.Card?
     @State private var topping: API.Card?
     @State private var confirmClose = false
@@ -43,6 +44,12 @@ struct CardsTab: View {
             .refreshable { await load() }
             .onChange(of: index) { revealed = nil }
             .sheet(isPresented: $issuing) { IssueCardView { await load() } }
+            .sheet(isPresented: $reordering) {
+                CardReorderSheet(cards: cards) { new in
+                    let current = card?.id
+                    withAnimation(.smooth) { cards = new; index = new.firstIndex { $0.id == current } ?? 0 }
+                }
+            }
             .sheet(item: Binding(get: { requisites.flatMap { r in card.map { Req(card: $0, revealed: r) } } }, set: { if $0 == nil { requisites = nil } })) { r in
                 CardRequisitesView(card: r.card, revealed: r.revealed, accountNumber: account?.accountNumber).presentationDetents([.large])
             }
@@ -85,7 +92,7 @@ struct CardsTab: View {
         async let c = model.api.cards()
         async let a = model.api.account()
         async let s = model.api.analytics()
-        cards = ((try? await c) ?? []).filter { !$0.isClosed }.sorted { $0.isPrimary && !$1.isPrimary }
+        cards = CardOrder.shared.sorted(((try? await c) ?? []).filter { !$0.isClosed })
         account = try? await a
         monthOut = (try? await s)?.currentMonth.totalOut
         index = min(index, max(cards.count - 1, 0))
@@ -102,15 +109,28 @@ struct CardsTab: View {
 
     private var header: some View {
         ScreenTitle(title: RootView.AppTab.cards.title) {
-            Button { issuing = true } label: {
-                Label(L("Випустити").s, systemImage: "plus")
-                    .font(Theme.ui(style: .subheadline, .semibold))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .glassCapsule()
-                    .foregroundStyle(Theme.ink)
+            HStack(spacing: 10) {
+                if cards.count > 1 {
+                    Button { reordering = true } label: {
+                        Image(systemName: "arrow.up.arrow.down")
+                            .font(Theme.ui(style: .subheadline, .semibold))
+                            .frame(width: 44, height: 44)
+                            .glassCircle()
+                            .foregroundStyle(Theme.ink)
+                    }
+                    .buttonStyle(PressScale())
+                    .accessibilityLabel(L("Порядок карток").s)
+                }
+                Button { issuing = true } label: {
+                    Label(L("Випустити").s, systemImage: "plus")
+                        .font(Theme.ui(style: .subheadline, .semibold))
+                        .padding(.horizontal, 16)
+                        .frame(height: 44)
+                        .glassCapsule()
+                        .foregroundStyle(Theme.ink)
+                }
+                .buttonStyle(PressScale())
             }
-            .buttonStyle(PressScale())
         }
     }
 
@@ -142,6 +162,14 @@ struct CardsTab: View {
                         .animation(.spring(response: 0.6, dampingFraction: 0.78), value: revealed?.cardNumber)
                         .tilt()
                         .onTapGesture { if i == index { toggleReveal(c) } }
+                        .contextMenu {
+                            if cards.count > 1 {
+                                if i > 0 { Button(L("На початок").s, systemImage: "arrow.up.to.line") { moveCard(c, to: 0) } }
+                                if i > 0 { Button(L("Лівіше").s, systemImage: "arrow.left") { moveCard(c, to: i - 1) } }
+                                if i < cards.count - 1 { Button(L("Правіше").s, systemImage: "arrow.right") { moveCard(c, to: i + 1) } }
+                                Button(L("Порядок карток").s, systemImage: "arrow.up.arrow.down") { reordering = true }
+                            }
+                        }
                         .containerRelativeFrame(.horizontal)
                         .scrollTransition(axis: .horizontal) { v, phase in
                             v.scaleEffect(phase.isIdentity ? 1 : 0.86)
@@ -149,13 +177,13 @@ struct CardsTab: View {
                                 .rotation3DEffect(.degrees(phase.value * -28), axis: (x: 0, y: 1, z: 0), perspective: 0.5)
                                 .blur(radius: phase.isIdentity ? 0 : 2)
                         }
-                        .id(i)
+                        .id(c.id)
                     }
                 }
                 .scrollTargetLayout()
             }
             .scrollTargetBehavior(.viewAligned)
-            .scrollPosition(id: Binding(get: { index }, set: { if let v = $0 { index = v } }))
+            .scrollPosition(id: Binding<Int?>(get: { card?.id }, set: { v in if let v, let i = cards.firstIndex(where: { $0.id == v }) { index = i } }))
             .scrollClipDisabled()
             .animation(.smooth, value: card?.isBlocked)
             .sensoryFeedback(.selection, trigger: index)
@@ -187,6 +215,14 @@ struct CardsTab: View {
             }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func moveCard(_ c: API.Card, to target: Int) {
+        CardOrder.shared.move(c.id, to: target, in: cards)
+        withAnimation(.smooth) {
+            cards = CardOrder.shared.sorted(cards)
+            index = cards.firstIndex { $0.id == c.id } ?? index
+        }
     }
 
     private func toggleReveal(_ c: API.Card) {
@@ -251,7 +287,7 @@ struct CardsTab: View {
                         symbol: copied ? "checkmark.circle.fill" : "doc.on.doc") { copyAccount() }
                     if !c.isPrimary {
                         Rule()
-                        row(L("Зробити головною").s, symbol: "star") { act { try await model.api.setPrimary(c.id) } }
+                        row(L("Зробити головною").s, symbol: "star") { act { try await model.api.setPrimary(c.id); CardOrder.shared.move(c.id, to: 0, in: cards) } }
                     }
                     Rule()
                     row(L("Закрити картку").s, symbol: "xmark.circle", destructive: true) { confirmClose = true }

@@ -169,6 +169,9 @@ struct CardSurface: View, Equatable {
                 .opacity(look.material == .glass ? 0.8 : 1)
             if look.material == .metal { brushed }
             CardGrain(light: look.color.isLight)
+            // освітлення не рівне: до країв і кутів картка темнішає
+            shape.fill(RadialGradient(colors: [.clear, .black.opacity(look.color.isLight ? 0.12 : 0.30)],
+                                      center: UnitPoint(x: 0.42, y: 0.38), startRadius: 80, endRadius: 270))
             // відблиск зверху ліворуч: картка - предмет, а не плитка
             shape.fill(LinearGradient(colors: [.white.opacity(look.color.isLight ? 0.30 : 0.14), .clear],
                                       startPoint: .topLeading, endPoint: UnitPoint(x: 0.7, y: 0.6)))
@@ -211,13 +214,20 @@ struct CardSurface: View, Equatable {
                 .overlay(RadialGradient(colors: [c.partner.opacity(0.7), .clear], center: .bottomTrailing,
                                         startRadius: 0, endRadius: 260))
         case .metal:
-            LinearGradient(stops: [
+            // шліфована сталь дає конічний відблиск: світлі промені розходяться від центру
+            let hi = Color.white.mix(with: c.base, by: look.color == .black ? 0.80 : 0.58)
+            let lo = c.base.mix(with: .black, by: 0.4)
+            AngularGradient(stops: [
                 .init(color: c.base, location: 0),
-                .init(color: c.partner, location: 0.38),
-                .init(color: .white.opacity(look.color == .black ? 0.35 : 0.85).mix(with: c.base, by: 0.55), location: 0.5),
-                .init(color: c.partner, location: 0.62),
+                .init(color: c.partner, location: 0.09),
+                .init(color: hi, location: 0.19),
+                .init(color: c.partner, location: 0.30),
+                .init(color: lo, location: 0.46),
+                .init(color: c.partner, location: 0.58),
+                .init(color: hi, location: 0.69),
+                .init(color: c.partner, location: 0.82),
                 .init(color: c.base, location: 1),
-            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+            ], center: UnitPoint(x: 0.30, y: 1.45))
         case .glass:
             ZStack {
                 LinearGradient(colors: [c.base.opacity(0.98), c.partner.opacity(0.62)],
@@ -357,7 +367,12 @@ struct CardChip: View {
         }
         .frame(width: 42, height: 32)
         .clipShape(shape)
-        .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.8)
+        .padding(2.5)
+        // чип вдавлений у пластик: темний паз, тінь зверху, світла кромка знизу
+        .background(RoundedRectangle(cornerRadius: 8.5, style: .continuous)
+            .fill(LinearGradient(colors: [.black.opacity(0.42), .black.opacity(0.14)], startPoint: .top, endPoint: .bottom)))
+        .overlay(RoundedRectangle(cornerRadius: 8.5, style: .continuous)
+            .strokeBorder(LinearGradient(colors: [.black.opacity(0.45), .white.opacity(0.32)], startPoint: .top, endPoint: .bottom), lineWidth: 0.8))
     }
 }
 
@@ -473,12 +488,26 @@ struct HoloSheen: View {
         case .gradient: 0.14
         case .solid: 0.06
         }
-        RadialGradient(colors: [Color(red: 1, green: 0.96, blue: 0.88), .clear],
-                       center: UnitPoint(x: 0.25 + x * 0.6, y: 0.1 + y * 0.6), startRadius: 0, endRadius: 320)
-            .opacity(strength * 1.6)
-            .blendMode(look.color.isLight ? .multiply : .overlay)
-            .allowsHitTesting(false)
-            .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.85), value: x)
+        let peak: Double = (look.material == .metal ? 0.34 : look.material == .glass ? 0.24 : look.material == .gradient ? 0.20 : 0.15) * (look.color.isLight ? 0.55 : 1)
+        let c = 0.36 + x * 0.34 + y * 0.12
+        let at: (Double) -> Double = { min(max($0, 0), 1) }
+        ZStack {
+            RadialGradient(colors: [Color(red: 1, green: 0.96, blue: 0.88), .clear],
+                           center: UnitPoint(x: 0.25 + x * 0.6, y: 0.1 + y * 0.6), startRadius: 0, endRadius: 320)
+                .opacity(strength * 1.6)
+                .blendMode(look.color.isLight ? .multiply : .overlay)
+            // блік від софтбокса: вузька смуга з м'якими краями їде за нахилом
+            LinearGradient(stops: [
+                .init(color: .clear, location: at(c - 0.24)),
+                .init(color: .white.opacity(peak), location: at(c - 0.03)),
+                .init(color: .white.opacity(peak * 0.55), location: at(c + 0.05)),
+                .init(color: .clear, location: at(c + 0.26)),
+            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                .blendMode(.plusLighter)
+        }
+        .allowsHitTesting(false)
+        .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.85), value: x)
+        .animation(.interactiveSpring(response: 0.4, dampingFraction: 0.85), value: y)
     }
 }
 

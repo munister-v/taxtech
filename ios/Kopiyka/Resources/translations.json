@@ -10828,5 +10828,29 @@
 "it": "La tua prima operazione apparirà qui",
 "de": "Deine erste Transaktion erscheint hier",
 "ru": "Первая операция появится здесь"
+},
+"Порядок карток": {
+"en": "Card order",
+"it": "Ordine delle carte",
+"de": "Reihenfolge der Karten",
+"ru": "Порядок карт"
+},
+"На початок": {
+"en": "Move to front",
+"it": "Porta in prima posizione",
+"de": "Nach vorn",
+"ru": "В начало"
+},
+"Лівіше": {
+"en": "Move left",
+"it": "Sposta a sinistra",
+"de": "Nach links",
+"ru": "Левее"
+},
+"Правіше": {
+"en": "Move right",
+"it": "Sposta a destra",
+"de": "Nach rechts",
+"ru": "Правее"
 }
 }
