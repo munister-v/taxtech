@@ -37,6 +37,32 @@ enum Theme {
     static let auraGold = Color(UIColor(hex: 0xC7A46F))
     static let auraCool = Color(UIColor(hex: 0x2A3F66))
     static let auraBronze = Color(UIColor(hex: 0x8A5A3C))
+    /// Смислові кольори: кожен означає одне й те саме на всіх екранах.
+    /// Надходження й успіх: м'ята, тепла, не «світлофорна».
+    static let income = Color(UIColor(hex: 0x8FD9B0))
+    /// Витрата й попередження, що не є збоєм: приглушений корал.
+    static let expense = Color(UIColor(hex: 0xE59A86))
+    /// Заморожено, лід.
+    static let ice = Color(UIColor(hex: 0x8CC8E8))
+    /// Перекази, нейтральна інформація.
+    static let info = Color(UIColor(hex: 0x86A9E6))
+    static let violet = Color(UIColor(hex: 0xB093E0))
+    /// Другорядний текст: тепло-сірий замість системного холодного.
+    static let muted = Color(UIColor(hex: 0xA39C8E))
+    /// Відтінки вкладок: тло й скло панелі беруть їх за вибраною вкладкою.
+    static let teal = Color(UIColor(hex: 0x3F8F7B))
+    static let tealDeep = Color(UIColor(hex: 0x1B3B45))
+    static let amber = Color(UIColor(hex: 0xB8793A))
+
+    /// Восьмитонова палітра для аватарів і значків: колір не випадковий, а за ключем, тож у людини він завжди той самий.
+    static let tones: [Color] = [0xDCC195, 0x86A9E6, 0x8FD9B0, 0xB093E0, 0xE59A86, 0x7CC8C0, 0xD9A8C4, 0xB5C77E]
+        .map { Color(UIColor(hex: $0)) }
+
+    static func tone(for key: String) -> Color {
+        let h = key.unicodeScalars.reduce(UInt32(5381)) { ($0 &* 33) &+ $1.value }
+        return tones[Int(h % UInt32(tones.count))]
+    }
+
     /// Золотий градієнт для великих цифр і заголовків.
     static let goldFill = LinearGradient(colors: [Color(UIColor(hex: 0xDCC195)), Color(UIColor(hex: 0xDCC195))],
                                          startPoint: .top, endPoint: .bottom)

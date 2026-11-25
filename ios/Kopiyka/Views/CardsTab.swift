@@ -208,8 +208,9 @@ struct CardsTab: View {
                         Label(L("Заморожена").s, systemImage: "snowflake")
                             .font(Theme.ui(style: .caption1, .semibold))
                             .padding(.horizontal, 12).frame(height: 28)
-                            .background(Color.cyan.opacity(0.22), in: .capsule)
-                            .foregroundStyle(Color.cyan)
+                            .background(Theme.ice.opacity(0.2), in: .capsule)
+                            .overlay(Capsule().strokeBorder(Theme.ice.opacity(0.4), lineWidth: 0.6))
+                            .foregroundStyle(Theme.ice)
                     } else if let e = card.expiryDisplay {
                         Text((card.isPrimary ? L("Головна").s + " · " : "") + L("до \(e)").s)
                             .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
@@ -276,9 +277,11 @@ struct CardsTab: View {
                         if c.isPrimary {
                             Text(L("Головна").s)
                                 .font(Theme.ui(style: .caption1, .semibold))
+                                .foregroundStyle(Theme.accent)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
-                                .background(Theme.ink.opacity(0.1), in: .capsule)
+                                .background(Theme.accent.opacity(0.14), in: .capsule)
+                                .overlay(Capsule().strokeBorder(Theme.accent.opacity(0.35), lineWidth: 0.6))
                         }
                     }
                     BigAmount(value: c.displayBalance ?? 0, size: 38)
@@ -339,7 +342,7 @@ struct CardsTab: View {
                 Spacer()
                 if !destructive { Image(systemName: "chevron.right").font(Theme.ui(style: .footnote, .bold)).foregroundStyle(.tertiary) }
             }
-            .foregroundStyle(destructive ? Color.red : Theme.ink)
+            .foregroundStyle(destructive ? Theme.alert : Theme.ink)
             .padding(16)
             .contentShape(.rect)
         }

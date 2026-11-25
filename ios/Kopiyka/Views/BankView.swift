@@ -187,7 +187,7 @@ struct CardDesignPicker: View {
                             .buttonStyle(LineButton())
                     }
                     if let e = screen.error {
-                        Label(e, systemImage: "exclamationmark.triangle").font(Theme.ui(style: .footnote)).foregroundStyle(.red)
+                        Label(e, systemImage: "exclamationmark.triangle").font(Theme.ui(style: .footnote)).foregroundStyle(Theme.alert)
                     }
                 }
                 .padding(.horizontal, Theme.gutter)

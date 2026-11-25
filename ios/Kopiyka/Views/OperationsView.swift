@@ -83,7 +83,7 @@ struct OperationsView: View {
             .scrollsToTopOnRetap(.operations)
             .scrollDismissesKeyboard(.interactively)
             .sensoryFeedback(.selection, trigger: period)
-            .auroraBackground()
+            .auroraBackground(warm: Theme.amber, cool: Theme.auraBronze)
             .toolbar(.hidden, for: .navigationBar)
             .task(id: "\(filter.search)|\(filter.direction ?? "")") {
                 if !loaded, let hit = model.api.cached("transactions/history", as: [API.Transaction].self) {
@@ -159,7 +159,7 @@ struct OperationsView: View {
 
     private var searchField: some View {
         HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+            Image(systemName: "magnifyingglass").foregroundStyle(searchFocus ? Theme.accent : Theme.muted)
             TextField(L("Пошук транзакцій…").s, text: $filter.search)
                 .autocorrectionDisabled()
                 .submitLabel(.search)
@@ -173,7 +173,9 @@ struct OperationsView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Theme.surface, in: .capsule)
-        .overlay(Capsule().strokeBorder(Theme.line, lineWidth: Theme.hairline))
+        .overlay(Capsule().strokeBorder(searchFocus ? Theme.accent.opacity(0.7) : Theme.line, lineWidth: searchFocus ? 1.2 : Theme.hairline))
+        .shadow(color: Theme.accent.opacity(searchFocus ? 0.25 : 0), radius: 10)
+        .animation(.easeOut(duration: 0.2), value: searchFocus)
     }
 
     /// Надійшло і витрачено за обраний період: дві рівні плитки над графіком.
@@ -182,8 +184,8 @@ struct OperationsView: View {
         let income = inRange.filter(\.isIncome).reduce(0) { $0 + $1.amount }
         let outgo = inRange.filter { !$0.isIncome }.reduce(0) { $0 + $1.amount }
         return HStack(spacing: 12) {
-            flowTile(L("Надійшло").s, symbol: "arrow.down.left", value: income, tint: Theme.accent)
-            flowTile(L("Витрачено").s, symbol: "arrow.up.right", value: outgo, tint: Theme.ink)
+            flowTile(L("Надійшло").s, symbol: "arrow.down.left", value: income, tint: Theme.income)
+            flowTile(L("Витрачено").s, symbol: "arrow.up.right", value: outgo, tint: Theme.expense)
         }
     }
 
@@ -222,8 +224,8 @@ struct OperationsView: View {
                             Button(p.label) { period = p }
                                 .font(Theme.ui(style: .caption1, .semibold))
                                 .frame(width: 42, height: 26)
-                                .background(period == p ? Theme.ink : .clear, in: .rect(cornerRadius: 7, style: .continuous))
-                                .foregroundStyle(period == p ? AnyShapeStyle(Theme.onInk) : AnyShapeStyle(.secondary))
+                                .background(period == p ? Theme.accent : .clear, in: .rect(cornerRadius: 7, style: .continuous))
+                                .foregroundStyle(period == p ? AnyShapeStyle(Theme.onAccent) : AnyShapeStyle(Theme.muted))
                         }
                     }
                     .buttonStyle(.plain)
@@ -236,7 +238,7 @@ struct OperationsView: View {
                         BarMark(x: .value(L("Коли").s, b.day, unit: period.unit), y: .value(L("Сума").s, b.sum))
                             .foregroundStyle(b.day == byBucket.last?.day
                                 ? AnyShapeStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
-                                : AnyShapeStyle(Theme.ink.opacity(0.55)))
+                                : AnyShapeStyle(LinearGradient(colors: [Theme.gold.opacity(0.55), Theme.gold.opacity(0.22)], startPoint: .top, endPoint: .bottom)))
                             .cornerRadius(5)
                     }
                     .chartYAxis(.hidden)
@@ -257,11 +259,8 @@ struct OperationsView: View {
     }
 
     /// Палітра видів витрат: перший - фірмовий жовтий, далі спокійні, але розрізнені кольори.
-    static let palette: [Color] = [
-        Theme.accent, Color(red: 0.78, green: 0.50, blue: 0.33), Color(red: 0.45, green: 0.58, blue: 0.80),
-        Color(red: 0.62, green: 0.55, blue: 0.78), Color(red: 0.42, green: 0.68, blue: 0.66), Color(red: 0.80, green: 0.56, blue: 0.60),
-        Color(red: 0.60, green: 0.70, blue: 0.48), Color(white: 0.55),
-    ]
+    static let palette: [Color] = [Theme.accent, Theme.info, Theme.expense, Theme.income, Theme.violet,
+                                   Color(red: 0.49, green: 0.78, blue: 0.75), Color(red: 0.85, green: 0.66, blue: 0.77), Color(white: 0.58)]
 
     @ViewBuilder private func byType(_ s: API.Analytics) -> some View {
         let out = s.byType.filter { $0.direction == "out" && $0.total > 0 }.sorted { $0.total > $1.total }
@@ -307,7 +306,7 @@ struct OperationsView: View {
                     if i > 0 { Rule() }
                     HStack(alignment: .top, spacing: 12) {
                         let marks = ["flame", "calendar", "sum", "leaf", "sparkles"]
-                        let tints: [Color] = [.orange, .blue, .purple, .green, Theme.accent]
+                        let tints: [Color] = [Theme.expense, Theme.info, Theme.violet, Theme.income, Theme.accent]
                         GuillocheBadge(symbol: marks[i % marks.count], tint: tints[i % tints.count], size: 36)
                         Text(Translator.server(ins.text)).font(Theme.ui(style: .subheadline)).frame(maxWidth: .infinity, alignment: .leading)
                     }

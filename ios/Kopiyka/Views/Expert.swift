@@ -110,11 +110,11 @@ struct SettingsSheet: View {
 
 extension View {
     /// Тло екрана з тихою живою плямою вгорі: однаково на всіх вкладках банку.
-    func auroraBackground(_ strength: Double = 0.55) -> some View {
+    func auroraBackground(_ strength: Double = 0.55, warm: Color = Theme.auraGold, cool: Color = Theme.auraCool) -> some View {
         background(alignment: .top) {
             ZStack(alignment: .top) {
                 Theme.bg
-                AuroraField().frame(height: 420).opacity(strength)
+                AuroraField(warm: warm, cool: cool).frame(height: 420).opacity(strength)
             }
             .ignoresSafeArea()
         }

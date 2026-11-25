@@ -106,6 +106,7 @@ struct RootView: View {
             .overlay(alignment: .top) { if selection != .overview && selection != .lab && selection != .more { TopFade() } }
             }
         }
+        .tint(Theme.accent)
         .animation(.smooth(duration: 0.45), value: model.signedIn)
         .animation(.smooth(duration: 0.35), value: model.bankUnlocked)
         .overlay { if splash { LaunchSplash { splash = false } } }

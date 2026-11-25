@@ -8,9 +8,16 @@ struct ToastView: View {
     let text: String
     var symbol = "checkmark.circle.fill"
 
+    /// Успіх - м'ята, помилка - тепла червінь, решта - золото.
+    private var tone: Color {
+        if symbol.hasPrefix("checkmark") { return Theme.income }
+        if symbol.hasPrefix("exclamation") || symbol.hasPrefix("xmark") || symbol.contains("slash") { return Theme.alert }
+        return Theme.goldLight
+    }
+
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: symbol).foregroundStyle(Theme.goldLight)
+            Image(systemName: symbol).foregroundStyle(tone)
             Text(text).font(Theme.ui(style: .subheadline, .semibold)).lineLimit(1)
         }
         .foregroundStyle(Theme.ink)

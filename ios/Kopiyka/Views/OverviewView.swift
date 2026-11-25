@@ -140,10 +140,19 @@ struct OverviewView: View {
                 Spacer()
                 GearButton()
                 NavigationLink { NoticesView() } label: {
-                    Image(systemName: unread > 0 ? "bell.badge" : "bell").font(Theme.ui(16, .semibold)).foregroundStyle(Theme.ink)
+                    Image(systemName: "bell").font(Theme.ui(16, .semibold)).foregroundStyle(Theme.ink)
                         .symbolEffect(.wiggle, value: unread)
                         .frame(width: 40, height: 40)
                         .glassCircle()
+                        .overlay(alignment: .topTrailing) {
+                            if unread > 0 {
+                                Circle().fill(Theme.alert).frame(width: 11, height: 11)
+                                    .overlay(Circle().strokeBorder(Theme.bg, lineWidth: 2))
+                                    .offset(x: -1, y: 1)
+                                    .transition(.scale.combined(with: .opacity))
+                            }
+                        }
+                        .animation(.spring(response: 0.35, dampingFraction: 0.6), value: unread > 0)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(unread > 0 ? L("Сповіщення, нових: \(unread)").s : L("Сповіщення").s)
@@ -155,8 +164,8 @@ struct OverviewView: View {
                 HeroBalance(balance: bank.account?.balance, loaded: bank.loaded)
                 if let m = summary?.currentMonth, m.totalIn > 0 || m.totalOut > 0 {
                     HStack(spacing: 8) {
-                        monthPill("arrow.down.left", Self.compact(m.totalIn), tint: Theme.accent)
-                        monthPill("arrow.up.right", Self.compact(m.totalOut), tint: Theme.ink.opacity(0.7))
+                        monthPill("arrow.down.left", Self.compact(m.totalIn), tint: Theme.income)
+                        monthPill("arrow.up.right", Self.compact(m.totalOut), tint: Theme.expense)
                     }
                     .transition(.opacity)
                 }
@@ -322,10 +331,10 @@ struct OverviewView: View {
                                     if shop { Image(systemName: "storefront.fill").font(Theme.mono(style: .title3)) }
                                     else { Text(String(r.relatedAccount.suffix(2))).font(Theme.ui(19, .semibold)).monospacedDigit() }
                                 }
-                                    .foregroundStyle(Theme.goldFill)
+                                    .foregroundStyle(Theme.tone(for: r.relatedAccount))
                                     .frame(width: 54, height: 54)
-                                    .background(Theme.surface, in: .circle)
-                                    .overlay(Circle().strokeBorder(Theme.edge, lineWidth: 0.9))
+                                    .background(Theme.tone(for: r.relatedAccount).opacity(0.14), in: .circle)
+                                    .overlay(Circle().strokeBorder(Theme.tone(for: r.relatedAccount).opacity(0.38), lineWidth: 0.9))
                                 Text(shop ? String(r.relatedAccount.dropFirst(4)).replacingOccurrences(of: "-", with: " ").capitalized
                                           : r.relatedAccount)
                                     .font(Theme.ui(style: .caption2, .medium).monospacedDigit())
@@ -435,14 +444,14 @@ struct OverviewView: View {
                         if prev > 0 {
                             let d = (out - prev) / prev * 100
                             Text(L("\(d >= 0 ? "+" : "−")\(Int(abs(d).rounded()))% до минулого").s)
-                                .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
+                                .font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(out > prev ? Theme.expense : Theme.income)
                         }
                     }
                     HStack(alignment: .bottom, spacing: 3) {
                         ForEach(Array(days.enumerated()), id: \.offset) { i, v in
                             Capsule()
                                 .fill(i == days.count - 1 ? AnyShapeStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
-                                      : AnyShapeStyle(Theme.ink.opacity(v > 0 ? 0.62 : 0.1)))
+                                      : AnyShapeStyle(v > 0 ? Theme.gold.opacity(0.5) : Theme.ink.opacity(0.1)))
                                 .frame(height: max(4, barHeight * CGFloat(ringIn ? v / top : 0.05)))
                                 .frame(maxWidth: .infinity)
                         }
@@ -587,7 +596,16 @@ struct TxGlyph: View {
         }
     }
 
-    private var tint: Color { tx.isIncome ? Theme.accent : Theme.ink.opacity(0.85) }
+    /// Цвет за видом: надходження м'ятні, покупки золоті, перекази сині, решта світла.
+    private var tint: Color {
+        if tx.isIncome { return Theme.income }
+        switch tx.txType {
+        case "payment", "marketplace": return Theme.accent
+        case "transfer": return Theme.info
+        case "credit", "credit_repay": return Theme.expense
+        default: return Theme.ink.opacity(0.85)
+        }
+    }
 
     var body: some View { GuillocheBadge(symbol: symbol, tint: tint, size: size) }
 }
@@ -603,15 +621,15 @@ struct ActivityRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(row.title).font(Theme.ui(style: .body, .medium)).lineLimit(1).minimumScaleFactor(0.9)
                 Text(tx.date.formatted(.dateTime.day().month(.abbreviated).hour().minute().locale(Lang.current.locale)))
-                    .font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
+                    .font(Theme.ui(style: .footnote)).foregroundStyle(Theme.muted)
             }
             Spacer(minLength: 8)
             VStack(alignment: .trailing, spacing: 1) {
                 Text((tx.isIncome ? "+" : "−") + Format.amount(tx.amount))
                     .font(Theme.ui(18, .semibold)).monospacedDigit()
                     .lineLimit(1).minimumScaleFactor(0.7)
-                    .foregroundStyle(tx.isIncome ? Theme.accent : Theme.ink)
-                Text("TAX").font(Theme.ui(style: .caption2, .semibold)).foregroundStyle(.secondary)
+                    .foregroundStyle(tx.isIncome ? Theme.income : Theme.ink)
+                Text("TAX").font(Theme.ui(style: .caption2, .semibold)).foregroundStyle(Theme.muted)
             }
             .fixedSize(horizontal: true, vertical: false)
         }
@@ -643,13 +661,13 @@ struct SkeletonRow: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Theme.frost).frame(width: 46, height: 46)
+            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Theme.accent.opacity(0.11)).frame(width: 46, height: 46)
             VStack(alignment: .leading, spacing: 8) {
-                Capsule().fill(Theme.frost).frame(width: 150, height: 12)
-                Capsule().fill(Theme.frost.opacity(0.6)).frame(width: 96, height: 10)
+                Capsule().fill(Theme.accent.opacity(0.11)).frame(width: 150, height: 12)
+                Capsule().fill(Theme.accent.opacity(0.07)).frame(width: 96, height: 10)
             }
             Spacer()
-            Capsule().fill(Theme.frost).frame(width: 60, height: 14)
+            Capsule().fill(Theme.accent.opacity(0.11)).frame(width: 60, height: 14)
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)

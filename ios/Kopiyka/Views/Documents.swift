@@ -185,7 +185,7 @@ struct SignatureSeal: View {
                 Text("\(sig.signer) · \(sig.algorithm)").font(Theme.ui(style: .caption2)).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
-            Image(systemName: "checkmark.seal.fill").font(.title2).foregroundStyle(.green)
+            Image(systemName: "checkmark.seal.fill").font(.title2).foregroundStyle(Theme.income)
         }
         .padding(14)
         .glass(18)
@@ -288,7 +288,7 @@ struct DocumentRow: View {
     var body: some View {
         HStack(spacing: 14) {
             GuillocheBadge(symbol: doc.isCertificate ? "building.columns.fill" : doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
-                           tint: doc.isReceipt ? .green : Theme.accent, size: 46)
+                           tint: doc.isReceipt ? Theme.income : Theme.accent, size: 46)
             VStack(alignment: .leading, spacing: 3) {
                 Text(Translator.server(doc.title)).font(Theme.ui(style: .body, .medium)).lineLimit(2).minimumScaleFactor(0.85)
                 Text(doc.code).font(Theme.mono(12)).foregroundStyle(.secondary)
@@ -326,7 +326,7 @@ struct DocumentDetailView: View {
                     HeroPanel {
                         VStack(spacing: 8) {
                             GuillocheBadge(symbol: doc.isReceipt ? "checkmark.seal.fill" : "doc.text.fill",
-                                           tint: doc.isReceipt ? .green : Theme.accent, size: 72)
+                                           tint: doc.isReceipt ? Theme.income : Theme.accent, size: 72)
                             Text(Translator.server(doc.title)).font(Theme.ui(style: .subheadline)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             if let a = doc.amount {
                                 Text((doc.direction == "in" ? "+" : "−") + Format.money(a))

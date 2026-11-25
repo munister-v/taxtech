@@ -49,7 +49,7 @@ struct TaxesView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollsToTopOnRetap(.taxes)
-            .auroraBackground()
+            .auroraBackground(warm: Theme.auraGold, cool: Theme.teal)
             .toolbar(.hidden, for: .navigationBar)
             .task {
                 async let h = model.api.history(API.HistoryFilter())
@@ -117,7 +117,7 @@ private struct OverviewPart: View {
                             BarMark(x: .value(L("Місяць").s, m.month, unit: .month), y: .value(L("Сума").s, m.sum))
                                 .foregroundStyle(m.month == byMonth.last?.month
                                     ? AnyShapeStyle(LinearGradient(colors: [Theme.goldLight, Theme.gold], startPoint: .top, endPoint: .bottom))
-                                    : AnyShapeStyle(Theme.ink.opacity(0.55)))
+                                    : AnyShapeStyle(LinearGradient(colors: [Theme.gold.opacity(0.5), Theme.gold.opacity(0.2)], startPoint: .top, endPoint: .bottom)))
                                 .cornerRadius(7)
                         }
                         .chartXAxis {
@@ -403,7 +403,7 @@ private struct CalendarPart: View {
     /// Чим ближчий строк, тим помітніший підпис: тиждень - червоний, місяць - золотий.
     static func urgency(_ date: Date) -> Color {
         let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: date).day ?? 99
-        return days <= 7 ? Theme.alert : days <= 30 ? Theme.accent : Color.secondary
+        return days <= 7 ? Theme.alert : days <= 30 ? Theme.amber.opacity(1) : Theme.muted
     }
 
     static func left(_ date: Date) -> String {

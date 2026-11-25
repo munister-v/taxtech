@@ -112,10 +112,10 @@ struct SegmentBar<Value: Hashable>: View {
                             .font(Theme.ui(style: .subheadline, on ? .semibold : .medium))
                             .padding(.horizontal, 15)
                             .padding(.vertical, 9)
-                            .foregroundStyle(on ? Theme.onInk : Theme.ink)
+                            .foregroundStyle(on ? Theme.onAccent : Theme.ink)
                             .background {
                                 if on {
-                                    Capsule().fill(Theme.ink).matchedGeometryEffect(id: "seg", in: ns)
+                                    Capsule().fill(LinearGradient(colors: [Theme.goldLight, Theme.accent], startPoint: .top, endPoint: .bottom)).matchedGeometryEffect(id: "seg", in: ns)
                                 } else {
                                     Capsule().stroke(Theme.ink.opacity(0.14), lineWidth: 1)
                                 }
@@ -187,12 +187,14 @@ struct SplitBar: View {
     var body: some View {
         let total = max(parts.reduce(0) { $0 + $1.value }, 0.0001)
         let ink = onYellow ? Theme.onAccent : Theme.ink
-        VStack(alignment: .leading, spacing: 10) {
+        let hues: [Color] = [Theme.accent, Theme.info, Theme.expense, Theme.violet]
+        func fill(_ i: Int) -> Color { onYellow ? ink.opacity(1 - Double(i) * 0.28) : hues[i % hues.count] }
+        return VStack(alignment: .leading, spacing: 10) {
             GeometryReader { g in
                 HStack(spacing: 2) {
                     ForEach(Array(parts.enumerated()), id: \.offset) { i, p in
                         Rectangle()
-                            .fill(ink.opacity(1 - Double(i) * 0.28))
+                            .fill(fill(i))
                             .frame(width: max(0, g.size.width * p.value / total - 2))
                     }
                 }
@@ -202,7 +204,7 @@ struct SplitBar: View {
             HStack(spacing: 14) {
                 ForEach(Array(parts.enumerated()), id: \.offset) { i, p in
                     HStack(spacing: 5) {
-                        Rectangle().fill(ink.opacity(1 - Double(i) * 0.28)).frame(width: 10, height: 10)
+                        Rectangle().fill(fill(i)).frame(width: 10, height: 10)
                         Text("\(p.label) \(Int((p.value / total * 100).rounded()))%")
                             .font(Theme.ui(style: .caption1))
                             .foregroundStyle(onYellow ? AnyShapeStyle(Theme.onAccent.opacity(0.7)) : AnyShapeStyle(.secondary))
@@ -322,7 +324,7 @@ struct TextTabs<T: Hashable>: View {
                 Button { withAnimation(.snappy(duration: 0.25)) { selection = items[i].0 } } label: {
                     VStack(spacing: 6) {
                         Text(items[i].1).font(Theme.ui(17, on ? .bold : .medium))
-                            .foregroundStyle(on ? Theme.ink : Color.secondary)
+                            .foregroundStyle(on ? Theme.goldLight : Theme.muted)
                         ZStack {
                             Capsule().fill(Color.clear).frame(height: 3)
                             if on { Capsule().fill(Theme.accent).frame(height: 3).matchedGeometryEffect(id: "tab", in: ns) }
@@ -425,10 +427,10 @@ struct DayRibbon: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(title).font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(.secondary)
+            Text(title).font(Theme.ui(style: .footnote, .semibold)).foregroundStyle(Theme.muted)
             Rectangle().fill(Theme.line).frame(height: Theme.hairline)
             Text(trailing).font(Theme.ui(style: .footnote, .semibold)).monospacedDigit()
-                .foregroundStyle(positive ? Theme.accent : Color.secondary)
+                .foregroundStyle(positive ? Theme.income : Theme.expense.opacity(0.9))
         }
         .padding(.horizontal, 4)
     }
