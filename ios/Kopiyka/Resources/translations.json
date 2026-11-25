@@ -10852,5 +10852,53 @@
 "it": "Sposta a destra",
 "de": "Nach rechts",
 "ru": "Правее"
+},
+"Вставити посилання на оплату": {
+"en": "Paste pay link",
+"it": "Incolla il link di pagamento",
+"de": "Zahlungslink einfügen",
+"ru": "Вставить ссылку на оплату"
+},
+"У буфері немає посилання на оплату": {
+"en": "No pay link in the clipboard",
+"it": "Nessun link di pagamento negli appunti",
+"de": "Kein Zahlungslink in der Zwischenablage",
+"ru": "В буфере нет ссылки на оплату"
+},
+"Скопіювати баланс": {
+"en": "Copy balance",
+"it": "Copia il saldo",
+"de": "Saldo kopieren",
+"ru": "Скопировать баланс"
+},
+"Скопіювати номер картки": {
+"en": "Copy card number",
+"it": "Copia il numero della carta",
+"de": "Kartennummer kopieren",
+"ru": "Скопировать номер карты"
+},
+"Скопіювати суму": {
+"en": "Copy amount",
+"it": "Copia l'importo",
+"de": "Betrag kopieren",
+"ru": "Скопировать сумму"
+},
+"Скопіювати отримувача": {
+"en": "Copy recipient",
+"it": "Copia il destinatario",
+"de": "Empfänger kopieren",
+"ru": "Скопировать получателя"
+},
+"Усі операції з ним": {
+"en": "All transactions with them",
+"it": "Tutte le operazioni con questo contatto",
+"de": "Alle Vorgänge mit ihm",
+"ru": "Все операции с ним"
+},
+"Очистити": {
+"en": "Clear",
+"it": "Cancella",
+"de": "Löschen",
+"ru": "Очистить"
 }
 }

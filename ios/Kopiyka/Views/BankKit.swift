@@ -90,12 +90,26 @@ struct AmountSheet: View {
     @State var amount: Double?
     let submit: (Double) async throws -> Void
     @State private var screen = Screen()
+    @FocusState private var focused: Bool
 
     var body: some View {
         NavigationStack {
             LabForm {
                 Section {
-                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad)
+                    TextField(L("Сума, TAX").s, value: $amount, format: .number).keyboardType(.decimalPad).focused($focused)
+                    // швидкі суми: торкнувся - додалося до введеного
+                    HStack(spacing: 8) {
+                        ForEach([100.0, 500, 1000], id: \.self) { v in
+                            Button { withAnimation(.snappy) { amount = (amount ?? 0) + v } } label: {
+                                Text("+" + Format.amount(v)).font(Theme.ui(style: .subheadline, .semibold)).monospacedDigit()
+                                    .frame(maxWidth: .infinity, minHeight: 36)
+                                    .glassCapsule().foregroundStyle(Theme.ink)
+                            }
+                            .buttonStyle(PressScale())
+                        }
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                 } footer: {
                     if let hint { Text(hint) }
                 }
@@ -110,6 +124,7 @@ struct AmountSheet: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(L("Скасувати").s) { dismiss() } } }
+            .task { try? await Task.sleep(for: .milliseconds(350)); focused = true }
         }
         .presentationDetents([.medium])
     }

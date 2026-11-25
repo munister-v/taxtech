@@ -112,6 +112,7 @@ struct LabForm<Content: View>: View {
             Group { content }.listRowBackground(Theme.surface)
         }
         .tint(Theme.ink)
+        .keyboardDone()
     }
 }
 

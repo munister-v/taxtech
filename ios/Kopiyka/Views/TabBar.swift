@@ -14,6 +14,8 @@ struct FloatingTabBar: View {
     let items: [Item]
     @Binding var selection: RootView.AppTab
     var onScan: (() -> Void)?
+    var onPaste: (() -> Void)?
+    var onRetap: ((RootView.AppTab) -> Void)?
     @Namespace private var ns
     @Environment(\.accessibilityReduceMotion) private var reduce
 
@@ -26,13 +28,20 @@ struct FloatingTabBar: View {
                 .padding(4)
                 .glassEffect(.regular.tint(Theme.bg.opacity(0.55)), in: .capsule)
                 if let onScan {
-                    Button(action: onScan) {
+                    // торкання - сканер; довге утримання - вставити посилання на оплату з буфера
+                    Menu {
+                        Button(Tx("Сканувати QR", "Scan QR", "Сканировать QR"), systemImage: "qrcode.viewfinder", action: onScan)
+                        if let onPaste {
+                            Button(L("Вставити посилання на оплату").s, systemImage: "doc.on.clipboard", action: onPaste)
+                        }
+                    } label: {
                         Image(systemName: "qrcode.viewfinder")
                             .font(Theme.ui(23, .medium))
                             .foregroundStyle(Theme.goldLight)
                             .frame(width: 54, height: 54)
                             .contentShape(.circle)
-                    }
+                    } primaryAction: { onScan() }
+                    .menuStyle(.button)
                     .buttonStyle(PressScale())
                     .glassEffect(.regular.tint(Theme.bg.opacity(0.55)).interactive(), in: .circle)
                     .accessibilityLabel(Tx("Сканувати QR", "Scan QR", "Сканировать QR"))
@@ -48,7 +57,7 @@ struct FloatingTabBar: View {
     private func tabButton(_ item: Item) -> some View {
         let on = item.tab == selection
         return Button {
-            guard !on else { return }
+            guard !on else { onRetap?(item.tab); return }
             withAnimation(reduce ? .easeOut(duration: 0.15) : .spring(response: 0.42, dampingFraction: 0.8)) { selection = item.tab }
         } label: {
             HStack(spacing: 6) {
@@ -56,6 +65,7 @@ struct FloatingTabBar: View {
                     .symbolVariant(on ? .fill : .none)
                     .font(Theme.ui(19, .semibold))
                     .frame(width: 24, height: 24)
+                    .symbolEffect(.bounce, value: on)
                 if on {
                     Text(item.tab.title)
                         .font(Theme.ui(13.5, .bold))
@@ -179,6 +189,13 @@ struct CardReorderSheet: View {
             .navigationTitle(L("Порядок карток").s)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(L("Скинути").s) {
+                        CardOrder.shared.set([])
+                        withAnimation(.smooth) { cards = CardOrder.shared.sorted(cards) }
+                    }
+                    .disabled(CardOrder.shared.ids.isEmpty && cards.first?.isPrimary != false)
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L("Готово").s) {
                         CardOrder.shared.set(cards.map(\.id))

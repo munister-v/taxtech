@@ -334,6 +334,7 @@ struct TextTabs<T: Hashable>: View {
             }
             Spacer(minLength: 0)
         }
+        .sensoryFeedback(.selection, trigger: selection)
     }
 }
 

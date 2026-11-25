@@ -52,6 +52,7 @@ struct OverviewView: View {
                 }
             }
             .scrollIndicators(.hidden)
+            .scrollsToTopOnRetap(.overview)
             .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
                 // крок 0.05: тіло головної не перераховується на кожен піксель прокрутки
                 let e = (min(max(y / 70, 0), 1) * 20).rounded() / 20
@@ -82,6 +83,7 @@ struct OverviewView: View {
             .fullScreenCover(isPresented: $showScan) {
                 QRScanView { code in
                     showScan = false
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     // let the scanner close before the invoice sheet comes up
                     Task { try? await Task.sleep(for: .milliseconds(350)); model.payCode = PayCode(code: code) }
                 }
@@ -273,6 +275,12 @@ struct OverviewView: View {
     }
 
     private func monthPill(_ symbol: String, _ text: String, tint: Color) -> some View {
+        Button { open(.operations) } label: { monthPillBody(symbol, text, tint: tint) }
+            .buttonStyle(PressScale())
+            .accessibilityHint(RootView.AppTab.operations.title)
+    }
+
+    private func monthPillBody(_ symbol: String, _ text: String, tint: Color) -> some View {
         HStack(spacing: 5) {
             Image(systemName: symbol).font(Theme.ui(style: .caption2, .bold)).foregroundStyle(tint)
             Text(text).font(Theme.ui(style: .caption1, .semibold)).monospacedDigit()
@@ -326,6 +334,9 @@ struct OverviewView: View {
                             .frame(width: 70)
                         }
                         .buttonStyle(PressScale())
+                        .contextMenu {
+                            Button(L("Скопіювати номер рахунку").s, systemImage: "doc.on.doc") { model.copy(r.relatedAccount) }
+                        }
                     }
                 }
                 .padding(.horizontal, 18)
@@ -517,14 +528,20 @@ private struct EdgeScrim: View {
 private struct HeroBalance: View {
     let balance: Double?
     let loaded: Bool
+    @Environment(AppModel.self) private var model
     @State private var shown: Double = 0
-    @State private var hidden = false
+    @AppStorage("balanceHidden") private var hidden = false
 
     var body: some View {
         Button { withAnimation(.snappy) { hidden.toggle() } } label: {
             HeroAmount(value: shown, hidden: hidden)
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            if let balance, !hidden {
+                Button(L("Скопіювати баланс").s, systemImage: "doc.on.doc") { model.copy(Format.amount(balance)) }
+            }
+        }
         .accessibilityLabel(hidden ? L("Показати баланс").s : L("Сховати баланс").s)
         .redacted(reason: loaded ? [] : .placeholder)
         .onChange(of: balance, initial: true) { _, v in

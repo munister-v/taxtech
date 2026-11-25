@@ -14,6 +14,8 @@ struct RootView: View {
     @State private var visited: Set<AppTab> = []
     @State private var showScan = false
     @State private var keyboard = false
+    @State private var barHidden = false
+    @State private var retapCount = 0
 
     enum AppTab: Hashable { case lab, overview, operations, cards, taxes, shop, more }
 
@@ -33,7 +35,7 @@ struct RootView: View {
 
     /// The bar stays away from the PIN screen and the keyboard.
     private var barVisible: Bool {
-        !keyboard && !(model.signedIn && pinRequired && !model.bankUnlocked)
+        !keyboard && !barHidden && !(model.signedIn && pinRequired && !model.bankUnlocked)
     }
 
     @ViewBuilder private func content(for tab: AppTab) -> some View {
@@ -65,18 +67,38 @@ struct RootView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.18), value: selection)
+            // вниз по екрану - панель ховається, вгору - повертається
+            .simultaneousGesture(DragGesture(minimumDistance: 24).onChanged { v in
+                guard abs(v.translation.height) > abs(v.translation.width) * 1.4 else { return }
+                let hide = v.translation.height < -30
+                if hide != barHidden, abs(v.translation.height) > 30 { withAnimation(.smooth(duration: 0.3)) { barHidden = hide } }
+            })
+            .onChange(of: selection) { _, _ in withAnimation(.smooth) { barHidden = false } }
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if barVisible {
-                    FloatingTabBar(items: tabs, selection: $selection, onScan: model.signedIn ? { showScan = true } : nil)
+                    FloatingTabBar(items: tabs, selection: $selection,
+                                   onScan: model.signedIn ? { showScan = true } : nil,
+                                   onPaste: model.signedIn ? { pastePayLink() } : nil,
+                                   onRetap: { retapCount += 1; model.retap = TabRetap(tab: $0, n: retapCount); withAnimation(.smooth) { barHidden = false } })
                         .background(alignment: .bottom) { TabBarBackdrop() }
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .modifier(KeyboardWatcher(shown: $keyboard))
             .onChange(of: selection, initial: true) { _, t in visited.insert(t) }
+            .overlay(alignment: .bottom) {
+                if let t = model.toast {
+                    ToastView(text: t, symbol: model.toastSymbol)
+                        .padding(.bottom, 92)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .sensoryFeedback(.success, trigger: t)
+                        .allowsHitTesting(false)
+                }
+            }
             .fullScreenCover(isPresented: $showScan) {
                 QRScanView { code in
                     showScan = false
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
                     // let the scanner close before the invoice sheet comes up
                     Task { try? await Task.sleep(for: .milliseconds(350)); model.payCode = PayCode(code: code) }
                 }
@@ -157,6 +179,15 @@ struct RootView: View {
 }
 
 extension RootView {
+    /// Довге утримання кнопки QR: посилання на оплату з буфера обміну.
+    func pastePayLink() {
+        if let text = UIPasteboard.general.string, let c = PayLink.code(from: text) {
+            model.payCode = PayCode(code: c)
+        } else {
+            model.showToast(L("У буфері немає посилання на оплату").s, symbol: "doc.on.clipboard")
+        }
+    }
+
     func showInvoiceIfReady() {
         guard let code = model.payCode, invoice == nil, pinKnown, !splash, !showConsent else { return }
         if pinRequired && !model.bankUnlocked { return }

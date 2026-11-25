@@ -13,6 +13,12 @@ struct TransactionDetailView: View {
     @State private var copied = false
     @State private var document: API.DocumentRecord?
 
+    /// Підсумок операції для «Поділитися»: без номерів рахунків і персональних даних.
+    private var shareText: String {
+        let when = tx.date.formatted(Date.FormatStyle(date: .long, time: .shortened).locale(Lang.current.locale))
+        return "\(TransactionRow(tx: tx).title)\n\((tx.isIncome ? "+" : "−") + Format.money(tx.amount))\n\(when)\n№ " + String(format: "%08d", tx.id)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -100,7 +106,10 @@ struct TransactionDetailView: View {
             .screenBackground()
             .navigationTitle(L("Операція").s)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } } }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { ShareLink(item: shareText) }
+                ToolbarItem(placement: .confirmationAction) { Button(L("Готово").s) { dismiss() } }
+            }
             .onAppear { note = tx.note ?? "" }
             .task { document = try? await model.api.receiptDocument(tx.id) }
         }

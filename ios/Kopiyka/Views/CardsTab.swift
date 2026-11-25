@@ -38,8 +38,14 @@ struct CardsTab: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 110)
             }
+            .scrollsToTopOnRetap(.cards)
             .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
+            .sensoryFeedback(trigger: cards.map(\.isBlocked)) { old, new in
+                // заморозка - попередження, розморозка - успіх; зміна порядку чи кількості нічого не чіпає
+                let a = old.filter { $0 }.count, b = new.filter { $0 }.count
+                return old.count != new.count || a == b ? nil : (b > a ? .warning : .success)
+            }
             .task { await load() }
             .refreshable { await load() }
             .onChange(of: index) { revealed = nil }
@@ -169,6 +175,12 @@ struct CardsTab: View {
                                 if i < cards.count - 1 { Button(L("Правіше").s, systemImage: "arrow.right") { moveCard(c, to: i + 1) } }
                                 Button(L("Порядок карток").s, systemImage: "arrow.up.arrow.down") { reordering = true }
                             }
+                            if i == index, let n = revealed?.cardNumber {
+                                Button(L("Скопіювати номер картки").s, systemImage: "creditcard") { model.copy(n.filter(\.isNumber)) }
+                            }
+                            if let n = account?.accountNumber {
+                                Button(L("Скопіювати номер рахунку").s, systemImage: "doc.on.doc") { model.copy(n) }
+                            }
                         }
                         .containerRelativeFrame(.horizontal)
                         .scrollTransition(axis: .horizontal) { v, phase in
@@ -206,12 +218,23 @@ struct CardsTab: View {
                 .animation(.smooth, value: index)
             }
             if cards.count > 1 {
-                HStack(spacing: 6) {
+                HStack(spacing: 0) {
                     ForEach(cards.indices, id: \.self) { i in
-                        Capsule().fill(i == index ? Theme.ink : Theme.line).frame(width: i == index ? 26 : 8, height: 4)
-                            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: index)
+                        // точка - кнопка: торкнувся - карусель їде до картки
+                        Button { withAnimation(.smooth) { index = i } } label: {
+                            Capsule().fill(i == index ? Theme.ink : Theme.line).frame(width: i == index ? 26 : 8, height: 4)
+                                .frame(width: i == index ? 34 : 16, height: 28)
+                                .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(Tx("Картка", "Card", "Карта") + " \(i + 1) / \(cards.count)")
                     }
+                    Text("\(index + 1) / \(cards.count)")
+                        .font(Theme.ui(style: .caption1, .semibold)).monospacedDigit().foregroundStyle(.secondary)
+                        .contentTransition(.numericText(value: Double(index)))
+                        .padding(.leading, 6)
                 }
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: index)
             }
         }
         .frame(maxWidth: .infinity)

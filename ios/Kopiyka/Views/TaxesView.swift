@@ -48,6 +48,7 @@ struct TaxesView: View {
                 .padding(.bottom, 32)
             }
             .scrollDismissesKeyboard(.interactively)
+            .scrollsToTopOnRetap(.taxes)
             .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task {
@@ -81,7 +82,7 @@ struct TaxesView: View {
                     VStack(alignment: .trailing, spacing: 3) {
                         Text(next.date.formatted(.dateTime.day().month(.abbreviated).locale(Lang.current.locale)))
                             .font(Theme.ui(style: .subheadline, .semibold))
-                        Text(CalendarPart.left(next.date)).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
+                        Text(CalendarPart.left(next.date)).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(CalendarPart.urgency(next.date))
                     }
                 }
                 .padding(14)
@@ -399,6 +400,12 @@ private struct NewDeductionView: View {
 private struct CalendarPart: View {
     let group: FopGroup?
 
+    /// Чим ближчий строк, тим помітніший підпис: тиждень - червоний, місяць - золотий.
+    static func urgency(_ date: Date) -> Color {
+        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: date).day ?? 99
+        return days <= 7 ? Theme.alert : days <= 30 ? Theme.accent : Color.secondary
+    }
+
     static func left(_ date: Date) -> String {
         let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: date).day ?? 0
         return days == 0 ? L("сьогодні").s : days == 1 ? L("завтра").s : L("за \(days) дн.").s
@@ -429,7 +436,7 @@ private struct CalendarPart: View {
                                     Text(d.detail).font(Theme.ui(style: .footnote)).foregroundStyle(.secondary)
                                 }
                                 Spacer(minLength: 0)
-                                Text(Self.left(d.date)).font(Theme.ui(style: .caption1)).foregroundStyle(.secondary)
+                                Text(Self.left(d.date)).font(Theme.ui(style: .caption1, .semibold)).foregroundStyle(Self.urgency(d.date))
                             }
                             .padding(14)
                         }

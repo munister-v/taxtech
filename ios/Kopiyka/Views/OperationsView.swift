@@ -13,6 +13,8 @@ struct OperationsView: View {
     @State private var selected: API.Transaction?
     @State private var loaded = false
     @State private var topUp = false
+    @State private var recent = RecentSearches.all
+    @FocusState private var searchFocus: Bool
 
     enum Sort: String, CaseIterable { case newest = "Нові", oldest = "Старі", amount = "Сума"
         var label: String { Translator.text(rawValue, []) } }
@@ -78,6 +80,9 @@ struct OperationsView: View {
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 32)
             }
+            .scrollsToTopOnRetap(.operations)
+            .scrollDismissesKeyboard(.interactively)
+            .sensoryFeedback(.selection, trigger: period)
             .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .task(id: "\(filter.search)|\(filter.direction ?? "")") {
@@ -122,10 +127,44 @@ struct OperationsView: View {
     }
 
     private var search: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            searchField
+            if searchFocus, filter.search.isEmpty, !recent.isEmpty { recentChips }
+        }
+        .animation(.snappy, value: searchFocus)
+    }
+
+    /// Недавні запити: торкнутися - підставити, хрестик - стерти всі.
+    private var recentChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(recent, id: \.self) { q in
+                    Button { filter.search = q } label: {
+                        Label(q, systemImage: "clock.arrow.circlepath")
+                            .font(Theme.ui(style: .footnote, .medium))
+                            .padding(.horizontal, 12).frame(height: 32)
+                            .glassCapsule().foregroundStyle(Theme.ink)
+                    }
+                    .buttonStyle(PressScale())
+                }
+                Button { RecentSearches.clear(); recent = [] } label: {
+                    Image(systemName: "xmark").font(Theme.ui(style: .caption1, .bold))
+                        .frame(width: 32, height: 32).glassCircle().foregroundStyle(.secondary)
+                }
+                .buttonStyle(PressScale())
+                .accessibilityLabel(L("Очистити").s)
+            }
+        }
+    }
+
+    private var searchField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
             TextField(L("Пошук транзакцій…").s, text: $filter.search)
                 .autocorrectionDisabled()
+                .submitLabel(.search)
+                .focused($searchFocus)
+                .onSubmit { recent = RecentSearches.add(filter.search) }
             if !filter.search.isEmpty {
                 Button { filter.search = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(.tertiary) }
                     .buttonStyle(.plain)
@@ -335,5 +374,14 @@ struct OperationsView: View {
     private func row(_ tx: API.Transaction) -> some View {
         Button { selected = tx } label: { ActivityRow(tx: tx).contentShape(.rect) }
             .buttonStyle(RowPress())
+            .contextMenu {
+                Button(L("Скопіювати суму").s, systemImage: "doc.on.doc") { model.copy(Format.amount(tx.amount)) }
+                if let r = tx.relatedAccount {
+                    Button(L("Скопіювати отримувача").s, systemImage: "person.crop.circle") { model.copy(BankText.recipient(r)) }
+                    Button(L("Усі операції з ним").s, systemImage: "magnifyingglass") {
+                        withAnimation(.snappy) { filter.search = r }
+                    }
+                }
+            }
     }
 }

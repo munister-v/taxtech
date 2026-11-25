@@ -93,6 +93,10 @@ struct SettingsSheet: View {
                         .background(Theme.surface, in: .rect(cornerRadius: 22, style: .continuous))
                         .goldEdge(22)
                     }
+                    Text(Brand.name + " " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+                         + " (" + (Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "") + ")")
+                        .font(Theme.ui(style: .footnote)).foregroundStyle(.tertiary).monospacedDigit()
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, Theme.gutter)
                 .padding(.bottom, 32)

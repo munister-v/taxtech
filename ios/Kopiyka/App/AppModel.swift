@@ -37,6 +37,12 @@ final class AppModel {
     var payCode: PayCode?
     /// Bumped after a payment made outside the overview (QR), so the screens that show money reload.
     var syncTick = 0
+    /// Коротка підказка над панеллю вкладок (див. `showToast`).
+    var toast: String?
+    var toastSymbol = "checkmark.circle.fill"
+    @ObservationIgnored var toastTask: Task<Void, Never>?
+    /// Повторне торкання вибраної вкладки.
+    var retap: TabRetap?
 
     /// Згода надсилати текст (уже без особистих даних) мовній моделі на сервері.
     /// Правило App Store 5.1.2: передачу даних сторонньому ІІ треба пояснити й отримати дозвіл.
