@@ -40,6 +40,7 @@ struct CardsTab: View {
                 .padding(.bottom, 110)
             }
             .scrollsToTopOnRetap(.cards)
+            .scrimOnScroll()
             .auroraBackground()
             .toolbar(.hidden, for: .navigationBar)
             .sensoryFeedback(trigger: cards.map(\.isBlocked)) { old, new in

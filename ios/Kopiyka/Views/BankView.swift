@@ -31,7 +31,9 @@ final class BankModel {
             cards = cards.filter { !$0.isClosed }
             error = nil
         } catch {
-            self.error = error.localizedDescription
+            // екран закрився (замок, перехід) і скасував завантаження: це не збій сервера
+            let cancelled = error is CancellationError || (error as? URLError)?.code == .cancelled
+            if !cancelled { self.error = error.localizedDescription }
         }
         deposits = ((try? await d) ?? []).filter(\.isActive)
         credits = ((try? await k) ?? []).filter(\.isActive)

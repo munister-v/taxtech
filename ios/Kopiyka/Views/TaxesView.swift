@@ -49,6 +49,7 @@ struct TaxesView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollsToTopOnRetap(.taxes)
+            .scrimOnScroll()
             .auroraBackground(warm: Theme.auraGold, cool: Theme.teal)
             .toolbar(.hidden, for: .navigationBar)
             .task {

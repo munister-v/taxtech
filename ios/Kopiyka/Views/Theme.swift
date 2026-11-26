@@ -246,6 +246,24 @@ extension View {
     }
 }
 
+extension View {
+    /// Затемнення під годинником з'являється лише тоді, коли контент поїхав угору: у спокої тло йде під рядок стану.
+    func scrimOnScroll() -> some View { modifier(ScrollScrim()) }
+}
+
+private struct ScrollScrim: ViewModifier {
+    @State private var edge = ScrollEdge()
+
+    func body(content: Content) -> some View {
+        content
+            .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y + $0.contentInsets.top } action: { _, y in
+                let e = (min(max(y / 70, 0), 1) * 20).rounded() / 20
+                if e != edge.value { edge.value = e }
+            }
+            .overlay(alignment: .top) { EdgeScrim(edge: edge) }
+    }
+}
+
 /// Затухання тла під рядком стану: заголовки не налазять на годинник при прокрутці.
 struct TopFade: View {
     var body: some View {

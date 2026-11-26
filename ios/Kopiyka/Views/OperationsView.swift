@@ -81,6 +81,7 @@ struct OperationsView: View {
                 .padding(.bottom, 32)
             }
             .scrollsToTopOnRetap(.operations)
+            .scrimOnScroll()
             .scrollDismissesKeyboard(.interactively)
             .sensoryFeedback(.selection, trigger: period)
             .auroraBackground(warm: Theme.amber, cool: Theme.auraBronze)

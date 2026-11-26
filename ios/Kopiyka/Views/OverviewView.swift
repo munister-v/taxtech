@@ -116,7 +116,7 @@ struct OverviewView: View {
         if let v = try? await r { recipients = v }
         unread = (try? await u) ?? 0
         await b
-        model.serverTrouble = bank.error != nil
+        if !Task.isCancelled { model.serverTrouble = bank.error != nil }
         if Build.shop, hits.isEmpty {
             hits = ((try? await model.api.catalog(search: "", page: 1, sort: "stock", perPage: 40))?.items ?? [])
                 .filter { ["HOT", "TOP", "NEW"].contains($0.badge ?? "") }
@@ -529,7 +529,7 @@ struct OverviewView: View {
 @MainActor @Observable
 final class ScrollEdge { var value: CGFloat = 0 }
 
-private struct EdgeScrim: View {
+struct EdgeScrim: View {
     let edge: ScrollEdge
     var body: some View { Color.clear.frame(height: 0).frame(maxWidth: .infinity).statusScrim(edge.value) }
 }

@@ -111,7 +111,7 @@ struct RootView: View {
                     Task { try? await Task.sleep(for: .milliseconds(350)); model.payCode = PayCode(code: code) }
                 }
             }
-            .overlay(alignment: .top) { if selection != .overview && selection != .lab && selection != .more { TopFade() } }
+            .overlay(alignment: .top) { if selection == .shop { TopFade() } }
             }
         }
         .tint(Theme.accent)
