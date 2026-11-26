@@ -163,17 +163,9 @@ struct OverviewView: View {
 
             VStack(spacing: 8) {
                 HeroBalance(balance: bank.account?.balance, loaded: bank.loaded)
-                if let m = summary?.currentMonth, m.totalIn > 0 || m.totalOut > 0 {
-                    HStack(spacing: 8) {
-                        monthPill("arrow.down.left", Self.compact(m.totalIn), tint: Theme.income)
-                        monthPill("arrow.up.right", Self.compact(m.totalOut), tint: Theme.expense)
-                    }
-                    .transition(.opacity)
-                }
             }
             .padding(.top, 26)
             .frame(maxWidth: .infinity)
-            .animation(.smooth, value: summary?.currentMonth.totalOut)
             .rise(1)
 
             heroCard.padding(.top, 24).rise(2)
@@ -282,23 +274,6 @@ struct OverviewView: View {
     private var initials: String? {
         let l = DisplayName.initials(me?.fullName)
         return l.isEmpty ? nil : l
-    }
-
-    private func monthPill(_ symbol: String, _ text: String, tint: Color) -> some View {
-        Button { open(.operations) } label: { monthPillBody(symbol, text, tint: tint) }
-            .buttonStyle(PressScale())
-            .accessibilityHint(RootView.AppTab.operations.title)
-    }
-
-    private func monthPillBody(_ symbol: String, _ text: String, tint: Color) -> some View {
-        HStack(spacing: 5) {
-            Image(systemName: symbol).font(Theme.ui(style: .caption2, .bold)).foregroundStyle(tint)
-            Text(text).font(Theme.ui(style: .caption1, .semibold)).monospacedDigit()
-        }
-        .foregroundStyle(Theme.ink)
-        .padding(.horizontal, 10)
-        .frame(height: 28)
-        .glassCapsule()
     }
 
     // MARK: Картки під шапкою
