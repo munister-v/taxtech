@@ -8,12 +8,15 @@
 .bl .ch-reel i:first-child { opacity: 1; animation-name: ch-reel-first; }
 @keyframes ch-reel { 0% { opacity: 0; transform: scale(1.02); } 5% { opacity: 1; } 25% { opacity: 1; } 31% { opacity: 0; transform: scale(1.1); } 100% { opacity: 0; transform: scale(1.1); } }
 @keyframes ch-reel-first { 0% { opacity: 1; transform: scale(1.02); } 25% { opacity: 1; } 31% { opacity: 0; transform: scale(1.1); } 94% { opacity: 0; transform: scale(1.02); } 100% { opacity: 1; transform: scale(1.02); } }
-.bl .ch-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.05) 34%, rgba(0,0,0,.18) 56%, rgba(0,0,0,.86) 100%); }
+.bl .ch-shade { position: absolute; inset: 0; pointer-events: none; background:
+  radial-gradient(70% 34% at 50% 82%, rgba(0,0,0,.5) 0%, rgba(0,0,0,0) 100%),
+  linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.05) 34%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.9) 100%); }
 .bl .ch-title { position: absolute; left: 0; right: 0; bottom: clamp(56px, 11vh, 112px); display: grid; justify-items: center; gap: clamp(20px, 3.4vh, 34px); text-align: center; padding: 0 22px;
   animation: ch-up .9s cubic-bezier(.2,.7,.2,1) .15s both; }
 @keyframes ch-up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
 .bl .ch-title h1 { font-size: clamp(54px, 8.4vw, 116px); line-height: 1; letter-spacing: -0.045em; text-shadow: 0 4px 44px rgba(0,0,0,.7); }
-.bl .ch-gold { background: linear-gradient(180deg, #fff3d2 0%, var(--gold-l) 52%, #cfa862 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bl .ch-gold { background: linear-gradient(180deg, #fff8e6 0%, #f2d79c 48%, #e0b866 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none; filter: drop-shadow(0 4px 28px rgba(0,0,0,.65)); }
 .bl .ch-cap { position: absolute; left: 0; right: 0; bottom: clamp(22px, 4vh, 40px); margin: 0; }
 @media (max-width: 700px) {
   .bl .ch-title h1 { font-size: clamp(50px, 16vw, 76px); }
@@ -37,7 +40,10 @@
 .bl .cp-cap i { flex: none; width: 34px; height: 1px; background: rgba(255,255,255,.3); }
 
 @media (max-width: 700px) {
-  .bl .cp-frame, .bl .cp-tall .cp-frame { height: 68svh; }
+  /* full-bleed on the phone: a 68svh photo left a black band under it on every plate */
+  .bl .cp { padding: 0; }
+  .bl .cp-frame, .bl .cp-tall .cp-frame { height: 100svh; min-height: 520px; }
+  .bl .cp-text { bottom: clamp(48px, 10svh, 96px); }
   .bl .cp-cap { font-size: 11px; letter-spacing: .2em; gap: 10px; }
   .bl .cp-cap i { width: 20px; }
 }
@@ -53,7 +59,7 @@
 .bl .as .as-pills button:focus-visible { outline: 2px solid #ffd400; outline-offset: 3px; border-radius: 6px; }
 
 /* ── About under the metro platform: one centred column - a paragraph, the article, the author ── */
-.bl .ah { display: grid; justify-items: center; gap: clamp(28px, 4vw, 44px); padding-bottom: clamp(72px, 9vw, 120px); text-align: center; }
+.bl .ah { display: grid; justify-items: center; gap: clamp(28px, 4vw, 44px); padding-bottom: clamp(40px, 5vw, 64px); text-align: center; }
 .bl .ah-lead { max-width: 620px; font-size: clamp(18px, 1.7vw, 22px); line-height: 1.55; color: #d6cfbf; }
 .bl .ah-art { display: grid; justify-items: center; gap: 16px; width: min(100%, 440px); transition: transform .25s; }
 .bl .ah-art:hover { transform: translateY(-3px); }
